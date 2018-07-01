@@ -320,12 +320,6 @@ public class SequenceVirtual extends Sequence
 								
 			}
 			else if (status == Status.AVIFILE) {
-//				try {
-//					buf =  aviFile.getBufferedImage(t);
-//				} catch (IOException e) {
-//					// TODO Auto-generated catch block
-//					e.printStackTrace();
-//				}
 				buf = aviFile.getImage(t);
 			}
 			ibufImage=  IcyBufferedImage.createFrom(buf);

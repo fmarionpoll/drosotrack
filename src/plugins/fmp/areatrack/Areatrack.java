@@ -56,7 +56,7 @@ import icy.util.XLSUtil;
 import jxl.write.WritableSheet;
 import jxl.write.WritableWorkbook;
 import jxl.write.WriteException;
-
+import plugins.fmp.sequencevirtual.ImageTransform;
 import plugins.fmp.sequencevirtual.SequenceVirtual;
 import plugins.fmp.sequencevirtual.ThresholdOverlay;
 import plugins.fmp.sequencevirtual.Tools;
@@ -79,8 +79,8 @@ public class Areatrack extends PluginActionable implements ActionListener, Chang
 	private JTextField startFrameTextField	= new JTextField("0");
 	private JTextField endFrameTextField	= new JTextField("99999999");
 	
-	private String[] 	availableTransforms 	= new String[] {"(G+B)/2-R", "XDiffn", "XYDiffn", "R", "G", "B","H(HSB)", "S(HSB)", "B(HSB)"};
-	private JComboBox<String> transformForLevelsComboBox = new JComboBox<String> (availableTransforms);
+	//private String[] availableTransforms 	= new String[] {"(G+B)/2-R", "XDiffn", "XYDiffn", "R", "G", "B","H(HSB)", "S(HSB)", "B(HSB)"};
+	private JComboBox<String> transformForLevelsComboBox; // = new JComboBox<String> (availableTransforms);
 	private int tdefault = 5;
 	//private JComboBox<String> colorChannelComboBox = new JComboBox<String> (new String[] {"All", "Red", "Green", "Blue"});
 	private JComboBox<String> backgroundComboBox = new JComboBox<String> (new String[] {"none", "frame n-1", "frame 0"});
@@ -191,6 +191,7 @@ public class Areatrack extends PluginActionable implements ActionListener, Chang
 		analysisPanel.add( GuiUtil.besidesPanel(thresholdedImageCheckBox));
 		JLabel videochannel = new JLabel("source data ");
 		videochannel.setHorizontalAlignment(SwingConstants.RIGHT);
+		transformForLevelsComboBox = new JComboBox<String> (ImageTransform.getAvailableTransforms());
 		analysisPanel.add( GuiUtil.besidesPanel( videochannel, transformForLevelsComboBox));
 		transformForLevelsComboBox.setSelectedIndex(tdefault);
 		JLabel backgroundsubtraction = new JLabel("background substraction ");
