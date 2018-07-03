@@ -113,6 +113,7 @@ class AreaAnalysisThread extends Thread
 		try {
 			final Viewer v = Icy.getMainInterface().getFirstViewer(vSequence);	
 			vSequence.beginUpdate();
+			ImageTransform transformImg = new ImageTransform();
 					
 			// ----------------- loop over all images of the stack
 
@@ -123,7 +124,7 @@ class AreaAnalysisThread extends Thread
 
 				// load next image and compute threshold
 				//IcyBufferedImage workImage = vinputSequence.loadVImageTransf(t, transf); 
-				IcyBufferedImage workImage = ImageTransform.transformImage(vSequence.loadVImage(t), transf); 
+				IcyBufferedImage workImage = transformImg.transformImage(vSequence.loadVImage(t), transf); 
 				
 				vSequence.currentFrame = t;
 				v.setPositionT(t);

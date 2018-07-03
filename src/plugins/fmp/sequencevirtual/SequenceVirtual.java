@@ -36,10 +36,10 @@ import plugins.kernel.roi.roi2d.ROI2DShape;
 public class SequenceVirtual extends Sequence 
 {
 
-	private XugglerAviFile aviFile = null;
+	private XugglerAviFile 	aviFile = null;
 	private String [] 		listFiles = null;
 	private String 			csFileName = null;
-	private final static String[] acceptedTypes = {".jpg", ".jpeg"};
+	private final static String[] acceptedTypes = {".jpg", ".jpeg", ".bmp"};
 	private String			directory = null;
 	private static final String XML_KEY_ID = "ID";
 	private IcyBufferedImage refImage = null;
@@ -164,7 +164,7 @@ public class SequenceVirtual extends Sequence
 
 	public IcyBufferedImage getImageTransf(int t, int z, int c, int transform) 
 	{
-		setVImageName(t);
+		//setVImageName(t);
 		IcyBufferedImage image =  loadVImageTransf(t, transform);
 		if (image != null && c != -1)
 			image = IcyBufferedImageUtil.extractChannel(image, c);
