@@ -104,6 +104,7 @@ public class Areatrack extends PluginActionable implements ActionListener, Chang
 	private int numberOfImageForBuffer = 100;
 	private AreaAnalysisThread analysisThread = null;
 	ThresholdOverlay ov = null;
+	ImageTransform imgTransf = new ImageTransform();
 	
 	// --------------------------------------------------------------------------
 	@Override
@@ -191,7 +192,7 @@ public class Areatrack extends PluginActionable implements ActionListener, Chang
 		analysisPanel.add( GuiUtil.besidesPanel(thresholdedImageCheckBox));
 		JLabel videochannel = new JLabel("source data ");
 		videochannel.setHorizontalAlignment(SwingConstants.RIGHT);
-		transformForLevelsComboBox = new JComboBox<String> (ImageTransform.getAvailableTransforms());
+		transformForLevelsComboBox = new JComboBox<String> (imgTransf.getAvailableTransforms());
 		analysisPanel.add( GuiUtil.besidesPanel( videochannel, transformForLevelsComboBox));
 		transformForLevelsComboBox.setSelectedIndex(tdefault);
 		JLabel backgroundsubtraction = new JLabel("background substraction ");
