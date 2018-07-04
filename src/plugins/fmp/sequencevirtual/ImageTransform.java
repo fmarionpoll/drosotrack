@@ -19,6 +19,7 @@ public class ImageTransform {
 			"subtract n-1",
 			"subtract ref"
 			};
+	public enum transformOp  { GBmR, BRmG, XDiffn, XYDiffn, R_fromRGB, G_fromRGB, B_fromRGB, H_fromHSB, S_fromHSB, B_fromHSB, SubT0, SubNm1, SubRef	}
 	private IcyBufferedImage referenceImage = null;
 	private int spanDiffTop = 3;	// adjust this parameter eventually through user's interface
 	private int	spanDiffTransf2 = 3;
@@ -34,53 +35,25 @@ public class ImageTransform {
 		referenceImage = IcyBufferedImageUtil.getCopy(img);
 	}
 	
-	public IcyBufferedImage transformImage (IcyBufferedImage img, int transform) {
+	public IcyBufferedImage transformImage (IcyBufferedImage img, transformOp transf) {
 		
 		img2 = IcyBufferedImageUtil.getCopy(img);
 		
-		switch (transform) {
-		case 1: // "(G+B)/2-R" 
-			functionRGB_sumGBMinus2R(img);
-			break;
-		case 2: // "(B+R)/2-G",
-			functionRGB_sumBRMinus2G (img);
-			break;
-		case 3: //"XDiffn", 
-			computeXDiffn (img);
-			break;
-		case 4: //"XYDiffn",
-			computeXYDiffn (img);
-			break;
-		case 5: //"R", 
-			functionRGB_RorGorB(img, 0);
-			break;
-		case 6: //"G", 
-			functionRGB_RorGorB(img, 1);
-			break;
-		case 7: //"B",
-			functionRGB_RorGorB(img, 2);
-			break;
-		case 8: //"H(HSB)", 
-			functionRGB_HorSorB(img, 0);
-			break;
-		case 9: //"S(HSB)", 
-			functionRGB_HorSorB(img, 1);
-			break;
-		case 10: //"B(HSB)",
-			functionRGB_HorSorB(img, 2);
-			break;
-		case 11: //"subtract t0",
-			functionSubtractRef(img);
-			break;
-		case 12: //"subtract n-1",
-			functionSubtractRef(img);
-			break;
-		case 13: //"subtract ref"
-			functionSubtractRef(img);
-			break;
-		default:
-			IcyBufferedImageUtil.getCopy(img);
-			break;
+		switch (transf) {
+		case GBmR: 	functionRGB_sumGBMinus2R(img); 	break;
+		case BRmG: functionRGB_sumBRMinus2G (img); break;
+		case XDiffn: computeXDiffn (img); break;
+		case XYDiffn: computeXYDiffn (img); break;
+		case R_fromRGB: functionRGB_RorGorB(img, 0); break;
+		case G_fromRGB: functionRGB_RorGorB(img, 1); break;
+		case B_fromRGB: functionRGB_RorGorB(img, 2); break;
+		case H_fromHSB: functionRGB_HorSorB(img, 0); break;
+		case S_fromHSB: functionRGB_HorSorB(img, 1); break;
+		case B_fromHSB: functionRGB_HorSorB(img, 2); break;
+		case SubT0: functionSubtractRef(img); break;
+		case SubNm1: functionSubtractRef(img); break;
+		case SubRef: functionSubtractRef(img); break;
+		default: IcyBufferedImageUtil.getCopy(img); break;
 		}
 		return img2;
 	}
