@@ -43,6 +43,7 @@ public class SequenceVirtual extends Sequence
 	private String			directory = null;
 	private static final String XML_KEY_ID = "ID";
 	private IcyBufferedImage refImage = null;
+	private ThresholdOverlay tov;
 	
 	public String	sourceFile = null;
 	public enum Status { AVIFILE, FILESTACK, REGULAR, FAILURE };
@@ -63,7 +64,6 @@ public class SequenceVirtual extends Sequence
 	public ArrayList <ROI2DShape> capillariesArrayList 	= new ArrayList <ROI2DShape>();			// list of ROIs describing capillaries (e.g. profiles to follow)
 	public XYSeries[] results = null;
 	public XYSeries[] pixels = null;
-	
 	
 	// ----------------------------------------
 	public SequenceVirtual () 
@@ -146,21 +146,23 @@ public class SequenceVirtual extends Sequence
 			image = IcyBufferedImageUtil.extractChannel(image, c);
 		return image;
 	}
-	
-//	@Override
-//	public IcyBufferedImage getImage(int t, int z)
-//	{
-//		IcyBufferedImage image;
-//		if (t == currentFrame) {
-//			image = super.getImage(t, 0);
-//		}
-//		else
-//		{
-//		  image =  loadVImage(t);
-//		}
-//		setVImageName(t);
-//		return image;
-//	}
+
+	/*
+	@Override
+	public IcyBufferedImage getImage(int t, int z)
+	{
+		IcyBufferedImage image;
+		if (t == currentFrame) {
+			image = super.getImage(t, 0);
+		}
+		else
+		{
+		  	image =  loadVImage(t);
+		}
+		setVImageName(t);
+		return image;
+	}
+	*/
 
 	public IcyBufferedImage getImageTransf(int t, int z, int c, int transform) 
 	{
@@ -323,6 +325,10 @@ public class SequenceVirtual extends Sequence
 				buf = aviFile.getImage(t);
 			}
 			ibufImage=  IcyBufferedImage.createFrom(buf);
+//			if (imageTransformSelected != 0) 
+//			{
+//				ibufImage = imgTransf.transformImage(ibufImage, imageTransformSelected);
+//			}
 		}	
 		return ibufImage;
 	}
@@ -767,4 +773,12 @@ public class SequenceVirtual extends Sequence
 		return pixels;
 	}
 
+	public void setThresholdOverlay(ThresholdOverlay ov) 
+	{
+		tov = ov;
+	}
+	
+	public ThresholdOverlay getThresholdOverlay() {
+		return tov;
+	}
 }

@@ -111,7 +111,8 @@ class AreaAnalysisThread extends Thread
 		Collections.sort(areaROIList, new Tools.ROI2DNameComparator());
 
 		try {
-			final Viewer v = Icy.getMainInterface().getFirstViewer(vSequence);	
+			final Viewer v = Icy.getMainInterface().getFirstViewer(vSequence);
+			ThresholdOverlay tov = vSequence.getThresholdOverlay();
 			vSequence.beginUpdate();
 			ImageTransform transformImg = new ImageTransform();
 					
@@ -123,16 +124,14 @@ class AreaAnalysisThread extends Thread
 				updateProgressionBar (t, nbframes, chrono, progress);
 
 				// load next image and compute threshold
-				//IcyBufferedImage workImage = vinputSequence.loadVImageTransf(t, transf); 
 				IcyBufferedImage workImage = transformImg.transformImage(vSequence.loadVImage(t), transf); 
-				
 				vSequence.currentFrame = t;
 				v.setPositionT(t);
 				v.setTitle(vSequence.getVImageName(t));
 
 				// ------------------------ compute global mask
-				boolean[] maskAll = ThresholdOverlay.getBinaryOverThreshold(workImage, t, ichanselected, threshold, null);
-				BooleanMask2D maskAll2D = new BooleanMask2D( workImage.getBounds(), maskAll); 
+				tov.getBinaryOverThresholdFromDoubleImage(workImage, threshold);
+				BooleanMask2D maskAll2D = new BooleanMask2D( workImage.getBounds(), tov.boolMap); 
 				
 				// ------------------------ loop over all the cages of the stack
 				for (int imask = 0; imask < areaMaskList.size(); imask++ )

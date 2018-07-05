@@ -8,6 +8,7 @@ import icy.type.collection.array.Array1DUtil;
 
 public class ImageTransform {
 	private String[] availableTransforms 	= new String[] {
+			"RGB",
 			"(G+B)/2-R", 
 			"(B+R)/2-G",
 			"XDiffn", "XYDiffn", 
@@ -20,7 +21,7 @@ public class ImageTransform {
 
 
 	public enum TransformOp {
-		GBmR ("(G+B)/2-R"), BRmG("(B+R)/2-G"), XDIFFN("XDiffn"), XYDIFFN( "XYDiffn"), 
+		RGBall("RGB"), GBmR ("(G+B)/2-R"), BRmG("(B+R)/2-G"), XDIFFN("XDiffn"), XYDIFFN( "XYDiffn"), 
 		R_RGB("R(RGB)"), G_RGB("G(RGB)"), B_RGB("B(RGB)"), Grey_RGB("Grey(R+G+B)/3"), H_HSB ("H(HSB)"), S_HSB ("S(HSB)"), B_HSB("B(HSB)"), 
 		REFt0("subtract t0"), REFn("subtract n-1"), REF("subtract ref");
 		private String label;
@@ -54,6 +55,7 @@ public class ImageTransform {
 		img2 = IcyBufferedImageUtil.getCopy(img);
 		
 		switch (transform) {
+		case 0: break;
 		case 1: functionRGB_sumC1C2Minus2C3(img, 1, 2, 0); break;
 		case 2: functionRGB_sumC1C2Minus2C3 (img, 0, 2, 1); break;
 		case 3: computeXDiffn (img); break;
@@ -62,9 +64,9 @@ public class ImageTransform {
 		case 6: functionRGB_keepOneChan(img, 1); break;
 		case 7: functionRGB_keepOneChan(img, 2); break;
 		case 8: functionRGB_grey(img); break;
-		case 9: functionRGB_HorSorB(img, 0); break;
-		case 10: functionRGB_HorSorB(img, 1); break;
-		case 11: functionRGB_HorSorB(img, 2); break;
+		case 9: functionRGB_HSB(img, 0); break;
+		case 10: functionRGB_HSB(img, 1); break;
+		case 11: functionRGB_HSB(img, 2); break;
 		case 12: functionSubtractRef(img); break;
 		case 13: functionSubtractRef(img); break;
 		case 14: functionSubtractRef(img); break;
@@ -224,7 +226,7 @@ public class ImageTransform {
 		}
 	}
 	
-	private void functionRGB_HorSorB(IcyBufferedImage sourceImage, int HorSorB) {
+	private void functionRGB_HSB(IcyBufferedImage sourceImage, int HorSorB) {
 		
 		double[] tabValuesR = sourceImage.getDataXYAsDouble(0);
 		double[] tabValuesG = sourceImage.getDataXYAsDouble(1);

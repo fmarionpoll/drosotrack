@@ -218,11 +218,13 @@ public class Areatrack extends PluginActionable implements ActionListener, Chang
 		updateChartsButton.addActionListener(this);
 		transformForLevelsComboBox.addActionListener(new ActionListener () {
 			@Override
-			public void actionPerformed( final ActionEvent e ) { updateOverlay(); 
+			public void actionPerformed( final ActionEvent e ) { 
+				updateOverlay(); 
 			} } );
 		backgroundComboBox.addActionListener(new ActionListener () {
 			@Override
-			public void actionPerformed( final ActionEvent e ) { updateOverlay(); 
+			public void actionPerformed( final ActionEvent e ) { 
+				updateOverlay(); 
 			} } );
 		exportToXLSButton.addActionListener(this);
 		closeAllButton.addActionListener(new ActionListener () {
@@ -339,14 +341,17 @@ public class Areatrack extends PluginActionable implements ActionListener, Chang
 		else if (o == thresholdedImageCheckBox && (vSequence != null))  {
 
 			if (thresholdedImageCheckBox.isSelected()) {
-				if (ov == null)
+				if (ov == null) {
 					ov = new ThresholdOverlay();
+					vSequence.setThresholdOverlay(ov);
+				}
 				vSequence.threshold = Integer.parseInt(thresholdSpinner.getValue().toString());
 				vSequence.addOverlay(ov);
 				updateOverlay();
 			}
 			else {
 				vSequence.removeOverlay(ov);
+				vSequence.setThresholdOverlay(null);
 			}
 		}
 		
@@ -361,18 +366,17 @@ public class Areatrack extends PluginActionable implements ActionListener, Chang
 			if (file != null) {
 				ThreadUtil.bgRun( new Runnable() { 	
 					@Override
-					public void run() {
-						final String filename = file;
-						exportToXLS(filename);}
-				});
+					public void run() { final String filename = file; exportToXLS(filename);}
+					});
+				}
 			}
-		}
 	}
 	
 	private void updateOverlay () {
+
 		if (ov == null) {
 			ov = new ThresholdOverlay();
-			vSequence.addOverlay(ov);
+			vSequence.setThresholdOverlay(ov);
 		}
 		ov.setThresholdOverlayParameters( vSequence,
 				thresholdedImageCheckBox.isSelected(), 

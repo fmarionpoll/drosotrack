@@ -16,8 +16,8 @@ import icy.type.point.Point5D;
 
 public class ThresholdOverlay extends Overlay
 {
-	//private IcyBufferedImage binaryMap = null;
-	private boolean [] boolMap;
+	
+	public boolean [] boolMap;
 	private IcyBufferedImage binaryMap = null;
 	private int t_binaryFrame = -1;
 	private int t_threshold = -1;
@@ -26,6 +26,8 @@ public class ThresholdOverlay extends Overlay
 	int chan = 0;
 	int transf = 0;
 	SequenceVirtual vinputSequence 	= null;
+	public ImageTransform imgTransf = new ImageTransform(); 
+	public int imageTransformSelected = 0;
 	
 	public ThresholdOverlay()
 	{
@@ -41,41 +43,35 @@ public class ThresholdOverlay extends Overlay
 		vinputSequence = sseq;
 	}
 
-	static public boolean[] getBinaryOverThreshold(IcyBufferedImage img, int t, int chan, int threshold, boolean[] maskAll) {
+	public void getBinaryOverThresholdFromDoubleImage(IcyBufferedImage img, int threshold) {
 		
-		if (maskAll == null)
-			maskAll = new boolean[ img.getSizeX() * img.getSizeY() ];
+		if (boolMap == null)
+			boolMap = new boolean[ img.getSizeX() * img.getSizeY() ];
+		if (binaryMap == null) 
+			binaryMap = new IcyBufferedImage(img.getSizeX(), img.getSizeY(), 1, DataType.UBYTE);
 		
-		if (chan >= 0) {
-			final byte[] imageSourceDataBuffer = img.getDataXYAsByte(chan);
-			for (int x = 0; x < maskAll.length; x++)  {
-				int val = imageSourceDataBuffer[x] & 0xFF;
-				if (val > threshold)
-					maskAll[x] = false;
-				else
-					maskAll[x] = true;
-			}
-		}
-		else if (chan < 0) {
-			final byte[] arrayRed = img.getDataXYAsByte(0);
-			final byte[] arrayGreen = img.getDataXYAsByte(1);
-			final byte[] arrayBlue = img.getDataXYAsByte(2);
-			
-			for (int x = 0; x < maskAll.length; x++)  
-			{
-				float red = ( arrayRed[x] & 0xFF );
-				float green = ( arrayGreen[x] & 0xFF );
-				float blue = ( arrayBlue[x] & 0xFF );
-				float val = (red+green+blue)/3f;
+		int chan = 0;
+		final byte[] imageSourceDataBuffer = img.getDataXYAsByte(chan);
+		for (int x = 0; x < boolMap.length; x++)  {
+			int val = imageSourceDataBuffer[x] & 0xFF;
+			if (val > threshold)
+				boolMap[x] = false;
+			else
+				boolMap[x] = true;
+		}		
+	}
+	
+	void convertBoolMapIntoBinaryMap() {
 
-				if (val > threshold)
-					maskAll[x] = false;
-				else
-					maskAll[x] = true;	
-			}
+		byte[] binaryMapDataBuffer = binaryMap.getDataXYAsByte(0);
+		byte val;
+		for (int i= 0; i< binaryMapDataBuffer.length; i++)
+		{
+			val = (byte) 0xFF;
+			if (boolMap[i])
+				val = 0;
+			binaryMapDataBuffer[i] = val;
 		}
-			
-		return maskAll;
 	}
 	
 	@Override
@@ -93,26 +89,10 @@ public class ThresholdOverlay extends Overlay
 
 					t_binaryFrame = vinputSequence.getT();
 					t_threshold = threshold;
-					int z = 0;
-					int c = -1;
-					IcyBufferedImage bufImage = vinputSequence.getImageTransf(vinputSequence.currentFrame, z, c, transf); 
-					boolMap = getBinaryOverThreshold(bufImage, 
-							t_binaryFrame, 
-							chan, 
-							threshold, 
-							boolMap);
-					
-					if (binaryMap == null)
-						binaryMap = new IcyBufferedImage(bufImage.getWidth(), bufImage.getHeight(), 1, DataType.UBYTE);
-					byte[] binaryMapDataBuffer = binaryMap.getDataXYAsByte(0);
-					byte val;
-					for (int i= 0; i< binaryMapDataBuffer.length; i++)
-					{
-						val = (byte) 0xFF;
-						if (boolMap[i])
-							val = 0;
-						binaryMapDataBuffer[i] = val;
-					}
+					int t = vinputSequence.currentFrame;
+					IcyBufferedImage bufImage = imgTransf.transformImage(vinputSequence.loadVImage(t), transf);
+					getBinaryOverThresholdFromDoubleImage(bufImage, threshold);
+					convertBoolMapIntoBinaryMap();
 				}
 
 				if (boolMap != null) {
