@@ -253,9 +253,14 @@ public class SequenceVirtual extends Sequence
 		return (status == Status.FILESTACK);
 	}
 	
-	public String loadInputVirtualStack() {
+	public String loadInputVirtualStack(String path) {
 
 		LoaderDialog dialog = new LoaderDialog(false);
+		if (path != null)
+		{
+			File dir = new File(path);
+			dialog.setCurrentDirectory(dir);
+		}
 	    File[] selectedFiles = dialog.getSelectedFiles();
 	    if (selectedFiles.length == 0)
 	    	return null;

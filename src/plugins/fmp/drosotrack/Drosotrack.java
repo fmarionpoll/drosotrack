@@ -277,7 +277,7 @@ public class Drosotrack extends PluginActionable implements ActionListener, View
 			if (vinputSequence != null)
 				closeAll();
 			vinputSequence = new SequenceVirtual();
-			name = vinputSequence.loadInputVirtualStack();
+			name = vinputSequence.loadInputVirtualStack(null);
 			if (name != null) {
 				initInputSeq();
 			}

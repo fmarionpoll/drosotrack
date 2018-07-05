@@ -249,7 +249,7 @@ public class BuildKymos extends PluginActionable implements ActionListener, Chan
 					vinputSequence.loadInputVirtualFromName(csdummy);
 					
 					if (vinputSequence.status == SequenceVirtual.Status.FAILURE) {
-					String name = vinputSequence.loadInputVirtualStack();
+					String name = vinputSequence.loadInputVirtualStack(null);
 						if (name.isEmpty())
 							return;
 						vinputSequence.sourceFile = name;

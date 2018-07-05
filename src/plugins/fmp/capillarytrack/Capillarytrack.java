@@ -394,7 +394,7 @@ public class Capillarytrack extends PluginActionable implements ActionListener, 
 			if (vinputSequence != null)
 				closeAll();
 			vinputSequence = new SequenceVirtual();
-			name = vinputSequence.loadInputVirtualStack();
+			name = vinputSequence.loadInputVirtualStack(null);
 			if (name != null) {
 				initInputSeq();
 				buttonsVisibilityUpdate(StatusAnalysis.FILE_OK);

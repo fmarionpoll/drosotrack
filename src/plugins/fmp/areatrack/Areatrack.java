@@ -48,7 +48,7 @@ import icy.gui.viewer.ViewerEvent;
 import icy.gui.viewer.ViewerListener;
 import icy.gui.viewer.ViewerEvent.ViewerEventType;
 import icy.plugin.abstract_.PluginActionable;
-
+import icy.preferences.XMLPreferences;
 import icy.roi.ROI2D;
 import icy.sequence.DimensionId;
 import icy.system.thread.ThreadUtil;
@@ -79,10 +79,8 @@ public class Areatrack extends PluginActionable implements ActionListener, Chang
 	private JTextField startFrameTextField	= new JTextField("0");
 	private JTextField endFrameTextField	= new JTextField("99999999");
 	
-	//private String[] availableTransforms 	= new String[] {"(G+B)/2-R", "XDiffn", "XYDiffn", "R", "G", "B","H(HSB)", "S(HSB)", "B(HSB)"};
-	private JComboBox<String> transformForLevelsComboBox; // = new JComboBox<String> (availableTransforms);
+	private JComboBox<String> transformForLevelsComboBox; 
 	private int tdefault = 5;
-	//private JComboBox<String> colorChannelComboBox = new JComboBox<String> (new String[] {"All", "Red", "Green", "Blue"});
 	private JComboBox<String> backgroundComboBox = new JComboBox<String> (new String[] {"none", "frame n-1", "frame 0"});
 	private JSpinner thresholdSpinner		= new JSpinner(new SpinnerNumberModel(100, 0, 255, 10));
 	private JTextField analyzeStepTextField = new JTextField("1");
@@ -103,6 +101,7 @@ public class Areatrack extends PluginActionable implements ActionListener, Chang
 	private int endFrame = 99999999;
 	private int numberOfImageForBuffer = 100;
 	private AreaAnalysisThread analysisThread = null;
+	private String lastUsedPath;
 	ThresholdOverlay ov = null;
 	ImageTransform imgTransf = new ImageTransform();
 	
@@ -238,7 +237,7 @@ public class Areatrack extends PluginActionable implements ActionListener, Chang
 				vSequence.close();
 				checkBufferTimer.stop(); 
 			} } );
-		
+
 		mainFrame.pack();
 		mainFrame.center();
 		mainFrame.setVisible(true);
@@ -272,7 +271,7 @@ public class Areatrack extends PluginActionable implements ActionListener, Chang
 		// _______________________________________________
 		if (o == setVideoSourceButton) 
 		{
-			String name = null;
+			String path = null;
 			if (vSequence != null)
 			{
 				vSequence.close();
@@ -280,9 +279,14 @@ public class Areatrack extends PluginActionable implements ActionListener, Chang
 			}
 			
 			vSequence = new SequenceVirtual();
-			name = vSequence.loadInputVirtualStack();
-			if (name != null) 
+			
+			XMLPreferences guiPrefs = this.getPreferences("gui");
+			lastUsedPath = guiPrefs.get("lastUsedPath", "");
+			
+			path = vSequence.loadInputVirtualStack(lastUsedPath);
+			if (path != null) 
  			{
+				guiPrefs.put("lastUsedPath", path);
 				initInputSeq();
 			}
 		}
@@ -583,7 +587,6 @@ public class Areatrack extends PluginActionable implements ActionListener, Chang
 			e.printStackTrace();
 		}
 	}
-
 
 
 }
