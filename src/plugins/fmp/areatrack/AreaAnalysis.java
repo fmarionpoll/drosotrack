@@ -28,7 +28,6 @@ class AreaAnalysisThread extends Thread
 	 * parameters:
 	 * 		threshold 
 	 * 		jitter
-	 * 		ichanselected
 	 * 		btrackWhite
 	 *  *  blimitLow
 	 *  blimitUp
@@ -37,7 +36,6 @@ class AreaAnalysisThread extends Thread
 	 */
 	
 	private int threshold = 0;
-	private int ichanselected = 0;
 	private int transf = 0;
 	SequenceVirtual vSequence = null;
 	private ArrayList<ROI2D> roiList = null;
@@ -54,19 +52,17 @@ class AreaAnalysisThread extends Thread
 			ArrayList<ROI2D> sroiList, 
 			int sstartFrame, 
 			int sendFrame, 
-			int stransf,
 			int simageref,
-			int schan)
+			int stransf)
 	{
 		vSequence = sseq;
 		roiList = sroiList;
 		startFrame = sstartFrame;
 		endFrame = sendFrame;
 		
-		ichanselected = schan;
 		transf = stransf;
 		imageref = simageref;
-		if (transf == 2)
+		if (transf >= 13 && transf <= 15)
 			vSequence.setRefImageForSubtraction(imageref);
 	}
 	

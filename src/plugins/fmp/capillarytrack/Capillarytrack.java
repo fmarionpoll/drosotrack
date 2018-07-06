@@ -52,6 +52,7 @@ import icy.image.IcyBufferedImage;
 import icy.image.IcyBufferedImageUtil;
 import icy.painter.Anchor2D;
 import icy.plugin.abstract_.PluginActionable;
+import icy.preferences.XMLPreferences;
 import icy.roi.ROI;
 import icy.roi.ROI2D;
 import icy.sequence.DimensionId;
@@ -390,12 +391,16 @@ public class Capillarytrack extends PluginActionable implements ActionListener, 
 		// _______________________________________________
 		else if (o == setVideoSourceButton) 
 		{
-			String name = null;
+			String path = null;
 			if (vinputSequence != null)
 				closeAll();
 			vinputSequence = new SequenceVirtual();
-			name = vinputSequence.loadInputVirtualStack(null);
-			if (name != null) {
+			XMLPreferences guiPrefs = this.getPreferences("gui");
+			String lastUsedPath = guiPrefs.get("lastUsedPath", "");
+			
+			path = vinputSequence.loadInputVirtualStack(lastUsedPath);
+			if (path != null) {
+				guiPrefs.put("lastUsedPath", path);
 				initInputSeq();
 				buttonsVisibilityUpdate(StatusAnalysis.FILE_OK);
 			}

@@ -9,11 +9,11 @@ import icy.type.collection.array.Array1DUtil;
 public class ImageTransform {
 	private String[] availableTransforms 	= new String[] {
 			"RGB",
+			"R", "G", "B","Grey (R+G+B)/3",
 			"(G+B)/2-R", 
 			"(B+R)/2-G",
-			"XDiffn", "XYDiffn", 
-			"R", "G", "B","Grey(R+G+B)/3",
 			"H(HSB)", "S(HSB)", "B(HSB)",
+			"XDiffn", "XYDiffn", 
 			"subtract t0",
 			"subtract n-1",
 			"subtract ref"
@@ -21,8 +21,10 @@ public class ImageTransform {
 
 
 	public enum TransformOp {
-		RGBall("RGB"), GBmR ("(G+B)/2-R"), BRmG("(B+R)/2-G"), XDIFFN("XDiffn"), XYDIFFN( "XYDiffn"), 
-		R_RGB("R(RGB)"), G_RGB("G(RGB)"), B_RGB("B(RGB)"), Grey_RGB("Grey(R+G+B)/3"), H_HSB ("H(HSB)"), S_HSB ("S(HSB)"), B_HSB("B(HSB)"), 
+		RGBall("RGB"), R_RGB("R(RGB)"), G_RGB("G(RGB)"), B_RGB("B(RGB)"), Grey_RGB("Grey (R+G+B)/3"), 
+		GBmR ("(G+B)/2-R"), BRmG("(B+R)/2-G"),
+		H_HSB ("H(HSB)"), S_HSB ("S(HSB)"), B_HSB("B(HSB)"),  
+		XDIFFN("XDiffn"), XYDIFFN( "XYDiffn"), 
 		REFt0("subtract t0"), REFn("subtract n-1"), REF("subtract ref");
 		private String label;
 		TransformOp (String label) {
@@ -55,21 +57,26 @@ public class ImageTransform {
 		img2 = IcyBufferedImageUtil.getCopy(img);
 		
 		switch (transform) {
-		case 0: break;
-		case 1: functionRGB_sumC1C2Minus2C3(img, 1, 2, 0); break;
-		case 2: functionRGB_sumC1C2Minus2C3 (img, 0, 2, 1); break;
-		case 3: computeXDiffn (img); break;
-		case 4: computeXYDiffn (img); break;
-		case 5: functionRGB_keepOneChan(img, 0); break;
-		case 6: functionRGB_keepOneChan(img, 1); break;
-		case 7: functionRGB_keepOneChan(img, 2); break;
-		case 8: functionRGB_grey(img); break;
-		case 9: functionRGB_HSB(img, 0); break;
-		case 10: functionRGB_HSB(img, 1); break;
-		case 11: functionRGB_HSB(img, 2); break;
-		case 12: functionSubtractRef(img); break;
+		case 1: 
+			break;
+		case 2: 
+			functionRGB_keepOneChan(img, 0); break;
+		case 3: functionRGB_keepOneChan(img, 1); break;
+		case 4: functionRGB_keepOneChan(img, 2); break;
+		case 5: functionRGB_grey(img); break;
+		case 6: functionRGB_sumC1C2Minus2C3(img, 1, 2, 0); break;
+		case 7: functionRGB_sumC1C2Minus2C3 (img, 0, 2, 1); break;
+		
+		case 8: functionRGB_HSB(img, 0); break;
+		case 9: functionRGB_HSB(img, 1); break;
+		case 10: functionRGB_HSB(img, 2); break;
+		
+		case 11: computeXDiffn (img); break;
+		case 12: computeXYDiffn (img); break;
+		
 		case 13: functionSubtractRef(img); break;
 		case 14: functionSubtractRef(img); break;
+		case 15: functionSubtractRef(img); break;
 		default: break;
 		}
 		

@@ -269,7 +269,6 @@ public class SequenceVirtual extends Sequence
 	    	directory = selectedFiles[0].getAbsolutePath();
 	    else
 	    	directory = selectedFiles[0].getParentFile().getAbsolutePath();
-	    	//FilenameUtils.getFullPathNoEndSeparator(selectedFiles[0].getAbsolutePath());
 		if (directory == null)
 			return null;
 		

@@ -23,7 +23,6 @@ public class ThresholdOverlay extends Overlay
 	private int t_threshold = -1;
 	boolean thresholdedImage = true;
 	int threshold = 0;
-	int chan = 0;
 	int transf = 0;
 	SequenceVirtual vinputSequence 	= null;
 	public ImageTransform imgTransf = new ImageTransform(); 
@@ -34,11 +33,10 @@ public class ThresholdOverlay extends Overlay
 		super("where is this message displayed?");
 	}
 	
-	public void setThresholdOverlayParameters (SequenceVirtual sseq, boolean sthresholded, int sthreshold, int schan, int stransf)
+	public void setThresholdOverlayParameters (SequenceVirtual sseq, boolean sthresholded, int sthreshold, int stransf)
 	{
 		thresholdedImage = sthresholded;
 		threshold = sthreshold;
-		chan = schan;
 		transf = stransf;
 		vinputSequence = sseq;
 	}

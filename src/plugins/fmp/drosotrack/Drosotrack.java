@@ -50,6 +50,7 @@ import icy.gui.viewer.ViewerListener;
 import icy.image.IcyBufferedImage;
 import icy.main.Icy;
 import icy.plugin.abstract_.PluginActionable;
+import icy.preferences.XMLPreferences;
 import icy.roi.BooleanMask2D;
 import icy.roi.ROI;
 import icy.roi.ROI2D;
@@ -273,12 +274,16 @@ public class Drosotrack extends PluginActionable implements ActionListener, View
 
 		// _______________________________________________
 		else if (o == setVideoSourceButton) {
-			String name = null;
+			String path = null;
 			if (vinputSequence != null)
 				closeAll();
 			vinputSequence = new SequenceVirtual();
-			name = vinputSequence.loadInputVirtualStack(null);
-			if (name != null) {
+			XMLPreferences guiPrefs = this.getPreferences("gui");
+			String lastUsedPath = guiPrefs.get("lastUsedPath", "");
+			
+			path = vinputSequence.loadInputVirtualStack(lastUsedPath);
+			if (path != null) {
+				guiPrefs.put("lastUsedPath", path);
 				initInputSeq();
 			}
 		}
@@ -768,7 +773,6 @@ public class Drosotrack extends PluginActionable implements ActionListener, View
 		ov.setThresholdOverlayParameters( vinputSequence,
 				thresholdedImageCheckBox.isSelected(), 
 				threshold, 
-				colorChannelComboBox.getSelectedIndex(),
 				backgroundComboBox.getSelectedIndex());
 		if (ov != null) {
 			ov.painterChanged();

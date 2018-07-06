@@ -42,6 +42,7 @@ import org.jfree.ui.RectangleEdge;
 import icy.gui.frame.IcyFrame;
 
 import icy.gui.frame.progress.AnnounceFrame;
+import icy.gui.frame.progress.ToolTipFrame;
 import icy.gui.util.GuiUtil;
 import icy.gui.viewer.Viewer;
 import icy.gui.viewer.ViewerEvent;
@@ -65,7 +66,7 @@ import plugins.fmp.sequencevirtual.Tools;
 public class Areatrack extends PluginActionable implements ActionListener, ChangeListener, ViewerListener
 {	
 	// -------------------------------------- interface
-	IcyFrame mainFrame = new IcyFrame("AreaTrack-28-06-2018", true, true, true, true);
+	IcyFrame mainFrame = new IcyFrame("AreaTrack 6-07-2018", true, true, true, true);
 	IcyFrame mainChartFrame = null;
 	JPanel 	mainChartPanel = null;
 	
@@ -79,9 +80,8 @@ public class Areatrack extends PluginActionable implements ActionListener, Chang
 	private JTextField startFrameTextField	= new JTextField("0");
 	private JTextField endFrameTextField	= new JTextField("99999999");
 	
-	private JComboBox<String> transformForLevelsComboBox; 
-	private int tdefault = 5;
-	private JComboBox<String> backgroundComboBox = new JComboBox<String> (new String[] {"none", "frame n-1", "frame 0"});
+	private JComboBox<String> transformsComboBox; 
+	private int tdefault = 1;
 	private JSpinner thresholdSpinner		= new JSpinner(new SpinnerNumberModel(100, 0, 255, 10));
 	private JTextField analyzeStepTextField = new JTextField("1");
 	private JCheckBox thresholdedImageCheckBox = new JCheckBox("Display objects over threshold as overlay");
@@ -101,8 +101,7 @@ public class Areatrack extends PluginActionable implements ActionListener, Chang
 	private int endFrame = 99999999;
 	private int numberOfImageForBuffer = 100;
 	private AreaAnalysisThread analysisThread = null;
-	private String lastUsedPath;
-	ThresholdOverlay ov = null;
+	ThresholdOverlay thresholdOverlay = null;
 	ImageTransform imgTransf = new ImageTransform();
 	
 	// --------------------------------------------------------------------------
@@ -191,12 +190,9 @@ public class Areatrack extends PluginActionable implements ActionListener, Chang
 		analysisPanel.add( GuiUtil.besidesPanel(thresholdedImageCheckBox));
 		JLabel videochannel = new JLabel("source data ");
 		videochannel.setHorizontalAlignment(SwingConstants.RIGHT);
-		transformForLevelsComboBox = new JComboBox<String> (imgTransf.getAvailableTransforms());
-		analysisPanel.add( GuiUtil.besidesPanel( videochannel, transformForLevelsComboBox));
-		transformForLevelsComboBox.setSelectedIndex(tdefault);
-		JLabel backgroundsubtraction = new JLabel("background substraction ");
-		backgroundsubtraction.setHorizontalAlignment(SwingConstants.RIGHT);
-		analysisPanel.add( GuiUtil.besidesPanel(backgroundsubtraction, backgroundComboBox));
+		transformsComboBox = new JComboBox<String> (imgTransf.getAvailableTransforms());
+		analysisPanel.add( GuiUtil.besidesPanel( videochannel, transformsComboBox));
+		transformsComboBox.setSelectedIndex(tdefault);
 		JLabel thresholdLabel = new JLabel("detect threshold ");
 		thresholdLabel.setHorizontalAlignment(SwingConstants.RIGHT);
 		analysisPanel.add( GuiUtil.besidesPanel( thresholdLabel, thresholdSpinner));
@@ -215,12 +211,7 @@ public class Areatrack extends PluginActionable implements ActionListener, Chang
 		thresholdSpinner.addChangeListener(this);
 		thresholdedImageCheckBox.addActionListener(this);
 		updateChartsButton.addActionListener(this);
-		transformForLevelsComboBox.addActionListener(new ActionListener () {
-			@Override
-			public void actionPerformed( final ActionEvent e ) { 
-				updateOverlay(); 
-			} } );
-		backgroundComboBox.addActionListener(new ActionListener () {
+		transformsComboBox.addActionListener(new ActionListener () {
 			@Override
 			public void actionPerformed( final ActionEvent e ) { 
 				updateOverlay(); 
@@ -243,6 +234,10 @@ public class Areatrack extends PluginActionable implements ActionListener, Chang
 		mainFrame.setVisible(true);
 		mainFrame.addToDesktopPane();
 		mainFrame.requestFocus();
+		
+		 // display an announcement with Plugin description
+		new ToolTipFrame ( "<html>This plugin is designed to analyse <br>the consumption of arrays of leaf disks<br>by lepidoptera larvae.<br><br>To open a stack of files (jpg, jpeg), <br>use the 'open' button <br>and select a file within a stack <br>or select a directory containing a stack",
+				10);
 	}
 
 	@Override
@@ -279,9 +274,8 @@ public class Areatrack extends PluginActionable implements ActionListener, Chang
 			}
 			
 			vSequence = new SequenceVirtual();
-			
 			XMLPreferences guiPrefs = this.getPreferences("gui");
-			lastUsedPath = guiPrefs.get("lastUsedPath", "");
+			String lastUsedPath = guiPrefs.get("lastUsedPath", "");
 			
 			path = vSequence.loadInputVirtualStack(lastUsedPath);
 			if (path != null) 
@@ -322,9 +316,8 @@ public class Areatrack extends PluginActionable implements ActionListener, Chang
 					getROIsToAnalyze(),
 					startFrame,
 					endFrame,
-					backgroundComboBox.getSelectedIndex(),
 					0,
-					transformForLevelsComboBox.getSelectedIndex()-1);
+					transformsComboBox.getSelectedIndex());
 			analysisThread.start();
 		}
 		
@@ -345,16 +338,16 @@ public class Areatrack extends PluginActionable implements ActionListener, Chang
 		else if (o == thresholdedImageCheckBox && (vSequence != null))  {
 
 			if (thresholdedImageCheckBox.isSelected()) {
-				if (ov == null) {
-					ov = new ThresholdOverlay();
-					vSequence.setThresholdOverlay(ov);
+				if (thresholdOverlay == null) {
+					thresholdOverlay = new ThresholdOverlay();
+					vSequence.setThresholdOverlay(thresholdOverlay);
 				}
 				vSequence.threshold = Integer.parseInt(thresholdSpinner.getValue().toString());
-				vSequence.addOverlay(ov);
+				vSequence.addOverlay(thresholdOverlay);
 				updateOverlay();
 			}
 			else {
-				vSequence.removeOverlay(ov);
+				vSequence.removeOverlay(thresholdOverlay);
 				vSequence.setThresholdOverlay(null);
 			}
 		}
@@ -378,17 +371,17 @@ public class Areatrack extends PluginActionable implements ActionListener, Chang
 	
 	private void updateOverlay () {
 
-		if (ov == null) {
-			ov = new ThresholdOverlay();
-			vSequence.setThresholdOverlay(ov);
+		if (thresholdOverlay == null) {
+			thresholdOverlay = new ThresholdOverlay();
+			vSequence.setThresholdOverlay(thresholdOverlay);
 		}
-		ov.setThresholdOverlayParameters( vSequence,
+		int transform = transformsComboBox.getSelectedIndex();
+		thresholdOverlay.setThresholdOverlayParameters( vSequence,
 				thresholdedImageCheckBox.isSelected(), 
 				vSequence.threshold, 
-				transformForLevelsComboBox.getSelectedIndex()-1,
-				backgroundComboBox.getSelectedIndex());
-		if (ov != null) {
-			ov.painterChanged();
+				transform);
+		if (thresholdOverlay != null) {
+			thresholdOverlay.painterChanged();
 		}
 	}
 	

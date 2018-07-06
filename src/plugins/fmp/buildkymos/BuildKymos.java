@@ -37,6 +37,7 @@ import icy.gui.viewer.ViewerListener;
 import icy.image.IcyBufferedImage;
 import icy.main.Icy;
 import icy.plugin.abstract_.PluginActionable;
+import icy.preferences.XMLPreferences;
 import icy.sequence.DimensionId;
 import icy.system.profile.Chronometer;
 import icy.system.thread.ThreadUtil;
@@ -249,10 +250,13 @@ public class BuildKymos extends PluginActionable implements ActionListener, Chan
 					vinputSequence.loadInputVirtualFromName(csdummy);
 					
 					if (vinputSequence.status == SequenceVirtual.Status.FAILURE) {
-					String name = vinputSequence.loadInputVirtualStack(null);
-						if (name.isEmpty())
+						XMLPreferences guiPrefs = this.getPreferences("gui");
+						String lastUsedPath = guiPrefs.get("lastUsedPath", "");
+						String path = vinputSequence.loadInputVirtualStack(lastUsedPath);
+						if (path.isEmpty())
 							return;
-						vinputSequence.sourceFile = name;
+						vinputSequence.sourceFile = path;
+						guiPrefs.put("lastUsedPath", path);
 					}
 					else
 						vinputSequence.sourceFile = csdummy;
