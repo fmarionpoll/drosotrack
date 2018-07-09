@@ -376,11 +376,13 @@ public class Areatrack extends PluginActionable implements ActionListener, Chang
 			vSequence.setThresholdOverlay(thresholdOverlay);
 		}
 		int transform = transformsComboBox.getSelectedIndex();
-		System.out.println("Transform selected: "+ transform);
+//		System.out.println("Transform selected: "+ transform);
 		thresholdOverlay.setThresholdOverlayParameters( vSequence,
 				thresholdedImageCheckBox.isSelected(), 
 				vSequence.threshold, 
 				transform);
+		//if (transform == 12)
+			
 		if (thresholdOverlay != null) {
 			thresholdOverlay.painterChanged();
 		}

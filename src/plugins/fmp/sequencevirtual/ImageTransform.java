@@ -19,7 +19,6 @@ public class ImageTransform {
 			"subtract ref"
 			};
 
-
 	public enum TransformOp {
 		RGBall("RGB"), R_RGB("R(RGB)"), G_RGB("G(RGB)"), B_RGB("B(RGB)"), Grey_RGB("Grey (R+G+B)/3"), 
 		GBmR ("(G+B)/2-R"), BRmG("(B+R)/2-G"),
@@ -30,17 +29,16 @@ public class ImageTransform {
 		TransformOp (String label) {
 		       this.label = label;
 		}
-		public String toString() {
+	public String toString() {
 		       return label;
 		}	
 	}
-	// ComboBox<Status> cbxStatus = new ComboBox<>();
-	// cbxStatus.getItems().setAll(Status.values());
 
 	private IcyBufferedImage referenceImage = null;
 	private int spanDiffTop = 3;	// adjust this parameter eventually through user's interface
 	//private int	spanDiffTransf2 = 3;
 	private	IcyBufferedImage img2;
+	private SequenceVirtual vinputSequence 	= null;
 
 	// -------------------------------------
 	public String[] getAvailableTransforms() 
@@ -51,9 +49,14 @@ public class ImageTransform {
 	public void setReferenceImage(IcyBufferedImage img) {
 		referenceImage = IcyBufferedImageUtil.getCopy(img);
 	}
+	public void setSequence (SequenceVirtual vinputSeq) {
+		vinputSequence = vinputSeq;
+		referenceImage = vinputSequence.loadVImage(0);
+	}
 	
-	public IcyBufferedImage transformImage (IcyBufferedImage img, int transform) {
+	public IcyBufferedImage transformImage (int t, int transform) {
 		
+		IcyBufferedImage img = vinputSequence.loadVImage(t);
 		img2 = IcyBufferedImageUtil.getCopy(img);
 		
 		switch (transform) {
@@ -61,22 +64,18 @@ public class ImageTransform {
 		case 2: functionRGB_keepOneChan(img, 1); break;
 		case 3: functionRGB_keepOneChan(img, 2); break;
 		case 4: functionRGB_grey(img); break;
-		case 5: 
-			functionRGB_sumC1C2Minus2C3(img, 1, 2, 0); 
-			break;
-		case 6: 
-			functionRGB_sumC1C2Minus2C3 (img, 0, 2, 1); 
-			break;
-		
+		case 5: functionRGB_sumC1C2Minus2C3(img, 1, 2, 0); break;
+		case 6: functionRGB_sumC1C2Minus2C3 (img, 0, 2, 1); break;
+
 		case 7: functionRGB_HSB(img, 0); break;
 		case 8: functionRGB_HSB(img, 1); break;
 		case 9: functionRGB_HSB(img, 2); break;
-		
+
 		case 10: computeXDiffn (img); break;
 		case 11: computeXYDiffn (img); break;
-		
+
 		case 12: functionSubtractRef(img); break;
-		case 13: functionSubtractRef(img); break;
+		case 13: referenceImage = vinputSequence.loadVImage(t-1); functionSubtractRef(img); break;
 		case 14: functionSubtractRef(img); break;
 		default: break;
 		}
@@ -86,23 +85,27 @@ public class ImageTransform {
 	
 	private void functionRGB_sumC1C2Minus2C3 (IcyBufferedImage sourceImage, int ADD1, int ADD2, int SUB) {
  
-		System.out.println("functionRGB_sumC1C2Minus2C3");
+//		System.out.println("functionRGB_sumC1C2Minus2C3");
 		int[] tabSubtract = Array1DUtil.arrayToIntArray(sourceImage.getDataXY(SUB), false);
 		int[] tabAdd1 = Array1DUtil.arrayToIntArray(sourceImage.getDataXY(ADD1), false);
 		int[] tabAdd2 = Array1DUtil.arrayToIntArray(sourceImage.getDataXY(ADD2), false);
 		int[] img2Values = Array1DUtil.arrayToIntArray(img2.getDataXY(0), false);
 
-		int xwidth = sourceImage.getSizeX();
-		int yheight = sourceImage.getSizeY();
-
-		// main loop
-		for (int iy = 0; iy < yheight; iy++) {
-			
-			for (int ix =0; ix < xwidth; ix++) {
-				int ky = ix + iy* xwidth;
-				img2Values [ky] = (tabAdd1[ky] + tabAdd2[ky])/2 - tabSubtract [ky];
-			}
-		}
+//		int xwidth = sourceImage.getSizeX();
+//		int yheight = sourceImage.getSizeY();
+//
+//		for (int iy = 0; iy < yheight; iy++) {
+//			
+//			for (int ix =0; ix < xwidth; ix++) {
+//				int ky = ix + iy* xwidth;
+//				img2Values [ky] = (tabAdd1[ky] + tabAdd2[ky])/2 - tabSubtract [ky];
+//			}
+//		}
+		
+		ArrayMath.add(tabAdd1, tabAdd2, img2Values);
+		ArrayMath.divide(2, img2Values);
+		ArrayMath.subtract(img2Values, tabSubtract, img2Values);
+		
 		Array1DUtil.intArrayToSafeArray(img2Values,  img2.getDataXY(0),  true, true);
 		
 		// duplicate channel 0 to chan 1 & 2
@@ -112,17 +115,16 @@ public class ImageTransform {
 		
 	private void computeXDiffn(IcyBufferedImage sourceImage) {
 
-		System.out.println("computeXDiffn");
+//		System.out.println("computeXDiffn");
 		int chan0 = 0;
 		int chan1 =  sourceImage.getSizeC();
+		int imageSizeX = sourceImage.getSizeX();
+		int imageSizeY = sourceImage.getSizeY();
 
 		for (int c=chan0; c < chan1; c++) {
 
-			double[] tabValues = sourceImage.getDataXYAsDouble(c);
-			double[] outValues = img2.getDataXYAsDouble(c);
-
-			int imageSizeX = sourceImage.getSizeX();
-			int imageSizeY = sourceImage.getSizeY();
+			double[] tabValues = Array1DUtil.arrayToDoubleArray(sourceImage.getDataXY(c), true);
+			double[] outValues = Array1DUtil.arrayToDoubleArray(img2.getDataXY(c), true);			
 
 			for (int iy = 0; iy < imageSizeY; iy++) {	
 				// erase border values
@@ -149,25 +151,23 @@ public class ImageTransform {
 					outValues[ix + iy* imageSizeX] = 0;
 				}
 			}
-			Array1DUtil.doubleArrayToSafeArray(outValues,  img2.getDataXY(c),  true);
+			Array1DUtil.doubleArrayToSafeArray(outValues, img2.getDataXY(c),  true);
 		}
 	}
 	
 	private void computeXYDiffn(IcyBufferedImage sourceImage) {
 
-		System.out.println("computeXYDiffn");
+//		System.out.println("computeXYDiffn");
 		int chan0 = 0;
 		int chan1 =  sourceImage.getSizeC();
+		int imageSizeX = sourceImage.getSizeX();
+		int imageSizeY = sourceImage.getSizeY();
 
 		for (int c=chan0; c < chan1; c++) {
 
-			double[] tabValues = sourceImage.getDataXYAsDouble(c);
-			double[] outValues = img2.getDataXYAsDouble(c);
-
-			int imageSizeX = sourceImage.getSizeX();
-			int imageSizeY = sourceImage.getSizeY();
-
-			// main loop
+			double[] tabValues = Array1DUtil.arrayToDoubleArray(sourceImage.getDataXY(c), true);
+			double[] outValues = Array1DUtil.arrayToDoubleArray(img2.getDataXY(c), true);			
+			
 			for (int ix =0; ix < imageSizeX; ix++) {	
 
 				for (int iy = spanDiffTop; iy < imageSizeY-spanDiffTop; iy++) {
@@ -206,7 +206,7 @@ public class ImageTransform {
 
 	private void functionRGB_keepOneChan (IcyBufferedImage sourceImage, int keepChan) {
 
-		System.out.println("functionRGB_keepOneChan");
+//		System.out.println("functionRGB_keepOneChan");
 		for (int i=0; i<3; i++)
 			if (i != keepChan) 
 				img2.copyData(img2, keepChan, i);
@@ -214,28 +214,34 @@ public class ImageTransform {
 	
 	private void functionRGB_grey (IcyBufferedImage sourceImage) {
 
-		System.out.println("functionRGB_grey");
+//		System.out.println("functionRGB_grey");
 		int[] tabValuesR = Array1DUtil.arrayToIntArray(sourceImage.getDataXY(0), false);
 		int[] tabValuesG = Array1DUtil.arrayToIntArray(sourceImage.getDataXY(1), false);
 		int[] tabValuesB = Array1DUtil.arrayToIntArray(sourceImage.getDataXY(2), false);
 
 		int[] outValues0 = Array1DUtil.arrayToIntArray(img2.getDataXY(0), false);
 		
-		int imageSizeX = sourceImage.getSizeX();
-		int imageSizeY = sourceImage.getSizeY();
-
-		for (int ix =0; ix < imageSizeX; ix++) {	
-			for (int iy = 0; iy < imageSizeY; iy++) {
-
-				int ky = ix + iy* imageSizeX;
-				int R = tabValuesR[ky];
-				int G = tabValuesG[ky];
-				int B = tabValuesB[ky];
-				
-				int val = (R+G+B)/3;
-				outValues0 [ky] = val;
-			}
-		}
+//		int imageSizeX = sourceImage.getSizeX();
+//		int imageSizeY = sourceImage.getSizeY();
+//
+//		for (int ix =0; ix < imageSizeX; ix++) {	
+//			for (int iy = 0; iy < imageSizeY; iy++) {
+//
+//				int ky = ix + iy* imageSizeX;
+//				int R = tabValuesR[ky];
+//				int G = tabValuesG[ky];
+//				int B = tabValuesB[ky];
+//				
+//				int val = (R+G+B)/3;
+//				outValues0 [ky] = val;
+//			}
+//		}
+		
+		ArrayMath.add(tabValuesR, tabValuesG, outValues0);
+		ArrayMath.add(tabValuesB, outValues0, outValues0);
+		ArrayMath.divide(3, outValues0);
+	
+		
 		Array1DUtil.intArrayToSafeArray(outValues0,  img2.getDataXY(0),  true, true);
 		// duplicate channel 0 to chan 1 & 2
 		img2.copyData(img2, 0, 1);
@@ -244,15 +250,14 @@ public class ImageTransform {
 	
 	private void functionRGB_HSB(IcyBufferedImage sourceImage, int HorSorB) {
 		
-		System.out.println("functionRGB_HSB");
-		
-		double[] tabValuesR = sourceImage.getDataXYAsDouble(0);
-		double[] tabValuesG = sourceImage.getDataXYAsDouble(1);
-		double[] tabValuesB = sourceImage.getDataXYAsDouble(2);
+//		System.out.println("functionRGB_HSB");
+		double[] tabValuesR = Array1DUtil.arrayToDoubleArray(sourceImage.getDataXY(0), true);
+		double[] tabValuesG = Array1DUtil.arrayToDoubleArray(sourceImage.getDataXY(1), true);
+		double[] tabValuesB = Array1DUtil.arrayToDoubleArray(sourceImage.getDataXY(2), true);
 
-		double[] outValues0 = img2.getDataXYAsDouble(0);
-		double[] outValues1 = img2.getDataXYAsDouble(1);
-		double[] outValues2 = img2.getDataXYAsDouble(2);
+		double[] outValues0 = Array1DUtil.arrayToDoubleArray(img2.getDataXY(0), true);
+		double[] outValues1 = Array1DUtil.arrayToDoubleArray(img2.getDataXY(1), true);
+		double[] outValues2 = Array1DUtil.arrayToDoubleArray(img2.getDataXY(2), true);
 		
 		int imageSizeX = sourceImage.getSizeX();
 		int imageSizeY = sourceImage.getSizeY();
@@ -284,7 +289,7 @@ public class ImageTransform {
 		/* algorithm borrowed from  Perrine.Paul-Gilloteaux@univ-nantes.fr in  EC-CLEM
 		 * original function: private IcyBufferedImage substractbg(Sequence ori, Sequence bg,int t, int z) 
 		 */
-		//IcyBufferedImage img2 = new IcyBufferedImage(sourceImage.getSizeX(), sourceImage.getSizeY(),sourceImage.getSizeC(), sourceImage.getDataType_());
+		IcyBufferedImage img = new IcyBufferedImage(sourceImage.getSizeX(), sourceImage.getSizeY(),sourceImage.getSizeC(), sourceImage.getDataType_());
 		for (int c=0; c<sourceImage.getSizeC(); c++){
 			Object sourceArray = sourceImage.getDataXY(c);
 			Object referenceArray = referenceImage.getDataXY(c);
@@ -292,7 +297,7 @@ public class ImageTransform {
 			double[] img2DoubleArray = Array1DUtil.arrayToDoubleArray(referenceArray, referenceImage.isSignedDataType());
 			ArrayMath.subtract(img1DoubleArray, img2DoubleArray, img1DoubleArray);
 
-			double[] dummyzeros=Array1DUtil.arrayToDoubleArray(img2.getDataXY(c), img2.isSignedDataType());
+			double[] dummyzeros=Array1DUtil.arrayToDoubleArray(img.getDataXY(c), img.isSignedDataType());
 			ArrayMath.max(img1DoubleArray, dummyzeros, img1DoubleArray);
 			Array1DUtil.doubleArrayToArray(img1DoubleArray, img2.getDataXY(c));
 		}

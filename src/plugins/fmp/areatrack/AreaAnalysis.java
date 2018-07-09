@@ -120,14 +120,14 @@ class AreaAnalysisThread extends Thread
 				updateProgressionBar (t, nbframes, chrono, progress);
 
 				// load next image and compute threshold
-				IcyBufferedImage workImage = transformImg.transformImage(vSequence.loadVImage(t), transf); 
+				IcyBufferedImage workImage = transformImg.transformImage(t, transf); 
 				vSequence.currentFrame = t;
 				v.setPositionT(t);
 				v.setTitle(vSequence.getVImageName(t));
 
 				// ------------------------ compute global mask
 				tov.getBinaryOverThresholdFromDoubleImage(workImage, threshold);
-				BooleanMask2D maskAll2D = new BooleanMask2D( workImage.getBounds(), tov.boolMap); 
+				BooleanMask2D maskAll2D = new BooleanMask2D(workImage.getBounds(), tov.boolMap); 
 				
 				// ------------------------ loop over all the cages of the stack
 				for (int imask = 0; imask < areaMaskList.size(); imask++ )
