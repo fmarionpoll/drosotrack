@@ -66,7 +66,7 @@ import plugins.fmp.sequencevirtual.Tools;
 public class Areatrack extends PluginActionable implements ActionListener, ChangeListener, ViewerListener
 {	
 	// -------------------------------------- interface
-	IcyFrame mainFrame = new IcyFrame("AreaTrack 6-07-2018", true, true, true, true);
+	IcyFrame mainFrame = new IcyFrame("AreaTrack 9-07-2018", true, true, true, true);
 	IcyFrame mainChartFrame = null;
 	JPanel 	mainChartPanel = null;
 	
@@ -376,6 +376,7 @@ public class Areatrack extends PluginActionable implements ActionListener, Chang
 			vSequence.setThresholdOverlay(thresholdOverlay);
 		}
 		int transform = transformsComboBox.getSelectedIndex();
+		System.out.println("Transform selected: "+ transform);
 		thresholdOverlay.setThresholdOverlayParameters( vSequence,
 				thresholdedImageCheckBox.isSelected(), 
 				vSequence.threshold, 

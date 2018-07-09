@@ -83,7 +83,7 @@ public class ThresholdOverlay extends Overlay
 			g2.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 0.5f));
 			if (thresholdedImage) {
 
-				if (t_binaryFrame != vinputSequence.getT() || threshold != t_threshold) {
+//				if (t_binaryFrame != vinputSequence.getT() || threshold != t_threshold) {
 
 					t_binaryFrame = vinputSequence.getT();
 					t_threshold = threshold;
@@ -91,7 +91,7 @@ public class ThresholdOverlay extends Overlay
 					IcyBufferedImage bufImage = imgTransf.transformImage(vinputSequence.loadVImage(t), transf);
 					getBinaryOverThresholdFromDoubleImage(bufImage, threshold);
 					convertBoolMapIntoBinaryMap();
-				}
+//				}
 
 				if (boolMap != null) {
 					g2.drawImage(IcyBufferedImageUtil.toBufferedImage(binaryMap, null), null, 0, 0);
