@@ -22,6 +22,7 @@ public class ROItoRoiArray extends EzPlug {
 	// -------------------------------------- interface 
 
 	EzVarSequence   sequence     = new EzVarSequence("Select ROI from");
+	EzVarText		rootnameComboBox;
 	EzVarInteger 	nrows;
 	EzVarInteger 	ncolumns;
 	EzVarInteger 	columnSize;
@@ -29,12 +30,14 @@ public class ROItoRoiArray extends EzPlug {
 	EzVarInteger 	rowWidth; 
 	EzVarInteger 	rowInterval; 
 	EzVarText 		resultComboBox;
+	String rootname;
 	
 	@Override
 	protected void initialize() {
 
 		// 1) init variables
-		resultComboBox 	= new EzVarText("Split polygon as ", new String[] {"vertical lines", "polygons", "circles"}, 0, false);
+		resultComboBox 	= new EzVarText("Split polygon as ", new String[] {"vertical lines", "polygons", "circles"}, 1, false);
+		rootnameComboBox= new EzVarText("Root name", new String[] {"gridA", "gridB", "gridC"}, 0, true);
 		ncolumns		= new EzVarInteger("N columns ", 8, 1, 1000, 1);
 		columnSize		= new EzVarInteger("column width ", 10, 0, 1000, 1);
 		columnSpan		= new EzVarInteger("space btw. col. ", 2, 0, 1000, 1);
@@ -44,6 +47,7 @@ public class ROItoRoiArray extends EzPlug {
 
 		// 2) add variables to the interface
 		addEzComponent(sequence);
+		addEzComponent(rootnameComboBox);
 		addEzComponent(resultComboBox);
 		addEzComponent(ncolumns);
 		addEzComponent(columnSize);
@@ -56,24 +60,24 @@ public class ROItoRoiArray extends EzPlug {
 	// ----------------------------------
 	private void addEllipseROI (List<Point2D> points, String baseName, int i, int j) {
 		ROI2DEllipse roiP = new ROI2DEllipse (points.get(0), points.get(2));
-		roiP.setName(baseName+ String.format("_r%02d", j) + String.format("_c%02d", i));
+		roiP.setName(rootname+baseName+ String.format("_r%02d", j) + String.format("_c%02d", i));
 		sequence.getValue(true).addROI(roiP);
 	}
 	
 	private void addPolygonROI (List<Point2D> points, String baseName, int i, int j) {
 		ROI2DPolygon roiP = new ROI2DPolygon (points);
-		roiP.setName(baseName+ String.format("_R%02d", j) + String.format("_C%02d", i));
+		roiP.setName(rootname+baseName+ String.format("_R%02d", j) + String.format("_C%02d", i));
 		sequence.getValue(true).addROI(roiP);
 	}
 	
 	private void addLineROI (List<Point2D> points, String baseName, int i, int j) {
 		ROI2DLine roiL1 = new ROI2DLine (points.get(0), points.get(1));
-		roiL1.setName(baseName+ String.format("%02d", i/2)+"L");
+		roiL1.setName(rootname+baseName+ String.format("%02d", i/2)+"L");
 		roiL1.setReadOnly(false);
 		sequence.getValue(true).addROI(roiL1, true);
 		
 		ROI2DLine roiL2 = new ROI2DLine (points.get(2), points.get(3));
-		roiL2.setName(baseName+ String.format("%02d", i/2)+"R");
+		roiL2.setName(rootname+baseName+ String.format("%02d", i/2)+"R");
 		roiL2.setReadOnly(false);
 		sequence.getValue(true).addROI(roiL2, true);
 	}
@@ -100,6 +104,7 @@ public class ROItoRoiArray extends EzPlug {
 		double rowsSum = nbrows * (rowSize + rowSpan) + rowSpan;
 
 		String baseName = null;
+		rootname = rootnameComboBox.getValue()+"_";
 
 		for (int column=0; column< nbcols; column++) {
 			

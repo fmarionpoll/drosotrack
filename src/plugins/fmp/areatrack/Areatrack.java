@@ -73,6 +73,7 @@ public class Areatrack extends PluginActionable implements ActionListener, Chang
 	// ---------------------------------------- video
 	private JButton 	setVideoSourceButton 	= new JButton("Open...");
 	private JButton		openROIsButton			= new JButton("Load...");
+	private JButton		addROIsButton			= new JButton("Add...");
 	private JButton		saveROIsButton			= new JButton("Save...");
 	
 	private JButton startComputationButton 	= new JButton("Start");
@@ -171,7 +172,7 @@ public class Areatrack extends PluginActionable implements ActionListener, Chang
 		commentText1.setHorizontalAlignment(SwingConstants.LEFT);
 		roiPanel.add(GuiUtil.besidesPanel(commentText1));
 		JLabel emptyText1	= new JLabel (" ");
-		roiPanel.add(GuiUtil.besidesPanel(openROIsButton, saveROIsButton, emptyText1));
+		roiPanel.add(GuiUtil.besidesPanel(openROIsButton, addROIsButton, saveROIsButton, emptyText1));
 		
 		final JPanel analysisPanel =  GuiUtil.generatePanel("ANALYSIS");
 		mainPanel.add(GuiUtil.besidesPanel(analysisPanel));
@@ -205,6 +206,7 @@ public class Areatrack extends PluginActionable implements ActionListener, Chang
 		// -------------------------------------------- action listeners, etc
 		setVideoSourceButton.addActionListener(this);
 		openROIsButton.addActionListener(this);
+		addROIsButton.addActionListener(this);
 		saveROIsButton.addActionListener(this);
 		startComputationButton.addActionListener(this);
 		stopComputationButton.addActionListener( this);
@@ -294,6 +296,12 @@ public class Areatrack extends PluginActionable implements ActionListener, Chang
 			startFrameTextField.setText( Integer.toString(startFrame));
 		}
 
+		else if (o == addROIsButton)
+		{
+			vSequence.xmlReadROIsAndData();
+			endFrameTextField.setText( Integer.toString(endFrame));
+			startFrameTextField.setText( Integer.toString(startFrame));
+		}
 		// _______________________________________________
 		else if (o == saveROIsButton) {
 
@@ -441,9 +449,10 @@ public class Areatrack extends PluginActionable implements ActionListener, Chang
 		mainChartFrame.add(mainChartPanel);
 		
 		mainChartPanel.removeAll();
-		int maxNumChannels = 2;
+		int rows = 2;
+		int cols = 1;
 		XYSeriesCollection xyDataset = new XYSeriesCollection();
-		mainChartPanel.setLayout(new GridLayout(maxNumChannels, 1));
+		mainChartPanel.setLayout(new GridLayout(rows, cols));
 		
 		XYSeries[] cropSeries = vSequence.getResults();
 		int ncurves = cropSeries.length;
@@ -457,18 +466,18 @@ public class Areatrack extends PluginActionable implements ActionListener, Chang
 				xyDataset,
 				PlotOrientation.VERTICAL,displayLegend,true,false ); 
 				
-		XYSeriesCollection xyDataset2 = new XYSeriesCollection();
-		XYSeries[] cropSeries2 = vSequence.getPixels();
-		ncurves = cropSeries.length;
-		for (int i=0; i< ncurves; i++)
-			xyDataset2.addSeries(cropSeries2[i]);
-	
-		TitleString = "Pixels";
-		displayLegend = true;
-		JFreeChart chart2 = ChartFactory.createXYLineChart(
-				TitleString, "time", "pixels",
-				xyDataset2,
-				PlotOrientation.VERTICAL,displayLegend,true,false );
+//		XYSeriesCollection xyDataset2 = new XYSeriesCollection();
+//		XYSeries[] cropSeries2 = vSequence.getPixels();
+//		ncurves = cropSeries.length;
+//		for (int i=0; i< ncurves; i++)
+//			xyDataset2.addSeries(cropSeries2[i]);
+//	
+//		TitleString = "Pixels";
+//		displayLegend = true;
+//		JFreeChart chart2 = ChartFactory.createXYLineChart(
+//				TitleString, "time", "pixels",
+//				xyDataset2,
+//				PlotOrientation.VERTICAL,displayLegend,true,false );
 		
 		int minWidth = 300;
 		int minHeight = 200;
@@ -483,12 +492,12 @@ public class Areatrack extends PluginActionable implements ActionListener, Chang
 		legendTitle.setPosition(RectangleEdge.RIGHT); 
 		mainChartPanel.add( new ChartPanel(  chart , width , height , minWidth, minHeight, maxWidth , maxHeight, false , false, true , true , true, true));
 		
-		plot = chart2.getXYPlot();
-		axis = plot.getDomainAxis();
-		axis.setRange(startFrame, endFrame);
-		legendTitle = chart2.getLegend();
-		legendTitle.setPosition(RectangleEdge.RIGHT); 
-		mainChartPanel.add( new ChartPanel(  chart2 , width , height , minWidth, minHeight, maxWidth , maxHeight, false , false, true , true , true, true));
+//		plot = chart2.getXYPlot();
+//		axis = plot.getDomainAxis();
+//		axis.setRange(startFrame, endFrame);
+//		legendTitle = chart2.getLegend();
+//		legendTitle.setPosition(RectangleEdge.RIGHT); 
+//		mainChartPanel.add( new ChartPanel(  chart2 , width , height , minWidth, minHeight, maxWidth , maxHeight, false , false, true , true , true, true));
 		
 		mainChartPanel.validate();
 		mainChartPanel.repaint();
