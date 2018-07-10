@@ -1,5 +1,6 @@
 package plugins.fmp.roitoarray;
 
+import java.awt.Color;
 import java.awt.Polygon;
 import java.awt.geom.Point2D;
 import java.util.ArrayList;
@@ -61,12 +62,14 @@ public class ROItoRoiArray extends EzPlug {
 	private void addEllipseROI (List<Point2D> points, String baseName, int i, int j) {
 		ROI2DEllipse roiP = new ROI2DEllipse (points.get(0), points.get(2));
 		roiP.setName(rootname+baseName+ String.format("_r%02d", j) + String.format("_c%02d", i));
+		roiP.setColor(Color.YELLOW);
 		sequence.getValue(true).addROI(roiP);
 	}
 	
 	private void addPolygonROI (List<Point2D> points, String baseName, int i, int j) {
 		ROI2DPolygon roiP = new ROI2DPolygon (points);
 		roiP.setName(rootname+baseName+ String.format("_R%02d", j) + String.format("_C%02d", i));
+		roiP.setColor(Color.YELLOW);
 		sequence.getValue(true).addROI(roiP);
 	}
 	
@@ -74,11 +77,13 @@ public class ROItoRoiArray extends EzPlug {
 		ROI2DLine roiL1 = new ROI2DLine (points.get(0), points.get(1));
 		roiL1.setName(rootname+baseName+ String.format("%02d", i/2)+"L");
 		roiL1.setReadOnly(false);
+		roiL1.setColor(Color.YELLOW);
 		sequence.getValue(true).addROI(roiL1, true);
 		
 		ROI2DLine roiL2 = new ROI2DLine (points.get(2), points.get(3));
 		roiL2.setName(rootname+baseName+ String.format("%02d", i/2)+"R");
 		roiL2.setReadOnly(false);
+		roiL2.setColor(Color.YELLOW);
 		sequence.getValue(true).addROI(roiL2, true);
 	}
 	
@@ -91,7 +96,8 @@ public class ROItoRoiArray extends EzPlug {
 		}
 
 		Polygon roiPolygon = Tools.orderVerticesofPolygon (((ROI2DPolygon) roi).getPolygon());
-		sequence.getValue(true).removeROI(roi);
+		sequence.getValue(true).removeAllROI();
+		sequence.getValue(true).addROI(roi, true);
 		
 		double colSpan = columnSpan.getValue();
 		double colSize = columnSize.getValue();

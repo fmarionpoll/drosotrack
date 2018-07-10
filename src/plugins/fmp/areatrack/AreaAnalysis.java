@@ -85,30 +85,30 @@ class AreaAnalysisThread extends Thread
 
 		// create array for the results - 1 point = 1 slice
 		int iroi = 0;
-		vSequence.results = new XYSeries[roiList.size()];
-		vSequence.pixels = new XYSeries[roiList.size()];
-		ArrayList<ROI2D> 				areaROIList= new ArrayList<ROI2D>();
-		ArrayList<BooleanMask2D> 		areaMaskList 	= new ArrayList<BooleanMask2D>();
+		int nrois = roiList.size();
+		vSequence.rresults = new double [nrois][nbframes];
+		vSequence.rpixels = new double [nrois][nbframes];
+		ArrayList<ROI2D> 				areaROIList = new ArrayList<ROI2D>();
+		ArrayList<BooleanMask2D> 		areaMaskList = new ArrayList<BooleanMask2D>();
 		
 		areaROIList.clear();
 		areaMaskList.clear();
+		vSequence.rseriesname = new String[nrois];
 		for (ROI2D roi: roiList)
 		{
 			String csName = roi.getName();
-			vSequence.results[iroi] = new XYSeries(csName);
-			vSequence.results[iroi].clear();
-			vSequence.pixels[iroi] = new XYSeries(csName);
-			vSequence.pixels[iroi].clear();
-			
+			vSequence.rseriesname[iroi] = csName;
 			areaROIList.add(roi);
 			areaMaskList.add(roi.getBooleanMask2D( 0 , 0, 1, true ));
 			iroi++;
 		}
-		Collections.sort(areaROIList, new Tools.ROI2DNameComparator());
 
 		try {
-			final Viewer v = Icy.getMainInterface().getFirstViewer(vSequence);
+			Viewer viewer = Icy.getMainInterface().getFirstViewer(vSequence);
 			ThresholdOverlay tov = vSequence.getThresholdOverlay();
+			if (tov == null) {
+				
+			}
 			vSequence.beginUpdate();
 			ImageTransform tImg = new ImageTransform();
 			tImg.setSequence(vSequence);
@@ -123,8 +123,8 @@ class AreaAnalysisThread extends Thread
 				// load next image and compute threshold
 				IcyBufferedImage workImage = tImg.transformImage(t, transf); 
 				vSequence.currentFrame = t;
-				v.setPositionT(t);
-				v.setTitle(vSequence.getVImageName(t));
+				viewer.setPositionT(t);
+				viewer.setTitle(vSequence.getVImageName(t));
 
 				// ------------------------ compute global mask
 				tov.getBinaryOverThresholdFromDoubleImage(workImage, threshold);
@@ -147,8 +147,8 @@ class AreaAnalysisThread extends Thread
 						BooleanMask2D intersectionMask = maskAll2D.getIntersection( areaMask );
 						sum = intersectionMask.getNumberOfPoints();
 					}
-					vSequence.results[imask].add(t, sum);
-					vSequence.pixels[imask].add(t, npixels);
+					vSequence.rresults[imask][t-startFrame]= sum;
+					vSequence.rpixels[imask][t-startFrame]= npixels;
 				}
 			}
 		

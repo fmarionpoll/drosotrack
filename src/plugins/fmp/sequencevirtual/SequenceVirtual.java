@@ -62,8 +62,11 @@ public class SequenceVirtual extends Sequence
 	public int		threshold = -1;
 	public VImageBufferThread bufferThread = null;
 	public ArrayList <ROI2DShape> capillariesArrayList 	= new ArrayList <ROI2DShape>();			// list of ROIs describing capillaries (e.g. profiles to follow)
-	public XYSeries[] results = null;
-	public XYSeries[] pixels = null;
+	//public XYSeries[] results = null;
+	//public XYSeries[] pixels = null;
+	public String [] rseriesname = null;
+	public double [][] rresults = null;
+	public double [][] rpixels = null;
 	
 	// ----------------------------------------
 	public SequenceVirtual () 
@@ -767,15 +770,15 @@ public class SequenceVirtual extends Sequence
 		return true;
 	}
 	
-	public XYSeries[] getResults () 
-	{
-		return results;
-	}
-	
-	public XYSeries[] getPixels () 
-	{
-		return pixels;
-	}
+//	public XYSeries[] getResults () 
+//	{
+//		return results;
+//	}
+//	
+//	public XYSeries[] getPixels () 
+//	{
+//		return pixels;
+//	}
 
 	public void setThresholdOverlay(ThresholdOverlay ov) 
 	{

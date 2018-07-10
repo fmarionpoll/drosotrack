@@ -112,7 +112,8 @@ public class Areatrack extends PluginActionable implements ActionListener, Chang
 		mainFrame.setLayout(new BorderLayout());
 		JPanel mainPanel = GuiUtil.generatePanelWithoutBorder();
 		mainFrame.add(mainPanel, BorderLayout.CENTER);
-		
+		XMLPreferences guiPrefs = this.getPreferences("gui");
+					
 		// ----------------------------menu bar
 		JMenuBar menuBar = new JMenuBar();
 		JMenu exportMenu = new JMenu("Save");
@@ -122,7 +123,8 @@ public class Areatrack extends PluginActionable implements ActionListener, Chang
 		exportItem.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
-				String file = Tools.saveFileAs(vSequence.getDirectory(), "xls");
+				String lastUsedPath = guiPrefs.get("lastUsedPath", "");
+				String file = Tools.saveFileAs(lastUsedPath, "xls");
 				if (file != null) {
 					ThreadUtil.bgRun( new Runnable() { 	
 						@Override
@@ -314,6 +316,7 @@ public class Areatrack extends PluginActionable implements ActionListener, Chang
 		// _______________________________________________
 		else if (o == startComputationButton) {
 
+			updateOverlay ();
 			analysisThread = new AreaAnalysisThread();
 			try { 
 				vSequence.istep = Integer.parseInt( analyzeStepTextField.getText() );
@@ -384,7 +387,6 @@ public class Areatrack extends PluginActionable implements ActionListener, Chang
 			vSequence.setThresholdOverlay(thresholdOverlay);
 		}
 		int transform = transformsComboBox.getSelectedIndex();
-//		System.out.println("Transform selected: "+ transform);
 		thresholdOverlay.setThresholdOverlayParameters( vSequence,
 				thresholdedImageCheckBox.isSelected(), 
 				vSequence.threshold, 
@@ -434,6 +436,7 @@ public class Areatrack extends PluginActionable implements ActionListener, Chang
 	}
 	
 	private void updateCharts() {
+		
 		String title = "Measures from " + vSequence.getFileName(0);
 		Point pt = new Point(10, 10);
 		
@@ -449,12 +452,21 @@ public class Areatrack extends PluginActionable implements ActionListener, Chang
 		mainChartFrame.add(mainChartPanel);
 		
 		mainChartPanel.removeAll();
-		int rows = 2;
+		int rows = 1;
 		int cols = 1;
 		XYSeriesCollection xyDataset = new XYSeriesCollection();
 		mainChartPanel.setLayout(new GridLayout(rows, cols));
 		
-		XYSeries[] cropSeries = vSequence.getResults();
+		int nrois = vSequence.rresults.length;
+		XYSeries [] cropSeries = new XYSeries [nrois];
+		for (int iroi=0; iroi < nrois; iroi++) {
+			cropSeries[iroi] = new XYSeries (vSequence.rseriesname[iroi]);
+			cropSeries[iroi].clear();
+			for (int t= startFrame; t <= endFrame; t++) {
+				cropSeries[iroi].add(t, vSequence.rresults[iroi][t-startFrame]);
+			}
+		}
+		
 		int ncurves = cropSeries.length;
 		for (int i=0; i< ncurves; i++)
 			xyDataset.addSeries(cropSeries[i]);
@@ -465,23 +477,10 @@ public class Areatrack extends PluginActionable implements ActionListener, Chang
 				TitleString, "time", "pixels",
 				xyDataset,
 				PlotOrientation.VERTICAL,displayLegend,true,false ); 
-				
-//		XYSeriesCollection xyDataset2 = new XYSeriesCollection();
-//		XYSeries[] cropSeries2 = vSequence.getPixels();
-//		ncurves = cropSeries.length;
-//		for (int i=0; i< ncurves; i++)
-//			xyDataset2.addSeries(cropSeries2[i]);
-//	
-//		TitleString = "Pixels";
-//		displayLegend = true;
-//		JFreeChart chart2 = ChartFactory.createXYLineChart(
-//				TitleString, "time", "pixels",
-//				xyDataset2,
-//				PlotOrientation.VERTICAL,displayLegend,true,false );
 		
-		int minWidth = 300;
+		int minWidth = 800;
 		int minHeight = 200;
-		int width = 300;
+		int width = 800;
 		int height = 200;
 		int maxWidth = 100000;
 		int maxHeight = 100000;
@@ -491,13 +490,6 @@ public class Areatrack extends PluginActionable implements ActionListener, Chang
 		LegendTitle legendTitle = chart.getLegend();
 		legendTitle.setPosition(RectangleEdge.RIGHT); 
 		mainChartPanel.add( new ChartPanel(  chart , width , height , minWidth, minHeight, maxWidth , maxHeight, false , false, true , true , true, true));
-		
-//		plot = chart2.getXYPlot();
-//		axis = plot.getDomainAxis();
-//		axis.setRange(startFrame, endFrame);
-//		legendTitle = chart2.getLegend();
-//		legendTitle.setPosition(RectangleEdge.RIGHT); 
-//		mainChartPanel.add( new ChartPanel(  chart2 , width , height , minWidth, minHeight, maxWidth , maxHeight, false , false, true , true , true, true));
 		
 		mainChartPanel.validate();
 		mainChartPanel.repaint();
@@ -521,15 +513,13 @@ public class Areatrack extends PluginActionable implements ActionListener, Chang
 			blistofFiles = true;
 		}
 		
-		XYSeries[] cropSeries = vSequence.getResults();
-
 		try {
 			WritableWorkbook xlsWorkBook = XLSUtil.createWorkbook( filename);
 
 			// local variables used for exporting the 2 worksheets
 			int it = 0;
 			int irow = 0;
-			int nrois = cropSeries.length;
+			int nrois = vSequence.rresults.length;
 			int icol0 = 0;
 			
 			// xls output - distances
@@ -540,7 +530,6 @@ public class Areatrack extends PluginActionable implements ActionListener, Chang
 			irow++;;
 			
 			irow=2;
-			nrois = cropSeries.length;
 			// table header
 			icol0 = 0;
 			if (blistofFiles) {
@@ -551,14 +540,14 @@ public class Areatrack extends PluginActionable implements ActionListener, Chang
 			icol0++;
 			for (int iroi=0; iroi < nrois; iroi++, icol0++) 
 			{
-				XLSUtil.setCellString( distancePage , icol0, irow, cropSeries[iroi].getKey().toString() );
+				XLSUtil.setCellString( distancePage , icol0, irow, vSequence.rseriesname[iroi]);
 			}
 			irow++;
 
 			// data
 			it = 1;
 
-			for ( int t = startFrame+1 ; t < endFrame;  t  += analyzeStep, it++ )
+			for ( int t = startFrame ; t < endFrame;  t  += analyzeStep, it++ )
 			{
 				try
 				{
@@ -567,12 +556,12 @@ public class Areatrack extends PluginActionable implements ActionListener, Chang
 						XLSUtil.setCellString( distancePage , icol0,   irow, listofFiles[it] );
 						icol0++;
 					}
-					double value = (double) cropSeries[0].getX(it);
+					double value = t; 
 					XLSUtil.setCellNumber( distancePage, icol0 , irow , value ); // frame number
 					icol0++;
 					
 					for (int iroi=0; iroi < nrois; iroi++) {
-						value = (double) cropSeries[iroi].getY(it);
+						value = vSequence.rresults[iroi][t-startFrame];
 						XLSUtil.setCellNumber( distancePage, icol0 , irow , value ); 
 						icol0++;
 
@@ -591,6 +580,7 @@ public class Areatrack extends PluginActionable implements ActionListener, Chang
 		} catch (WriteException e) {
 			e.printStackTrace();
 		}
+		System.out.println("XLS output done");
 	}
 
 
