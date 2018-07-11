@@ -24,7 +24,9 @@ public class Tools {
 		// load last preferences for loader
 		String csFile = null;
 		final JFileChooser fileChooser = new JFileChooser();
-
+		if (directory != null) {
+			fileChooser.setCurrentDirectory(new File(directory));
+		}
 		fileChooser.setFileSelectionMode(JFileChooser.FILES_ONLY );
 		FileNameExtensionFilter xlsFilter = new FileNameExtensionFilter(csExt+" files",  csExt, csExt);
 		fileChooser.addChoosableFileFilter(xlsFilter);

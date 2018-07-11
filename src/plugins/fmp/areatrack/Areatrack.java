@@ -102,6 +102,7 @@ public class Areatrack extends PluginActionable implements ActionListener, Chang
 	private int endFrame = 99999999;
 	private int numberOfImageForBuffer = 100;
 	private AreaAnalysisThread analysisThread = null;
+	private String lastUsedPath;
 	ThresholdOverlay thresholdOverlay = null;
 	ImageTransform imgTransf = new ImageTransform();
 	
@@ -113,7 +114,8 @@ public class Areatrack extends PluginActionable implements ActionListener, Chang
 		JPanel mainPanel = GuiUtil.generatePanelWithoutBorder();
 		mainFrame.add(mainPanel, BorderLayout.CENTER);
 		XMLPreferences guiPrefs = this.getPreferences("gui");
-					
+		lastUsedPath = guiPrefs.get("lastUsedPath", "");
+			
 		// ----------------------------menu bar
 		JMenuBar menuBar = new JMenuBar();
 		JMenu exportMenu = new JMenu("Save");
@@ -123,7 +125,6 @@ public class Areatrack extends PluginActionable implements ActionListener, Chang
 		exportItem.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
-				String lastUsedPath = guiPrefs.get("lastUsedPath", "");
 				String file = Tools.saveFileAs(lastUsedPath, "xls");
 				if (file != null) {
 					ThreadUtil.bgRun( new Runnable() { 	
@@ -279,12 +280,13 @@ public class Areatrack extends PluginActionable implements ActionListener, Chang
 			
 			vSequence = new SequenceVirtual();
 			XMLPreferences guiPrefs = this.getPreferences("gui");
-			String lastUsedPath = guiPrefs.get("lastUsedPath", "");
+			lastUsedPath = guiPrefs.get("lastUsedPath", "");
 			
 			path = vSequence.loadInputVirtualStack(lastUsedPath);
 			if (path != null) 
  			{
 				guiPrefs.put("lastUsedPath", path);
+				lastUsedPath = path;
 				initInputSeq();
 			}
 		}
