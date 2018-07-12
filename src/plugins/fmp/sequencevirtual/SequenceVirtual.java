@@ -62,11 +62,10 @@ public class SequenceVirtual extends Sequence
 	public int		threshold = -1;
 	public VImageBufferThread bufferThread = null;
 	public ArrayList <ROI2DShape> capillariesArrayList 	= new ArrayList <ROI2DShape>();			// list of ROIs describing capillaries (e.g. profiles to follow)
-	//public XYSeries[] results = null;
-	//public XYSeries[] pixels = null;
-	public String [] rseriesname = null;
-	public double [][] rresults = null;
-	public double [][] rpixels = null;
+	public String [] seriesname = null;
+	public int [][] data_raw = null;
+	public int [][] rpixels = null;
+	public double [][] data_filtered = null;
 	
 	// ----------------------------------------
 	public SequenceVirtual () 

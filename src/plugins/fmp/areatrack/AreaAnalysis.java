@@ -86,18 +86,18 @@ class AreaAnalysisThread extends Thread
 		// create array for the results - 1 point = 1 slice
 		int iroi = 0;
 		int nrois = roiList.size();
-		vSequence.rresults = new double [nrois][nbframes];
-		vSequence.rpixels = new double [nrois][nbframes];
-		ArrayList<ROI2D> 				areaROIList = new ArrayList<ROI2D>();
-		ArrayList<BooleanMask2D> 		areaMaskList = new ArrayList<BooleanMask2D>();
+		vSequence.data_raw = new int [nrois][nbframes];
+		vSequence.rpixels = new int [nrois][nbframes];
+		ArrayList<ROI2D> areaROIList = new ArrayList<ROI2D>();
+		ArrayList<BooleanMask2D> areaMaskList = new ArrayList<BooleanMask2D>();
 		
 		areaROIList.clear();
 		areaMaskList.clear();
-		vSequence.rseriesname = new String[nrois];
+		vSequence.seriesname = new String[nrois];
 		for (ROI2D roi: roiList)
 		{
 			String csName = roi.getName();
-			vSequence.rseriesname[iroi] = csName;
+			vSequence.seriesname[iroi] = csName;
 			areaROIList.add(roi);
 			areaMaskList.add(roi.getBooleanMask2D( 0 , 0, 1, true ));
 			iroi++;
@@ -147,7 +147,7 @@ class AreaAnalysisThread extends Thread
 						BooleanMask2D intersectionMask = maskAll2D.getIntersection( areaMask );
 						sum = intersectionMask.getNumberOfPoints();
 					}
-					vSequence.rresults[imask][t-startFrame]= sum;
+					vSequence.data_raw[imask][t-startFrame]= sum;
 					vSequence.rpixels[imask][t-startFrame]= npixels;
 				}
 			}

@@ -66,15 +66,15 @@ import plugins.fmp.sequencevirtual.Tools;
 public class Areatrack extends PluginActionable implements ActionListener, ChangeListener, ViewerListener
 {	
 	// -------------------------------------- interface
-	IcyFrame mainFrame = new IcyFrame("AreaTrack 9-07-2018", true, true, true, true);
+	IcyFrame mainFrame = new IcyFrame("AreaTrack 12-07-2018", true, true, true, true);
 	IcyFrame mainChartFrame = null;
 	JPanel 	mainChartPanel = null;
 	
 	// ---------------------------------------- video
-	private JButton 	setVideoSourceButton 	= new JButton("Open...");
-	private JButton		openROIsButton			= new JButton("Load...");
-	private JButton		addROIsButton			= new JButton("Add...");
-	private JButton		saveROIsButton			= new JButton("Save...");
+	private JButton 	setVideoSourceButton= new JButton("Open...");
+	private JButton		openROIsButton		= new JButton("Load...");
+	private JButton		addROIsButton		= new JButton("Add...");
+	private JButton		saveROIsButton		= new JButton("Save...");
 	
 	private JButton startComputationButton 	= new JButton("Start");
 	private JButton stopComputationButton	= new JButton("Stop");
@@ -82,29 +82,32 @@ public class Areatrack extends PluginActionable implements ActionListener, Chang
 	private JTextField endFrameTextField	= new JTextField("99999999");
 	
 	private JComboBox<String> transformsComboBox; 
-	private int tdefault = 1;
+	private int tdefault 					= 1;
 	private JSpinner thresholdSpinner		= new JSpinner(new SpinnerNumberModel(100, 0, 255, 10));
 	private JTextField analyzeStepTextField = new JTextField("1");
 	private JCheckBox thresholdedImageCheckBox = new JCheckBox("Display objects over threshold as overlay");
 	
-	private String[] 	availableAnalyses 	= new String[] {">threshold"};
-	private JComboBox<String> analysesComboBox = new JComboBox<String> (availableAnalyses);
+	private String[] availableFilter 		= new String[] {"raw data", "running average"};
+	private JComboBox<String> filterComboBox= new JComboBox<String> (availableFilter);
+	private JTextField spanTextField		= new JTextField("10");
+	private String[] availableConditions 	= new String[] {"no condition", "clip increase of size"};
+	private JComboBox<String> conditionsComboBox = new JComboBox<String> (availableConditions);
 
 	private JButton updateChartsButton 		= new JButton("Update charts");
 	private JButton exportToXLSButton 		= new JButton("Save XLS file..");
 	private JButton	closeAllButton			= new JButton("Close views");
 
 	//------------------------------------------- global variables
-	private SequenceVirtual vSequence = null;
-	private Timer checkBufferTimer = new Timer(1000, this);
-	private int	analyzeStep = 1;
-	private int startFrame = 1;
-	private int endFrame = 99999999;
-	private int numberOfImageForBuffer = 100;
+	private SequenceVirtual vSequence 		= null;
+	private Timer checkBufferTimer 			= new Timer(1000, this);
+	private int	analyzeStep 				= 1;
+	private int startFrame 					= 1;
+	private int endFrame 					= 99999999;
+	private int numberOfImageForBuffer 		= 100;
 	private AreaAnalysisThread analysisThread = null;
-	private String lastUsedPath;
-	ThresholdOverlay thresholdOverlay = null;
-	ImageTransform imgTransf = new ImageTransform();
+	private String lastUsedPath				= null;
+	ThresholdOverlay thresholdOverlay 		= null;
+	ImageTransform imgTransf 				= new ImageTransform();
 	
 	// --------------------------------------------------------------------------
 	@Override
@@ -180,14 +183,13 @@ public class Areatrack extends PluginActionable implements ActionListener, Chang
 		final JPanel analysisPanel =  GuiUtil.generatePanel("ANALYSIS");
 		mainPanel.add(GuiUtil.besidesPanel(analysisPanel));
 		analysisPanel.add( GuiUtil.besidesPanel( startComputationButton, stopComputationButton ) );
-		JLabel methodsText = new JLabel ("method selected:");
-		analysisPanel.add( GuiUtil.besidesPanel(methodsText, analysesComboBox )); 
 		JLabel startLabel 	= new JLabel("start ");
 		JLabel endLabel 	= new JLabel("end ");
 		JLabel stepLabel 	= new JLabel("step ");
 		startLabel.setHorizontalAlignment(SwingConstants.RIGHT);
 		endLabel.setHorizontalAlignment(SwingConstants.RIGHT);
 		stepLabel.setHorizontalAlignment(SwingConstants.RIGHT);
+		
 		analysisPanel.add( GuiUtil.besidesPanel( startLabel, startFrameTextField, endLabel, endFrameTextField ) );
 		analysisPanel.add( GuiUtil.besidesPanel( stepLabel, analyzeStepTextField, new JLabel (" "), new JLabel (" ")));
 		
@@ -203,8 +205,27 @@ public class Areatrack extends PluginActionable implements ActionListener, Chang
 		
 		final JPanel displayPanel = GuiUtil.generatePanel("DISPLAY/EXPORT RESULTS");
 		mainPanel.add(GuiUtil.besidesPanel(displayPanel));
+		displayPanel.add(GuiUtil.besidesPanel(new JLabel ("output:"), filterComboBox )); 
+		displayPanel.add(GuiUtil.besidesPanel(new JLabel ("span:"), spanTextField));
+		displayPanel.add(GuiUtil.besidesPanel(new JLabel ("condition:"), conditionsComboBox)); 
 		displayPanel.add(GuiUtil.besidesPanel(updateChartsButton, exportToXLSButton)); 
 		displayPanel.add(GuiUtil.besidesPanel(closeAllButton));
+		
+
+		mainFrame.pack();
+		mainFrame.center();
+		mainFrame.setVisible(true);
+		mainFrame.addToDesktopPane();
+		mainFrame.requestFocus();
+		
+		// -------------------------------------------- default selection
+		conditionsComboBox.setSelectedIndex(1);
+		filterComboBox.setSelectedIndex(1);
+		transformsComboBox.setSelectedIndex(6);
+			
+		 // display an announcement with Plugin description
+		new ToolTipFrame ( "<html>This plugin is designed to analyse <br>the consumption of arrays of leaf disks<br>by lepidoptera larvae.<br><br>To open a stack of files (jpg, jpeg), <br>use the 'open' button <br>and select a file within a stack <br>or select a directory containing a stack",
+				10);
 		
 		// -------------------------------------------- action listeners, etc
 		setVideoSourceButton.addActionListener(this);
@@ -233,16 +254,6 @@ public class Areatrack extends PluginActionable implements ActionListener, Chang
 				vSequence.close();
 				checkBufferTimer.stop(); 
 			} } );
-
-		mainFrame.pack();
-		mainFrame.center();
-		mainFrame.setVisible(true);
-		mainFrame.addToDesktopPane();
-		mainFrame.requestFocus();
-		
-		 // display an announcement with Plugin description
-		new ToolTipFrame ( "<html>This plugin is designed to analyse <br>the consumption of arrays of leaf disks<br>by lepidoptera larvae.<br><br>To open a stack of files (jpg, jpeg), <br>use the 'open' button <br>and select a file within a stack <br>or select a directory containing a stack",
-				10);
 	}
 
 	@Override
@@ -393,10 +404,58 @@ public class Areatrack extends PluginActionable implements ActionListener, Chang
 				thresholdedImageCheckBox.isSelected(), 
 				vSequence.threshold, 
 				transform);
-		//if (transform == 12)
+		//if (transform == 12) then feed a reference into sequence
 			
 		if (thresholdOverlay != null) {
 			thresholdOverlay.painterChanged();
+		}
+	}
+	
+	private void filterData () {
+		
+		int nrois = vSequence.data_raw.length;
+		if (vSequence.data_filtered == null || vSequence.data_filtered.length != vSequence.data_raw.length)
+			vSequence.data_filtered = new double [nrois][endFrame-startFrame+1];
+		
+		int filteroption = filterComboBox.getSelectedIndex();
+		int constraintoption = conditionsComboBox.getSelectedIndex();
+		
+		int span = Integer.parseInt(spanTextField.getText());
+		double sum = 0;
+		switch (filteroption) {
+			case 1: // running average over "span" points
+				for (int iroi=0; iroi < nrois; iroi++) {
+					sum = 0;
+					for (int t= 0; t< span; t++) {
+						sum += vSequence.data_raw[iroi][t];
+						if (t < span/2)
+							vSequence.data_filtered[iroi][t] = vSequence.data_raw[iroi][t];
+					}
+					sum -= vSequence.data_raw[iroi][span] - vSequence.data_raw[iroi][0];
+					
+					for ( int t = endFrame-startFrame-span/2 ; t < endFrame-startFrame;  t++ )
+						vSequence.data_filtered[iroi][t] = vSequence.data_raw[iroi][t];
+					int t0= 0;
+					int t1 =span;
+					for (int t= span/2; t< endFrame-startFrame-span/2; t++, t0++, t1++) {
+						sum += vSequence.data_raw[iroi][t1] - vSequence.data_raw[iroi][t0];
+						vSequence.data_filtered[iroi][t] = sum/span;
+					}
+					if (constraintoption == 1) {
+						for (int t= span; t< endFrame-startFrame; t++)
+							if (vSequence.data_filtered[iroi][t] > vSequence.data_filtered[iroi][t-1])
+								vSequence.data_filtered[iroi][t] = vSequence.data_filtered[iroi][t-1];
+					}
+				}
+				break;
+	
+			default:	
+				for (int iroi=0; iroi < nrois; iroi++) {
+					for ( int t = 0 ; t < endFrame-startFrame;  t++ ) {
+						vSequence.data_filtered[iroi][t] = vSequence.data_raw[iroi][t];
+					}
+				}
+				break;
 		}
 	}
 	
@@ -438,6 +497,7 @@ public class Areatrack extends PluginActionable implements ActionListener, Chang
 	}
 	
 	private void updateCharts() {
+		filterData ();
 		
 		String title = "Measures from " + vSequence.getFileName(0);
 		Point pt = new Point(10, 10);
@@ -459,13 +519,13 @@ public class Areatrack extends PluginActionable implements ActionListener, Chang
 		XYSeriesCollection xyDataset = new XYSeriesCollection();
 		mainChartPanel.setLayout(new GridLayout(rows, cols));
 		
-		int nrois = vSequence.rresults.length;
+		int nrois = vSequence.data_filtered.length;
 		XYSeries [] cropSeries = new XYSeries [nrois];
 		for (int iroi=0; iroi < nrois; iroi++) {
-			cropSeries[iroi] = new XYSeries (vSequence.rseriesname[iroi]);
+			cropSeries[iroi] = new XYSeries (vSequence.seriesname[iroi]);
 			cropSeries[iroi].clear();
 			for (int t= startFrame; t <= endFrame; t++) {
-				cropSeries[iroi].add(t, vSequence.rresults[iroi][t-startFrame]);
+				cropSeries[iroi].add(t, vSequence.data_filtered[iroi][t-startFrame]);
 			}
 		}
 		
@@ -505,6 +565,8 @@ public class Areatrack extends PluginActionable implements ActionListener, Chang
 	
 	private void exportToXLS(String filename) {
 		
+		filterData ();
+		
 		// xls output - successive positions
 		System.out.println("XLS output");
 		String[] listofFiles = null;
@@ -521,7 +583,7 @@ public class Areatrack extends PluginActionable implements ActionListener, Chang
 			// local variables used for exporting the 2 worksheets
 			int it = 0;
 			int irow = 0;
-			int nrois = vSequence.rresults.length;
+			int nrois = vSequence.data_filtered.length;
 			int icol0 = 0;
 			
 			// xls output - distances
@@ -542,7 +604,7 @@ public class Areatrack extends PluginActionable implements ActionListener, Chang
 			icol0++;
 			for (int iroi=0; iroi < nrois; iroi++, icol0++) 
 			{
-				XLSUtil.setCellString( distancePage , icol0, irow, vSequence.rseriesname[iroi]);
+				XLSUtil.setCellString( distancePage , icol0, irow, vSequence.seriesname[iroi]);
 			}
 			irow++;
 
@@ -563,7 +625,7 @@ public class Areatrack extends PluginActionable implements ActionListener, Chang
 					icol0++;
 					
 					for (int iroi=0; iroi < nrois; iroi++) {
-						value = vSequence.rresults[iroi][t-startFrame];
+						value = vSequence.data_filtered[iroi][t-startFrame];
 						XLSUtil.setCellNumber( distancePage, icol0 , irow , value ); 
 						icol0++;
 
