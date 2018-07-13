@@ -66,7 +66,7 @@ import plugins.fmp.sequencevirtual.Tools;
 public class Areatrack extends PluginActionable implements ActionListener, ChangeListener, ViewerListener
 {	
 	// -------------------------------------- interface
-	IcyFrame mainFrame = new IcyFrame("AreaTrack 12-07-2018", true, true, true, true);
+	IcyFrame mainFrame = new IcyFrame("AreaTrack 13-07-2018", true, true, true, true);
 	IcyFrame mainChartFrame = null;
 	JPanel 	mainChartPanel = null;
 	
@@ -83,7 +83,7 @@ public class Areatrack extends PluginActionable implements ActionListener, Chang
 	
 	private JComboBox<String> transformsComboBox; 
 	private int tdefault 					= 1;
-	private JSpinner thresholdSpinner		= new JSpinner(new SpinnerNumberModel(100, 0, 255, 10));
+	private JSpinner thresholdSpinner		= new JSpinner(new SpinnerNumberModel(70, 0, 255, 10));
 	private JTextField analyzeStepTextField = new JTextField("1");
 	private JCheckBox thresholdedImageCheckBox = new JCheckBox("Display objects over threshold as overlay");
 	
@@ -210,7 +210,6 @@ public class Areatrack extends PluginActionable implements ActionListener, Chang
 		displayPanel.add(GuiUtil.besidesPanel(new JLabel ("condition:"), conditionsComboBox)); 
 		displayPanel.add(GuiUtil.besidesPanel(updateChartsButton, exportToXLSButton)); 
 		displayPanel.add(GuiUtil.besidesPanel(closeAllButton));
-		
 
 		mainFrame.pack();
 		mainFrame.center();
@@ -237,6 +236,7 @@ public class Areatrack extends PluginActionable implements ActionListener, Chang
 		thresholdSpinner.addChangeListener(this);
 		thresholdedImageCheckBox.addActionListener(this);
 		updateChartsButton.addActionListener(this);
+		
 		transformsComboBox.addActionListener(new ActionListener () {
 			@Override
 			public void actionPerformed( final ActionEvent e ) { 

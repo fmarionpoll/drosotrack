@@ -4,6 +4,7 @@ import java.awt.Color;
 import icy.image.IcyBufferedImage;
 import icy.image.IcyBufferedImageUtil;
 import icy.math.ArrayMath;
+import icy.type.DataType;
 import icy.type.collection.array.Array1DUtil;
 
 public class ImageTransform {
@@ -51,6 +52,7 @@ public class ImageTransform {
 	public void setReferenceImage(IcyBufferedImage img) {
 		referenceImage = IcyBufferedImageUtil.getCopy(img);
 	}
+	
 	public void setSequence (SequenceVirtual vinputSeq) {
 		vinputSequence = vinputSeq;
 		referenceImage = vinputSequence.loadVImage(0);
@@ -87,13 +89,44 @@ public class ImageTransform {
 		return img2;
 	}
 	
-	// function to modify by François
-	private void functionNormRGB_sumC1C2Minus2C3 (IcyBufferedImage sourceImage, int ADD1, int ADD2, int SUB) {
+	// function proposed by François 
+	
+	private void functionNormRGB_sumC1C2Minus2C3 (IcyBufferedImage sourceImage, int Rlayer, int Glayer, int Blayer) {
+ 
+		double[] Rn = Array1DUtil.arrayToDoubleArray(sourceImage.getDataXY(Rlayer), sourceImage.isSignedDataType());
+		double[] Gn = Array1DUtil.arrayToDoubleArray(sourceImage.getDataXY(Glayer), sourceImage.isSignedDataType());
+		double[] Bn = Array1DUtil.arrayToDoubleArray(sourceImage.getDataXY(Blayer), sourceImage.isSignedDataType());
+		double[] ExG = (double[]) Array1DUtil.createArray(DataType.DOUBLE, Rn.length);
+		
+		ArrayMath.divide (Rn, 255, Rn);
+		ArrayMath.divide (Gn, 255, Gn);
+		ArrayMath.divide (Bn, 255, Bn);
+		
+		double[] sum = (double[]) Array1DUtil.createArray(DataType.DOUBLE, Rn.length);
+		ArrayMath.add (Rn, Gn, sum);
+		ArrayMath.add (sum,  Bn, sum);
+		
+		ArrayMath.divide (Rn, sum, Rn);
+		ArrayMath.divide (Gn, sum, Gn);
+		ArrayMath.divide (Bn, sum, Bn);
+
+		// compute ExG = 2*g - r - b
+		ArrayMath.multiply(Gn, 2, ExG);
+		ArrayMath.subtract(ExG, Rn, ExG);
+		ArrayMath.subtract(ExG, Bn, ExG);
+		
+		// from 0 to 255
+		ArrayMath.multiply(ExG, 255, ExG);
+		
+		Array1DUtil.doubleArrayToSafeArray(ExG,  img2.getDataXY(0),  true); //true, img2.isSignedDataType());
+	}
+	
+	private void functionRGB_sumC1C2Minus2C3 (IcyBufferedImage sourceImage, int ADD1, int ADD2, int SUB) {
 		 
 		double[] tabSubtract = Array1DUtil.arrayToDoubleArray(sourceImage.getDataXY(SUB), sourceImage.isSignedDataType());
 		double[] tabAdd1 = Array1DUtil.arrayToDoubleArray(sourceImage.getDataXY(ADD1), sourceImage.isSignedDataType());
 		double[] tabAdd2 = Array1DUtil.arrayToDoubleArray(sourceImage.getDataXY(ADD2), sourceImage.isSignedDataType());
-		double[] img2Values = Array1DUtil.arrayToDoubleArray(img2.getDataXY(0), img2.isSignedDataType());
+		double[] img2Values = (double[]) Array1DUtil.createArray(DataType.DOUBLE, tabSubtract.length);
 
 		ArrayMath.add(tabAdd1, tabAdd2, img2Values);
 		ArrayMath.divide(2, img2Values);
@@ -102,28 +135,10 @@ public class ImageTransform {
 		Array1DUtil.doubleArrayToSafeArray(img2Values,  img2.getDataXY(0),  true); //true, img2.isSignedDataType());
 		
 		// duplicate channel 0 to chan 1 & 2
-		img2.copyData(img2, 0, 1);
-		img2.copyData(img2, 0, 2);
+//		img2.copyData(img2, 0, 1);
+//		img2.copyData(img2, 0, 2);
 	}
 	
-	private void functionRGB_sumC1C2Minus2C3 (IcyBufferedImage sourceImage, int ADD1, int ADD2, int SUB) {
- 
-		double[] tabSubtract = Array1DUtil.arrayToDoubleArray(sourceImage.getDataXY(SUB), sourceImage.isSignedDataType());
-		double[] tabAdd1 = Array1DUtil.arrayToDoubleArray(sourceImage.getDataXY(ADD1), sourceImage.isSignedDataType());
-		double[] tabAdd2 = Array1DUtil.arrayToDoubleArray(sourceImage.getDataXY(ADD2), sourceImage.isSignedDataType());
-		double[] img2Values = Array1DUtil.arrayToDoubleArray(img2.getDataXY(0), img2.isSignedDataType());
-	
-		ArrayMath.add(tabAdd1, tabAdd2, img2Values);
-		ArrayMath.divide(2, img2Values);
-		ArrayMath.subtract(img2Values, tabSubtract, img2Values);
-		
-		Array1DUtil.doubleArrayToSafeArray(img2Values,  img2.getDataXY(0),  true); //true, img2.isSignedDataType());
-		
-		// duplicate channel 0 to chan 1 & 2
-		img2.copyData(img2, 0, 1);
-		img2.copyData(img2, 0, 2);
-	}
-		
 	private void computeXDiffn(IcyBufferedImage sourceImage) {
 
 		int chan0 = 0;
@@ -243,15 +258,11 @@ public class ImageTransform {
 				outValues0 [ky] = val;
 			}
 		}
-		
-//		ArrayMath.add(tabValuesR, tabValuesG, outValues0);
-//		ArrayMath.add(tabValuesB, outValues0, outValues0);
-//		ArrayMath.divide(3, outValues0);
-		
+				
 		Array1DUtil.intArrayToSafeArray(outValues0,  img2.getDataXY(0),  false, img2.isSignedDataType());
 		// duplicate channel 0 to chan 1 & 2
-		img2.copyData(img2, 0, 1);
-		img2.copyData(img2, 0, 2);
+//		img2.copyData(img2, 0, 1);
+//		img2.copyData(img2, 0, 2);
 	}
 	
 	private void functionRGB_HSB(IcyBufferedImage sourceImage, int HorSorB) {

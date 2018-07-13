@@ -3,8 +3,6 @@ package plugins.fmp.areatrack;
 import java.util.ArrayList;
 import java.util.Collections;
 
-import org.jfree.data.xy.XYSeries;
-
 import icy.gui.frame.progress.ProgressFrame;
 import icy.gui.viewer.Viewer;
 import icy.image.IcyBufferedImage;
@@ -86,6 +84,7 @@ class AreaAnalysisThread extends Thread
 		// create array for the results - 1 point = 1 slice
 		int iroi = 0;
 		int nrois = roiList.size();
+
 		vSequence.data_raw = new int [nrois][nbframes];
 		vSequence.rpixels = new int [nrois][nbframes];
 		ArrayList<ROI2D> areaROIList = new ArrayList<ROI2D>();
@@ -147,6 +146,7 @@ class AreaAnalysisThread extends Thread
 						BooleanMask2D intersectionMask = maskAll2D.getIntersection( areaMask );
 						sum = intersectionMask.getNumberOfPoints();
 					}
+
 					vSequence.data_raw[imask][t-startFrame]= sum;
 					vSequence.rpixels[imask][t-startFrame]= npixels;
 				}
