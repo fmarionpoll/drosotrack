@@ -6,7 +6,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import org.jfree.data.xy.XYSeries;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 import org.w3c.dom.Element;
@@ -64,7 +63,6 @@ public class SequenceVirtual extends Sequence
 	public ArrayList <ROI2DShape> capillariesArrayList 	= new ArrayList <ROI2DShape>();			// list of ROIs describing capillaries (e.g. profiles to follow)
 	public String [] seriesname = null;
 	public int [][] data_raw = null;
-	public int [][] rpixels = null;
 	public double [][] data_filtered = null;
 	
 	// ----------------------------------------

@@ -86,7 +86,6 @@ class AreaAnalysisThread extends Thread
 		int nrois = roiList.size();
 
 		vSequence.data_raw = new int [nrois][nbframes];
-		vSequence.rpixels = new int [nrois][nbframes];
 		ArrayList<ROI2D> areaROIList = new ArrayList<ROI2D>();
 		ArrayList<BooleanMask2D> areaMaskList = new ArrayList<BooleanMask2D>();
 		
@@ -138,17 +137,14 @@ class AreaAnalysisThread extends Thread
 
 					// count number of pixels over threshold 
 					int sum = 0;
-					int npixels = 0;
 					BooleanMask2D areaMask = areaMaskList.get(imask);
 					if (areaMask != null)
 					{
-						npixels = areaMask.getNumberOfPoints();
 						BooleanMask2D intersectionMask = maskAll2D.getIntersection( areaMask );
 						sum = intersectionMask.getNumberOfPoints();
 					}
 
 					vSequence.data_raw[imask][t-startFrame]= sum;
-					vSequence.rpixels[imask][t-startFrame]= npixels;
 				}
 			}
 		

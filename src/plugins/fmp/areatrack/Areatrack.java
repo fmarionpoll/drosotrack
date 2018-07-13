@@ -9,6 +9,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
@@ -411,6 +412,118 @@ public class Areatrack extends PluginActionable implements ActionListener, Chang
 		}
 	}
 	
+	private void filterClipValues(int span, int constraintoption) {
+		if (constraintoption == 1) {
+			int nrois = vSequence.data_raw.length;
+			for (int iroi=0; iroi < nrois; iroi++) {
+				
+			for (int t= span; t< endFrame-startFrame; t++)
+				if (vSequence.data_filtered[iroi][t] > vSequence.data_filtered[iroi][t-1])
+					vSequence.data_filtered[iroi][t] = vSequence.data_filtered[iroi][t-1];
+			}
+		}
+	}
+	
+	private void filterRunningAverage(int span) {
+		int nrois = vSequence.data_raw.length;
+		for (int iroi=0; iroi < nrois; iroi++) {
+			double sum = 0;
+			for (int t= 0; t< span; t++) {
+				sum += vSequence.data_raw[iroi][t];
+				if (t < span/2)
+					vSequence.data_filtered[iroi][t] = vSequence.data_raw[iroi][t];
+			}
+			sum -= vSequence.data_raw[iroi][span] - vSequence.data_raw[iroi][0];
+			
+			for ( int t = endFrame-startFrame-span/2 ; t < endFrame-startFrame;  t++ )
+				vSequence.data_filtered[iroi][t] = vSequence.data_raw[iroi][t];
+			int t0= 0;
+			int t1 =span;
+			for (int t= span/2; t< endFrame-startFrame-span/2; t++, t0++, t1++) {
+				sum += vSequence.data_raw[iroi][t1] - vSequence.data_raw[iroi][t0];
+				vSequence.data_filtered[iroi][t] = sum/span;
+			}
+		}
+	}
+	
+	
+	private void filterRunningMedian(int span) {
+		int nrois = vSequence.data_raw.length;
+		int nbspan = span/2;
+		
+		for (int iroi=0; iroi < nrois; iroi++) {
+			
+			int sizeTempArray = nbspan*2+1;
+			int [] tempArraySorted = new int [sizeTempArray];
+			int [] tempArrayCircular = new int [sizeTempArray];
+			for (int t= 0; t< sizeTempArray; t++) {
+				
+				int value = vSequence.data_raw[iroi][t];
+				tempArraySorted[t] = value;
+				tempArrayCircular[t] = value;
+			}
+			Arrays.sort(tempArraySorted);
+			
+			int iarraycircular = sizeTempArray -1;
+			for (int t=0; t< endFrame-startFrame; t++) {
+				
+				int oldvalue = tempArrayCircular[iarraycircular];
+				int newvalue = vSequence.data_raw[iroi][t];
+				tempArrayCircular[iarraycircular]= newvalue;
+				iarraycircular = (iarraycircular++) % sizeTempArray;
+				
+				// locate old value position to discard
+				int jhigh = sizeTempArray -1;
+				int jlow = 0;
+				int j= 0;
+				while (jlow <= jhigh)
+				{
+					j = (jlow+jhigh)/2;			
+					if (oldvalue > tempArraySorted[j])
+						jlow = j +1;
+					else if (oldvalue < tempArraySorted[j])
+						jhigh = j-1;
+					else
+						break;
+				}
+				
+				// insert new value in the correct position
+				// case 1: search (and replace) towards higher values
+				if (newvalue > tempArraySorted[j])
+				{	
+					while (newvalue > tempArraySorted[j]) {
+						tempArraySorted[j] = tempArraySorted[j+1];
+						j++;
+						if (j == sizeTempArray)
+							break;
+					} 
+					tempArraySorted[j-1] = newvalue;
+				}
+				// case 2: search (and replace) towards lower values
+				else if (newvalue < tempArraySorted[j])
+				{
+					while(newvalue < tempArraySorted[j])  {
+						tempArraySorted[j]  = tempArraySorted[j-1];
+						j--;
+						if (j == 0) {
+							if (newvalue < tempArraySorted[0])
+								j--;
+							break;
+						}
+						
+					}
+					tempArraySorted[j+1] = newvalue;
+				}
+				// case 3: already found!
+				else
+					tempArraySorted[j] = newvalue;
+				
+				// save median value in the output array
+				vSequence.data_filtered[iroi][t] = *lp - *(m_parraySorted+nbspan);
+			}
+		}
+	}
+	
 	private void filterData () {
 		
 		int nrois = vSequence.data_raw.length;
@@ -421,34 +534,16 @@ public class Areatrack extends PluginActionable implements ActionListener, Chang
 		int constraintoption = conditionsComboBox.getSelectedIndex();
 		
 		int span = Integer.parseInt(spanTextField.getText());
-		double sum = 0;
+
 		switch (filteroption) {
 			case 1: // running average over "span" points
-				for (int iroi=0; iroi < nrois; iroi++) {
-					sum = 0;
-					for (int t= 0; t< span; t++) {
-						sum += vSequence.data_raw[iroi][t];
-						if (t < span/2)
-							vSequence.data_filtered[iroi][t] = vSequence.data_raw[iroi][t];
-					}
-					sum -= vSequence.data_raw[iroi][span] - vSequence.data_raw[iroi][0];
-					
-					for ( int t = endFrame-startFrame-span/2 ; t < endFrame-startFrame;  t++ )
-						vSequence.data_filtered[iroi][t] = vSequence.data_raw[iroi][t];
-					int t0= 0;
-					int t1 =span;
-					for (int t= span/2; t< endFrame-startFrame-span/2; t++, t0++, t1++) {
-						sum += vSequence.data_raw[iroi][t1] - vSequence.data_raw[iroi][t0];
-						vSequence.data_filtered[iroi][t] = sum/span;
-					}
-					if (constraintoption == 1) {
-						for (int t= span; t< endFrame-startFrame; t++)
-							if (vSequence.data_filtered[iroi][t] > vSequence.data_filtered[iroi][t-1])
-								vSequence.data_filtered[iroi][t] = vSequence.data_filtered[iroi][t-1];
-					}
-				}
+				filterRunningAverage(span);
+				filterClipValues(span, constraintoption);
 				break;
-	
+			case 2:
+				filterRunningMedian(span);
+				filterClipValues(span, constraintoption);
+				break;
 			default:	
 				for (int iroi=0; iroi < nrois; iroi++) {
 					for ( int t = 0 ; t < endFrame-startFrame;  t++ ) {
