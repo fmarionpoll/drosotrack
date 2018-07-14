@@ -88,7 +88,7 @@ public class Areatrack extends PluginActionable implements ActionListener, Chang
 	private JTextField analyzeStepTextField = new JTextField("1");
 	private JCheckBox thresholdedImageCheckBox = new JCheckBox("Display objects over threshold as overlay");
 	
-	private String[] availableFilter 		= new String[] {"raw data", "running average"};
+	private String[] availableFilter 		= new String[] {"raw data", "running average", "running median"};
 	private JComboBox<String> filterComboBox= new JComboBox<String> (availableFilter);
 	private JTextField spanTextField		= new JTextField("10");
 	private String[] availableConditions 	= new String[] {"no condition", "clip increase of size"};
@@ -330,6 +330,7 @@ public class Areatrack extends PluginActionable implements ActionListener, Chang
 		// _______________________________________________
 		else if (o == startComputationButton) {
 
+			stopAnalysisThread();
 			updateOverlay ();
 			analysisThread = new AreaAnalysisThread();
 			try { 
@@ -349,14 +350,7 @@ public class Areatrack extends PluginActionable implements ActionListener, Chang
 		// _______________________________________________
 		else if (o == stopComputationButton) {
 
-			if (analysisThread != null && analysisThread.isAlive()) {
-				analysisThread.interrupt();
-				try {
-					analysisThread.join();
-				} catch (InterruptedException e1) {
-					e1.printStackTrace();
-				}
-			}
+			stopAnalysisThread();
 		}
 		
 		// _______________________________________________
@@ -394,6 +388,18 @@ public class Areatrack extends PluginActionable implements ActionListener, Chang
 			}
 	}
 	
+	private void stopAnalysisThread() {
+		
+		if (analysisThread != null && analysisThread.isAlive()) {
+			analysisThread.interrupt();
+			try {
+				analysisThread.join();
+			} catch (InterruptedException e1) {
+				e1.printStackTrace();
+			}
+		}
+	}
+	
 	private void updateOverlay () {
 
 		if (thresholdOverlay == null) {
@@ -417,7 +423,7 @@ public class Areatrack extends PluginActionable implements ActionListener, Chang
 			int nrois = vSequence.data_raw.length;
 			for (int iroi=0; iroi < nrois; iroi++) {
 				
-			for (int t= span; t< endFrame-startFrame; t++)
+			for (int t= span/2; t< endFrame-startFrame; t++)
 				if (vSequence.data_filtered[iroi][t] > vSequence.data_filtered[iroi][t-1])
 					vSequence.data_filtered[iroi][t] = vSequence.data_filtered[iroi][t-1];
 			}
@@ -445,9 +451,9 @@ public class Areatrack extends PluginActionable implements ActionListener, Chang
 			}
 		}
 	}
-	
-	
+		
 	private void filterRunningMedian(int span) {
+		
 		int nrois = vSequence.data_raw.length;
 		int nbspan = span/2;
 		
@@ -456,70 +462,24 @@ public class Areatrack extends PluginActionable implements ActionListener, Chang
 			int sizeTempArray = nbspan*2+1;
 			int [] tempArraySorted = new int [sizeTempArray];
 			int [] tempArrayCircular = new int [sizeTempArray];
-			for (int t= 0; t< sizeTempArray; t++) {
-				
+			for (int t= 0; t< sizeTempArray; t++) {			
 				int value = vSequence.data_raw[iroi][t];
-				tempArraySorted[t] = value;
 				tempArrayCircular[t] = value;
+				vSequence.data_filtered[iroi][t] = value;
 			}
-			Arrays.sort(tempArraySorted);
-			
+
 			int iarraycircular = sizeTempArray -1;
-			for (int t=0; t< endFrame-startFrame; t++) {
-				
-				int oldvalue = tempArrayCircular[iarraycircular];
-				int newvalue = vSequence.data_raw[iroi][t];
+			for (int t=nbspan; t< endFrame-startFrame-nbspan; t++) {
+				int newvalue = vSequence.data_raw[iroi][t+nbspan];
 				tempArrayCircular[iarraycircular]= newvalue;
-				iarraycircular = (iarraycircular++) % sizeTempArray;
+				tempArraySorted = tempArrayCircular.clone();
+				Arrays.sort(tempArraySorted);
+				int median = tempArraySorted[nbspan];
+				vSequence.data_filtered[iroi][t] = median;
 				
-				// locate old value position to discard
-				int jhigh = sizeTempArray -1;
-				int jlow = 0;
-				int j= 0;
-				while (jlow <= jhigh)
-				{
-					j = (jlow+jhigh)/2;			
-					if (oldvalue > tempArraySorted[j])
-						jlow = j +1;
-					else if (oldvalue < tempArraySorted[j])
-						jhigh = j-1;
-					else
-						break;
-				}
-				
-				// insert new value in the correct position
-				// case 1: search (and replace) towards higher values
-				if (newvalue > tempArraySorted[j])
-				{	
-					while (newvalue > tempArraySorted[j]) {
-						tempArraySorted[j] = tempArraySorted[j+1];
-						j++;
-						if (j == sizeTempArray)
-							break;
-					} 
-					tempArraySorted[j-1] = newvalue;
-				}
-				// case 2: search (and replace) towards lower values
-				else if (newvalue < tempArraySorted[j])
-				{
-					while(newvalue < tempArraySorted[j])  {
-						tempArraySorted[j]  = tempArraySorted[j-1];
-						j--;
-						if (j == 0) {
-							if (newvalue < tempArraySorted[0])
-								j--;
-							break;
-						}
-						
-					}
-					tempArraySorted[j+1] = newvalue;
-				}
-				// case 3: already found!
-				else
-					tempArraySorted[j] = newvalue;
-				
-				// save median value in the output array
-				vSequence.data_filtered[iroi][t] = *lp - *(m_parraySorted+nbspan);
+				iarraycircular++;
+				if (iarraycircular >= sizeTempArray)
+					iarraycircular=0;
 			}
 		}
 	}
@@ -675,31 +635,41 @@ public class Areatrack extends PluginActionable implements ActionListener, Chang
 		try {
 			WritableWorkbook xlsWorkBook = XLSUtil.createWorkbook( filename);
 
-			// local variables used for exporting the 2 worksheets
+			// local variables used for exporting to a worksheet
 			int it = 0;
 			int irow = 0;
 			int nrois = vSequence.data_filtered.length;
 			int icol0 = 0;
 			
-			// xls output - distances
+			// xls output
 			// --------------
-			WritableSheet distancePage = XLSUtil.createNewPage( xlsWorkBook , "pixels_over_thresh" );
-			XLSUtil.setCellString( distancePage , 0, irow, "name:" );
-			XLSUtil.setCellString( distancePage , 1, irow, vSequence.getName() );
-			irow++;;
-			
-			irow=2;
+			WritableSheet filteredDataPage = XLSUtil.createNewPage( xlsWorkBook , "data" );
+			XLSUtil.setCellString( filteredDataPage , 0, irow, "name:" );
+			XLSUtil.setCellString( filteredDataPage , 1, irow, vSequence.getName() );
+			// write  type of data exported
+			irow++;
+			String cs = filterComboBox.getSelectedItem().toString();
+			if (filterComboBox.getSelectedIndex() > 0 ) {
+				cs = cs + " - over "+spanTextField.getText() +" points - " + conditionsComboBox.getSelectedItem().toString();
+			}
+			XLSUtil.setCellString(filteredDataPage,  0,  irow, cs);
+			// write filter and threshold applied
+			irow++;
+			cs = transformsComboBox.getSelectedItem().toString() + " threshold=" + thresholdSpinner.getValue().toString();
+			XLSUtil.setCellString(filteredDataPage,  0,  irow, cs);		
+			// write table
+			irow=4;
 			// table header
 			icol0 = 0;
 			if (blistofFiles) {
-				XLSUtil.setCellString( distancePage , icol0,   irow, "filename" );
+				XLSUtil.setCellString( filteredDataPage , icol0,   irow, "filename" );
 				icol0++;
 			}
-			XLSUtil.setCellString( distancePage , icol0, irow, "index" );
+			XLSUtil.setCellString( filteredDataPage , icol0, irow, "index" );
 			icol0++;
 			for (int iroi=0; iroi < nrois; iroi++, icol0++) 
 			{
-				XLSUtil.setCellString( distancePage , icol0, irow, vSequence.seriesname[iroi]);
+				XLSUtil.setCellString( filteredDataPage , icol0, irow, vSequence.seriesname[iroi]);
 			}
 			irow++;
 
@@ -712,16 +682,16 @@ public class Areatrack extends PluginActionable implements ActionListener, Chang
 				{
 					icol0 = 0;
 					if (blistofFiles) {
-						XLSUtil.setCellString( distancePage , icol0,   irow, listofFiles[it] );
+						XLSUtil.setCellString( filteredDataPage , icol0,   irow, listofFiles[it] );
 						icol0++;
 					}
 					double value = t; 
-					XLSUtil.setCellNumber( distancePage, icol0 , irow , value ); // frame number
+					XLSUtil.setCellNumber( filteredDataPage, icol0 , irow , value ); // frame number
 					icol0++;
 					
 					for (int iroi=0; iroi < nrois; iroi++) {
 						value = vSequence.data_filtered[iroi][t-startFrame];
-						XLSUtil.setCellNumber( distancePage, icol0 , irow , value ); 
+						XLSUtil.setCellNumber( filteredDataPage, icol0 , irow , value ); 
 						icol0++;
 
 					}
