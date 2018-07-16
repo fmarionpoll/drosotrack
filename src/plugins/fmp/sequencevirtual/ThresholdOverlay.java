@@ -19,8 +19,8 @@ public class ThresholdOverlay extends Overlay
 	
 	public boolean [] boolMap;
 	private IcyBufferedImage binaryMap = null;
-	boolean thresholdedImage = true;
-	int threshold = 0;
+	boolean bTthresholdedImage = true;
+	int thresholdValue = 0;
 	int transf = 0;
 	SequenceVirtual vinputSequence 	= null;
 	public ImageTransform imgTransf = new ImageTransform(); 
@@ -31,10 +31,10 @@ public class ThresholdOverlay extends Overlay
 		super("ThresholdOverlay: where is this message displayed anyway?");
 	}
 	
-	public void setThresholdOverlayParameters (SequenceVirtual sseq, boolean sthresholded, int sthreshold, int stransf)
+	public void setThresholdOverlayParameters (SequenceVirtual sseq, boolean sbThresholded, int sthreshold, int stransf)
 	{
-		thresholdedImage = sthresholded;
-		threshold = sthreshold;
+		bTthresholdedImage = sbThresholded;
+		thresholdValue = sthreshold;
 		transf = stransf;
 		vinputSequence = sseq;
 		imgTransf.setSequence(sseq);
@@ -80,10 +80,10 @@ public class ThresholdOverlay extends Overlay
 			final Graphics2D g2 = (Graphics2D) g.create();
 			g2.setStroke(new BasicStroke(0.3f));
 			g2.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 0.5f));
-			if (thresholdedImage) {
+			if (bTthresholdedImage) {
 
 				IcyBufferedImage bufImage = imgTransf.transformImage(vinputSequence.currentFrame, transf);
-				getBinaryOverThresholdFromDoubleImage(bufImage, threshold);
+				getBinaryOverThresholdFromDoubleImage(bufImage, thresholdValue);
 				convertBoolMapIntoBinaryMap();
 
 				if (boolMap != null) {

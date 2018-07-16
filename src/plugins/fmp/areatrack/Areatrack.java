@@ -58,6 +58,7 @@ import icy.util.XLSUtil;
 import jxl.write.WritableSheet;
 import jxl.write.WritableWorkbook;
 import jxl.write.WriteException;
+
 import plugins.fmp.sequencevirtual.ImageTransform;
 import plugins.fmp.sequencevirtual.SequenceVirtual;
 import plugins.fmp.sequencevirtual.ThresholdOverlay;
@@ -107,8 +108,8 @@ public class Areatrack extends PluginActionable implements ActionListener, Chang
 	private int numberOfImageForBuffer 		= 100;
 	private AreaAnalysisThread analysisThread = null;
 	private String lastUsedPath				= null;
-	ThresholdOverlay thresholdOverlay 		= null;
-	ImageTransform imgTransf 				= new ImageTransform();
+	private ThresholdOverlay thresholdOverlay= null;
+	private ImageTransform imgTransf 		 = new ImageTransform();
 	
 	// --------------------------------------------------------------------------
 	@Override
@@ -366,8 +367,10 @@ public class Areatrack extends PluginActionable implements ActionListener, Chang
 				updateOverlay();
 			}
 			else {
-				vSequence.removeOverlay(thresholdOverlay);
+				if (thresholdOverlay != null) 
+					vSequence.removeOverlay(thresholdOverlay);
 				vSequence.setThresholdOverlay(null);
+				thresholdOverlay = null;
 			}
 		}
 		

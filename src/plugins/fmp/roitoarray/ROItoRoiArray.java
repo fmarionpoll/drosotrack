@@ -2,6 +2,7 @@ package plugins.fmp.roitoarray;
 
 import java.awt.Color;
 import java.awt.Polygon;
+import java.awt.Rectangle;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.geom.Point2D;
@@ -9,23 +10,37 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import javax.swing.Timer;
+
+import icy.gui.frame.IcyFrame;
 import icy.gui.frame.progress.AnnounceFrame;
+import icy.gui.viewer.Viewer;
+import icy.gui.viewer.ViewerEvent;
+import icy.gui.viewer.ViewerListener;
+import icy.preferences.XMLPreferences;
 import icy.roi.ROI2D;
 import plugins.adufour.ezplug.EzButton;
 import plugins.adufour.ezplug.EzPlug;
+import plugins.adufour.ezplug.EzVar;
+import plugins.adufour.ezplug.EzVarBoolean;
 import plugins.adufour.ezplug.EzVarInteger;
+import plugins.adufour.ezplug.EzVarListener;
 import plugins.adufour.ezplug.EzVarSequence;
 import plugins.adufour.ezplug.EzVarText;
+
+import plugins.fmp.sequencevirtual.ImageTransform;
+import plugins.fmp.sequencevirtual.SequenceVirtual;
+import plugins.fmp.sequencevirtual.ThresholdOverlay;
 import plugins.fmp.sequencevirtual.Tools;
 import plugins.kernel.roi.roi2d.ROI2DLine;
 import plugins.kernel.roi.roi2d.ROI2DPolygon;
 import plugins.kernel.roi.roi2d.ROI2DEllipse;
 
-public class ROItoRoiArray extends EzPlug {
+public class ROItoRoiArray extends EzPlug implements ViewerListener {
 
 	// -------------------------------------- interface 
-
-	EzVarSequence   sequence     = new EzVarSequence("Select ROI from");
+	EzButton		openFileButton;
+	EzVarSequence   sequence = new EzVarSequence("Select data from");
 	EzVarText		rootnameComboBox;
 	EzVarInteger 	nrows;
 	EzVarInteger 	ncolumns;
@@ -35,8 +50,18 @@ public class ROItoRoiArray extends EzPlug {
 	EzVarInteger 	rowInterval; 
 	EzVarText 		resultComboBox;
 	EzButton		findLinesButton;
+	EzVarBoolean 	overlayCheckBox;
+	EzVarText		filterComboBox;
+	EzVarInteger 	threshold;
+	
+	ImageTransform imgTransf = new ImageTransform();
+	ThresholdOverlay thresholdOverlay = null;
+	private SequenceVirtual vSequence = null;
+	private int numberOfImageForBuffer 		= 100;
+	private String lastUsedPath		= null;
 	String rootname;
 	
+		
 	@Override
 	protected void initialize() {
 
@@ -49,14 +74,28 @@ public class ROItoRoiArray extends EzPlug {
 		nrows 			= new EzVarInteger("N rows ", 10, 1, 1000, 1); 
 		rowWidth		= new EzVarInteger("row height ", 10, 0, 1000, 1);
 		rowInterval 	= new EzVarInteger("space btw. row ", 0, 0, 1000, 1);
+		
 		findLinesButton = new EzButton("test", new ActionListener() { 
-					public void actionPerformed(ActionEvent e) {
-						doTest(); 
-						}
-				});
+			public void actionPerformed(ActionEvent e) { doTest(); }	});
+		openFileButton = new EzButton("Open file or sequence",  new ActionListener() { 
+			public void actionPerformed(ActionEvent e) { openFile(); } });
+		overlayCheckBox = new EzVarBoolean("build from overlay", false);
+		overlayCheckBox.addVarChangeListener(new EzVarListener<Boolean>() {
+             @Override
+             public void variableChanged(EzVar<Boolean> source, Boolean newValue) {
+                 if (newValue)
+                 	displayOverlay();
+                 else
+                	 removeOverlay();
+                }
+         });
+		 
+		filterComboBox = new EzVarText("Filter as ", imgTransf.getAvailableTransforms(), 6, false);
+		threshold = new EzVarInteger("threshold ", 70, 1, 255, 10);
 
 		// 2) add variables to the interface
 		addEzComponent(sequence);
+		addEzComponent(openFileButton);
 		addEzComponent(rootnameComboBox);
 		addEzComponent(resultComboBox);
 		addEzComponent(ncolumns);
@@ -65,11 +104,72 @@ public class ROItoRoiArray extends EzPlug {
 		addEzComponent(nrows);
 		addEzComponent(rowWidth);
 		addEzComponent(rowInterval);
+		addEzComponent(overlayCheckBox);
+		addEzComponent(filterComboBox);
+		addEzComponent(threshold);
 		addEzComponent(findLinesButton);
 	}
+	
 	// ----------------------------------
 	private void doTest() {
 		
+	}
+	
+	private void displayOverlay () {
+		if (vSequence == null)
+			return;
+		if (thresholdOverlay == null) {
+			thresholdOverlay = new ThresholdOverlay();
+			vSequence.setThresholdOverlay(thresholdOverlay);
+		}
+		vSequence.threshold = threshold.getValue();
+		vSequence.addOverlay(thresholdOverlay);
+		updateOverlay();
+	}
+	
+	private void removeOverlay () {
+		if (vSequence == null)
+			return;
+		if (thresholdOverlay != null) 
+			vSequence.removeOverlay(thresholdOverlay);
+		vSequence.setThresholdOverlay(null);
+		thresholdOverlay = null;
+	}
+	
+	private void updateOverlay () {
+
+		if (thresholdOverlay == null) {
+			thresholdOverlay = new ThresholdOverlay();
+			vSequence.setThresholdOverlay(thresholdOverlay);
+		}
+		int transform = 6; //filterComboBox.getValue();
+		thresholdOverlay.setThresholdOverlayParameters( vSequence,
+				overlayCheckBox.getValue(), 
+				vSequence.threshold, 
+				transform);
+		//if (transform == 12) then feed a reference into sequence
+			
+		if (thresholdOverlay != null) {
+			thresholdOverlay.painterChanged();
+		}
+	}
+	
+	private void openFile() {
+		String path = null;
+		if (vSequence != null) {
+			vSequence.close();
+		}
+		
+		vSequence = new SequenceVirtual();
+		XMLPreferences guiPrefs = this.getPreferences("gui");
+		lastUsedPath = guiPrefs.get("lastUsedPath", "");
+		
+		path = vSequence.loadInputVirtualStack(lastUsedPath);
+		if (path != null) {
+			guiPrefs.put("lastUsedPath", path);
+			lastUsedPath = path;
+			initInputSeq();
+		}
 	}
 	
 	// ----------------------------------
@@ -222,6 +322,38 @@ public class ROItoRoiArray extends EzPlug {
 		}
 //		else
 			
+	}
+
+	
+	private void initInputSeq () {
+
+		// transfer 1 image to the viewer
+		addSequence(vSequence);
+		Viewer v = vSequence.getFirstViewer();
+		v.addListener(ROItoRoiArray.this);
+
+		vSequence.removeAllImages();
+		startstopBufferingThread();		
+	}
+	
+	private void startstopBufferingThread() {
+
+		if (vSequence == null)
+			return;
+
+		vSequence.vImageBufferThread_STOP();
+		vSequence.istep = 1;
+		vSequence.vImageBufferThread_START(numberOfImageForBuffer);
+	}
+	
+	@Override
+	public void viewerChanged(ViewerEvent event) {
+		// TODO Auto-generated method stub
+		
+	}
+	@Override
+	public void viewerClosed(Viewer viewer) {
+		vSequence = null;
 	}
 
 
