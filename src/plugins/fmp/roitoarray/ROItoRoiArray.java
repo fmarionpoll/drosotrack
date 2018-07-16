@@ -2,6 +2,8 @@ package plugins.fmp.roitoarray;
 
 import java.awt.Color;
 import java.awt.Polygon;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.geom.Point2D;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -9,6 +11,7 @@ import java.util.List;
 
 import icy.gui.frame.progress.AnnounceFrame;
 import icy.roi.ROI2D;
+import plugins.adufour.ezplug.EzButton;
 import plugins.adufour.ezplug.EzPlug;
 import plugins.adufour.ezplug.EzVarInteger;
 import plugins.adufour.ezplug.EzVarSequence;
@@ -31,6 +34,7 @@ public class ROItoRoiArray extends EzPlug {
 	EzVarInteger 	rowWidth; 
 	EzVarInteger 	rowInterval; 
 	EzVarText 		resultComboBox;
+	EzButton		findLinesButton;
 	String rootname;
 	
 	@Override
@@ -39,12 +43,17 @@ public class ROItoRoiArray extends EzPlug {
 		// 1) init variables
 		resultComboBox 	= new EzVarText("Split polygon as ", new String[] {"vertical lines", "polygons", "circles"}, 1, false);
 		rootnameComboBox= new EzVarText("Root name", new String[] {"gridA", "gridB", "gridC"}, 0, true);
-		ncolumns		= new EzVarInteger("N columns ", 8, 1, 1000, 1);
+		ncolumns		= new EzVarInteger("N columns ", 5, 1, 1000, 1);
 		columnSize		= new EzVarInteger("column width ", 10, 0, 1000, 1);
-		columnSpan		= new EzVarInteger("space btw. col. ", 2, 0, 1000, 1);
-		nrows 			= new EzVarInteger("N rows ", 1, 1, 1000, 1); 
+		columnSpan		= new EzVarInteger("space btw. col. ", 0, 0, 1000, 1);
+		nrows 			= new EzVarInteger("N rows ", 10, 1, 1000, 1); 
 		rowWidth		= new EzVarInteger("row height ", 10, 0, 1000, 1);
-		rowInterval 	= new EzVarInteger("space btw. row ", 2, 0, 1000, 1);
+		rowInterval 	= new EzVarInteger("space btw. row ", 0, 0, 1000, 1);
+		findLinesButton = new EzButton("test", new ActionListener() { 
+					public void actionPerformed(ActionEvent e) {
+						doTest(); 
+						}
+				});
 
 		// 2) add variables to the interface
 		addEzComponent(sequence);
@@ -56,6 +65,11 @@ public class ROItoRoiArray extends EzPlug {
 		addEzComponent(nrows);
 		addEzComponent(rowWidth);
 		addEzComponent(rowInterval);
+		addEzComponent(findLinesButton);
+	}
+	// ----------------------------------
+	private void doTest() {
+		
 	}
 	
 	// ----------------------------------

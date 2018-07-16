@@ -386,6 +386,7 @@ public class Areatrack extends PluginActionable implements ActionListener, Chang
 					});
 				}
 			}
+		
 	}
 	
 	private void stopAnalysisThread() {
