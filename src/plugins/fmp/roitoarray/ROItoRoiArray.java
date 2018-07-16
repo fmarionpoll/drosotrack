@@ -2,7 +2,6 @@ package plugins.fmp.roitoarray;
 
 import java.awt.Color;
 import java.awt.Polygon;
-import java.awt.Rectangle;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.geom.Point2D;
@@ -10,15 +9,14 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import javax.swing.Timer;
-
-import icy.gui.frame.IcyFrame;
 import icy.gui.frame.progress.AnnounceFrame;
 import icy.gui.viewer.Viewer;
 import icy.gui.viewer.ViewerEvent;
 import icy.gui.viewer.ViewerListener;
+import icy.gui.viewer.ViewerEvent.ViewerEventType;
 import icy.preferences.XMLPreferences;
 import icy.roi.ROI2D;
+import icy.sequence.DimensionId;
 import plugins.adufour.ezplug.EzButton;
 import plugins.adufour.ezplug.EzPlug;
 import plugins.adufour.ezplug.EzVar;
@@ -27,7 +25,6 @@ import plugins.adufour.ezplug.EzVarInteger;
 import plugins.adufour.ezplug.EzVarListener;
 import plugins.adufour.ezplug.EzVarSequence;
 import plugins.adufour.ezplug.EzVarText;
-
 import plugins.fmp.sequencevirtual.ImageTransform;
 import plugins.fmp.sequencevirtual.SequenceVirtual;
 import plugins.fmp.sequencevirtual.ThresholdOverlay;
@@ -54,14 +51,16 @@ public class ROItoRoiArray extends EzPlug implements ViewerListener {
 	EzVarText		filterComboBox;
 	EzVarInteger 	threshold;
 	
-	ImageTransform imgTransf = new ImageTransform();
-	ThresholdOverlay thresholdOverlay = null;
+	private ImageTransform imgTransf = new ImageTransform();
+	private ThresholdOverlay thresholdOverlay = null;
 	private SequenceVirtual vSequence = null;
 	private int numberOfImageForBuffer 		= 100;
 	private String lastUsedPath		= null;
-	String rootname;
+	private String rootname;
+	private String [] transforms;
 	
-		
+	// ----------------------------------
+	
 	@Override
 	protected void initialize() {
 
@@ -77,21 +76,26 @@ public class ROItoRoiArray extends EzPlug implements ViewerListener {
 		
 		findLinesButton = new EzButton("test", new ActionListener() { 
 			public void actionPerformed(ActionEvent e) { doTest(); }	});
+		
 		openFileButton = new EzButton("Open file or sequence",  new ActionListener() { 
 			public void actionPerformed(ActionEvent e) { openFile(); } });
+		
 		overlayCheckBox = new EzVarBoolean("build from overlay", false);
 		overlayCheckBox.addVarChangeListener(new EzVarListener<Boolean>() {
              @Override
-             public void variableChanged(EzVar<Boolean> source, Boolean newValue) {
-                 if (newValue)
-                 	displayOverlay();
-                 else
-                	 removeOverlay();
-                }
+             public void variableChanged(EzVar<Boolean> source, Boolean newValue) {displayOverlay(newValue);}
          });
-		 
-		filterComboBox = new EzVarText("Filter as ", imgTransf.getAvailableTransforms(), 6, false);
+		transforms =  imgTransf.getAvailableTransforms();
+		filterComboBox = new EzVarText("Filter as ", transforms, 6, false);
+		filterComboBox.addVarChangeListener(new EzVarListener<String>() {
+			@Override
+			public void variableChanged(EzVar<String> source, String newString) {updateOverlay();}
+		});
 		threshold = new EzVarInteger("threshold ", 70, 1, 255, 10);
+		threshold.addVarChangeListener(new EzVarListener<Integer>() {
+            @Override
+            public void variableChanged(EzVar<Integer> source, Integer newValue) { updateThreshold(newValue); }
+        });
 
 		// 2) add variables to the interface
 		addEzComponent(sequence);
@@ -115,39 +119,64 @@ public class ROItoRoiArray extends EzPlug implements ViewerListener {
 		
 	}
 	
-	private void displayOverlay () {
+	private void displayOverlay (Boolean newValue) {
 		if (vSequence == null)
 			return;
-		if (thresholdOverlay == null) {
-			thresholdOverlay = new ThresholdOverlay();
-			vSequence.setThresholdOverlay(thresholdOverlay);
+
+		if (newValue) {
+			
+			if (thresholdOverlay == null) {
+				thresholdOverlay = new ThresholdOverlay();
+				vSequence.setThresholdOverlay(thresholdOverlay);
+			}
+			vSequence.threshold = threshold.getValue();
+			vSequence.addOverlay(thresholdOverlay);
+			updateOverlay();
 		}
+		else  {
+			if (vSequence == null)
+				return;
+			if (thresholdOverlay != null) 
+				vSequence.removeOverlay(thresholdOverlay);
+			vSequence.setThresholdOverlay(null);
+			thresholdOverlay = null;
+		}
+	}
+	
+	private void updateThreshold (int newValue) {
+		if (vSequence == null)
+			return;
+		
 		vSequence.threshold = threshold.getValue();
-		vSequence.addOverlay(thresholdOverlay);
 		updateOverlay();
 	}
 	
-	private void removeOverlay () {
-		if (vSequence == null)
-			return;
-		if (thresholdOverlay != null) 
-			vSequence.removeOverlay(thresholdOverlay);
-		vSequence.setThresholdOverlay(null);
-		thresholdOverlay = null;
+	private int getFilterComboSelectedItem() {
+		String selected = filterComboBox.getValue();
+		int transform = -1;
+		for (int i=0; i < transforms.length; i++) {
+			if (transforms[i] == selected) {
+				transform = i;
+				break;
+			}
+		}
+		return transform;
 	}
 	
 	private void updateOverlay () {
-
+		if (vSequence == null)
+			return;
 		if (thresholdOverlay == null) {
 			thresholdOverlay = new ThresholdOverlay();
 			vSequence.setThresholdOverlay(thresholdOverlay);
 		}
-		int transform = 6; //filterComboBox.getValue();
+		int transform = getFilterComboSelectedItem();
+		if (transform < 0)
+			return;
 		thresholdOverlay.setThresholdOverlayParameters( vSequence,
 				overlayCheckBox.getValue(), 
 				vSequence.threshold, 
 				transform);
-		//if (transform == 12) then feed a reference into sequence
 			
 		if (thresholdOverlay != null) {
 			thresholdOverlay.painterChanged();
@@ -300,8 +329,7 @@ public class ROItoRoiArray extends EzPlug implements ViewerListener {
 		ArrayList<ROI2D> list = sequence.getValue(true).getROI2Ds();
 		Collections.sort(list, new Tools.ROI2DNameComparator());
 	}
-		
-		
+	
 	@Override
 	public void clean() {
 		// TODO Auto-generated method stub
@@ -324,7 +352,6 @@ public class ROItoRoiArray extends EzPlug implements ViewerListener {
 			
 	}
 
-	
 	private void initInputSeq () {
 
 		// transfer 1 image to the viewer
@@ -348,11 +375,12 @@ public class ROItoRoiArray extends EzPlug implements ViewerListener {
 	
 	@Override
 	public void viewerChanged(ViewerEvent event) {
-		// TODO Auto-generated method stub
-		
+		if ((event.getType() == ViewerEventType.POSITION_CHANGED) && (event.getDim() == DimensionId.T))        
+			vSequence.currentFrame = event.getSource().getPositionT() ; 
 	}
 	@Override
 	public void viewerClosed(Viewer viewer) {
+		viewer.removeListener(this);
 		vSequence = null;
 	}
 
