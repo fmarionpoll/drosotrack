@@ -8,20 +8,8 @@ import icy.type.DataType;
 import icy.type.collection.array.Array1DUtil;
 
 public class ImageTransform {
-	private String[] availableTransforms 	= new String[] {
-			"RGB",
-			"R", "G", "B","Grey (R+G+B)/3",
-			"(G+B)/2-R", 
-			"(B+R)/2-G",
-			"H(HSB)", "S(HSB)", "B(HSB)",
-			"XDiffn", "XYDiffn", 
-			"subtract t0",
-			"subtract n-1",
-			"subtract ref",
-			"norm (B+R)/2-G"
-			};
 
-	public enum TransformOp {
+	public enum TransformOp { None("none"),
 		RGBall("RGB"), R_RGB("R(RGB)"), G_RGB("G(RGB)"), B_RGB("B(RGB)"), Grey_RGB("Grey (R+G+B)/3"), 
 		GBmR ("(G+B)/2-R"), BRmG("(B+R)/2-G"),
 		H_HSB ("H(HSB)"), S_HSB ("S(HSB)"), B_HSB("B(HSB)"),  
@@ -30,11 +18,11 @@ public class ImageTransform {
 		NORM_BRmG("norm (B+R)/2-G");
 		private String label;
 		TransformOp (String label) {
-		       this.label = label;
-		}
-	public String toString() {
-		       return label;
-		}	
+			this.label = label;
+			}
+		public String toString() {
+			return label;
+			}	
 	}
 
 	private IcyBufferedImage referenceImage = null;
@@ -44,11 +32,7 @@ public class ImageTransform {
 	private SequenceVirtual vinputSequence 	= null;
 
 	// -------------------------------------
-	public String[] getAvailableTransforms() 
-	{
-		return availableTransforms;
-	}
-	
+
 	public void setReferenceImage(IcyBufferedImage img) {
 		referenceImage = IcyBufferedImageUtil.getCopy(img);
 	}
@@ -58,37 +42,40 @@ public class ImageTransform {
 		referenceImage = vinputSequence.loadVImage(0);
 	}
 	
-	public IcyBufferedImage transformImage (int t, int transform) {
+	public IcyBufferedImage transformImage (int t, TransformOp transformop) {
 		
 		IcyBufferedImage img = vinputSequence.loadVImage(t);
 		img2 = IcyBufferedImageUtil.getCopy(img);
 		
-		switch (transform) {
-		case 1: functionRGB_keepOneChan(img, 0); break;
-		case 2: functionRGB_keepOneChan(img, 1); break;
-		case 3: functionRGB_keepOneChan(img, 2); break;
-		case 4: functionRGB_grey(img); break;
-		case 5: functionRGB_sumC1C2Minus2C3(img, 1, 2, 0); break;
-		case 6: functionRGB_sumC1C2Minus2C3 (img, 0, 2, 1); break;
+		switch (transformop) {
+		case R_RGB: functionRGB_keepOneChan(img, 0); break;
+		case G_RGB: functionRGB_keepOneChan(img, 1); break;
+		case B_RGB: functionRGB_keepOneChan(img, 2); break;
+		case Grey_RGB: functionRGB_grey(img); break;
+		case GBmR: functionRGB_sumC1C2Minus2C3(img, 1, 2, 0); break;
+		case BRmG: functionRGB_sumC1C2Minus2C3 (img, 0, 2, 1); break;
 
-		case 7: functionRGB_HSB(img, 0); break;
-		case 8: functionRGB_HSB(img, 1); break;
-		case 9: functionRGB_HSB(img, 2); break;
+		case H_HSB: functionRGB_HSB(img, 0); break;
+		case S_HSB: functionRGB_HSB(img, 1); break;
+		case B_HSB: functionRGB_HSB(img, 2); break;
 
-		case 10: computeXDiffn (img); break;
-		case 11: computeXYDiffn (img); break;
+		case XDIFFN: computeXDiffn (img); break;
+		case XYDIFFN: computeXYDiffn (img); break;
 
-		case 12: functionSubtractRef(img); break;
-		case 13: referenceImage = vinputSequence.loadVImage(t-1); functionSubtractRef(img); break;
-		case 14: functionSubtractRef(img); break;
+		case REFt0: functionSubtractRef(img); break;
+		case REFn: referenceImage = vinputSequence.loadVImage(t-1); functionSubtractRef(img); break;
+		case REF: functionSubtractRef(img); break;
 		
-		case 15: functionNormRGB_sumC1C2Minus2C3(img, 1, 2, 0); break;
-		default: break;
+		case NORM_BRmG: functionNormRGB_sumC1C2Minus2C3(img, 1, 2, 0); break;
+		
+		case None: 
+		case RGBall:
+			break;
 		}
 		
 		return img2;
 	}
-	
+		
 	// function proposed by François 
 	
 	private void functionNormRGB_sumC1C2Minus2C3 (IcyBufferedImage sourceImage, int Rlayer, int Glayer, int Blayer) {

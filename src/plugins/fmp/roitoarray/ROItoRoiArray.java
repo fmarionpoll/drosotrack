@@ -5,6 +5,7 @@ import java.awt.Polygon;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.geom.Point2D;
+import java.awt.Rectangle;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -13,6 +14,8 @@ import icy.gui.frame.progress.AnnounceFrame;
 import icy.gui.viewer.Viewer;
 import icy.gui.viewer.ViewerEvent;
 import icy.gui.viewer.ViewerListener;
+import icy.image.IcyBufferedImage;
+import icy.image.IcyBufferedImageUtil;
 import icy.gui.viewer.ViewerEvent.ViewerEventType;
 import icy.preferences.XMLPreferences;
 import icy.roi.ROI2D;
@@ -21,11 +24,12 @@ import plugins.adufour.ezplug.EzButton;
 import plugins.adufour.ezplug.EzPlug;
 import plugins.adufour.ezplug.EzVar;
 import plugins.adufour.ezplug.EzVarBoolean;
+import plugins.adufour.ezplug.EzVarEnum;
 import plugins.adufour.ezplug.EzVarInteger;
 import plugins.adufour.ezplug.EzVarListener;
 import plugins.adufour.ezplug.EzVarSequence;
 import plugins.adufour.ezplug.EzVarText;
-import plugins.fmp.sequencevirtual.ImageTransform;
+import plugins.fmp.sequencevirtual.ImageTransform.TransformOp;
 import plugins.fmp.sequencevirtual.SequenceVirtual;
 import plugins.fmp.sequencevirtual.ThresholdOverlay;
 import plugins.fmp.sequencevirtual.Tools;
@@ -48,16 +52,14 @@ public class ROItoRoiArray extends EzPlug implements ViewerListener {
 	EzVarText 		resultComboBox;
 	EzButton		findLinesButton;
 	EzVarBoolean 	overlayCheckBox;
-	EzVarText		filterComboBox;
+	EzVarEnum<TransformOp> filterComboBox;
 	EzVarInteger 	threshold;
 	
-	private ImageTransform imgTransf = new ImageTransform();
 	private ThresholdOverlay thresholdOverlay = null;
 	private SequenceVirtual vSequence = null;
 	private int numberOfImageForBuffer 		= 100;
 	private String lastUsedPath		= null;
 	private String rootname;
-	private String [] transforms;
 	
 	// ----------------------------------
 	
@@ -85,12 +87,16 @@ public class ROItoRoiArray extends EzPlug implements ViewerListener {
              @Override
              public void variableChanged(EzVar<Boolean> source, Boolean newValue) {displayOverlay(newValue);}
          });
-		transforms =  imgTransf.getAvailableTransforms();
-		filterComboBox = new EzVarText("Filter as ", transforms, 6, false);
-		filterComboBox.addVarChangeListener(new EzVarListener<String>() {
+
+		filterComboBox = new EzVarEnum <TransformOp>("Filter as ", TransformOp.values(), 6);
+		
+		filterComboBox.addVarChangeListener(new EzVarListener<TransformOp>() {
 			@Override
-			public void variableChanged(EzVar<String> source, String newString) {updateOverlay();}
+			public void variableChanged(EzVar<TransformOp> source, TransformOp newOp) {
+				updateOverlay();
+				}
 		});
+		
 		threshold = new EzVarInteger("threshold ", 70, 1, 255, 10);
 		threshold.addVarChangeListener(new EzVarListener<Integer>() {
             @Override
@@ -116,7 +122,63 @@ public class ROItoRoiArray extends EzPlug implements ViewerListener {
 	
 	// ----------------------------------
 	private void doTest() {
-		
+		if (!overlayCheckBox.getValue())
+			return;
+		if (thresholdOverlay.binaryMap == null)
+			return;
+		// get byte image (0, 1) that has been thresholded
+
+		for (ROI2D roi:vSequence.getROI2Ds()) {
+			if (!roi.getName().contains("grid"))
+				continue;
+
+			Rectangle rect = roi.getBounds();
+			IcyBufferedImage img = IcyBufferedImageUtil.getSubImage(thresholdOverlay.binaryMap, rect);
+			byte[] binaryMapDataBuffer = img.getDataXYAsByte(0);
+			int imgwidth = img.getSizeX();
+			int imgheight = img.getSizeY();
+			// find middle x
+			int xsum = 0;
+			int xcenter = 0;
+			for (int ix= 0; ix< imgwidth; ix++) {
+				int sum = 0;
+				for (int iy = 0; iy < imgheight; iy++)
+					if (binaryMapDataBuffer[ix + imgwidth*iy] == 0)
+						sum++;
+				if (sum > xsum) {
+					xsum = sum;
+					xcenter = ix;
+				}
+			}
+			// find middle y
+			int ysum = 0;
+			int ycenter = 0;
+			for (int iy= 0; iy< imgheight; iy++) {
+				int sum = 0;
+				for (int ix = 0; ix < imgwidth; ix++)
+					if (binaryMapDataBuffer[iy + imgheight*ix] == 0) 
+						sum++;
+				if (sum > ysum) {
+					ysum = sum;
+					ycenter = iy;
+				}
+			}
+			// add circular roi there...
+			Point2D.Double point0 = new Point2D.Double (rect.getX()+ xcenter - xsum/2 , rect.getY() + ycenter - ysum/2);
+			Point2D.Double point1 = new Point2D.Double (rect.getX()+ xcenter - xsum/2 , rect.getY() + ycenter + ysum/2);
+			Point2D.Double point2 = new Point2D.Double (rect.getX()+ xcenter + xsum/2 , rect.getY() + ycenter + ysum/2);
+			Point2D.Double point3 = new Point2D.Double (rect.getX()+ xcenter + xsum/2 , rect.getY() + ycenter - ysum/2);
+			
+			List<Point2D> points = new ArrayList<>();
+			points.add(point0);
+			points.add(point1);
+			points.add(point2);
+			points.add(point3);
+			ROI2DEllipse roiP = new ROI2DEllipse (points.get(0), points.get(2));
+			roiP.setName("*"+roi.getName());
+			roiP.setColor(Color.RED);
+			sequence.getValue(true).addROI(roiP);
+		}
 	}
 	
 	private void displayOverlay (Boolean newValue) {
@@ -150,19 +212,7 @@ public class ROItoRoiArray extends EzPlug implements ViewerListener {
 		vSequence.threshold = threshold.getValue();
 		updateOverlay();
 	}
-	
-	private int getFilterComboSelectedItem() {
-		String selected = filterComboBox.getValue();
-		int transform = -1;
-		for (int i=0; i < transforms.length; i++) {
-			if (transforms[i] == selected) {
-				transform = i;
-				break;
-			}
-		}
-		return transform;
-	}
-	
+
 	private void updateOverlay () {
 		if (vSequence == null)
 			return;
@@ -170,13 +220,12 @@ public class ROItoRoiArray extends EzPlug implements ViewerListener {
 			thresholdOverlay = new ThresholdOverlay();
 			vSequence.setThresholdOverlay(thresholdOverlay);
 		}
-		int transform = getFilterComboSelectedItem();
-		if (transform < 0)
-			return;
+		TransformOp transformop = filterComboBox.getValue();
+
 		thresholdOverlay.setThresholdOverlayParameters( vSequence,
 				overlayCheckBox.getValue(), 
 				vSequence.threshold, 
-				transform);
+				transformop);
 			
 		if (thresholdOverlay != null) {
 			thresholdOverlay.painterChanged();

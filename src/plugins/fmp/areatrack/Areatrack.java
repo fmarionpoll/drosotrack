@@ -59,7 +59,7 @@ import jxl.write.WritableSheet;
 import jxl.write.WritableWorkbook;
 import jxl.write.WriteException;
 
-import plugins.fmp.sequencevirtual.ImageTransform;
+import plugins.fmp.sequencevirtual.ImageTransform.TransformOp;
 import plugins.fmp.sequencevirtual.SequenceVirtual;
 import plugins.fmp.sequencevirtual.ThresholdOverlay;
 import plugins.fmp.sequencevirtual.Tools;
@@ -83,7 +83,7 @@ public class Areatrack extends PluginActionable implements ActionListener, Chang
 	private JTextField startFrameTextField	= new JTextField("0");
 	private JTextField endFrameTextField	= new JTextField("99999999");
 	
-	private JComboBox<String> transformsComboBox; 
+	private JComboBox<TransformOp> transformsComboBox; 
 	private int tdefault 					= 1;
 	private JSpinner thresholdSpinner		= new JSpinner(new SpinnerNumberModel(70, 0, 255, 10));
 	private JTextField analyzeStepTextField = new JTextField("1");
@@ -109,7 +109,6 @@ public class Areatrack extends PluginActionable implements ActionListener, Chang
 	private AreaAnalysisThread analysisThread = null;
 	private String lastUsedPath				= null;
 	private ThresholdOverlay thresholdOverlay= null;
-	private ImageTransform imgTransf 		 = new ImageTransform();
 	
 	// --------------------------------------------------------------------------
 	@Override
@@ -198,7 +197,7 @@ public class Areatrack extends PluginActionable implements ActionListener, Chang
 		analysisPanel.add( GuiUtil.besidesPanel(thresholdedImageCheckBox));
 		JLabel videochannel = new JLabel("source data ");
 		videochannel.setHorizontalAlignment(SwingConstants.RIGHT);
-		transformsComboBox = new JComboBox<String> (imgTransf.getAvailableTransforms());
+		transformsComboBox = new JComboBox<TransformOp> (TransformOp.values());
 		analysisPanel.add( GuiUtil.besidesPanel( videochannel, transformsComboBox));
 		transformsComboBox.setSelectedIndex(tdefault);
 		JLabel thresholdLabel = new JLabel("detect threshold ");
@@ -344,7 +343,7 @@ public class Areatrack extends PluginActionable implements ActionListener, Chang
 					startFrame,
 					endFrame,
 					0,
-					transformsComboBox.getSelectedIndex());
+					(TransformOp) transformsComboBox.getSelectedItem());
 			analysisThread.start();
 		}
 		
@@ -410,11 +409,11 @@ public class Areatrack extends PluginActionable implements ActionListener, Chang
 			thresholdOverlay = new ThresholdOverlay();
 			vSequence.setThresholdOverlay(thresholdOverlay);
 		}
-		int transform = transformsComboBox.getSelectedIndex();
+		TransformOp transformop = (TransformOp) transformsComboBox.getSelectedItem();
 		thresholdOverlay.setThresholdOverlayParameters( vSequence,
 				thresholdedImageCheckBox.isSelected(), 
 				vSequence.threshold, 
-				transform);
+				transformop);
 		//if (transform == 12) then feed a reference into sequence
 			
 		if (thresholdOverlay != null) {

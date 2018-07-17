@@ -61,6 +61,7 @@ import icy.util.XLSUtil;
 import jxl.write.WritableSheet;
 import jxl.write.WritableWorkbook;
 import jxl.write.WriteException;
+import plugins.fmp.sequencevirtual.ImageTransform.TransformOp;
 import plugins.fmp.sequencevirtual.SequenceVirtual;
 import plugins.fmp.sequencevirtual.ThresholdOverlay;
 import plugins.fmp.sequencevirtual.Tools;
@@ -95,7 +96,7 @@ public class Drosotrack extends PluginActionable implements ActionListener, View
 	private JTextField startFrameTextField	= new JTextField("0");
 	private JTextField endFrameTextField	= new JTextField("99999999");
 	private JComboBox<String> colorChannelComboBox = new JComboBox<String> (new String[] {"Red", "Green", "Blue"});
-	private JComboBox<String> backgroundComboBox = new JComboBox<String> (new String[] {"none", "frame n-1", "frame 0"});
+	private JComboBox<TransformOp> backgroundComboBox = new JComboBox<> (new TransformOp[]  {TransformOp.None, TransformOp.REFn, TransformOp.REFt0});
 	private JSpinner thresholdSpinner		= new JSpinner(new SpinnerNumberModel(100, 0, 255, 10));
 	private JTextField jitterTextField 		= new JTextField("5");
 	private JTextField analyzeStepTextField = new JTextField("1");
@@ -688,7 +689,6 @@ public class Drosotrack extends PluginActionable implements ActionListener, View
 		}
 	}
 
-
 	private void initInputSeq () {
 
 		// transfer 1 image to the viewer
@@ -773,7 +773,7 @@ public class Drosotrack extends PluginActionable implements ActionListener, View
 		ov.setThresholdOverlayParameters( vinputSequence,
 				thresholdedImageCheckBox.isSelected(), 
 				threshold, 
-				backgroundComboBox.getSelectedIndex());
+				(TransformOp) backgroundComboBox.getSelectedItem());
 		if (ov != null) {
 			ov.painterChanged();
 		}
@@ -905,7 +905,20 @@ public class Drosotrack extends PluginActionable implements ActionListener, View
 			// create array for the results - 1 point = 1 slice
 			ROI [][] resultFlyPositionArrayList = new ROI[nbframes][nbcages];
 			int lastFrameAnalyzed = endFrame;
-			int transf = backgroundComboBox.getSelectedIndex();
+			TransformOp transformop = (TransformOp) backgroundComboBox.getSelectedItem();
+			int transf = 0;
+			switch (transformop) {
+			case REFn:
+				transf = 1;
+				break;
+			case REFt0:
+				transf = 2;
+				break;
+			case None:
+			default:
+				transf = 0;
+				break;
+			}
 
 			try {
 				final Viewer v = Icy.getMainInterface().getFirstViewer(vinputSequence);	

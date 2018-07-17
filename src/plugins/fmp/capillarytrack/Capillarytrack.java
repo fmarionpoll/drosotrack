@@ -642,7 +642,6 @@ public class Capillarytrack extends PluginActionable implements ActionListener, 
 
 		//_______________________________________________
 		else if (o == saveKymographsButton) {
-//			buttonsVisibilityUpdate(StatusAnalysis.ROIS_OK);
 			saveKymographsButton.setEnabled(false);
 			openKymographsButton.setEnabled(false);
 			detectTopButton.setEnabled(false);
@@ -1635,12 +1634,10 @@ public class Capillarytrack extends PluginActionable implements ActionListener, 
 				offsetY = 0;
 				double ratio_view = rectDataView.getHeight()/rectDataView.getWidth();
 				double ratio_image = seq.getSizeY()/seq.getSizeX();
-				if (ratio_view > ratio_image) 
-				{
+				if (ratio_view > ratio_image) {
 					scaleX = seq.getSizeX()/rectDataView.getWidth();
 				}
-				else
-				{
+				else {
 					scaleX = rectDataView.getWidth()/ seq.getSizeX();
 				}
 				

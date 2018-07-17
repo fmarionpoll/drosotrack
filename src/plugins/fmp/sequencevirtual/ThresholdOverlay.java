@@ -13,15 +13,16 @@ import icy.painter.Overlay;
 import icy.sequence.Sequence;
 import icy.type.DataType;
 import icy.type.point.Point5D;
+import plugins.fmp.sequencevirtual.ImageTransform.TransformOp;
 
 public class ThresholdOverlay extends Overlay
 {
 	
 	public boolean [] boolMap;
-	private IcyBufferedImage binaryMap = null;
+	public IcyBufferedImage binaryMap = null;
 	boolean bTthresholdedImage = true;
 	int thresholdValue = 0;
-	int transf = 0;
+	TransformOp transformop;
 	SequenceVirtual vinputSequence 	= null;
 	public ImageTransform imgTransf = new ImageTransform(); 
 	public int imageTransformSelected = 0;
@@ -31,11 +32,11 @@ public class ThresholdOverlay extends Overlay
 		super("ThresholdOverlay: where is this message displayed anyway?");
 	}
 	
-	public void setThresholdOverlayParameters (SequenceVirtual sseq, boolean sbThresholded, int sthreshold, int stransf)
+	public void setThresholdOverlayParameters (SequenceVirtual sseq, boolean sbThresholded, int sthreshold, TransformOp stransf)
 	{
 		bTthresholdedImage = sbThresholded;
 		thresholdValue = sthreshold;
-		transf = stransf;
+		transformop = stransf;
 		vinputSequence = sseq;
 		imgTransf.setSequence(sseq);
 	}
@@ -82,7 +83,7 @@ public class ThresholdOverlay extends Overlay
 			g2.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 0.5f));
 			if (bTthresholdedImage) {
 
-				IcyBufferedImage bufImage = imgTransf.transformImage(vinputSequence.currentFrame, transf);
+				IcyBufferedImage bufImage = imgTransf.transformImage(vinputSequence.currentFrame, transformop);
 				getBinaryOverThresholdFromDoubleImage(bufImage, thresholdValue);
 				convertBoolMapIntoBinaryMap();
 

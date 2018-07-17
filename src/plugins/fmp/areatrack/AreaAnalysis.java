@@ -13,6 +13,7 @@ import icy.roi.ROI2D;
 
 import icy.system.profile.Chronometer;
 import plugins.fmp.sequencevirtual.ImageTransform;
+import plugins.fmp.sequencevirtual.ImageTransform.TransformOp;
 import plugins.fmp.sequencevirtual.SequenceVirtual;
 import plugins.fmp.sequencevirtual.ThresholdOverlay;
 import plugins.fmp.sequencevirtual.Tools;
@@ -34,7 +35,7 @@ class AreaAnalysisThread extends Thread
 	 */
 	
 	private int threshold = 0;
-	private int transf = 0;
+	private TransformOp transformop;
 	SequenceVirtual vSequence = null;
 	private ArrayList<ROI2D> roiList = null;
 
@@ -51,16 +52,16 @@ class AreaAnalysisThread extends Thread
 			int sstartFrame, 
 			int sendFrame, 
 			int simageref,
-			int stransf)
+			TransformOp stransf)
 	{
 		vSequence = sseq;
 		roiList = sroiList;
 		startFrame = sstartFrame;
 		endFrame = sendFrame;
 		
-		transf = stransf;
+		transformop = stransf;
 		imageref = simageref;
-		if (transf >= 13 && transf <= 15)
+		if (transformop == TransformOp.REFt0 || transformop == TransformOp.REFn || transformop == TransformOp.REF)
 			vSequence.setRefImageForSubtraction(imageref);
 	}
 	
@@ -119,7 +120,7 @@ class AreaAnalysisThread extends Thread
 				updateProgressionBar (t, nbframes, chrono, progress);
 
 				// load next image and compute threshold
-				IcyBufferedImage workImage = tImg.transformImage(t, transf); 
+				IcyBufferedImage workImage = tImg.transformImage(t, transformop); 
 				vSequence.currentFrame = t;
 				viewer.setPositionT(t);
 				viewer.setTitle(vSequence.getVImageName(t));
