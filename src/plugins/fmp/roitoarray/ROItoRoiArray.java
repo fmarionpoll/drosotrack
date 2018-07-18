@@ -136,91 +136,25 @@ public class ROItoRoiArray extends EzPlug implements ViewerListener {
 
 			Rectangle rect = roi.getBounds();
 			IcyBufferedImage img = IcyBufferedImageUtil.getSubImage(thresholdOverlay.binaryMap, rect);
-			byte[] binaryData = img.getDataXYAsByte(0);
+			byte [] binaryData = img.getDataXYAsByte(0);
 			int sizeX = img.getSizeX();
 			int sizeY = img.getSizeY();
-			// -------------------
-			System.out.println("Roi "+roi.getName());
-			for (int iy = 0; iy < sizeY; iy++) {
-				String cs = "line "+ iy + " : ";
-				for (int ix= 0; ix < sizeX; ix++) {
-					byte val = binaryData[ix + sizeX*iy];
-					val++;
-					cs += "-"+ val;
-				}
-				System.out.println(cs);
-			}
-			// --------------------
-			// find y
-			List<PseudoBlob> yBlobsList = new ArrayList<>();
-			PseudoBlob yblob = null;
-			PseudoBlob yLargestBlob = null;
-			int yysum = 0;
-			for (int ix= 0; ix < sizeX; ix++) {
-				int sum = 0;
-				for (int iy = 0; iy < sizeY; iy++) {
-					if (binaryData[ix + sizeX*iy] == 0) {
-						if (yblob == null) {
-							yblob = new PseudoBlob(0, 0);
-							yblob.first = iy;
-						}
-						sum++;
-					}
-					else if (yblob != null) {
-						yblob.last = iy;
-						yBlobsList.add(yblob);
-						yblob = null;
-					}
-				}
-				if (sum > yysum) {
-					yysum = sum;
-					yLargestBlob = new PseudoBlob(0, 0);
-					for (PseudoBlob blob: yBlobsList) {
-						if (blob.getLength() > yLargestBlob.getLength() ) {
-							yLargestBlob.first = blob.first;
-							yLargestBlob.last = blob.last;
-						}
-					}
-				}
-			}
-			
-			// find middle x
-			List<PseudoBlob> xBlobsList = new ArrayList<>();
-			PseudoBlob xblob = null;
-			PseudoBlob xLargestBlob = null;
-			int xxsum = 0;
-			for (int iy= 0; iy< sizeY; iy++) {
-				int sum = 0;
-				for (int ix = 0; ix < sizeX; ix++) {
-					if (binaryData[ix + sizeX*iy] == 0) {
-						if (xblob == null) {
-							xblob = new PseudoBlob(0, 0);
-							xblob.first = ix;
-						}
-						sum++;
-					}
-					else if (xblob != null) {
-						xblob.last = ix;
-						xBlobsList.add(xblob);
-						xblob = null;
-					}
-				}
-				if (sum > xxsum) {
-					xxsum = sum;
-					xLargestBlob = new PseudoBlob(0, 0);
-					for (PseudoBlob blob: xBlobsList) {
-						if (blob.getLength() > xLargestBlob.getLength() ) {
-							xLargestBlob.first = blob.first;
-							xLargestBlob.last = blob.last;
-						}
-					}
-				}
-			}
+
+			getPixelsConnected (sizeX, sizeY, binaryData);
+			getBlobsConnected(sizeX, sizeY, binaryData);
+			byte largestblob = getLargestBlob(binaryData);
+			Rectangle rectBlob = getBlobRectangle( largestblob, sizeX, sizeY, binaryData);
+
 			// add circular roi there...
-			Point2D.Double point0 = new Point2D.Double (rect.getX()+ xLargestBlob.first , rect.getY() + yLargestBlob.first);
-			Point2D.Double point1 = new Point2D.Double (rect.getX()+ xLargestBlob.first , rect.getY() + yLargestBlob.last);
-			Point2D.Double point2 = new Point2D.Double (rect.getX()+ xLargestBlob.last , rect.getY() + yLargestBlob.last);
-			Point2D.Double point3 = new Point2D.Double (rect.getX()+ xLargestBlob.last , rect.getY() + yLargestBlob.first);
+			double xleft = rect.getX()+ rectBlob.getX();
+			double xright = xleft + rectBlob.getWidth();
+			double ytop = rect.getY() + rectBlob.getY();
+			double ybottom = ytop + rectBlob.getHeight();
+			
+			Point2D.Double point0 = new Point2D.Double (xleft , ytop);
+			Point2D.Double point1 = new Point2D.Double (xleft , ybottom);
+			Point2D.Double point2 = new Point2D.Double (xright , ybottom);
+			Point2D.Double point3 = new Point2D.Double (xright , ytop);
 			
 			List<Point2D> points = new ArrayList<>();
 			points.add(point0);
@@ -231,6 +165,160 @@ public class ROItoRoiArray extends EzPlug implements ViewerListener {
 			roiP.setName("*"+roi.getName());
 			roiP.setColor(Color.RED);
 			sequence.getValue(true).addROI(roiP);
+		}
+		System.out.println("Done");
+	}
+
+	private Rectangle getBlobRectangle(byte blobNumber, int sizeX, int sizeY, byte [] binaryData) {
+		Rectangle rect = new Rectangle(0, 0, 0, 0);
+		int [] arrayX = new int [sizeX];
+		int [] arrayY = new int [sizeY];
+		for (int iy= 0; iy < sizeY; iy++) {
+			for (int ix = 0; ix < sizeX; ix++) {					
+				if (binaryData[ix + sizeX*iy] != blobNumber) 
+					continue;
+				arrayX[ix] ++;
+				arrayY[iy]++;
+			}
+		}
+		for (int i=0; i< sizeX; i++)
+			if (arrayX[i] > 0) {
+				rect.x = i;
+				break;
+			}
+		for (int i = sizeX-1; i >=0; i--)
+			if (arrayX[i] > 0) {
+				rect.width = i-rect.x +1;
+				break;
+			}
+		
+		for (int i=0; i< sizeY; i++)
+			if (arrayY[i] > 0) {
+				rect.y = i;
+				break;
+			}
+		for (int i = sizeY-1; i >=0; i--)
+			if (arrayY[i] > 0) {
+				rect.height = i-rect.y +1;
+				break;
+			}
+		return rect;
+	}
+	
+	private int getPixelsConnected (int sizeX, int sizeY, byte [] binaryData) 
+	{
+		byte blobnumber = 1;
+		for (int iy= 0; iy < sizeY; iy++) {
+			for (int ix = 0; ix < sizeX; ix++) {					
+				if (binaryData[ix + sizeX*iy] < 0) 
+					continue;
+				
+				int ioffset = ix + sizeX*iy;
+				int ioffsetpreviousrow = ix + sizeX*(iy-1);
+				
+				if ((iy > 0) && (ix > 0) && (binaryData[ioffsetpreviousrow-1] > 0)) 
+					binaryData[ioffset] = binaryData[ioffsetpreviousrow-1];
+				
+				else if ((iy > 0) && (binaryData[ioffsetpreviousrow] > 0))
+					binaryData[ioffset] = binaryData[ioffsetpreviousrow];
+				
+				else if ((iy > 0) && ((ix+1) < sizeX) &&  (binaryData[ioffsetpreviousrow+1] > 0))
+					binaryData[ioffset] = binaryData[ioffsetpreviousrow+1];
+				
+				else if ((ix > 0) && (binaryData[ioffset-1] > 0))
+					binaryData[ioffset] = binaryData[ioffset-1];
+				
+				else { // new blob number
+					binaryData[ioffset] = blobnumber;
+					blobnumber++;
+				}						
+			}
+		}
+		return (int) blobnumber -1;
+	}
+	
+	private void getBlobsConnected (int sizeX, int sizeY, byte[] binaryData) {
+		for (int iy= 0; iy < sizeY; iy++) {
+			for (int ix = 0; ix < sizeX; ix++) {					
+				if (binaryData[ix + sizeX*iy] < 0) 
+					continue;
+				
+				int ioffset = ix + sizeX*iy;
+				int ioffsetpreviousrow = ix + sizeX*(iy-1);
+				byte val = binaryData[ioffset];
+				
+				if ((iy > 0) && (ix > 0) && (binaryData[ioffsetpreviousrow-1] > 0)) 
+					if (binaryData[ioffsetpreviousrow-1] > val)
+						changeAllBlobNumber1Into2 (binaryData[ioffsetpreviousrow-1], val, binaryData) ;
+				
+				else if ((iy > 0) && (binaryData[ioffsetpreviousrow] > 0))
+					if (binaryData[ioffsetpreviousrow] > val)
+						changeAllBlobNumber1Into2 (binaryData[ioffsetpreviousrow], val, binaryData) ;
+				
+				else if ((iy > 0) && ((ix+1) < sizeX) &&  (binaryData[ioffsetpreviousrow+1] > 0))
+					if (binaryData[ioffsetpreviousrow+1] > val)
+						changeAllBlobNumber1Into2 (binaryData[ioffsetpreviousrow+1], val, binaryData) ;
+				
+				else if ((ix>0) && (binaryData[ioffset-1] > 0))
+					if (binaryData[ioffset-1] > val)
+						changeAllBlobNumber1Into2 (binaryData[ioffset-1], val, binaryData) ;					
+			}
+		}
+	}
+	
+	private byte getLargestBlob(byte[] binaryData) 
+	{
+		byte maxblob = getMaximumBlobNumber(binaryData);
+		int maxpixels = 0;
+		byte largestblob = 0;
+		for (byte i=0; i <= maxblob; i++) {
+			int npixels = getNumberOfPixelEqualToValue (i, binaryData);
+			if (npixels > maxpixels) {
+				maxpixels = npixels;
+				largestblob = i;
+			}
+		}
+		return largestblob;
+	}
+	
+	private void changeAllBlobNumber1Into2 (byte oldvalue, byte newvalue, byte [] binaryData) 
+	{
+		for (int i=0; i< binaryData.length; i++)
+			if (binaryData[i] == oldvalue)
+				binaryData[i] = newvalue;
+	}
+	
+	private int getNumberOfPixelEqualToValue (byte value, byte [] binaryData) 
+	{
+		int sum = 0;
+		for (int i=0; i< binaryData.length; i++)
+			if (binaryData[i] == value)
+				sum++;
+		return sum;
+	}
+	
+	private byte getMaximumBlobNumber (byte [] binaryData) 
+	{
+		byte max = 0;
+		for (int i=0; i< binaryData.length; i++)
+			if (binaryData[i] > max)
+				max = binaryData[i];
+		return max;
+	}
+	
+	private void debugDisplayArrayValues (String title, int sizeX, int sizeY, byte [] binaryData ) 
+	{
+		System.out.println(title);
+		for (int iy = 0; iy < sizeY; iy++) {
+			String cs = "line "+ iy + " : ";
+			for (int ix= 0; ix < sizeX; ix++) {
+				byte val = binaryData[ix + sizeX*iy];
+				if (val >= 0)
+					cs += " "+ val;
+				else
+					cs += " .";
+			}
+			System.out.println(cs);
 		}
 	}
 	
