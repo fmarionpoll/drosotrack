@@ -127,8 +127,10 @@ public class ROItoRoiArray extends EzPlug implements ViewerListener {
 		if (thresholdOverlay.binaryMap == null)
 			return;
 		// get byte image (0, 1) that has been thresholded
-
-		for (ROI2D roi:vSequence.getROI2Ds()) {
+		ArrayList<ROI2D> roiList = vSequence.getROI2Ds();
+		Collections.sort(roiList, new Tools.ROI2DNameComparator());
+		
+		for (ROI2D roi:roiList) {
 			if (!roi.getName().contains("grid"))
 				continue;
 
@@ -137,41 +139,88 @@ public class ROItoRoiArray extends EzPlug implements ViewerListener {
 			byte[] binaryData = img.getDataXYAsByte(0);
 			int sizeX = img.getSizeX();
 			int sizeY = img.getSizeY();
-			
-			// find middle x
-			int xsum = 0;
-			int xcenter = 0;
+			// -------------------
+			System.out.println("Roi "+roi.getName());
+			for (int iy = 0; iy < sizeY; iy++) {
+				String cs = "line "+ iy + " : ";
+				for (int ix= 0; ix < sizeX; ix++) {
+					byte val = binaryData[ix + sizeX*iy];
+					val++;
+					cs += "-"+ val;
+				}
+				System.out.println(cs);
+			}
+			// --------------------
+			// find y
+			List<PseudoBlob> yBlobsList = new ArrayList<>();
+			PseudoBlob yblob = null;
+			PseudoBlob yLargestBlob = null;
+			int yysum = 0;
 			for (int ix= 0; ix < sizeX; ix++) {
 				int sum = 0;
 				for (int iy = 0; iy < sizeY; iy++) {
-					if (binaryData[ix + sizeX*iy] == 0)
+					if (binaryData[ix + sizeX*iy] == 0) {
+						if (yblob == null) {
+							yblob = new PseudoBlob(0, 0);
+							yblob.first = iy;
+						}
 						sum++;
+					}
+					else if (yblob != null) {
+						yblob.last = iy;
+						yBlobsList.add(yblob);
+						yblob = null;
+					}
 				}
-				if (sum > xsum) {
-					xsum = sum;
-					xcenter = ix;
+				if (sum > yysum) {
+					yysum = sum;
+					yLargestBlob = new PseudoBlob(0, 0);
+					for (PseudoBlob blob: yBlobsList) {
+						if (blob.getLength() > yLargestBlob.getLength() ) {
+							yLargestBlob.first = blob.first;
+							yLargestBlob.last = blob.last;
+						}
+					}
 				}
 			}
 			
-			// find middle y
-			int ysum = 0;
-			int ycenter = 0;
+			// find middle x
+			List<PseudoBlob> xBlobsList = new ArrayList<>();
+			PseudoBlob xblob = null;
+			PseudoBlob xLargestBlob = null;
+			int xxsum = 0;
 			for (int iy= 0; iy< sizeY; iy++) {
 				int sum = 0;
 				for (int ix = 0; ix < sizeX; ix++) {
-					if (binaryData[ix + sizeX*iy] == 0) 
+					if (binaryData[ix + sizeX*iy] == 0) {
+						if (xblob == null) {
+							xblob = new PseudoBlob(0, 0);
+							xblob.first = ix;
+						}
 						sum++;
+					}
+					else if (xblob != null) {
+						xblob.last = ix;
+						xBlobsList.add(xblob);
+						xblob = null;
+					}
 				}
-				if (sum > ysum) {
-					ysum = sum;
-					ycenter = iy;
+				if (sum > xxsum) {
+					xxsum = sum;
+					xLargestBlob = new PseudoBlob(0, 0);
+					for (PseudoBlob blob: xBlobsList) {
+						if (blob.getLength() > xLargestBlob.getLength() ) {
+							xLargestBlob.first = blob.first;
+							xLargestBlob.last = blob.last;
+						}
+					}
 				}
 			}
 			// add circular roi there...
-			Point2D.Double point0 = new Point2D.Double (rect.getX()+ xcenter - xsum/2 , rect.getY() + ycenter - ysum/2);
-			Point2D.Double point1 = new Point2D.Double (rect.getX()+ xcenter - xsum/2 , rect.getY() + ycenter + ysum/2);
-			Point2D.Double point2 = new Point2D.Double (rect.getX()+ xcenter + xsum/2 , rect.getY() + ycenter + ysum/2);
-			Point2D.Double point3 = new Point2D.Double (rect.getX()+ xcenter + xsum/2 , rect.getY() + ycenter - ysum/2);
+			Point2D.Double point0 = new Point2D.Double (rect.getX()+ xLargestBlob.first , rect.getY() + yLargestBlob.first);
+			Point2D.Double point1 = new Point2D.Double (rect.getX()+ xLargestBlob.first , rect.getY() + yLargestBlob.last);
+			Point2D.Double point2 = new Point2D.Double (rect.getX()+ xLargestBlob.last , rect.getY() + yLargestBlob.last);
+			Point2D.Double point3 = new Point2D.Double (rect.getX()+ xLargestBlob.last , rect.getY() + yLargestBlob.first);
 			
 			List<Point2D> points = new ArrayList<>();
 			points.add(point0);
