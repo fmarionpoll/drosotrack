@@ -134,30 +134,34 @@ public class ROItoRoiArray extends EzPlug implements ViewerListener {
 
 			Rectangle rect = roi.getBounds();
 			IcyBufferedImage img = IcyBufferedImageUtil.getSubImage(thresholdOverlay.binaryMap, rect);
-			byte[] binaryMapDataBuffer = img.getDataXYAsByte(0);
-			int imgwidth = img.getSizeX();
-			int imgheight = img.getSizeY();
+			byte[] binaryData = img.getDataXYAsByte(0);
+			int sizeX = img.getSizeX();
+			int sizeY = img.getSizeY();
+			
 			// find middle x
 			int xsum = 0;
 			int xcenter = 0;
-			for (int ix= 0; ix< imgwidth; ix++) {
+			for (int ix= 0; ix < sizeX; ix++) {
 				int sum = 0;
-				for (int iy = 0; iy < imgheight; iy++)
-					if (binaryMapDataBuffer[ix + imgwidth*iy] == 0)
+				for (int iy = 0; iy < sizeY; iy++) {
+					if (binaryData[ix + sizeX*iy] == 0)
 						sum++;
+				}
 				if (sum > xsum) {
 					xsum = sum;
 					xcenter = ix;
 				}
 			}
+			
 			// find middle y
 			int ysum = 0;
 			int ycenter = 0;
-			for (int iy= 0; iy< imgheight; iy++) {
+			for (int iy= 0; iy< sizeY; iy++) {
 				int sum = 0;
-				for (int ix = 0; ix < imgwidth; ix++)
-					if (binaryMapDataBuffer[iy + imgheight*ix] == 0) 
+				for (int ix = 0; ix < sizeX; ix++) {
+					if (binaryData[ix + sizeX*iy] == 0) 
 						sum++;
+				}
 				if (sum > ysum) {
 					ysum = sum;
 					ycenter = iy;
