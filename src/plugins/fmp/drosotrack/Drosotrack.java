@@ -279,11 +279,10 @@ public class Drosotrack extends PluginActionable implements ActionListener, View
 			if (vinputSequence != null)
 				closeAll();
 			vinputSequence = new SequenceVirtual();
-			XMLPreferences guiPrefs = this.getPreferences("gui");
-			String lastUsedPath = guiPrefs.get("lastUsedPath", "");
 			
-			path = vinputSequence.loadInputVirtualStack(lastUsedPath);
+			path = vinputSequence.loadInputVirtualStack(null);
 			if (path != null) {
+				XMLPreferences guiPrefs = this.getPreferences("gui");
 				guiPrefs.put("lastUsedPath", path);
 				initInputSeq();
 			}

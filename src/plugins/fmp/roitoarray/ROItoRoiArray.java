@@ -18,6 +18,7 @@ import icy.image.IcyBufferedImage;
 import icy.image.IcyBufferedImageUtil;
 import icy.gui.viewer.ViewerEvent.ViewerEventType;
 import icy.preferences.XMLPreferences;
+import icy.roi.ROI;
 import icy.roi.ROI2D;
 import icy.sequence.DimensionId;
 import plugins.adufour.ezplug.EzButton;
@@ -54,11 +55,13 @@ public class ROItoRoiArray extends EzPlug implements ViewerListener {
 	EzVarBoolean 	overlayCheckBox;
 	EzVarEnum<TransformOp> filterComboBox;
 	EzVarInteger 	threshold;
+	EzButton		openXMLButton;
+	EzButton		saveXMLButton;
+	EzButton		generateGridButton;
 	
 	private ThresholdOverlay thresholdOverlay = null;
 	private SequenceVirtual vSequence = null;
-	private int numberOfImageForBuffer 		= 100;
-	private String lastUsedPath		= null;
+	private int numberOfImageForBuffer	= 100;
 	private String rootname;
 	
 	// ----------------------------------
@@ -76,12 +79,17 @@ public class ROItoRoiArray extends EzPlug implements ViewerListener {
 		rowWidth		= new EzVarInteger("row height ", 10, 0, 1000, 1);
 		rowInterval 	= new EzVarInteger("space btw. row ", 0, 0, 1000, 1);
 		
-		findLinesButton = new EzButton("test", new ActionListener() { 
-			public void actionPerformed(ActionEvent e) { doTest(); }	});
+		findLinesButton = new EzButton("Adjust and center", new ActionListener() { 
+			public void actionPerformed(ActionEvent e) { adjustAndCenter(); }	});
 		
 		openFileButton = new EzButton("Open file or sequence",  new ActionListener() { 
 			public void actionPerformed(ActionEvent e) { openFile(); } });
-		
+		openXMLButton = new EzButton("Open XML file with ROIs",  new ActionListener() { 
+			public void actionPerformed(ActionEvent e) { openXMLFile(); } });
+		saveXMLButton = new EzButton("Save ROIs to XML file",  new ActionListener() { 
+			public void actionPerformed(ActionEvent e) { saveXMLFile(); } });
+		generateGridButton = new EzButton("Generate grid",  new ActionListener() { 
+			public void actionPerformed(ActionEvent e) { execute(); } });
 		overlayCheckBox = new EzVarBoolean("build from overlay", false);
 		overlayCheckBox.addVarChangeListener(new EzVarListener<Boolean>() {
              @Override
@@ -114,14 +122,17 @@ public class ROItoRoiArray extends EzPlug implements ViewerListener {
 		addEzComponent(nrows);
 		addEzComponent(rowWidth);
 		addEzComponent(rowInterval);
+		addEzComponent(generateGridButton);
 		addEzComponent(overlayCheckBox);
 		addEzComponent(filterComboBox);
 		addEzComponent(threshold);
 		addEzComponent(findLinesButton);
+		addEzComponent(openXMLButton);
+		addEzComponent(saveXMLButton);
 	}
 	
 	// ----------------------------------
-	private void doTest() {
+	private void adjustAndCenter() {
 		if (!overlayCheckBox.getValue())
 			return;
 		if (thresholdOverlay.binaryMap == null)
@@ -134,41 +145,47 @@ public class ROItoRoiArray extends EzPlug implements ViewerListener {
 			if (!roi.getName().contains("grid"))
 				continue;
 
-			Rectangle rect = roi.getBounds();
-			IcyBufferedImage img = IcyBufferedImageUtil.getSubImage(thresholdOverlay.binaryMap, rect);
+			Rectangle rectGrid = roi.getBounds();
+			IcyBufferedImage img = IcyBufferedImageUtil.getSubImage(thresholdOverlay.binaryMap, rectGrid);
 			byte [] binaryData = img.getDataXYAsByte(0);
 			int sizeX = img.getSizeX();
 			int sizeY = img.getSizeY();
 
 			getPixelsConnected (sizeX, sizeY, binaryData);
 			getBlobsConnected(sizeX, sizeY, binaryData);
-			byte largestblob = getLargestBlob(binaryData);
-			Rectangle rectBlob = getBlobRectangle( largestblob, sizeX, sizeY, binaryData);
-
-			// add circular roi there...
-			double xleft = rect.getX()+ rectBlob.getX();
-			double xright = xleft + rectBlob.getWidth();
-			double ytop = rect.getY() + rectBlob.getY();
-			double ybottom = ytop + rectBlob.getHeight();
+			byte leafBlob = getLargestBlob(binaryData);
+			eraseAllBlobsExceptOne(leafBlob, binaryData);
+			Rectangle leafBlobRect = getBlobRectangle( leafBlob, sizeX, sizeY, binaryData);
 			
-			Point2D.Double point0 = new Point2D.Double (xleft , ytop);
-			Point2D.Double point1 = new Point2D.Double (xleft , ybottom);
-			Point2D.Double point2 = new Point2D.Double (xright , ybottom);
-			Point2D.Double point3 = new Point2D.Double (xright , ytop);
-			
-			List<Point2D> points = new ArrayList<>();
-			points.add(point0);
-			points.add(point1);
-			points.add(point2);
-			points.add(point3);
-			ROI2DEllipse roiP = new ROI2DEllipse (points.get(0), points.get(2));
-			roiP.setName("*"+roi.getName());
-			roiP.setColor(Color.RED);
-			sequence.getValue(true).addROI(roiP);
+			addLeafROIinGridRectangle(leafBlobRect, roi);
 		}
 		System.out.println("Done");
 	}
 
+	private void addLeafROIinGridRectangle (Rectangle leafBlobRect, ROI2D roi) {
+
+		Rectangle rectGrid = roi.getBounds();
+		double xleft = rectGrid.getX()+ leafBlobRect.getX();
+		double xright = xleft + leafBlobRect.getWidth();
+		double ytop = rectGrid.getY() + leafBlobRect.getY();
+		double ybottom = ytop + leafBlobRect.getHeight();
+		
+		Point2D.Double point0 = new Point2D.Double (xleft , ytop);
+		Point2D.Double point1 = new Point2D.Double (xleft , ybottom);
+		Point2D.Double point2 = new Point2D.Double (xright , ybottom);
+		Point2D.Double point3 = new Point2D.Double (xright , ytop);
+		
+		List<Point2D> points = new ArrayList<>();
+		points.add(point0);
+		points.add(point1);
+		points.add(point2);
+		points.add(point3);
+		ROI2DEllipse roiP = new ROI2DEllipse (points.get(0), points.get(2));
+		roiP.setName("leaf"+roi.getName());
+		roiP.setColor(Color.RED);
+		sequence.getValue(true).addROI(roiP);
+	}
+	
 	private Rectangle getBlobRectangle(byte blobNumber, int sizeX, int sizeY, byte [] binaryData) {
 		Rectangle rect = new Rectangle(0, 0, 0, 0);
 		int [] arrayX = new int [sizeX];
@@ -281,6 +298,15 @@ public class ROItoRoiArray extends EzPlug implements ViewerListener {
 		return largestblob;
 	}
 	
+	private void eraseAllBlobsExceptOne(byte blobIDToKeep, byte [] binaryData) {
+		for (int i=0; i< binaryData.length; i++) {
+			if (binaryData[i] != blobIDToKeep)
+				binaryData[i] = -1;
+			else
+				binaryData[i] = 1;
+		}
+	}
+	
 	private void changeAllBlobNumber1Into2 (byte oldvalue, byte newvalue, byte [] binaryData) 
 	{
 		for (int i=0; i< binaryData.length; i++)
@@ -306,6 +332,7 @@ public class ROItoRoiArray extends EzPlug implements ViewerListener {
 		return max;
 	}
 	
+	/*
 	private void debugDisplayArrayValues (String title, int sizeX, int sizeY, byte [] binaryData ) 
 	{
 		System.out.println(title);
@@ -321,6 +348,7 @@ public class ROItoRoiArray extends EzPlug implements ViewerListener {
 			System.out.println(cs);
 		}
 	}
+	*/
 	
 	private void displayOverlay (Boolean newValue) {
 		if (vSequence == null)
@@ -374,19 +402,16 @@ public class ROItoRoiArray extends EzPlug implements ViewerListener {
 	}
 	
 	private void openFile() {
-		String path = null;
+
 		if (vSequence != null) {
 			vSequence.close();
 		}
 		
 		vSequence = new SequenceVirtual();
-		XMLPreferences guiPrefs = this.getPreferences("gui");
-		lastUsedPath = guiPrefs.get("lastUsedPath", "");
-		
-		path = vSequence.loadInputVirtualStack(lastUsedPath);
+		String path = vSequence.loadInputVirtualStack(null);
 		if (path != null) {
+			XMLPreferences guiPrefs = this.getPreferences("gui");
 			guiPrefs.put("lastUsedPath", path);
-			lastUsedPath = path;
 			initInputSeq();
 		}
 	}
@@ -537,13 +562,10 @@ public class ROItoRoiArray extends EzPlug implements ViewerListener {
 		}
 		else if (choice == "circles") {
 			createROISFromPolygon(2);
-		}
-//		else
-			
+		}		
 	}
 
 	private void initInputSeq () {
-
 		// transfer 1 image to the viewer
 		addSequence(vSequence);
 		Viewer v = vSequence.getFirstViewer();
@@ -554,7 +576,6 @@ public class ROItoRoiArray extends EzPlug implements ViewerListener {
 	}
 	
 	private void startstopBufferingThread() {
-
 		if (vSequence == null)
 			return;
 
@@ -574,6 +595,33 @@ public class ROItoRoiArray extends EzPlug implements ViewerListener {
 		vSequence = null;
 	}
 
+	private void openXMLFile() {
+		vSequence.removeAllROI();
+		vSequence.xmlReadROIsAndData();
+	}
+	
+	private void saveXMLFile() {
+		vSequence.capillariesGrouping = 1;
+//		List<ROI> roisList = vSequence.getROIs(true);
+//		boolean flagstar = false;
+//		for (ROI roi : roisList) {
+//			if (!roi.getName().contains("grid"))
+//				 vSequence.removeROI(roi);
+//			if (!roi.getName().contains("*"))
+//				flagstar = true;
+//		}
+//		
+//		if (flagstar) {
+//			for (ROI roi : roisList) {
+//				if (!roi.getName().contains("*"))
+//					 vSequence.removeROI(roi);
+//			}
+//		}
+		
+		vSequence.xmlWriteROIsAndData("roisarray.xml");
+		vSequence.removeAllROI(); 
+//		vSequence.addROIs(roisList, false);
+	}
 
 }
 

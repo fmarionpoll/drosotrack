@@ -291,12 +291,11 @@ public class Areatrack extends PluginActionable implements ActionListener, Chang
 			}
 			
 			vSequence = new SequenceVirtual();
-			XMLPreferences guiPrefs = this.getPreferences("gui");
-			lastUsedPath = guiPrefs.get("lastUsedPath", "");
 			
-			path = vSequence.loadInputVirtualStack(lastUsedPath);
+			path = vSequence.loadInputVirtualStack(null);
 			if (path != null) 
  			{
+				XMLPreferences guiPrefs = this.getPreferences("gui");
 				guiPrefs.put("lastUsedPath", path);
 				lastUsedPath = path;
 				initInputSeq();
