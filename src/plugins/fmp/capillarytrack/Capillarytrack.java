@@ -1953,6 +1953,7 @@ public class Capillarytrack extends PluginActionable implements ActionListener, 
 		//  upper position (according to refBar)
 		if (!refLineUpper.intersectsLine(line))
 			return null;
+		
 		Point2D.Double pti = line.getIntersection(refLineUpper);
 		double y = pti.getY();
 		double x = pti.getX();
