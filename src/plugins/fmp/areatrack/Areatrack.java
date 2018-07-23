@@ -8,9 +8,9 @@ import java.awt.Rectangle;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.IOException;
-import java.util.List;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
@@ -52,7 +52,6 @@ import icy.gui.viewer.ViewerListener;
 import icy.gui.viewer.ViewerEvent.ViewerEventType;
 import icy.plugin.abstract_.PluginActionable;
 import icy.preferences.XMLPreferences;
-import icy.roi.ROI;
 import icy.roi.ROI2D;
 import icy.sequence.DimensionId;
 import icy.system.thread.ThreadUtil;
@@ -593,11 +592,11 @@ public class Areatrack extends PluginActionable implements ActionListener, Chang
 			xyDataset.addSeries(cropSeries[i]);
 		
 		String TitleString = "Results";
-		boolean displayLegend = true;
+		boolean displayLegend = false; //true;
 		JFreeChart chart = ChartFactory.createXYLineChart(
 				TitleString, "time", "pixels",
 				xyDataset,
-				PlotOrientation.VERTICAL,displayLegend,true,false ); 
+				PlotOrientation.VERTICAL, displayLegend,true,false ); 
 		
 		int minWidth = 800;
 		int minHeight = 200;
@@ -610,7 +609,7 @@ public class Areatrack extends PluginActionable implements ActionListener, Chang
 		axis.setRange(startFrame, endFrame);
 		LegendTitle legendTitle = chart.getLegend();
 		legendTitle.setPosition(RectangleEdge.RIGHT); 
-		mainChartPanel.add( new ChartPanel(  chart , width , height , minWidth, minHeight, maxWidth , maxHeight, false , false, true , true , true, true));
+		mainChartPanel.add( new ChartPanel(  chart, width , height , minWidth, minHeight, maxWidth , maxHeight, false , false, true , true , true, true));
 		
 		mainChartPanel.validate();
 		mainChartPanel.repaint();
@@ -673,6 +672,7 @@ public class Areatrack extends PluginActionable implements ActionListener, Chang
 			icol0++;
 			int icol1 = icol0;
 			ArrayList<ROI2D> roisList = vSequence.getROI2Ds();
+			Collections.sort(roisList, new Tools.ROI2DNameComparator());
 			for (ROI2D roi: roisList) {
 				XLSUtil.setCellString( filteredDataPage , icol1, irow, roi.getName());
 				XLSUtil.setCellNumber( filteredDataPage , icol1, irow+1, roi.getNumberOfPoints());
