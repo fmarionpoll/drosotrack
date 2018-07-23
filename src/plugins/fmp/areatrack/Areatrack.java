@@ -8,6 +8,7 @@ import java.awt.Rectangle;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.IOException;
+import java.util.List;
 import java.util.ArrayList;
 import java.util.Arrays;
 
@@ -51,6 +52,7 @@ import icy.gui.viewer.ViewerListener;
 import icy.gui.viewer.ViewerEvent.ViewerEventType;
 import icy.plugin.abstract_.PluginActionable;
 import icy.preferences.XMLPreferences;
+import icy.roi.ROI;
 import icy.roi.ROI2D;
 import icy.sequence.DimensionId;
 import icy.system.thread.ThreadUtil;
@@ -669,11 +671,18 @@ public class Areatrack extends PluginActionable implements ActionListener, Chang
 			}
 			XLSUtil.setCellString( filteredDataPage , icol0, irow, "index" );
 			icol0++;
+			int icol1 = icol0;
+			ArrayList<ROI2D> roisList = vSequence.getROI2Ds();
+			for (ROI2D roi: roisList) {
+				XLSUtil.setCellString( filteredDataPage , icol1, irow, roi.getName());
+				XLSUtil.setCellNumber( filteredDataPage , icol1, irow+1, roi.getNumberOfPoints());
+				icol1++;
+			}
 			for (int iroi=0; iroi < nrois; iroi++, icol0++) 
 			{
-				XLSUtil.setCellString( filteredDataPage , icol0, irow, vSequence.seriesname[iroi]);
+				XLSUtil.setCellString( filteredDataPage , icol0, irow+2, vSequence.seriesname[iroi]);
 			}
-			irow++;
+			irow+=3;
 
 			// data
 			it = 1;

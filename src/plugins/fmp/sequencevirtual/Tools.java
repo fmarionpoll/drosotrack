@@ -12,9 +12,13 @@ import javax.swing.filechooser.FileNameExtensionFilter;
 import icy.file.FileUtil;
 import icy.gui.dialog.ConfirmDialog;
 import icy.gui.frame.progress.AnnounceFrame;
+import icy.sequence.Sequence;
 import icy.roi.ROI;
 import icy.roi.ROI2D;
-import icy.sequence.Sequence;
+import plugins.kernel.roi.roi2d.ROI2DLine;
+import plugins.kernel.roi.roi2d.ROI2DPolygon;
+import plugins.kernel.roi.roi2d.ROI2DEllipse;
+
 
 // Your plugin class should extends \'icy.plugin.abstract_.Plugin\' class.
 public class Tools {
@@ -78,6 +82,30 @@ public class Tools {
 		return name;
 	}
 
+	public static class ROI2DLineLeftXComparator implements Comparator<ROI2DLine> {
+		@Override
+		public int compare(ROI2DLine o1, ROI2DLine o2) {
+			if (o1.getBounds().x == o2.getBounds().x)
+				return 0;
+			else if (o1.getBounds().x > o2.getBounds().x)
+				return 1;
+			else 
+				return -1;
+		}
+	}
+	
+	public static class ROI2DLineLeftYComparator implements Comparator<ROI2DLine> {
+		@Override
+		public int compare(ROI2DLine o1, ROI2DLine o2) {
+			if (o1.getBounds().y == o2.getBounds().y)
+				return 0;
+			else if (o1.getBounds().y > o2.getBounds().y)
+				return 1;
+			else 
+				return -1;
+		}
+	}
+	
 	public static class ROI2DNameComparator implements Comparator<ROI2D> {
 		@Override
 		public int compare(ROI2D o1, ROI2D o2) {
