@@ -6,6 +6,7 @@ import java.awt.Point;
 import java.awt.Polygon;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.geom.Line2D;
 import java.awt.geom.Point2D;
 import java.io.IOException;
 import java.awt.Rectangle;
@@ -37,6 +38,7 @@ import icy.preferences.XMLPreferences;
 import icy.roi.ROI2D;
 import icy.sequence.DimensionId;
 import icy.type.collection.array.Array1DUtil;
+import icy.type.geom.GeomUtil;
 import icy.type.geom.Polygon2D;
 import icy.util.XLSUtil;
 import jxl.write.WritableSheet;
@@ -86,6 +88,7 @@ public class ROItoRoiArray extends EzPlug implements ViewerListener {
 	EzButton		generateAutoGridButton;
 	EzButton		exportSTDButton;
 	EzButton		expandToMinimaButton;
+	EzButton		convertLinesToSquaresButton;
 	
 	private ThresholdOverlay thresholdOverlay = null;
 	private SequenceVirtual vSequence = null;
@@ -127,8 +130,10 @@ public class ROItoRoiArray extends EzPlug implements ViewerListener {
 			public void actionPerformed(ActionEvent e) { saveXMLFile(); } });
 		generateGridButton = new EzButton("Create grid",  new ActionListener() { 
 			public void actionPerformed(ActionEvent e) { execute(); } });
-		generateAutoGridButton = new EzButton("Create grid from histograms > threshold",  new ActionListener() { 
+		generateAutoGridButton = new EzButton("Create lines / histograms > threshold",  new ActionListener() { 
 			public void actionPerformed(ActionEvent e) { buildAutoGrid(); } });
+		convertLinesToSquaresButton = new EzButton("Convert lines to squares",  new ActionListener() { 
+			public void actionPerformed(ActionEvent e) { convertLinesToSquares(); } });
 		overlayCheckBox = new EzVarBoolean("build from overlay", false);
 		overlayCheckBox.addVarChangeListener(new EzVarListener<Boolean>() {
              @Override
@@ -144,51 +149,30 @@ public class ROItoRoiArray extends EzPlug implements ViewerListener {
 		});
 		
 		thresholdOv = new EzVarInteger("threshold ", 70, 1, 255, 10);
-		thresholdSTD = new EzVarInteger("threshold / yellow curve", 100, 1, 10000, 10);
+		thresholdSTD = new EzVarInteger("threshold / selected filter", 100, 1, 10000, 10);
 		thresholdOv.addVarChangeListener(new EzVarListener<Integer>() {
             @Override
             public void variableChanged(EzVar<Integer> source, Integer newValue) { updateThreshold(newValue); }
         });
 
 		// 2) add variables to the interface
-		super.addEzComponent(sequence);
-		super.addEzComponent(openFileButton);
+
 		EzGroup groupSequence = new EzGroup("Source data", sequence, openFileButton);
 		super.addEzComponent (groupSequence);
-		
-		super.addEzComponent(rootnameComboBox);
-		super.addEzComponent(resultComboBox);
-		super.addEzComponent(openXMLButton);
-		super.addEzComponent(saveXMLButton);
-		EzGroup outputParameters = new EzGroup("Output parameters",  rootnameComboBox, resultComboBox, openXMLButton, saveXMLButton);
-		super.addEzComponent (outputParameters);
-		
-		super.addEzComponent(findLinesButton);
-		super.addEzComponent(exportSTDButton);
-		super.addEzComponent(thresholdSTD);
-		super.addEzComponent(thresholdSTDFromChanComboBox);
-		super.addEzComponent(generateAutoGridButton);
-		super.addEzComponent(expandToMinimaButton);
-		EzGroup groupAutoDetect = new EzGroup("Automatic detection from lines", findLinesButton, exportSTDButton, thresholdSTD, thresholdSTDFromChanComboBox, generateAutoGridButton, expandToMinimaButton );
+
+		EzGroup groupAutoDetect = new EzGroup("Automatic detection from lines", findLinesButton, exportSTDButton, thresholdSTD, thresholdSTDFromChanComboBox, generateAutoGridButton, convertLinesToSquaresButton, expandToMinimaButton );
 		super.addEzComponent (groupAutoDetect);
 	
-		super.addEzComponent(ncolumns);
-		super.addEzComponent(columnSize);
-		super.addEzComponent(columnSpan);
-		addComponent(new JSeparator(JSeparator.VERTICAL));
-		super.addEzComponent(nrows);
-		super.addEzComponent(rowWidth);
-		super.addEzComponent(rowInterval);
-		super.addEzComponent(generateGridButton);
 		EzGroup groupManualDetect = new EzGroup("Manual definition of lines", ncolumns, columnSize, columnSpan, nrows, rowWidth, rowInterval, generateGridButton);
 		super.addEzComponent (groupManualDetect);
+		groupManualDetect.setFoldedState(true);
 
-		super.addEzComponent(overlayCheckBox);
-		super.addEzComponent(filterComboBox);
-		super.addEzComponent(thresholdOv);
-		super.addEzComponent(adjustAndCenterEllipsesButton);
 		EzGroup groupDetectDisks = new EzGroup("Detect leaf disks", overlayCheckBox, filterComboBox, thresholdOv, adjustAndCenterEllipsesButton);
 		super.addEzComponent (groupDetectDisks);
+		groupDetectDisks.setFoldedState(true);
+		
+		EzGroup outputParameters = new EzGroup("Output data",  rootnameComboBox, resultComboBox, openXMLButton, saveXMLButton);
+		super.addEzComponent (outputParameters);
 	}
 	
 	// ----------------------------------
@@ -356,7 +340,7 @@ public class ROItoRoiArray extends EzPlug implements ViewerListener {
 		mainChartFrame.requestFocus();
 	}
 
-	private void buildROIsFromSTD(Polygon roiPolygon, int threshold, int channel) {
+	private void buildROIsFromSTDProfile(Polygon roiPolygon, int threshold, int channel) {
 		Point2D.Double [] refpoint = new Point2D.Double [4];
 		for (int i=0; i < 4; i++)
 			refpoint [i] = new Point2D.Double (roiPolygon.xpoints[i], roiPolygon.ypoints[i]);
@@ -399,6 +383,111 @@ public class ROItoRoiArray extends EzPlug implements ViewerListener {
 		}
 	}
 	
+	private List<List<Line2D>>  buildLinesFromSTDProfile(Polygon roiPolygon, double [][] stdXArray, double [][] stdYArray, int threshold, int channel) {
+		//get points > threshold
+		ArrayList<Integer> listofX = getTransitions (stdXArray, threshold, channel);
+		ArrayList<Integer> listofY = getTransitions (stdYArray, threshold, channel);
+		
+		ArrayList<Line2D> vertlines = getVerticalLinesFromIntervals(roiPolygon, listofX);
+		ArrayList<Line2D> horzlines = getHorizontalLinesFromIntervals(roiPolygon, listofY);
+		
+		List<List<Line2D>> linesArray = new ArrayList<List<Line2D>> ();
+		linesArray.add(vertlines);
+		linesArray.add(horzlines);
+		
+		return linesArray;
+	}
+	
+	private ArrayList<Line2D> getVerticalLinesFromIntervals(Polygon roiPolygon, ArrayList<Integer> listofX) {
+
+		ArrayList<Line2D> vertlines = new ArrayList<Line2D>();
+		double deltaYTop = roiPolygon.ypoints[3] - roiPolygon.ypoints[0];
+		double deltaXTop = roiPolygon.xpoints[3] - roiPolygon.xpoints[0];
+		double deltaYBottom = roiPolygon.ypoints[2] - roiPolygon.ypoints[1];
+		double deltaXBottom = roiPolygon.xpoints[2] - roiPolygon.xpoints[1];
+		double lastX = listofX.get(listofX.size() -1);
+		
+		for (int i = 0; i < listofX.size(); i++) {
+			int index = listofX.get(i);
+			Point2D.Double top 		= new Point2D.Double(roiPolygon.xpoints[0] + index*deltaXTop/lastX, 	roiPolygon.ypoints[0] + index*deltaYTop/lastX);
+			Point2D.Double bottom 	= new Point2D.Double(roiPolygon.xpoints[1] + index*deltaXBottom/lastX,	roiPolygon.ypoints[1] + index*deltaYBottom/lastX);
+			Line2D line = new Line2D.Double (top, bottom);
+			vertlines.add(line);
+		}
+		
+		return vertlines;
+	}
+	
+	private ArrayList<Line2D> getHorizontalLinesFromIntervals(Polygon roiPolygon, ArrayList<Integer> listofY) {
+
+		ArrayList<Line2D> horzlines = new ArrayList<Line2D>();
+		double deltaYLeft = roiPolygon.ypoints[1] - roiPolygon.ypoints[0];
+		double deltaXLeft = roiPolygon.xpoints[1] - roiPolygon.xpoints[0];
+		double deltaYRight = roiPolygon.ypoints[2] - roiPolygon.ypoints[3];
+		double deltaXRight = roiPolygon.xpoints[2] - roiPolygon.xpoints[3];
+		double lastX = listofY.get(listofY.size() -1);
+		
+		for (int i = 0; i < listofY.size(); i++) {
+			int index = listofY.get(i);
+			Point2D.Double top 		= new Point2D.Double(roiPolygon.xpoints[0] + index*deltaXLeft/lastX, 	roiPolygon.ypoints[0] + index*deltaYLeft/lastX);
+			Point2D.Double bottom 	= new Point2D.Double(roiPolygon.xpoints[3] + index*deltaXRight/lastX,	roiPolygon.ypoints[3] + index*deltaYRight/lastX);
+			Line2D line = new Line2D.Double (top, bottom);
+			horzlines.add(line);
+		}
+		
+		return horzlines;
+	}
+	
+	private ArrayList<Integer> getTransitions (double [][] array, int threshold, int channel) {
+
+		ArrayList<Integer> listofpoints = new ArrayList<> ();
+		listofpoints.add(0);
+		boolean bDetectGetDown = true;		// assume that we look at the first detection under threshold starting from the border
+		double dthreshold = threshold;
+		double minval = 0;
+		int imin = 0;
+		
+		for (int ix=0; ix < array.length; ix++) {
+			double value = array[ix][channel];
+			if (bDetectGetDown && (value < dthreshold)) {
+				bDetectGetDown = false;
+				imin = ix;
+				minval = value;
+			}
+			else if (!bDetectGetDown) {
+				if(value > dthreshold) {
+					bDetectGetDown = true;
+					listofpoints.add(imin);
+				}
+				else if (value < minval) {
+					minval = value;
+					imin = ix;
+				}
+			}
+		}
+		listofpoints.add(array.length-1);
+		
+		return listofpoints;
+	}
+	
+	private void buildROIsFromLines (List<List<Line2D>> linesArray) {
+		// build dummy lines
+		String [] type = new String [] {"vertical", "horizontal"};  
+		int itype = 0;
+		for (List<Line2D> firstarray : linesArray) {
+			int i=0;
+			for (Line2D line: firstarray) {
+				ROI2DLine roiL1 = new ROI2DLine (line);
+				roiL1.setName(type[itype]+i);
+				roiL1.setReadOnly(false);
+				roiL1.setColor(Color.RED);
+				sequence.getValue(true).addROI(roiL1, true);
+				i++;
+			}
+			itype++;
+		}
+	}
+	
 	private void buildAutoGrid () {
 		ROI2D roi = sequence.getValue(true).getSelectedROI2D();
 		if ( ! ( roi instanceof ROI2DPolygon ) ) {
@@ -418,8 +507,57 @@ public class ROItoRoiArray extends EzPlug implements ViewerListener {
 			channel = 1;
 		else
 			channel = 2;
-		buildROIsFromSTD( roiPolygon, thresholdSTD.getValue(), channel);
+		//buildROIsFromSTDProfile( roiPolygon, thresholdSTD.getValue(), channel);
+		List<List<Line2D>> linesArray = buildLinesFromSTDProfile( roiPolygon, stdXArray, stdYArray, thresholdSTD.getValue(), channel);
+		
+		buildROIsFromLines(linesArray);
 //		expandROIsToMinima(0);
+	}
+	
+	private void convertLinesToSquares() {
+		ArrayList<ROI2D> list = sequence.getValue(true).getROI2Ds();
+		Collections.sort(list, new Tools.ROI2DNameComparator());
+		List <ROI2DLine> vertLines = new ArrayList <ROI2DLine> ();
+		List <ROI2DLine> horizLines = new ArrayList <ROI2DLine> ();
+		for (ROI2D roi: list) {
+			String name = roi.getName();
+			if (name.contains("vertical"))
+				vertLines.add((ROI2DLine)roi);
+			else if (name.contains("horizontal"))
+				horizLines.add((ROI2DLine) roi);
+		}
+		Collections.sort(vertLines, new Tools.ROI2DNameComparator());
+		Collections.sort(horizLines, new Tools.ROI2DNameComparator());
+		sequence.getValue(true).removeAllROI();
+		
+		ROI2DLine roih1 = null;
+		int row = 0;
+		for (ROI2DLine roih2: horizLines) {
+			if (roih1 == null) {
+				roih1 = roih2;
+				continue;
+			}
+			ROI2DLine roiv1 = null;
+			int col = 0;
+			for (ROI2DLine roiv2: vertLines) {
+				if (roiv1 == null) {
+					roiv1 = roiv2;
+					continue;
+				}
+				List <Point2D> listpoints = new ArrayList<Point2D> ();
+				listpoints.add(GeomUtil.getIntersection(roiv1.getLine(), roih1.getLine()));
+				listpoints.add(GeomUtil.getIntersection(roiv1.getLine(), roih2.getLine()));
+				listpoints.add(GeomUtil.getIntersection(roiv2.getLine(), roih2.getLine()));
+				listpoints.add(GeomUtil.getIntersection(roiv2.getLine(), roih1.getLine()));
+				
+				addPolygonROI (listpoints, "g", col, row);
+				
+				roiv1 = roiv2;
+				col++;
+			}
+			roih1 = roih2;
+			row++;
+		}
 	}
 	
 	private void expandROIsToMinima(int chan) {
@@ -465,7 +603,6 @@ public class ROItoRoiArray extends EzPlug implements ViewerListener {
 		sequence.getValue(true).addROI(roiP);
 	}
 	
-	
 	private Rectangle getRectToMinima(Rectangle firstRect, Rectangle rectExpanded, int chan) {
 		
 		int minXLeft 	= findMinimum(firstRect.x + firstRect.width/2 - rectExpanded.x, 0, stdXArray, chan);
@@ -475,7 +612,6 @@ public class ROItoRoiArray extends EzPlug implements ViewerListener {
 		Rectangle rect = new Rectangle (rectExpanded.x +minXLeft, rectExpanded.y + minYTop, minXRight - minXLeft+1, minYBottom - minYTop +1);
 		return rect;
 	}
-	
 	
 	private int findMinimum(int istart, int iend, double [][] array, int chan) {
 		int imin = istart;
@@ -498,7 +634,6 @@ public class ROItoRoiArray extends EzPlug implements ViewerListener {
 		return imin;
 	}
 	
-	
 	private Rectangle expandROIRectangleWithinBounds(ROI2D roi, int imgWidth, int imgHeight) {
 		Rectangle rectGrid = roi.getBounds();
 		rectGrid.width *= 2;
@@ -519,7 +654,6 @@ public class ROItoRoiArray extends EzPlug implements ViewerListener {
 		return rectGrid;
 	}
 	
-	
 	private int findFirstPointOverThreshold(double [][] array, int istart, double threshold, int channel) {
 		if (istart < 0)
 			return istart;
@@ -534,7 +668,6 @@ public class ROItoRoiArray extends EzPlug implements ViewerListener {
 		return ifound;
 	}
 	
-	
 	private int findFirstPointBelowThreshold(double [][] array, int istart, double threshold, int channel) {
 		if (istart < 0)
 			return istart;
@@ -548,7 +681,6 @@ public class ROItoRoiArray extends EzPlug implements ViewerListener {
 		}
 		return ifound;
 	}
-	
 	
 // -----------------------------------	
 	private void findLeafDiskIntoRectangles() {
@@ -581,7 +713,6 @@ public class ROItoRoiArray extends EzPlug implements ViewerListener {
 		System.out.println("Done");
 	}
 	
-
 	private void addLeafROIinGridRectangle (Rectangle leafBlobRect, ROI2D roi) {
 
 		Rectangle rectGrid = roi.getBounds();
@@ -605,7 +736,6 @@ public class ROItoRoiArray extends EzPlug implements ViewerListener {
 		roiP.setColor(Color.RED);
 		sequence.getValue(true).addROI(roiP);
 	}
-	
 	
 	private Rectangle getBlobRectangle(byte blobNumber, int sizeX, int sizeY, byte [] binaryData) {
 		Rectangle rect = new Rectangle(0, 0, 0, 0);
@@ -643,7 +773,6 @@ public class ROItoRoiArray extends EzPlug implements ViewerListener {
 		return rect;
 	}
 	
-	
 	private int getPixelsConnected (int sizeX, int sizeY, byte [] binaryData) 
 	{
 		byte blobnumber = 1;
@@ -676,7 +805,6 @@ public class ROItoRoiArray extends EzPlug implements ViewerListener {
 		return (int) blobnumber -1;
 	}
 	
-	
 	private void getBlobsConnected (int sizeX, int sizeY, byte[] binaryData) {
 		for (int iy= 0; iy < sizeY; iy++) {
 			for (int ix = 0; ix < sizeX; ix++) {					
@@ -706,7 +834,6 @@ public class ROItoRoiArray extends EzPlug implements ViewerListener {
 		}
 	}
 	
-	
 	private byte getLargestBlob(byte[] binaryData) 
 	{
 		byte maxblob = getMaximumBlobNumber(binaryData);
@@ -722,7 +849,6 @@ public class ROItoRoiArray extends EzPlug implements ViewerListener {
 		return largestblob;
 	}
 	
-	
 	private void eraseAllBlobsExceptOne(byte blobIDToKeep, byte [] binaryData) {
 		for (int i=0; i< binaryData.length; i++) {
 			if (binaryData[i] != blobIDToKeep)
@@ -732,14 +858,12 @@ public class ROItoRoiArray extends EzPlug implements ViewerListener {
 		}
 	}
 	
-	
 	private void changeAllBlobNumber1Into2 (byte oldvalue, byte newvalue, byte [] binaryData) 
 	{
 		for (int i=0; i< binaryData.length; i++)
 			if (binaryData[i] == oldvalue)
 				binaryData[i] = newvalue;
 	}
-	
 	
 	private int getNumberOfPixelEqualToValue (byte value, byte [] binaryData) 
 	{
@@ -750,7 +874,6 @@ public class ROItoRoiArray extends EzPlug implements ViewerListener {
 		return sum;
 	}
 	
-	
 	private byte getMaximumBlobNumber (byte [] binaryData) 
 	{
 		byte max = 0;
@@ -759,7 +882,6 @@ public class ROItoRoiArray extends EzPlug implements ViewerListener {
 				max = binaryData[i];
 		return max;
 	}
-	
 	
 	/*
 	private void debugDisplayArrayValues (String title, int sizeX, int sizeY, byte [] binaryData ) 
@@ -778,7 +900,6 @@ public class ROItoRoiArray extends EzPlug implements ViewerListener {
 		}
 	}
 	*/
-	
 	
 	private void displayOverlay (Boolean newValue) {
 		if (vSequence == null)
@@ -804,7 +925,6 @@ public class ROItoRoiArray extends EzPlug implements ViewerListener {
 		}
 	}
 	
-	
 	private void updateThreshold (int newValue) {
 		if (vSequence == null)
 			return;
@@ -813,7 +933,6 @@ public class ROItoRoiArray extends EzPlug implements ViewerListener {
 		updateOverlay();
 	}
 	
-
 	private void updateOverlay () {
 		if (vSequence == null)
 			return;
@@ -832,7 +951,6 @@ public class ROItoRoiArray extends EzPlug implements ViewerListener {
 			thresholdOverlay.painterChanged();
 		}
 	}
-	
 	
 	private void openFile() {
 
@@ -858,7 +976,6 @@ public class ROItoRoiArray extends EzPlug implements ViewerListener {
 		sequence.getValue(true).addROI(roiP);
 	}
 	
-	
 	private void addPolygonROI (List<Point2D> points, String baseName, int columnnumber, int rownumber) {
 		
 		ROI2DPolygon roiP = new ROI2DPolygon (points);
@@ -866,7 +983,6 @@ public class ROItoRoiArray extends EzPlug implements ViewerListener {
 		roiP.setColor(Color.YELLOW);
 		sequence.getValue(true).addROI(roiP);
 	}
-	
 	
 	private void addLineROI (List<Point2D> points, String baseName, int i, int j) {
 		
@@ -882,7 +998,6 @@ public class ROItoRoiArray extends EzPlug implements ViewerListener {
 		roiL2.setColor(Color.YELLOW);
 		sequence.getValue(true).addROI(roiL2, true);
 	}
-	
 	
 	private void createROISFromPolygon(int ioption) {
 		
@@ -983,14 +1098,12 @@ public class ROItoRoiArray extends EzPlug implements ViewerListener {
 		Collections.sort(list, new Tools.ROI2DNameComparator());
 	}
 	
-	
 	@Override
 	public void clean() {
 		// TODO Auto-generated method stub
 		
 	}
 	
-
 	@Override
 	protected void execute() {
 		String choice = resultComboBox.getValue();
@@ -1005,7 +1118,6 @@ public class ROItoRoiArray extends EzPlug implements ViewerListener {
 		}		
 	}
 	
-
 	private void initInputSeq () {
 		// transfer 1 image to the viewer
 		addSequence(vSequence);
@@ -1016,7 +1128,6 @@ public class ROItoRoiArray extends EzPlug implements ViewerListener {
 		startstopBufferingThread();		
 	}
 	
-	
 	private void startstopBufferingThread() {
 		if (vSequence == null)
 			return;
@@ -1025,7 +1136,6 @@ public class ROItoRoiArray extends EzPlug implements ViewerListener {
 		vSequence.istep = 1;
 		vSequence.vImageBufferThread_START(numberOfImageForBuffer);
 	}
-	
 	
 	@Override
 	public void viewerChanged(ViewerEvent event) {
@@ -1039,12 +1149,10 @@ public class ROItoRoiArray extends EzPlug implements ViewerListener {
 		vSequence = null;
 	}
 	
-
 	private void openXMLFile() {
 		vSequence.removeAllROI();
 		vSequence.xmlReadROIsAndData();
 	}
-	
 	
 	private void saveXMLFile() {
 		vSequence.capillariesGrouping = 1;
@@ -1069,7 +1177,6 @@ public class ROItoRoiArray extends EzPlug implements ViewerListener {
 //		vSequence.addROIs(roisList, false);
 	}
 	
-
 	private void exportSTD() {
 		String filename = Tools.saveFileAs(vSequence.getDirectory(), "xls");
 		// xls output - successive positions
