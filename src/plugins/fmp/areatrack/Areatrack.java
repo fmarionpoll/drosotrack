@@ -65,7 +65,6 @@ import plugins.fmp.sequencevirtual.SequenceVirtual;
 import plugins.fmp.sequencevirtual.ThresholdOverlay;
 import plugins.fmp.sequencevirtual.Tools;
 
-
 public class Areatrack extends PluginActionable implements ActionListener, ChangeListener, ViewerListener
 {	
 	// -------------------------------------- interface
@@ -488,16 +487,18 @@ public class Areatrack extends PluginActionable implements ActionListener, Chang
 	}
 	
 	private void filterData () {
+		int filteroption = filterComboBox.getSelectedIndex();
+		int constraintoption = conditionsComboBox.getSelectedIndex();
+		int span = Integer.parseInt(spanTextField.getText());
+		filterData (filteroption, span,  constraintoption);
 		
+	}
+	
+	private void filterData (int filteroption, int span, int constraintoption) {
 		int nrois = vSequence.data_raw.length;
 		if (vSequence.data_filtered == null || vSequence.data_filtered.length != vSequence.data_raw.length)
 			vSequence.data_filtered = new double [nrois][endFrame-startFrame+1];
 		
-		int filteroption = filterComboBox.getSelectedIndex();
-		int constraintoption = conditionsComboBox.getSelectedIndex();
-		
-		int span = Integer.parseInt(spanTextField.getText());
-
 		switch (filteroption) {
 			case 1: // running average over "span" points
 				filterRunningAverage(span);
@@ -516,6 +517,7 @@ public class Areatrack extends PluginActionable implements ActionListener, Chang
 				break;
 		}
 	}
+		
 	
 	private void initInputSeq () {
 
@@ -622,12 +624,14 @@ public class Areatrack extends PluginActionable implements ActionListener, Chang
 		mainChartFrame.toFront();
 	}
 	
-	private void exportToXLS(String filename) {
+
+	private void exportToXLSWorksheet(WritableWorkbook xlsWorkBook, String worksheetname) {
 		
-		filterData ();
-		
-		// xls output - successive positions
-		System.out.println("XLS output");
+		// local variables used for exporting to a worksheet
+		int it = 0;
+		int irow = 0;
+		int nrois = vSequence.data_filtered.length;
+		int icol0 = 0;
 		String[] listofFiles = null;
 		boolean blistofFiles = false;
 		if (vSequence.isFileStack() )
@@ -636,84 +640,96 @@ public class Areatrack extends PluginActionable implements ActionListener, Chang
 			blistofFiles = true;
 		}
 		
+		// xls output
+		// --------------
+		WritableSheet filteredDataPage = XLSUtil.createNewPage( xlsWorkBook , worksheetname );
+		XLSUtil.setCellString( filteredDataPage , 0, irow, "name:" );
+		XLSUtil.setCellString( filteredDataPage , 1, irow, vSequence.getName() );
+		// write  type of data exported
+		irow++;
+		String cs = filterComboBox.getSelectedItem().toString();
+		if (filterComboBox.getSelectedIndex() > 0 ) {
+			cs = cs + " - over "+spanTextField.getText() +" points - " + conditionsComboBox.getSelectedItem().toString();
+		}
+		XLSUtil.setCellString(filteredDataPage,  0,  irow, cs);
+		// write filter and threshold applied
+		irow++;
+		cs = transformsComboBox.getSelectedItem().toString() + " threshold=" + thresholdSpinner.getValue().toString();
+		XLSUtil.setCellString(filteredDataPage,  0,  irow, cs);		
+		// write table
+		irow=4;
+		// table header
+		icol0 = 0;
+		if (blistofFiles) {
+			XLSUtil.setCellString( filteredDataPage , icol0,   irow, "filename" );
+			icol0++;
+		}
+		XLSUtil.setCellString( filteredDataPage , icol0, irow, "index" );
+		icol0++;
+		int icol1 = icol0;
+		ArrayList<ROI2D> roisList = vSequence.getROI2Ds();
+		Collections.sort(roisList, new Tools.ROI2DNameComparator());
+		for (ROI2D roi: roisList) {
+			XLSUtil.setCellString( filteredDataPage , icol1, irow, roi.getName());
+			XLSUtil.setCellNumber( filteredDataPage , icol1, irow+1, roi.getNumberOfPoints());
+			icol1++;
+		}
+		for (int iroi=0; iroi < nrois; iroi++, icol0++) 
+		{
+			XLSUtil.setCellString( filteredDataPage , icol0, irow+2, vSequence.seriesname[iroi]);
+		}
+		irow+=3;
+
+		// data
+		it = 1;
+
+		for ( int t = startFrame ; t < endFrame;  t  += analyzeStep, it++ )
+		{
+			try
+			{
+				icol0 = 0;
+				if (blistofFiles) {
+					XLSUtil.setCellString( filteredDataPage , icol0,   irow, listofFiles[it] );
+					icol0++;
+				}
+				double value = t; 
+				XLSUtil.setCellNumber( filteredDataPage, icol0 , irow , value ); // frame number
+				icol0++;
+				
+				for (int iroi=0; iroi < nrois; iroi++) {
+					value = vSequence.data_filtered[iroi][t-startFrame];
+					XLSUtil.setCellNumber( filteredDataPage, icol0 , irow , value ); 
+					icol0++;
+
+				}
+				irow++;
+			} catch( IndexOutOfBoundsException e)
+			{
+				// no mouse Position
+			}
+		}
+	}
+	
+	private void exportToXLS(String filename) {
+		
+		// xls output - successive positions
+		System.out.println("XLS output");
+		int span = Integer.parseInt(spanTextField.getText());
+		
 		try {
 			WritableWorkbook xlsWorkBook = XLSUtil.createWorkbook( filename);
 
-			// local variables used for exporting to a worksheet
-			int it = 0;
-			int irow = 0;
-			int nrois = vSequence.data_filtered.length;
-			int icol0 = 0;
+			filterData (0, span, 0);
+			exportToXLSWorksheet(xlsWorkBook, "data");
+			filterData (1, span, 0);
+			exportToXLSWorksheet(xlsWorkBook, "avg");
+			filterData (1, span, 0);
+			exportToXLSWorksheet(xlsWorkBook, "avg_clipped");
+			filterData (2, span, 0);
+			exportToXLSWorksheet(xlsWorkBook, "median");
+			filterData (2, span, 0);
+			exportToXLSWorksheet(xlsWorkBook, "median_clipped");
 			
-			// xls output
-			// --------------
-			WritableSheet filteredDataPage = XLSUtil.createNewPage( xlsWorkBook , "data" );
-			XLSUtil.setCellString( filteredDataPage , 0, irow, "name:" );
-			XLSUtil.setCellString( filteredDataPage , 1, irow, vSequence.getName() );
-			// write  type of data exported
-			irow++;
-			String cs = filterComboBox.getSelectedItem().toString();
-			if (filterComboBox.getSelectedIndex() > 0 ) {
-				cs = cs + " - over "+spanTextField.getText() +" points - " + conditionsComboBox.getSelectedItem().toString();
-			}
-			XLSUtil.setCellString(filteredDataPage,  0,  irow, cs);
-			// write filter and threshold applied
-			irow++;
-			cs = transformsComboBox.getSelectedItem().toString() + " threshold=" + thresholdSpinner.getValue().toString();
-			XLSUtil.setCellString(filteredDataPage,  0,  irow, cs);		
-			// write table
-			irow=4;
-			// table header
-			icol0 = 0;
-			if (blistofFiles) {
-				XLSUtil.setCellString( filteredDataPage , icol0,   irow, "filename" );
-				icol0++;
-			}
-			XLSUtil.setCellString( filteredDataPage , icol0, irow, "index" );
-			icol0++;
-			int icol1 = icol0;
-			ArrayList<ROI2D> roisList = vSequence.getROI2Ds();
-			Collections.sort(roisList, new Tools.ROI2DNameComparator());
-			for (ROI2D roi: roisList) {
-				XLSUtil.setCellString( filteredDataPage , icol1, irow, roi.getName());
-				XLSUtil.setCellNumber( filteredDataPage , icol1, irow+1, roi.getNumberOfPoints());
-				icol1++;
-			}
-			for (int iroi=0; iroi < nrois; iroi++, icol0++) 
-			{
-				XLSUtil.setCellString( filteredDataPage , icol0, irow+2, vSequence.seriesname[iroi]);
-			}
-			irow+=3;
-
-			// data
-			it = 1;
-
-			for ( int t = startFrame ; t < endFrame;  t  += analyzeStep, it++ )
-			{
-				try
-				{
-					icol0 = 0;
-					if (blistofFiles) {
-						XLSUtil.setCellString( filteredDataPage , icol0,   irow, listofFiles[it] );
-						icol0++;
-					}
-					double value = t; 
-					XLSUtil.setCellNumber( filteredDataPage, icol0 , irow , value ); // frame number
-					icol0++;
-					
-					for (int iroi=0; iroi < nrois; iroi++) {
-						value = vSequence.data_filtered[iroi][t-startFrame];
-						XLSUtil.setCellNumber( filteredDataPage, icol0 , irow , value ); 
-						icol0++;
-
-					}
-					irow++;
-				} catch( IndexOutOfBoundsException e)
-				{
-					// no mouse Position
-				}
-			
-			}
 			// --------------
 			XLSUtil.saveAndClose( xlsWorkBook );
 		} catch (IOException e) {
