@@ -608,7 +608,8 @@ public class Areatrack extends PluginActionable implements ActionListener, Chang
 		ValueAxis axis = plot.getDomainAxis();
 		axis.setRange(startFrame, endFrame);
 		LegendTitle legendTitle = chart.getLegend();
-		legendTitle.setPosition(RectangleEdge.RIGHT); 
+		if (legendTitle != null)
+			legendTitle.setPosition(RectangleEdge.RIGHT); 
 		mainChartPanel.add( new ChartPanel(  chart, width , height , minWidth, minHeight, maxWidth , maxHeight, false , false, true , true , true, true));
 		
 		mainChartPanel.validate();
