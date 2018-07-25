@@ -312,20 +312,24 @@ public class ROItoRoiArray extends EzPlug implements ViewerListener {
 		mainPanel.setLayout( new BoxLayout( mainPanel, BoxLayout.LINE_AXIS ) );
 		String localtitle = "Variance along X and Y";
 		mainChartFrame = GuiUtil.generateTitleFrame(localtitle, 
-				new JPanel(), new Dimension(800, 1400), true, true, true, true);	
+				new JPanel(), new Dimension(1400, 800), true, true, true, true);	
 
+		int totalpoints = 0;
 		ArrayList<XYSeriesCollection> xyDataSetList = new ArrayList <XYSeriesCollection>();
 		XYSeriesCollection xyDataset = graphCreateXYDataSet(arrayX, "X chan ");
 		xyDataSetList.add(xyDataset);
+		totalpoints += xyDataset.getSeries(0).getItemCount();
 		xyDataset = graphCreateXYDataSet(arrayY, "Y chan ");
 		xyDataSetList.add(xyDataset);
+		totalpoints += xyDataset.getSeries(0).getItemCount();
 		
 		for (int i=0; i<xyDataSetList.size(); i++) {
 			xyDataset = xyDataSetList.get(i);
+			int npoints = xyDataset.getSeries(0).getItemCount();
 			JFreeChart xyChart = ChartFactory.createXYLineChart(null, null, null, xyDataset, PlotOrientation.VERTICAL, true, true, true);
 			xyChart.setAntiAlias( true );
 			xyChart.setTextAntiAlias( true );
-			ChartPanel xyChartPanel = new ChartPanel(xyChart, 300, 400, 300, 400, 600, 800, false, false, true, true, true, true);
+			ChartPanel xyChartPanel = new ChartPanel(xyChart, npoints * 1400 / totalpoints, 400, 300, 400, 600, 800, false, false, true, true, true, true);
 			mainPanel.add(xyChartPanel);
 		}
 
