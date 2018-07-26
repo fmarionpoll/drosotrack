@@ -29,6 +29,7 @@ import icy.type.collection.array.Array1DUtil;
 import icy.util.XMLUtil;
 
 import plugins.fab.MiceProfiler.XugglerAviFile;
+
 import plugins.kernel.roi.roi2d.ROI2DLine;
 import plugins.kernel.roi.roi2d.ROI2DShape;
 

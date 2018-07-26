@@ -517,7 +517,6 @@ public class Areatrack extends PluginActionable implements ActionListener, Chang
 				break;
 		}
 	}
-		
 	
 	private void initInputSeq () {
 
@@ -624,7 +623,6 @@ public class Areatrack extends PluginActionable implements ActionListener, Chang
 		mainChartFrame.toFront();
 	}
 	
-
 	private void exportToXLSWorksheet(WritableWorkbook xlsWorkBook, String worksheetname) {
 		
 		// local variables used for exporting to a worksheet

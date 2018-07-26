@@ -16,8 +16,6 @@ import icy.sequence.Sequence;
 import icy.roi.ROI;
 import icy.roi.ROI2D;
 import plugins.kernel.roi.roi2d.ROI2DLine;
-import plugins.kernel.roi.roi2d.ROI2DPolygon;
-import plugins.kernel.roi.roi2d.ROI2DEllipse;
 
 
 // Your plugin class should extends \'icy.plugin.abstract_.Plugin\' class.

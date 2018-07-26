@@ -329,7 +329,9 @@ public class ROItoRoiArray extends EzPlug implements ViewerListener {
 			JFreeChart xyChart = ChartFactory.createXYLineChart(null, null, null, xyDataset, PlotOrientation.VERTICAL, true, true, true);
 			xyChart.setAntiAlias( true );
 			xyChart.setTextAntiAlias( true );
-			ChartPanel xyChartPanel = new ChartPanel(xyChart, npoints * 1400 / totalpoints, 400, 300, 400, 600, 800, false, false, true, true, true, true);
+			int drawWidth =  npoints * 800 / totalpoints;
+			int drawHeight = 400;
+			ChartPanel xyChartPanel = new ChartPanel(xyChart, drawWidth, drawHeight, drawWidth, drawHeight, drawWidth, drawHeight, false, false, true, true, true, true);
 			mainPanel.add(xyChartPanel);
 		}
 
