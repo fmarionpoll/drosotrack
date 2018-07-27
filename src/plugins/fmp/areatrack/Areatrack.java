@@ -328,22 +328,7 @@ public class Areatrack extends PluginActionable implements ActionListener, Chang
 		
 		// _______________________________________________
 		else if (o == startComputationButton) {
-
-			stopAnalysisThread();
-			updateOverlay ();
-			analysisThread = new AreaAnalysisThread();
-			try { 
-				vSequence.istep = Integer.parseInt( analyzeStepTextField.getText() );
-			}
-			catch( Exception ee ) { new AnnounceFrame("Can't interpret the analyze step value."); }
-			analysisThread.setAnalysisThreadParameters(
-					vSequence, 
-					getROIsToAnalyze(),
-					startFrame,
-					endFrame,
-					0,
-					(TransformOp) transformsComboBox.getSelectedItem());
-			analysisThread.start();
+			startAnalysisThread();
 		}
 		
 		// _______________________________________________
@@ -388,6 +373,24 @@ public class Areatrack extends PluginActionable implements ActionListener, Chang
 				}
 			}
 		
+	}
+	
+	private void startAnalysisThread() {
+		stopAnalysisThread();
+		updateOverlay ();
+		analysisThread = new AreaAnalysisThread();
+		try { 
+			vSequence.istep = Integer.parseInt( analyzeStepTextField.getText() );
+		}
+		catch( Exception ee ) { new AnnounceFrame("Can't interpret the analyze step value."); }
+		analysisThread.setAnalysisThreadParameters(
+				vSequence, 
+				getROIsToAnalyze(),
+				startFrame,
+				endFrame,
+				0,
+				(TransformOp) transformsComboBox.getSelectedItem());
+		analysisThread.start();	
 	}
 	
 	private void stopAnalysisThread() {

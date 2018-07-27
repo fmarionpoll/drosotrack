@@ -87,7 +87,6 @@ public class ROItoRoiArray extends EzPlug implements ViewerListener {
 	EzButton		generateGridButton;
 	EzButton		generateAutoGridButton;
 	EzButton		exportSTDButton;
-//	EzButton		expandToMinimaButton;
 	EzButton		convertLinesToSquaresButton;
 	
 	private ThresholdOverlay thresholdOverlay = null;
@@ -96,7 +95,7 @@ public class ROItoRoiArray extends EzPlug implements ViewerListener {
 	private IcyFrame mainChartFrame = null;
 	private double [][] stdXArray = null;
 	private double [][] stdYArray = null;
-
+	
 	// ----------------------------------
 	
 	@Override
@@ -116,8 +115,6 @@ public class ROItoRoiArray extends EzPlug implements ViewerListener {
 		
 		adjustAndCenterEllipsesButton = new EzButton("Find leaf disks", new ActionListener() { 
 			public void actionPerformed(ActionEvent e) { findLeafDiskIntoRectangles(); }	});
-//		expandToMinimaButton = new EzButton("Expand squares to STD minima", new ActionListener() { 
-//			public void actionPerformed(ActionEvent e) { expandROIsToMinima(0); }	});
 		findLinesButton = new EzButton("Build histograms",  new ActionListener() { 
 			public void actionPerformed(ActionEvent e) { findLines(); } });
 		exportSTDButton = new EzButton("Export histograms",  new ActionListener() { 
@@ -160,8 +157,7 @@ public class ROItoRoiArray extends EzPlug implements ViewerListener {
 		EzGroup groupSequence = new EzGroup("Source data", sequence, openFileButton, openXMLButton);
 		super.addEzComponent (groupSequence);
 
-		EzGroup groupAutoDetect = new EzGroup("Automatic detection from lines", findLinesButton, exportSTDButton, thresholdSTD, thresholdSTDFromChanComboBox, generateAutoGridButton, convertLinesToSquaresButton
-				/*, expandToMinimaButton*/ );
+		EzGroup groupAutoDetect = new EzGroup("Automatic detection from lines", findLinesButton, exportSTDButton, thresholdSTD, thresholdSTDFromChanComboBox, generateAutoGridButton, convertLinesToSquaresButton);
 		super.addEzComponent (groupAutoDetect);
 	
 		EzGroup groupManualDetect = new EzGroup("Manual definition of lines", splitAsComboBox, ncolumns, columnSize, columnSpan, nrows, rowWidth, rowInterval, generateGridButton);
@@ -190,7 +186,72 @@ public class ROItoRoiArray extends EzPlug implements ViewerListener {
 		
 		getSTD(roiPolygon.getBounds());
 		getSTDRBminus2G();
+
 		graphDisplay2Panels(stdXArray, stdYArray);
+	}
+
+	private double [][] getProfile (Line2D line) {
+
+		List<Point2D> pointslist = getAllPointsAlongLine (line);		
+		IcyBufferedImage image = vSequence.loadVImage(vSequence.currentFrame);
+		double [][] profile = getValueForPointList(pointslist, image);
+		return profile;
+	}
+	
+	private List<Point2D> getAllPointsAlongLine(Line2D line) {
+
+        List<Point2D> pointslist = new ArrayList<Point2D>();
+        int x1 = (int) line.getX1();
+        int y1 = (int) line.getY1();
+        int x2 = (int) line.getX2();
+        int y2 = (int) line.getY2();
+        
+        int deltax = Math.abs(x2 - x1);
+        int deltay = Math.abs(y2 - y1);
+        int error = 0;
+        if (deltax > deltay) {
+	        int y = y1;
+	        for (int x = x1; x< x2; x++) 
+	        {
+	        	pointslist.add(new Point2D.Double(x, y));
+	        	error = error + deltay;
+	            if( 2*error >= deltax ) {
+	                y = y + 1;
+	                error=error - deltax;
+	            	}
+	        }
+        }
+        else {
+        	int x = x1;
+	        for (int y = y1; y< y2; y++) 
+	        {
+	        	pointslist.add(new Point2D.Double(x, y));
+	        	error = error + deltax;
+	            if( 2*error >= deltay ) {
+	                x = x + 1;
+	                error=error - deltay;
+	            	}
+	        }
+        }
+        
+        return pointslist;
+	}
+	
+	public double[][] getValueForPointList( List<Point2D> pointList, IcyBufferedImage image ) {
+
+		int sizeX = image.getSizeX();
+		int nchannels = image.getSizeC();
+		int len = pointList.size();
+		double[][] value = new double[len][nchannels];
+		
+		for (int chan=0; chan < nchannels; chan++) {
+			double [] sourceValues = Array1DUtil.arrayToDoubleArray(image.getDataXY(chan), image.isSignedDataType());
+			for (int i=0; i<len; i++) {
+				Point2D point = pointList.get(i);
+				value[i][chan] = sourceValues [(int)point.getX() + ((int) point.getY() * sizeX)];
+			}
+		}
+		return value;
 	}
 
 	private void getSTD (Rectangle rect) {
@@ -211,12 +272,11 @@ public class ROItoRoiArray extends EzPlug implements ViewerListener {
 		double [][] sum2YArray = new double [nYpoints][3];
 		double [][] countYArray = new double [nYpoints][3];
 		stdYArray = new double [nYpoints][4];
-		int t = vSequence.currentFrame;
 		
 		for (int chan= 0; chan< 3; chan++) {
-			IcyBufferedImage virtualImage = vSequence.getImage(t, 0, chan) ;
+			IcyBufferedImage virtualImage = vSequence.getImage(vSequence.currentFrame, 0, chan) ;
 			if (virtualImage == null) {
-				System.out.println("An error occurred while reading image: " + t );
+				System.out.println("An error occurred while reading image: " + vSequence.currentFrame );
 				return;
 			}
 			int widthImage = virtualImage.getSizeX();
@@ -392,14 +452,21 @@ public class ROItoRoiArray extends EzPlug implements ViewerListener {
 	}
 	*/
 	
-	private List<List<Line2D>>  buildLinesFromSTDProfile(Polygon roiPolygon, double [][] stdXArray, double [][] stdYArray, int threshold, int channel) {
+	private List<List<Line2D>> buildLinesFromSTDProfile(Polygon roiPolygon, double [][] stdXArray, double [][] stdYArray, int threshold, int channel) {
 		//get points > threshold
-		ArrayList<Integer> listofX = getTransitions (stdXArray, threshold, channel);
-		ArrayList<Integer> listofY = getTransitions (stdYArray, threshold, channel);
+		List<Integer> listofX = getTransitions (stdXArray, threshold, channel);
+		List<Integer> listofY = getTransitions (stdYArray, threshold, channel);
 		
 		ArrayList<Line2D> vertlines = getVerticalLinesFromIntervals(roiPolygon, listofX);
 		ArrayList<Line2D> horzlines = getHorizontalLinesFromIntervals(roiPolygon, listofY);
 		
+		int jitterx = 10;
+		int jittery = 0;
+		adjustLines(vertlines, jitterx, jittery);
+		jittery = 10;
+		jitterx = 0;
+		adjustLines(horzlines, jitterx, jittery);
+	
 		List<List<Line2D>> linesArray = new ArrayList<List<Line2D>> ();
 		linesArray.add(vertlines);
 		linesArray.add(horzlines);
@@ -407,9 +474,51 @@ public class ROItoRoiArray extends EzPlug implements ViewerListener {
 		return linesArray;
 	}
 	
-	private ArrayList<Line2D> getVerticalLinesFromIntervals(Polygon roiPolygon, ArrayList<Integer> listofX) {
+	private void adjustLines (ArrayList<Line2D> lines, int jitterX, int jitterY) {
+		for (Line2D line: lines) {
+			line = adjustLine (line, jitterX, jitterY);
+		}
+	}
+	
+	private int getIndexMinimumValue (double [][] profile) {
+		
+		int n= profile.length;
+		int imin = 0;
+		double valuemin = profile[0][0] + profile[0][1] + profile[0][2];
+		for (int chan= 0; chan < 3; chan++) {
+			
+			for (int i=0; i< n; i++) {
+				double value = profile[i][0] + profile[i][1] + profile[i][2];
+				if (value < valuemin) {
+					valuemin = value; 
+					imin = i;
+				}
+			}
+		}
+		return imin;
+	}
+	
+	private Line2D adjustLine (Line2D line, int jitterX, int jitterY) {
+			
+		int mindeltax = 0;
+		int mindeltay = 0;
+		
+		for (int deltax = -jitterX; deltax <= jitterX; deltax++) {
+			for (int deltay = -jitterY; deltay <= jitterY; deltay++) {
+				Line2D linetest = new Line2D.Double (line.getX1()+deltax, line.getY1()+deltay, line.getX2()+deltax, line.getY2()+deltay);
+				int imintop = getIndexMinimumValue(getProfile(linetest));
+				System.out.println("deltax deltay "+deltax + " "+ deltay+ ": STD = " + std[0] + " " +std[1] + " " + std[2]);
+	
+			}
+		}
+		System.out.println("final mindeltax mindeltay "+ mindeltax + " "+ mindeltay+ ": STD = " + beststd[0] + " " +beststd[1] + " " + beststd[2]);
+		Line2D bestLine = new Line2D.Double (line.getX1()+mindeltax, line.getY1()+mindeltay, line.getX2()+mindeltax, line.getY2()+mindeltay);
+		return bestLine;
+	}
+	
+	private ArrayList<Line2D> getVerticalLinesFromIntervals(Polygon roiPolygon, List<Integer> listofX) {
 
-		ArrayList<Line2D> vertlines = new ArrayList<Line2D>();
+		ArrayList<Line2D> verticallines = new ArrayList<Line2D>();
 		double deltaYTop = roiPolygon.ypoints[3] - roiPolygon.ypoints[0];
 		double deltaXTop = roiPolygon.xpoints[3] - roiPolygon.xpoints[0];
 		double deltaYBottom = roiPolygon.ypoints[2] - roiPolygon.ypoints[1];
@@ -418,18 +527,19 @@ public class ROItoRoiArray extends EzPlug implements ViewerListener {
 		
 		for (int i = 0; i < listofX.size(); i++) {
 			int index = listofX.get(i);
-			Point2D.Double top 		= new Point2D.Double(roiPolygon.xpoints[0] + index*deltaXTop/lastX, 	roiPolygon.ypoints[0] + index*deltaYTop/lastX);
-			Point2D.Double bottom 	= new Point2D.Double(roiPolygon.xpoints[1] + index*deltaXBottom/lastX,	roiPolygon.ypoints[1] + index*deltaYBottom/lastX);
+			int ixtop = (int) (index*deltaXTop/lastX);
+			int ixbottom = (int) (index*deltaXBottom/lastX);
+			Point2D.Double top 		= new Point2D.Double(roiPolygon.xpoints[0] + ixtop, 	roiPolygon.ypoints[0] + index*deltaYTop/lastX);
+			Point2D.Double bottom 	= new Point2D.Double(roiPolygon.xpoints[1] + ixbottom,	roiPolygon.ypoints[1] + index*deltaYBottom/lastX);
 			Line2D line = new Line2D.Double (top, bottom);
-			vertlines.add(line);
+			verticallines.add(line);
 		}
-		
-		return vertlines;
+		return verticallines;
 	}
 	
-	private ArrayList<Line2D> getHorizontalLinesFromIntervals(Polygon roiPolygon, ArrayList<Integer> listofY) {
+	private ArrayList<Line2D> getHorizontalLinesFromIntervals(Polygon roiPolygon, List<Integer> listofY) {
 
-		ArrayList<Line2D> horzlines = new ArrayList<Line2D>();
+		ArrayList<Line2D> horizontallines = new ArrayList<Line2D>();
 		double deltaYLeft = roiPolygon.ypoints[1] - roiPolygon.ypoints[0];
 		double deltaXLeft = roiPolygon.xpoints[1] - roiPolygon.xpoints[0];
 		double deltaYRight = roiPolygon.ypoints[2] - roiPolygon.ypoints[3];
@@ -438,50 +548,77 @@ public class ROItoRoiArray extends EzPlug implements ViewerListener {
 		
 		for (int i = 0; i < listofY.size(); i++) {
 			int index = listofY.get(i);
-			Point2D.Double top 		= new Point2D.Double(roiPolygon.xpoints[0] + index*deltaXLeft/lastX, 	roiPolygon.ypoints[0] + index*deltaYLeft/lastX);
-			Point2D.Double bottom 	= new Point2D.Double(roiPolygon.xpoints[3] + index*deltaXRight/lastX,	roiPolygon.ypoints[3] + index*deltaYRight/lastX);
-			Line2D line = new Line2D.Double (top, bottom);
-			horzlines.add(line);
+			int iyleft = (int) (index*deltaYLeft/lastX);
+			int iyright = (int) (index*deltaYRight/lastX);
+			Point2D.Double left = new Point2D.Double(roiPolygon.xpoints[0] + index*deltaXLeft/lastX, 	roiPolygon.ypoints[0] + iyleft); 
+			Point2D.Double right = new Point2D.Double(roiPolygon.xpoints[3] + index*deltaXRight/lastX,	roiPolygon.ypoints[3] + iyright); 
+			Line2D line = new Line2D.Double (left, right);
+			horizontallines.add(line);
 		}
-		
-		return horzlines;
+		return horizontallines;
 	}
 	
-	private ArrayList<Integer> getTransitions (double [][] array, int threshold, int channel) {
+	private List<Integer> getTransitions (double [][] arrayWithSTDvalues, int userSTDthreshold, int channel) {
 
-		ArrayList<Integer> listofpoints = new ArrayList<> ();
+		List<Integer> listofpoints = new ArrayList<Integer> ();
 		listofpoints.add(0);
+		
 		// assume that we look at the first point over threshold starting from the border
 		boolean bDetectGetDown = true;
-		double dthreshold = threshold;
-		double minval = array[0][channel];
-		double previousvalue = minval;
-		int imin = 0;
+		double duserSTDthreshold = userSTDthreshold;
+		double minSTDvalue = arrayWithSTDvalues[0][channel];
+		double previousSTDvalue = minSTDvalue;
+		int iofminSTDvalue = 0;
 		
-		for (int ix=1; ix < array.length; ix++) {
-			double value = array[ix][channel];
-			if (bDetectGetDown && ((previousvalue>dthreshold) && (value < dthreshold))) {
+		for (int ix=1; ix < arrayWithSTDvalues.length; ix++) {
+			double value = arrayWithSTDvalues[ix][channel];
+			if (bDetectGetDown && ((previousSTDvalue>duserSTDthreshold) && (value < duserSTDthreshold))) {
 				bDetectGetDown = false;
-				imin = ix;
-				minval = value;
+				iofminSTDvalue = ix;
+				minSTDvalue = value;
 			}
 			else if (!bDetectGetDown) {
-				if ((value > dthreshold) && (previousvalue < dthreshold)) {
+				if ((value > duserSTDthreshold) && (previousSTDvalue < duserSTDthreshold)) {
 					bDetectGetDown = true;
-					listofpoints.add(imin);
+					listofpoints.add(iofminSTDvalue);
 				}
-				else if (value < minval) {
-					minval = value;
-					imin = ix;
+				else if (value < minSTDvalue) {
+					minSTDvalue = value;
+					iofminSTDvalue = ix;
 				}
 			}
-			previousvalue = value;
+			previousSTDvalue = value;
 		}
-		listofpoints.add(array.length-1);
-		
+		iofminSTDvalue = arrayWithSTDvalues.length-1;
+		listofpoints.add(iofminSTDvalue);
+
 		return listofpoints;
 	}
-	
+
+/*
+	private int searchMinAround(int icenter, int ispan, int channel, double [][] values) {
+		int len = values.length;
+		if (icenter >= len)
+			icenter = len-1;
+		int ifound = icenter;
+		double minvalue = values[icenter][channel];
+		int imin = icenter - ispan;
+		if (imin < 0) 
+			imin = 0;
+		int imax = icenter + ispan;
+		if (imax > len) 
+			imax = len;
+		
+		for (int i=imin; i < imax; i++) {
+			if (values[i][channel] < minvalue) {
+				minvalue = values[i][channel];
+				ifound = i;
+			}
+		}
+		return ifound;
+	}
+*/
+
 	private void buildROIsFromLines (List<List<Line2D>> linesArray) {
 		// build dummy lines
 		String [] type = new String [] {"vertical", "horizontal"};  
@@ -669,6 +806,7 @@ public class ROItoRoiArray extends EzPlug implements ViewerListener {
 	}
 	*/
 	/*
+	
 	private int findFirstPointOverThreshold(double [][] array, int istart, double threshold, int channel) {
 		if (istart < 0)
 			return istart;
