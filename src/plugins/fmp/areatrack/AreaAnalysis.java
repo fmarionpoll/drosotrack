@@ -3,15 +3,18 @@ package plugins.fmp.areatrack;
 import java.util.ArrayList;
 import java.util.Collections;
 
+import icy.canvas.Canvas2D;
 import icy.gui.frame.progress.ProgressFrame;
 import icy.gui.viewer.Viewer;
 import icy.image.IcyBufferedImage;
 import icy.main.Icy;
+import icy.math.ArrayMath;
 import icy.roi.BooleanMask2D;
 import icy.roi.ROI;
 import icy.roi.ROI2D;
-
+import icy.sequence.Sequence;
 import icy.system.profile.Chronometer;
+import icy.type.collection.array.Array1DUtil;
 import plugins.fmp.sequencevirtual.ImageTransform;
 import plugins.fmp.sequencevirtual.ImageTransform.TransformOp;
 import plugins.fmp.sequencevirtual.SequenceVirtual;
@@ -43,6 +46,10 @@ class AreaAnalysisThread extends Thread
 	private int endFrame = 99999999;
 	private int analyzeStep = 1;
 	private int imageref = 0;
+	public IcyBufferedImage resultImage = null;
+	public Sequence resultSequence = null;
+	public Viewer resultViewer = null;
+	public Canvas2D resultCanvas = null;
 	 
 	// --------------------------------------------------------------------------------------
 	
@@ -63,6 +70,12 @@ class AreaAnalysisThread extends Thread
 		imageref = simageref;
 		if (transformop == TransformOp.REFt0 || transformop == TransformOp.REFn || transformop == TransformOp.REF)
 			vSequence.setRefImageForSubtraction(imageref);
+		
+		IcyBufferedImage image = vSequence.loadVImage(vSequence.currentFrame);
+		resultImage = new IcyBufferedImage(image.getSizeX(), image.getSizeY(),image.getSizeC(), image.getDataType_());
+		resultSequence = new Sequence(resultImage);
+		resultViewer = new Viewer(resultSequence, true);
+		resultCanvas = new Canvas2D(resultViewer);
 	}
 	
 	@Override
@@ -106,16 +119,17 @@ class AreaAnalysisThread extends Thread
 			Viewer viewer = Icy.getMainInterface().getFirstViewer(vSequence);
 			ThresholdOverlay tov = vSequence.getThresholdOverlay();
 			if (tov == null) {
-				
+				// TODO: deal with threshold overlay not created
+				return;
 			}
 			vSequence.beginUpdate();
 			ImageTransform tImg = new ImageTransform();
 			tImg.setSequence(vSequence);
-					
+
+				
 			// ----------------- loop over all images of the stack
 
-			for (int t = startFrame ; t <= endFrame && !isInterrupted(); t  += analyzeStep )
-			{				
+			for (int t = startFrame ; t <= endFrame && !isInterrupted(); t  += analyzeStep ) {				
 				// update progression bar
 				updateProgressionBar (t, nbframes, chrono, progress);
 
@@ -144,13 +158,26 @@ class AreaAnalysisThread extends Thread
 						BooleanMask2D intersectionMask = maskAll2D.getIntersection( areaMask );
 						sum = intersectionMask.getNumberOfPoints();
 					}
-
 					vSequence.data_raw[imask][t-startFrame]= sum;
 				}
+				
+				// get difference image
+				if (t < startFrame+20)
+					continue;
+				
+				IcyBufferedImage diffImage = tImg.transformImage(t,  TransformOp.REFn);
+				for (int c=0; c< 3; c++) {
+					double[] img1DoubleArray = Array1DUtil.arrayToDoubleArray(diffImage.getDataXY(c), diffImage.isSignedDataType());
+					double[] resultDoubleArray = Array1DUtil.arrayToDoubleArray(resultImage.getDataXY(c), resultImage.isSignedDataType());
+					ArrayMath.add(img1DoubleArray, resultDoubleArray, resultDoubleArray);
+					Array1DUtil.doubleArrayToArray(resultDoubleArray, resultImage.getDataXY(c));
+				}
+//				resultImage = tImg.transformImage(t,  TransformOp.REFn);
+				resultImage.dataChanged();
 			}
-		
-
-		} finally {
+			
+		} 
+		finally {
 			progress.close();
 			vSequence.endUpdate();
 		}

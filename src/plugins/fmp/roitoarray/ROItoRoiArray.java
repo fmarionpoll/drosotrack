@@ -104,7 +104,7 @@ public class ROItoRoiArray extends EzPlug implements ViewerListener {
 		// 1) init variables
 		splitAsComboBox = new EzVarText("Split polygon as ", new String[] {"vertical lines", "polygons", "circles"}, 1, false);
 		rootnameComboBox= new EzVarText("Output names", new String[] {"gridA", "gridB", "gridC"}, 0, true);
-		thresholdSTDFromChanComboBox = new EzVarText("Filter from", new String[] {"R", "G", "B", "R+B-2G"}, 1, false);
+		thresholdSTDFromChanComboBox = new EzVarText("Filter from", new String[] {"R", "G", "B", "R+B-2G"}, 3, false);
 		
 		ncolumns		= new EzVarInteger("N columns ", 5, 1, 1000, 1);
 		columnSize		= new EzVarInteger("column width ", 10, 0, 1000, 1);
@@ -146,7 +146,7 @@ public class ROItoRoiArray extends EzPlug implements ViewerListener {
 		});
 		
 		thresholdOv = new EzVarInteger("threshold ", 70, 1, 255, 10);
-		thresholdSTD = new EzVarInteger("threshold / selected filter", 100, 1, 10000, 10);
+		thresholdSTD = new EzVarInteger("threshold / selected filter", 500, 1, 10000, 10);
 		thresholdOv.addVarChangeListener(new EzVarListener<Integer>() {
             @Override
             public void variableChanged(EzVar<Integer> source, Integer newValue) { updateThreshold(newValue); }
@@ -460,24 +460,25 @@ public class ROItoRoiArray extends EzPlug implements ViewerListener {
 		ArrayList<Line2D> vertlines = getVerticalLinesFromIntervals(roiPolygon, listofX);
 		ArrayList<Line2D> horzlines = getHorizontalLinesFromIntervals(roiPolygon, listofY);
 		
-		int jitterx = 10;
-		int jittery = 0;
-		adjustLines(vertlines, jitterx, jittery);
-		jittery = 10;
-		jitterx = 0;
-		adjustLines(horzlines, jitterx, jittery);
-	
+		int averagewidth = (int) (roiPolygon.getBounds().getWidth() / (vertlines.size()-1));
+		int checksize = averagewidth / 3;
+		int deltainside = averagewidth / 8;
+		for (Line2D line: vertlines) {
+			line = adjustLine (line, checksize, deltainside);
+		}
+		
+		averagewidth = (int) (roiPolygon.getBounds().getHeight() / (horzlines.size()-1));
+		checksize = averagewidth / 3;
+		deltainside = averagewidth / 8;
+		for (Line2D line: horzlines) {
+			line = adjustLine (line, checksize, deltainside);
+		}
+
 		List<List<Line2D>> linesArray = new ArrayList<List<Line2D>> ();
 		linesArray.add(vertlines);
 		linesArray.add(horzlines);
 		
 		return linesArray;
-	}
-	
-	private void adjustLines (ArrayList<Line2D> lines, int jitterX, int jitterY) {
-		for (Line2D line: lines) {
-			line = adjustLine (line, jitterX, jitterY);
-		}
 	}
 	
 	private int getIndexMinimumValue (double [][] profile) {
@@ -498,22 +499,29 @@ public class ROItoRoiArray extends EzPlug implements ViewerListener {
 		return imin;
 	}
 	
-	private Line2D adjustLine (Line2D line, int jitterX, int jitterY) {
+	private Line2D adjustLine (Line2D line, int checksize, int deltainside) {
 			
-		int mindeltax = 0;
-		int mindeltay = 0;
+		Rectangle rect = line.getBounds();
 		
-		for (int deltax = -jitterX; deltax <= jitterX; deltax++) {
-			for (int deltay = -jitterY; deltay <= jitterY; deltay++) {
-				Line2D linetest = new Line2D.Double (line.getX1()+deltax, line.getY1()+deltay, line.getX2()+deltax, line.getY2()+deltay);
-				int imintop = getIndexMinimumValue(getProfile(linetest));
-				System.out.println("deltax deltay "+deltax + " "+ deltay+ ": STD = " + std[0] + " " +std[1] + " " + std[2]);
-	
-			}
+		Line2D bestline = new Line2D.Double();
+		// horizontal lines
+		if (rect.getWidth() >= rect.getHeight()) {
+			// check profile of a line perpendicular to this one and close to one extremity and then do the same for the other end
+			Line2D linetest1 = new Line2D.Double (line.getX1()+deltainside, line.getY1()-checksize, line.getX1()+deltainside, line.getY2()+checksize);
+			int iy1min = getIndexMinimumValue(getProfile(linetest1))-checksize;
+			Line2D linetest2 = new Line2D.Double (line.getX2()-deltainside, line.getY2()-checksize, line.getX2()-deltainside, line.getY2()+checksize);
+			int iy2min = getIndexMinimumValue(getProfile(linetest2))-checksize;
+			bestline.setLine(line.getX1(), line.getY1()-iy1min, line.getX2(), line.getY2()-iy2min);
 		}
-		System.out.println("final mindeltax mindeltay "+ mindeltax + " "+ mindeltay+ ": STD = " + beststd[0] + " " +beststd[1] + " " + beststd[2]);
-		Line2D bestLine = new Line2D.Double (line.getX1()+mindeltax, line.getY1()+mindeltay, line.getX2()+mindeltax, line.getY2()+mindeltay);
-		return bestLine;
+		// vertical lines
+		else {
+			Line2D linetest1 = new Line2D.Double (line.getX1()-checksize, line.getY1()+deltainside, line.getX1()+checksize, line.getY2()+deltainside);
+			int iy1min = getIndexMinimumValue(getProfile(linetest1))-checksize;
+			Line2D linetest2 = new Line2D.Double (line.getX2()-checksize, line.getY2()-deltainside, line.getX2()+checksize, line.getY2()-deltainside);
+			int iy2min = getIndexMinimumValue(getProfile(linetest2))-checksize;
+			bestline.setLine(line.getX1(), line.getY1()-iy1min, line.getX2(), line.getY2()-iy2min);
+		}
+		return bestline;
 	}
 	
 	private ArrayList<Line2D> getVerticalLinesFromIntervals(Polygon roiPolygon, List<Integer> listofX) {
