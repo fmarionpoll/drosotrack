@@ -68,7 +68,7 @@ import plugins.fmp.sequencevirtual.Tools;
 public class Areatrack extends PluginActionable implements ActionListener, ChangeListener, ViewerListener
 {	
 	// -------------------------------------- interface
-	IcyFrame mainFrame = new IcyFrame("AreaTrack 13-07-2018", true, true, true, true);
+	IcyFrame mainFrame = new IcyFrame("AreaTrack 28-08-2018", true, true, true, true);
 	IcyFrame mainChartFrame = null;
 	JPanel 	mainChartPanel = null;
 	
@@ -78,16 +78,20 @@ public class Areatrack extends PluginActionable implements ActionListener, Chang
 	private JButton		addROIsButton		= new JButton("Add...");
 	private JButton		saveROIsButton		= new JButton("Save...");
 	
+	private JCheckBox measureSurfacesCheckBox = new JCheckBox("Measure surface of objects over threshold");
+	private JCheckBox measureHeatmapCheckBox = new JCheckBox("Build image heatmap");
+	
 	private JButton startComputationButton 	= new JButton("Start");
 	private JButton stopComputationButton	= new JButton("Stop");
 	private JTextField startFrameTextField	= new JTextField("0");
 	private JTextField endFrameTextField	= new JTextField("99999999");
 	
 	private JComboBox<TransformOp> transformsComboBox; 
-	private int tdefault 					= 1;
+	private int tdefault 					= 7;
 	private JSpinner thresholdSpinner		= new JSpinner(new SpinnerNumberModel(70, 0, 255, 10));
+	private JSpinner threshold2Spinner		= new JSpinner(new SpinnerNumberModel(50, 0, 255, 10));
 	private JTextField analyzeStepTextField = new JTextField("1");
-	private JCheckBox thresholdedImageCheckBox = new JCheckBox("Display objects over threshold as overlay");
+	private JCheckBox thresholdedImageCheckBox = new JCheckBox("Display overlay");
 	
 	private String[] availableFilter 		= new String[] {"raw data", "running average", "running median"};
 	private JComboBox<String> filterComboBox= new JComboBox<String> (availableFilter);
@@ -101,13 +105,13 @@ public class Areatrack extends PluginActionable implements ActionListener, Chang
 
 	//------------------------------------------- global variables
 	private SequenceVirtual vSequence 		= null;
+	private ArrayList<MeasureAndName> resultsHeatMap = null;
 	private Timer checkBufferTimer 			= new Timer(1000, this);
 	private int	analyzeStep 				= 1;
 	private int startFrame 					= 1;
 	private int endFrame 					= 99999999;
 	private int numberOfImageForBuffer 		= 100;
 	private AreaAnalysisThread analysisThread = null;
-	private String lastUsedPath				= null;
 	private ThresholdOverlay thresholdOverlay= null;
 	
 	// --------------------------------------------------------------------------
@@ -117,34 +121,12 @@ public class Areatrack extends PluginActionable implements ActionListener, Chang
 		mainFrame.setLayout(new BorderLayout());
 		JPanel mainPanel = GuiUtil.generatePanelWithoutBorder();
 		mainFrame.add(mainPanel, BorderLayout.CENTER);
-		XMLPreferences guiPrefs = this.getPreferences("gui");
-		lastUsedPath = guiPrefs.get("lastUsedPath", "");
 			
 		// ----------------------------menu bar
 		JMenuBar menuBar = new JMenuBar();
-		JMenu exportMenu = new JMenu("Save");
-		menuBar.add(exportMenu);
-		JMenuItem exportItem = new JMenuItem("Save results to XLS file");
-		exportMenu.add(exportItem);
-		exportItem.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent arg0) {
-				String file = Tools.saveFileAs(lastUsedPath, "xls");
-				if (file != null) {
-					ThreadUtil.bgRun( new Runnable() { 	
-						@Override
-						public void run() {
-							final String filename = file;
-							exportToXLS(filename);}
-					});
-				}
-			}
-		});
-		JMenu optionMenu = new JMenu("Options");
-		menuBar.add(optionMenu);
-
 		JMenu aboutMenu = new JMenu("About");
 		menuBar.add(aboutMenu);
+		
 		JMenuItem manualItem = new JMenuItem("Manual");
 		aboutMenu.add(manualItem);
 		manualItem.addActionListener(new ActionListener() {			
@@ -181,34 +163,43 @@ public class Areatrack extends PluginActionable implements ActionListener, Chang
 		JLabel emptyText1	= new JLabel (" ");
 		roiPanel.add(GuiUtil.besidesPanel(openROIsButton, addROIsButton, saveROIsButton, emptyText1));
 		
-		final JPanel analysisPanel =  GuiUtil.generatePanel("ANALYSIS");
+		final JPanel analysisPanel =  GuiUtil.generatePanel("ANALYSIS INSIDE ROIS");
 		mainPanel.add(GuiUtil.besidesPanel(analysisPanel));
 		analysisPanel.add( GuiUtil.besidesPanel( startComputationButton, stopComputationButton ) );
-		JLabel startLabel 	= new JLabel("start ");
-		JLabel endLabel 	= new JLabel("end ");
+		JLabel startLabel 	= new JLabel("from ");
+		JLabel endLabel 	= new JLabel("to end ");
 		JLabel stepLabel 	= new JLabel("step ");
 		startLabel.setHorizontalAlignment(SwingConstants.RIGHT);
 		endLabel.setHorizontalAlignment(SwingConstants.RIGHT);
 		stepLabel.setHorizontalAlignment(SwingConstants.RIGHT);
-		
 		analysisPanel.add( GuiUtil.besidesPanel( startLabel, startFrameTextField, endLabel, endFrameTextField ) );
 		analysisPanel.add( GuiUtil.besidesPanel( stepLabel, analyzeStepTextField, new JLabel (" "), new JLabel (" ")));
 		
-		analysisPanel.add( GuiUtil.besidesPanel(thresholdedImageCheckBox));
-		JLabel videochannel = new JLabel("source data ");
+		analysisPanel.add( GuiUtil.besidesPanel(measureSurfacesCheckBox));
+		analysisPanel.add( GuiUtil.besidesPanel(new JLabel("   "), thresholdedImageCheckBox));
+		JLabel videochannel = new JLabel("filter as ");
 		videochannel.setHorizontalAlignment(SwingConstants.RIGHT);
 		transformsComboBox = new JComboBox<TransformOp> (TransformOp.values());
-		analysisPanel.add( GuiUtil.besidesPanel( videochannel, transformsComboBox));
-		transformsComboBox.setSelectedIndex(tdefault);
-		JLabel thresholdLabel = new JLabel("detect threshold ");
+		analysisPanel.add( GuiUtil.besidesPanel( videochannel, transformsComboBox));			
+		JLabel thresholdLabel = new JLabel("filter threshold ");
 		thresholdLabel.setHorizontalAlignment(SwingConstants.RIGHT);
 		analysisPanel.add( GuiUtil.besidesPanel( thresholdLabel, thresholdSpinner));
-		
-		final JPanel displayPanel = GuiUtil.generatePanel("DISPLAY/EXPORT RESULTS");
+		analysisPanel.add( GuiUtil.besidesPanel(measureHeatmapCheckBox ));
+		JLabel thresholdLabel2 = new JLabel("'move' threshold ");
+		thresholdLabel2.setHorizontalAlignment(SwingConstants.RIGHT);
+		analysisPanel.add( GuiUtil.besidesPanel( thresholdLabel2, threshold2Spinner));
+				
+		final JPanel displayPanel = GuiUtil.generatePanel("RESULTS DISPLAY/EXPORT");
 		mainPanel.add(GuiUtil.besidesPanel(displayPanel));
-		displayPanel.add(GuiUtil.besidesPanel(new JLabel ("output:"), filterComboBox )); 
-		displayPanel.add(GuiUtil.besidesPanel(new JLabel ("span:"), spanTextField));
-		displayPanel.add(GuiUtil.besidesPanel(new JLabel ("condition:"), conditionsComboBox)); 
+		JLabel outputLabel = new JLabel ("output ");
+		outputLabel.setHorizontalAlignment(SwingConstants.RIGHT);
+		displayPanel.add(GuiUtil.besidesPanel(outputLabel, filterComboBox )); 
+		JLabel spanLabel = new JLabel ("span ");
+		spanLabel.setHorizontalAlignment(SwingConstants.RIGHT);
+		displayPanel.add(GuiUtil.besidesPanel(spanLabel, spanTextField));
+		JLabel conditionLabel = new JLabel ("condition ");
+		conditionLabel.setHorizontalAlignment(SwingConstants.RIGHT);
+		displayPanel.add(GuiUtil.besidesPanel(conditionLabel, conditionsComboBox)); 
 		displayPanel.add(GuiUtil.besidesPanel(updateChartsButton, exportToXLSButton)); 
 		displayPanel.add(GuiUtil.besidesPanel(closeAllButton));
 
@@ -221,8 +212,11 @@ public class Areatrack extends PluginActionable implements ActionListener, Chang
 		// -------------------------------------------- default selection
 		conditionsComboBox.setSelectedIndex(1);
 		filterComboBox.setSelectedIndex(1);
-		transformsComboBox.setSelectedIndex(6);
-			
+		transformsComboBox.setSelectedIndex(tdefault);
+		measureSurfacesCheckBox.setSelected(true);
+		measureHeatmapCheckBox.setSelected(true);
+		thresholdedImageCheckBox.setSelected(false);
+
 		 // display an announcement with Plugin description
 		new ToolTipFrame ( "<html>This plugin is designed to analyse <br>the consumption of arrays of leaf disks<br>by lepidoptera larvae.<br><br>To open a stack of files (jpg, jpeg), <br>use the 'open' button <br>and select a file within a stack <br>or select a directory containing a stack",
 				10);
@@ -297,7 +291,6 @@ public class Areatrack extends PluginActionable implements ActionListener, Chang
  			{
 				XMLPreferences guiPrefs = this.getPreferences("gui");
 				guiPrefs.put("lastUsedPath", path);
-				lastUsedPath = path;
 				initInputSeq();
 			}
 		}
@@ -341,13 +334,7 @@ public class Areatrack extends PluginActionable implements ActionListener, Chang
 		else if (o == thresholdedImageCheckBox && (vSequence != null))  {
 
 			if (thresholdedImageCheckBox.isSelected()) {
-				if (thresholdOverlay == null) {
-					thresholdOverlay = new ThresholdOverlay();
-					vSequence.setThresholdOverlay(thresholdOverlay);
-				}
-				vSequence.threshold = Integer.parseInt(thresholdSpinner.getValue().toString());
-				vSequence.addOverlay(thresholdOverlay);
-				updateOverlay();
+				setThresholdOverlay();
 			}
 			else {
 				if (thresholdOverlay != null) 
@@ -383,13 +370,19 @@ public class Areatrack extends PluginActionable implements ActionListener, Chang
 			vSequence.istep = Integer.parseInt( analyzeStepTextField.getText() );
 		}
 		catch( Exception ee ) { new AnnounceFrame("Can't interpret the analyze step value."); }
+		if (!thresholdedImageCheckBox.isSelected()) {
+			thresholdedImageCheckBox.setSelected(true);
+			setThresholdOverlay();
+		}
 		analysisThread.setAnalysisThreadParameters(
 				vSequence, 
 				getROIsToAnalyze(),
 				startFrame,
 				endFrame,
 				0,
-				(TransformOp) transformsComboBox.getSelectedItem());
+				(TransformOp) transformsComboBox.getSelectedItem(),
+				Integer.parseInt(threshold2Spinner.getValue().toString()), 
+				measureSurfacesCheckBox.isSelected(), measureHeatmapCheckBox.isSelected());
 		analysisThread.start();	
 	}
 	
@@ -405,6 +398,15 @@ public class Areatrack extends PluginActionable implements ActionListener, Chang
 		}
 	}
 	
+	private void setThresholdOverlay() {
+		if (thresholdOverlay == null) {
+			thresholdOverlay = new ThresholdOverlay();
+			vSequence.setThresholdOverlay(thresholdOverlay);
+		}
+		vSequence.threshold = Integer.parseInt(thresholdSpinner.getValue().toString());
+		vSequence.addOverlay(thresholdOverlay);
+		updateOverlay();
+	}
 	private void updateOverlay () {
 
 		if (thresholdOverlay == null) {
@@ -416,7 +418,6 @@ public class Areatrack extends PluginActionable implements ActionListener, Chang
 				thresholdedImageCheckBox.isSelected(), 
 				vSequence.threshold, 
 				transformop);
-		//if (transform == 12) then feed a reference into sequence
 			
 		if (thresholdOverlay != null) {
 			thresholdOverlay.painterChanged();
@@ -640,6 +641,8 @@ public class Areatrack extends PluginActionable implements ActionListener, Chang
 			listofFiles = vSequence.getListofFiles();
 			blistofFiles = true;
 		}
+		if (analysisThread != null)
+			resultsHeatMap = analysisThread.results;
 		
 		// xls output
 		// --------------
@@ -669,17 +672,32 @@ public class Areatrack extends PluginActionable implements ActionListener, Chang
 		icol0++;
 		int icol1 = icol0;
 		ArrayList<ROI2D> roisList = vSequence.getROI2Ds();
+		XLSUtil.setCellString( filteredDataPage , icol1-1, irow, "area name");
+		XLSUtil.setCellString( filteredDataPage , icol1-1, irow+1, "surface(pixels)");
 		Collections.sort(roisList, new Tools.ROI2DNameComparator());
 		for (ROI2D roi: roisList) {
 			XLSUtil.setCellString( filteredDataPage , icol1, irow, roi.getName());
 			XLSUtil.setCellNumber( filteredDataPage , icol1, irow+1, roi.getNumberOfPoints());
 			icol1++;
 		}
-		for (int iroi=0; iroi < nrois; iroi++, icol0++) 
-		{
-			XLSUtil.setCellString( filteredDataPage , icol0, irow+2, vSequence.seriesname[iroi]);
+		
+		if (measureHeatmapCheckBox.isSelected() ) {
+			icol1 = icol0;
+			XLSUtil.setCellString( filteredDataPage , icol1-1, irow, "area name");
+			XLSUtil.setCellString( filteredDataPage , icol1-1, irow+1, "activity(npixels>"+threshold2Spinner.getValue()+")");
+			for (MeasureAndName result: resultsHeatMap) {
+				XLSUtil.setCellString( filteredDataPage, icol1, irow+2, result.name);
+				XLSUtil.setCellNumber( filteredDataPage, icol1, irow+3, result.data/result.count);
+				icol1++;
+			}		
 		}
-		irow+=3;
+		
+		icol1 = icol0;
+		XLSUtil.setCellString( filteredDataPage , icol1-1, irow, "area name");
+		for (int iroi=0; iroi < nrois; iroi++, icol1++) 
+			XLSUtil.setCellString( filteredDataPage , icol1, irow+5, vSequence.seriesname[iroi]);
+
+		irow+=6;
 
 		// data
 		it = 1;

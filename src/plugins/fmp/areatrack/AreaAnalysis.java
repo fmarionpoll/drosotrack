@@ -13,7 +13,9 @@ import icy.roi.BooleanMask2D;
 import icy.roi.ROI;
 import icy.roi.ROI2D;
 import icy.sequence.Sequence;
+import icy.sequence.SequenceDataIterator;
 import icy.system.profile.Chronometer;
+import icy.type.DataType;
 import icy.type.collection.array.Array1DUtil;
 import plugins.fmp.sequencevirtual.ImageTransform;
 import plugins.fmp.sequencevirtual.ImageTransform.TransformOp;
@@ -46,35 +48,45 @@ class AreaAnalysisThread extends Thread
 	private int endFrame = 99999999;
 	private int analyzeStep = 1;
 	private int imageref = 0;
+	private boolean measureROIsEvolution;
+	private boolean measureROIsMove;
+	private int thresholdForHeatMap = 50;
+	
 	public IcyBufferedImage resultImage = null;
 	public Sequence resultSequence = null;
 	public Viewer resultViewer = null;
 	public Canvas2D resultCanvas = null;
+	public ArrayList<MeasureAndName> results = null;
 	 
 	// --------------------------------------------------------------------------------------
 	
 	
-	public void setAnalysisThreadParameters (SequenceVirtual sseq, 
-			ArrayList<ROI2D> sroiList, 
-			int sstartFrame, 
-			int sendFrame, 
-			int simageref,
-			TransformOp stransf)
+	public void setAnalysisThreadParameters (SequenceVirtual virtualSequence, 
+			ArrayList<ROI2D> roiList, 
+			int startFrame, 
+			int endFrame, 
+			int imageref,
+			TransformOp transf, 
+			int thresholdForHeatMap, boolean measureROIsEvolution, boolean measureROIsMove)
 	{
-		vSequence = sseq;
-		roiList = sroiList;
-		startFrame = sstartFrame;
-		endFrame = sendFrame;
+		vSequence = virtualSequence;
+		this.roiList = roiList;
+		this.startFrame = startFrame;
+		this.endFrame = endFrame;
+		this.transformop = transf;
+		this.imageref = imageref;
+		this.thresholdForHeatMap = thresholdForHeatMap;
+		this.measureROIsEvolution = measureROIsEvolution;
+		this.measureROIsMove = measureROIsMove;
 		
-		transformop = stransf;
-		imageref = simageref;
 		if (transformop == TransformOp.REFt0 || transformop == TransformOp.REFn || transformop == TransformOp.REF)
-			vSequence.setRefImageForSubtraction(imageref);
+			vSequence.setRefImageForSubtraction(this.imageref);
 		
 		IcyBufferedImage image = vSequence.loadVImage(vSequence.currentFrame);
-		resultImage = new IcyBufferedImage(image.getSizeX(), image.getSizeY(),image.getSizeC(), image.getDataType_());
+		resultImage = new IcyBufferedImage(image.getSizeX(), image.getSizeY(),image.getSizeC(), DataType.DOUBLE);
 		resultSequence = new Sequence(resultImage);
-		resultViewer = new Viewer(resultSequence, true);
+		resultSequence.setName("Heatmap thresh:"+this.thresholdForHeatMap);
+		resultViewer = new Viewer(resultSequence, false);
 		resultCanvas = new Canvas2D(resultViewer);
 	}
 	
@@ -100,32 +112,30 @@ class AreaAnalysisThread extends Thread
 		int nrois = roiList.size();
 
 		vSequence.data_raw = new int [nrois][nbframes];
-		ArrayList<ROI2D> areaROIList = new ArrayList<ROI2D>();
 		ArrayList<BooleanMask2D> areaMaskList = new ArrayList<BooleanMask2D>();
-		
-		areaROIList.clear();
-		areaMaskList.clear();
 		vSequence.seriesname = new String[nrois];
 		for (ROI2D roi: roiList)
 		{
 			String csName = roi.getName();
 			vSequence.seriesname[iroi] = csName;
-			areaROIList.add(roi);
 			areaMaskList.add(roi.getBooleanMask2D( 0 , 0, 1, true ));
 			iroi++;
 		}
 
 		try {
-			Viewer viewer = Icy.getMainInterface().getFirstViewer(vSequence);
+			Viewer viewer = null;
+			if (measureROIsEvolution)
+				viewer = Icy.getMainInterface().getFirstViewer(vSequence);
+			else 
+				viewer = resultViewer;
 			ThresholdOverlay tov = vSequence.getThresholdOverlay();
 			if (tov == null) {
-				// TODO: deal with threshold overlay not created
+				// TODO
 				return;
 			}
 			vSequence.beginUpdate();
 			ImageTransform tImg = new ImageTransform();
 			tImg.setSequence(vSequence);
-
 				
 			// ----------------- loop over all images of the stack
 
@@ -133,47 +143,45 @@ class AreaAnalysisThread extends Thread
 				// update progression bar
 				updateProgressionBar (t, nbframes, chrono, progress);
 
-				// load next image and compute threshold
-				IcyBufferedImage workImage = tImg.transformImage(t, transformop); 
-				vSequence.currentFrame = t;
-				viewer.setPositionT(t);
-				viewer.setTitle(vSequence.getVImageName(t));
+				if (measureROIsEvolution) {
+					// load next image and compute threshold
+					IcyBufferedImage workImage = tImg.transformImage(t, transformop); 
+					vSequence.currentFrame = t;
+					viewer.setPositionT(t);
+					viewer.setTitle(vSequence.getVImageName(t));
 
-				// ------------------------ compute global mask
-				tov.getBinaryOverThresholdFromDoubleImage(workImage, threshold);
-				BooleanMask2D maskAll2D = new BooleanMask2D(workImage.getBounds(), tov.boolMap); 
-				
-				// ------------------------ loop over all the cages of the stack
-				for (int imask = 0; imask < areaMaskList.size(); imask++ )
-				{
-					ROI areaLimitROI = areaROIList.get(imask);
-					if ( areaLimitROI == null )
-						continue;
-
-					// count number of pixels over threshold 
-					int sum = 0;
-					BooleanMask2D areaMask = areaMaskList.get(imask);
-					if (areaMask != null)
+					// ------------------------ compute global mask
+					tov.getBinaryOverThresholdFromDoubleImage(workImage, threshold);
+					BooleanMask2D maskAll2D = new BooleanMask2D(workImage.getBounds(), tov.boolMap); 
+					
+					// ------------------------ loop over all the cages of the stack & count n pixels above threshold
+					for (int imask = 0; imask < areaMaskList.size(); imask++ )
 					{
+						BooleanMask2D areaMask = areaMaskList.get(imask);
 						BooleanMask2D intersectionMask = maskAll2D.getIntersection( areaMask );
-						sum = intersectionMask.getNumberOfPoints();
+						int sum = intersectionMask.getNumberOfPoints();
+						vSequence.data_raw[imask][t-startFrame]= sum;
 					}
-					vSequence.data_raw[imask][t-startFrame]= sum;
 				}
 				
-				// get difference image
-				if (t < startFrame+20)
-					continue;
-				
-				IcyBufferedImage diffImage = tImg.transformImage(t,  TransformOp.REFn);
-				for (int c=0; c< 3; c++) {
-					double[] img1DoubleArray = Array1DUtil.arrayToDoubleArray(diffImage.getDataXY(c), diffImage.isSignedDataType());
-					double[] resultDoubleArray = Array1DUtil.arrayToDoubleArray(resultImage.getDataXY(c), resultImage.isSignedDataType());
-					ArrayMath.add(img1DoubleArray, resultDoubleArray, resultDoubleArray);
-					Array1DUtil.doubleArrayToArray(resultDoubleArray, resultImage.getDataXY(c));
+				if (measureROIsMove) {
+					// get difference image
+					if (t < startFrame+20)
+						continue;
+					
+					IcyBufferedImage diffImage = tImg.transformImage(t,  TransformOp.REFn);
+					int cmax = 3;
+					for (int c=0; c< cmax; c++) {
+						double[] img1DoubleArray = Array1DUtil.arrayToDoubleArray(diffImage.getDataXY(c), diffImage.isSignedDataType());
+						double[] resultDoubleArray = Array1DUtil.arrayToDoubleArray(resultImage.getDataXY(c), resultImage.isSignedDataType());
+						for (int i= 0; i< img1DoubleArray.length; i++) {
+							if (img1DoubleArray[i] > thresholdForHeatMap) 
+								resultDoubleArray[i] += 1;
+						}
+						Array1DUtil.doubleArrayToArray(resultDoubleArray, resultImage.getDataXY(c));
+					}
+	//				resultImage.dataChanged();
 				}
-//				resultImage = tImg.transformImage(t,  TransformOp.REFn);
-				resultImage.dataChanged();
 			}
 			
 		} 
@@ -184,6 +192,31 @@ class AreaAnalysisThread extends Thread
 
 		chrono.displayInSeconds();
 		System.out.println("Computation finished.");
+		
+		if (measureROIsMove) {
+			resultImage.dataChanged();
+			resultViewer.setVisible(true);
+			resultSequence.removeAllROI();
+			resultSequence.addROIs(vSequence.getROI2Ds(), false);
+			
+			for (ROI2D roi: roiList)
+				areaMaskList.add(roi.getBooleanMask2D( 0 , 0, 1, true ));
+
+			
+			// ------------------------ loop over all the cages of the stack & count n pixels above threshold
+			results = new ArrayList<MeasureAndName> ();
+			for (ROI2D roi: roiList) {
+				SequenceDataIterator iterator = new SequenceDataIterator(resultSequence, roi);
+				double sum = 0;
+				double sample = 0;
+				while (!iterator.done()) {
+					sum += iterator.get();
+					iterator.next();
+					sample++;
+				}
+				results.add(new MeasureAndName(roi.getName(), sum, sample));
+			}
+		}
 	}
 	
 	void updateProgressionBar( int t, int nbframes, Chronometer chrono, ProgressFrame progress) {
