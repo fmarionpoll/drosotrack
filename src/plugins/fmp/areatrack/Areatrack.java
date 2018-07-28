@@ -283,7 +283,6 @@ public class Areatrack extends PluginActionable implements ActionListener, Chang
 				vSequence.close();
 				checkBufferTimer.stop();
 			}
-			
 			vSequence = new SequenceVirtual();
 			
 			path = vSequence.loadInputVirtualStack(null);
@@ -672,7 +671,7 @@ public class Areatrack extends PluginActionable implements ActionListener, Chang
 		icol0++;
 		int icol1 = icol0;
 		ArrayList<ROI2D> roisList = vSequence.getROI2Ds();
-		XLSUtil.setCellString( filteredDataPage , icol1-1, irow, "area name");
+		XLSUtil.setCellString( filteredDataPage , icol1-1, irow, "name");
 		XLSUtil.setCellString( filteredDataPage , icol1-1, irow+1, "surface(pixels)");
 		Collections.sort(roisList, new Tools.ROI2DNameComparator());
 		for (ROI2D roi: roisList) {
@@ -683,25 +682,25 @@ public class Areatrack extends PluginActionable implements ActionListener, Chang
 		
 		if (measureHeatmapCheckBox.isSelected() ) {
 			icol1 = icol0;
-			XLSUtil.setCellString( filteredDataPage , icol1-1, irow, "area name");
-			XLSUtil.setCellString( filteredDataPage , icol1-1, irow+1, "activity(npixels>"+threshold2Spinner.getValue()+")");
+			XLSUtil.setCellString( filteredDataPage , icol1-1, irow+2, "name");
+			XLSUtil.setCellString( filteredDataPage , icol1-1, irow+3, "activity(npixels>"+threshold2Spinner.getValue()+")");
+			XLSUtil.setCellString( filteredDataPage , icol1-1, irow+3, "count (pixels?)");
 			for (MeasureAndName result: resultsHeatMap) {
 				XLSUtil.setCellString( filteredDataPage, icol1, irow+2, result.name);
 				XLSUtil.setCellNumber( filteredDataPage, icol1, irow+3, result.data/result.count);
+				XLSUtil.setCellNumber( filteredDataPage, icol1, irow+4, result.count);
 				icol1++;
 			}		
 		}
 		
 		icol1 = icol0;
-		XLSUtil.setCellString( filteredDataPage , icol1-1, irow, "area name");
+		XLSUtil.setCellString( filteredDataPage , icol1-1, irow, "name");
 		for (int iroi=0; iroi < nrois; iroi++, icol1++) 
-			XLSUtil.setCellString( filteredDataPage , icol1, irow+5, vSequence.seriesname[iroi]);
-
-		irow+=6;
+			XLSUtil.setCellString( filteredDataPage , icol1, irow+6, vSequence.seriesname[iroi]);
+		irow+=7;
 
 		// data
 		it = 1;
-
 		for ( int t = startFrame ; t < endFrame;  t  += analyzeStep, it++ )
 		{
 			try
