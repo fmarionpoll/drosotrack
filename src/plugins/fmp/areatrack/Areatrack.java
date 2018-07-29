@@ -615,7 +615,6 @@ public class Areatrack extends PluginActionable implements ActionListener, Chang
 		if (legendTitle != null)
 			legendTitle.setPosition(RectangleEdge.RIGHT); 
 		mainChartPanel.add( new ChartPanel(  chart, width , height , minWidth, minHeight, maxWidth , maxHeight, false , false, true , true , true, true));
-		
 		mainChartPanel.validate();
 		mainChartPanel.repaint();
 		
@@ -657,47 +656,57 @@ public class Areatrack extends PluginActionable implements ActionListener, Chang
 		XLSUtil.setCellString(filteredDataPage,  0,  irow, cs);
 		// write filter and threshold applied
 		irow++;
-		cs = transformsComboBox.getSelectedItem().toString() + " threshold=" + thresholdSpinner.getValue().toString();
-		XLSUtil.setCellString(filteredDataPage,  0,  irow, cs);		
+		cs = "Detect surface: "+ transformsComboBox.getSelectedItem().toString() + " threshold=" + thresholdSpinner.getValue().toString();
+		XLSUtil.setCellString(filteredDataPage,  0,  irow, cs);	
+		irow++;
+		cs = "Detect movement using image (n) - (n-1) threshold=" + threshold2Spinner.getValue().toString();
+		XLSUtil.setCellString(filteredDataPage,  0,  irow, cs);	
 		// write table
 		irow=4;
 		// table header
 		icol0 = 0;
-		if (blistofFiles) {
-			XLSUtil.setCellString( filteredDataPage , icol0,   irow, "filename" );
-			icol0++;
-		}
+		if (blistofFiles) icol0 = 1;
+		
 		XLSUtil.setCellString( filteredDataPage , icol0, irow, "index" );
 		icol0++;
 		int icol1 = icol0;
 		ArrayList<ROI2D> roisList = vSequence.getROI2Ds();
-		XLSUtil.setCellString( filteredDataPage , icol1-1, irow, "name");
-		XLSUtil.setCellString( filteredDataPage , icol1-1, irow+1, "roi surface (pixels)");
+		XLSUtil.setCellString( filteredDataPage, 0, irow, "column");
+		XLSUtil.setCellString( filteredDataPage, 0, irow+1, "roi surface (pixels)");
 		Collections.sort(roisList, new Tools.ROI2DNameComparator());
 		for (ROI2D roi: roisList) {
-			XLSUtil.setCellString( filteredDataPage , icol1, irow, roi.getName());
-			XLSUtil.setCellNumber( filteredDataPage , icol1, irow+1, roi.getNumberOfPoints());
+			XLSUtil.setCellString( filteredDataPage, icol1, irow, roi.getName());
+			XLSUtil.setCellNumber( filteredDataPage, icol1, irow+1, roi.getNumberOfPoints());
 			icol1++;
 		}
 		
 		if (measureHeatmapCheckBox.isSelected() ) {
 			icol1 = icol0;
-			XLSUtil.setCellString( filteredDataPage , icol1-1, irow+2, "name");
-			XLSUtil.setCellString( filteredDataPage , icol1-1, irow+3, "activity(npixels>"+threshold2Spinner.getValue()+")");
-			XLSUtil.setCellString( filteredDataPage , icol1-1, irow+4, "count");
+			XLSUtil.setCellString( filteredDataPage, 0, irow+2, "column");
+			XLSUtil.setCellString( filteredDataPage, 0, irow+3, "activity(npixels>"+threshold2Spinner.getValue()+")");
+			XLSUtil.setCellString( filteredDataPage, 0, irow+4, "count");
 			for (MeasureAndName result: resultsHeatMap) {
-				XLSUtil.setCellString( filteredDataPage, icol1, irow+2, result.name);
-				XLSUtil.setCellNumber( filteredDataPage, icol1, irow+3, result.data/result.count);
-				XLSUtil.setCellNumber( filteredDataPage, icol1, irow+4, result.count);
-				icol1++;
+				if (result.name != "background") {
+					XLSUtil.setCellString( filteredDataPage, icol1, irow+2, result.name);
+					XLSUtil.setCellNumber( filteredDataPage, icol1, irow+3, result.data/result.count);
+					XLSUtil.setCellNumber( filteredDataPage, icol1, irow+4, result.count);
+					icol1++;
+				}
+				else {
+					XLSUtil.setCellString( filteredDataPage, icol0-1, irow+2, result.name);
+					XLSUtil.setCellNumber( filteredDataPage, icol0-1, irow+3, result.data/result.count);
+					XLSUtil.setCellNumber( filteredDataPage, icol0-1, irow+4, result.count);
+				}
 			}		
 		}
 		
 		icol1 = icol0;
-		XLSUtil.setCellString( filteredDataPage , icol1-1, irow, "name");
-		for (int iroi=0; iroi < nrois; iroi++, icol1++) 
-			XLSUtil.setCellString( filteredDataPage , icol1, irow+6, vSequence.seriesname[iroi]);
 		irow+=7;
+		if (blistofFiles)
+			XLSUtil.setCellString( filteredDataPage , 0, irow, "name");
+		for (int iroi=0; iroi < nrois; iroi++, icol1++) 
+			XLSUtil.setCellString( filteredDataPage , icol1, irow, vSequence.seriesname[iroi]);
+		irow++;
 
 		// data
 		it = 1;
@@ -738,14 +747,14 @@ public class Areatrack extends PluginActionable implements ActionListener, Chang
 			WritableWorkbook xlsWorkBook = XLSUtil.createWorkbook( filename);
 
 			filterData (0, span, 0);
-			exportToXLSWorksheet(xlsWorkBook, "data");
+			exportToXLSWorksheet(xlsWorkBook, "raw");
 			filterData (1, span, 0);
 			exportToXLSWorksheet(xlsWorkBook, "avg");
-			filterData (1, span, 0);
+			filterData (1, span, 1);
 			exportToXLSWorksheet(xlsWorkBook, "avg_clipped");
 			filterData (2, span, 0);
 			exportToXLSWorksheet(xlsWorkBook, "median");
-			filterData (2, span, 0);
+			filterData (2, span, 1);
 			exportToXLSWorksheet(xlsWorkBook, "median_clipped");
 			
 			// --------------

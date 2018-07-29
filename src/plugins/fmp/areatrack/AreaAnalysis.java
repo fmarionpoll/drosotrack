@@ -12,16 +12,19 @@ import icy.math.ArrayMath;
 import icy.roi.BooleanMask2D;
 import icy.roi.ROI;
 import icy.roi.ROI2D;
+
 import icy.sequence.Sequence;
 import icy.sequence.SequenceDataIterator;
 import icy.system.profile.Chronometer;
 import icy.type.DataType;
 import icy.type.collection.array.Array1DUtil;
+import icy.type.geom.Polygon2D;
 import plugins.fmp.sequencevirtual.ImageTransform;
 import plugins.fmp.sequencevirtual.ImageTransform.TransformOp;
 import plugins.fmp.sequencevirtual.SequenceVirtual;
 import plugins.fmp.sequencevirtual.ThresholdOverlay;
 import plugins.fmp.sequencevirtual.Tools;
+import plugins.kernel.roi.roi2d.ROI2DPolygon;
 
 
 class AreaAnalysisThread extends Thread
@@ -198,14 +201,27 @@ class AreaAnalysisThread extends Thread
 			resultViewer.setVisible(true);
 			resultSequence.removeAllROI();
 			resultSequence.addROIs(vSequence.getROI2Ds(), false);
+			ArrayList<ROI2D> roiList2 = resultSequence.getROI2Ds();
 			
-			for (ROI2D roi: roiList)
+			// ------ get big sum
+			double sumall = 0;
+			double countall = 0;
+			int cmax = 3;
+			for (int c=0; c< cmax; c++) {
+				double[] resultDoubleArray = Array1DUtil.arrayToDoubleArray(resultImage.getDataXY(c), resultImage.isSignedDataType());
+				for (int i=0; i< resultDoubleArray.length; i++) {
+					sumall += resultDoubleArray[i];
+				}
+				countall += resultDoubleArray.length;
+			}
+
+			for (ROI2D roi: roiList2)
 				areaMaskList.add(roi.getBooleanMask2D( 0 , 0, 1, true ));
 
-			
 			// ------------------------ loop over all the cages of the stack & count n pixels above threshold
+			
 			results = new ArrayList<MeasureAndName> ();
-			for (ROI2D roi: roiList) {
+			for (ROI2D roi: roiList2) {
 				SequenceDataIterator iterator = new SequenceDataIterator(resultSequence, roi, true, 0, 0 , -1);
 				double sum = 0;
 				double sample = 0;
@@ -214,8 +230,13 @@ class AreaAnalysisThread extends Thread
 					iterator.next();
 					sample++;
 				}
+				sumall -= sum;
+				countall -= sample;
 				results.add(new MeasureAndName(roi.getName(), sum, sample));
 			}
+			results.add(new MeasureAndName("background", sumall, countall));
+			
+			// compute movements over the rest of the image and store it as reference
 		}
 	}
 	

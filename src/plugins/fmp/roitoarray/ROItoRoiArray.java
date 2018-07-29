@@ -34,6 +34,7 @@ import icy.image.IcyBufferedImage;
 import icy.image.IcyBufferedImageUtil;
 import icy.gui.viewer.ViewerEvent.ViewerEventType;
 import icy.preferences.XMLPreferences;
+import icy.roi.ROI;
 import icy.roi.ROI2D;
 import icy.sequence.DimensionId;
 import icy.type.collection.array.Array1DUtil;
@@ -89,6 +90,7 @@ public class ROItoRoiArray extends EzPlug implements ViewerListener {
 	EzButton		exportSTDButton;
 	EzButton		convertLinesToSquaresButton;
 	EzVarInteger 	areaShrink;
+	EzButton		changeGridNameButton;
 	
 	private ThresholdOverlay thresholdOverlay = null;
 	private SequenceVirtual vSequence = null;
@@ -104,7 +106,7 @@ public class ROItoRoiArray extends EzPlug implements ViewerListener {
 
 		// 1) init variables
 		splitAsComboBox = new EzVarText("Split polygon as ", new String[] {"vertical lines", "polygons", "circles"}, 1, false);
-		rootnameComboBox= new EzVarText("Output names", new String[] {"gridA", "gridB", "gridC"}, 0, true);
+		rootnameComboBox= new EzVarText("Names of ROIS begin with", new String[] {"gridA", "gridB", "gridC"}, 0, true);
 		thresholdSTDFromChanComboBox = new EzVarText("Filter from", new String[] {"R", "G", "B", "R+B-2G"}, 3, false);
 		
 		ncolumns		= new EzVarInteger("N columns ", 5, 1, 1000, 1);
@@ -133,6 +135,8 @@ public class ROItoRoiArray extends EzPlug implements ViewerListener {
 			public void actionPerformed(ActionEvent e) { buildAutoGrid(); } });
 		convertLinesToSquaresButton = new EzButton("Convert lines to squares",  new ActionListener() { 
 			public void actionPerformed(ActionEvent e) { convertLinesToSquares(); } });
+		changeGridNameButton = new EzButton("Set names of ROIs", new ActionListener () {
+			public void actionPerformed(ActionEvent e) { changeGridName(); } });
 		overlayCheckBox = new EzVarBoolean("build from overlay", false);
 		overlayCheckBox.addVarChangeListener(new EzVarListener<Boolean>() {
              @Override
@@ -175,7 +179,7 @@ public class ROItoRoiArray extends EzPlug implements ViewerListener {
 		super.addEzComponent (groupDetectDisks);
 		groupDetectDisks.setFoldedState(true);
 		
-		EzGroup outputParameters = new EzGroup("Output data",  rootnameComboBox, saveXMLButton);
+		EzGroup outputParameters = new EzGroup("Output data",  rootnameComboBox, changeGridNameButton, saveXMLButton);
 		super.addEzComponent (outputParameters);
 	}
 	
@@ -186,11 +190,9 @@ public class ROItoRoiArray extends EzPlug implements ViewerListener {
 			new AnnounceFrame("The frame must be a ROI 2D POLYGON");
 			return;
 		}
-
 		Polygon roiPolygon = Tools.orderVerticesofPolygon (((ROI2DPolygon) roi).getPolygon());
 		sequence.getValue(true).removeAllROI();
 		sequence.getValue(true).addROI(roi, true);
-		
 		getSTD(roiPolygon.getBounds());
 		getSTDRBminus2G();
 
@@ -240,7 +242,6 @@ public class ROItoRoiArray extends EzPlug implements ViewerListener {
 	            	}
 	        }
         }
-        
         return pointslist;
 	}
 	
@@ -1363,6 +1364,18 @@ public class ROItoRoiArray extends EzPlug implements ViewerListener {
 		vSequence.xmlWriteROIsAndData("roisarray.xml");
 //		vSequence.removeAllROI(); 
 //		vSequence.addROIs(roisList, false);
+	}
+	
+	private void changeGridName() {
+		List<ROI> roisList = vSequence.getROIs(true);
+		String baseName = rootnameComboBox.getValue();
+		
+		for (ROI roi : roisList) {
+			String cs = roi.getName();
+			int firstunderscore = cs.indexOf("_");
+			cs = baseName + cs.substring(firstunderscore);
+			roi.setName(cs);
+		}
 	}
 	
 	private void exportSTD() {
