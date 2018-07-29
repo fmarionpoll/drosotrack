@@ -672,7 +672,7 @@ public class Areatrack extends PluginActionable implements ActionListener, Chang
 		int icol1 = icol0;
 		ArrayList<ROI2D> roisList = vSequence.getROI2Ds();
 		XLSUtil.setCellString( filteredDataPage , icol1-1, irow, "name");
-		XLSUtil.setCellString( filteredDataPage , icol1-1, irow+1, "surface(pixels)");
+		XLSUtil.setCellString( filteredDataPage , icol1-1, irow+1, "roi surface (pixels)");
 		Collections.sort(roisList, new Tools.ROI2DNameComparator());
 		for (ROI2D roi: roisList) {
 			XLSUtil.setCellString( filteredDataPage , icol1, irow, roi.getName());
@@ -684,7 +684,7 @@ public class Areatrack extends PluginActionable implements ActionListener, Chang
 			icol1 = icol0;
 			XLSUtil.setCellString( filteredDataPage , icol1-1, irow+2, "name");
 			XLSUtil.setCellString( filteredDataPage , icol1-1, irow+3, "activity(npixels>"+threshold2Spinner.getValue()+")");
-			XLSUtil.setCellString( filteredDataPage , icol1-1, irow+3, "count (pixels?)");
+			XLSUtil.setCellString( filteredDataPage , icol1-1, irow+4, "count");
 			for (MeasureAndName result: resultsHeatMap) {
 				XLSUtil.setCellString( filteredDataPage, icol1, irow+2, result.name);
 				XLSUtil.setCellNumber( filteredDataPage, icol1, irow+3, result.data/result.count);

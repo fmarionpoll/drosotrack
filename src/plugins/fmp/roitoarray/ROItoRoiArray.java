@@ -88,6 +88,7 @@ public class ROItoRoiArray extends EzPlug implements ViewerListener {
 	EzButton		generateAutoGridButton;
 	EzButton		exportSTDButton;
 	EzButton		convertLinesToSquaresButton;
+	EzVarInteger 	areaShrink;
 	
 	private ThresholdOverlay thresholdOverlay = null;
 	private SequenceVirtual vSequence = null;
@@ -112,6 +113,7 @@ public class ROItoRoiArray extends EzPlug implements ViewerListener {
 		nrows 			= new EzVarInteger("N rows ", 10, 1, 1000, 1); 
 		rowWidth		= new EzVarInteger("row height ", 10, 0, 1000, 1);
 		rowInterval 	= new EzVarInteger("space btw. row ", 0, 0, 1000, 1);
+		areaShrink		= new EzVarInteger("area shrink (%)", 1, -100, 100, 5);
 		
 		adjustAndCenterEllipsesButton = new EzButton("Find leaf disks", new ActionListener() { 
 			public void actionPerformed(ActionEvent e) { findLeafDiskIntoRectangles(); }	});
@@ -157,14 +159,19 @@ public class ROItoRoiArray extends EzPlug implements ViewerListener {
 		EzGroup groupSequence = new EzGroup("Source data", sequence, openFileButton, openXMLButton);
 		super.addEzComponent (groupSequence);
 
-		EzGroup groupAutoDetect = new EzGroup("Automatic detection from lines", findLinesButton, exportSTDButton, thresholdSTD, thresholdSTDFromChanComboBox, generateAutoGridButton, convertLinesToSquaresButton);
+		EzGroup groupAutoDetect = new EzGroup("Automatic detection from lines", findLinesButton, exportSTDButton, 
+				thresholdSTD, thresholdSTDFromChanComboBox, generateAutoGridButton, 
+				areaShrink, convertLinesToSquaresButton);
 		super.addEzComponent (groupAutoDetect);
 	
-		EzGroup groupManualDetect = new EzGroup("Manual definition of lines", splitAsComboBox, ncolumns, columnSize, columnSpan, nrows, rowWidth, rowInterval, generateGridButton);
+		EzGroup groupManualDetect = new EzGroup("Manual definition of lines", splitAsComboBox, 
+				ncolumns, columnSize, columnSpan, 
+				nrows, rowWidth, rowInterval, generateGridButton);
 		super.addEzComponent (groupManualDetect);
 		groupManualDetect.setFoldedState(true);
 
-		EzGroup groupDetectDisks = new EzGroup("Detect leaf disks", overlayCheckBox, filterComboBox, thresholdOv, adjustAndCenterEllipsesButton);
+		EzGroup groupDetectDisks = new EzGroup("Detect leaf disks", overlayCheckBox, 
+				filterComboBox, thresholdOv, adjustAndCenterEllipsesButton);
 		super.addEzComponent (groupDetectDisks);
 		groupDetectDisks.setFoldedState(true);
 		
@@ -689,6 +696,7 @@ public class ROItoRoiArray extends EzPlug implements ViewerListener {
 		
 		ROI2DLine roih1 = null;
 		int row = 0;
+		int areaShrinkPCT = areaShrink.getValue();
 		for (ROI2DLine roih2: horizRoiLines) {
 			if (roih1 == null) {
 				roih1 = roih2;
@@ -707,6 +715,7 @@ public class ROItoRoiArray extends EzPlug implements ViewerListener {
 				listpoints.add(GeomUtil.getIntersection(roiv2.getLine(), roih2.getLine()));
 				listpoints.add(GeomUtil.getIntersection(roiv2.getLine(), roih1.getLine()));
 				
+				areaShrink (listpoints, areaShrinkPCT);
 				addPolygonROI (listpoints, rootnameComboBox.getValue(), col, row);
 				
 				roiv1 = roiv2;
@@ -715,6 +724,22 @@ public class ROItoRoiArray extends EzPlug implements ViewerListener {
 			roih1 = roih2;
 			row++;
 		}
+	}
+	
+	private void areaShrink(List <Point2D> listpoints, int areaShrinkPCT) {
+	// assume 4 ordered points 0 (topleft), 1 (bottomleft), 2 (bottomright), 3 (topright)
+		double xdeltatop = (listpoints.get(3).getX()-listpoints.get(0).getX() +1)*areaShrinkPCT/100 ;
+		double xdeltabottom = (listpoints.get(2).getX()-listpoints.get(1).getX() +1)*areaShrinkPCT/100;
+		double ydeltaleft = (listpoints.get(1).getY()-listpoints.get(0).getY() +1)*areaShrinkPCT/100;
+		double ydeltaright = (listpoints.get(2).getY()-listpoints.get(3).getY() +1)*areaShrinkPCT/100;
+		int i=0;
+		listpoints.get(i).setLocation(listpoints.get(i).getX() + xdeltatop, listpoints.get(i).getY() + ydeltaleft); 	
+		i=1;
+		listpoints.get(i).setLocation(listpoints.get(i).getX() + xdeltabottom, listpoints.get(i).getY()-ydeltaleft);
+		i=2;
+		listpoints.get(i).setLocation(listpoints.get(i).getX() - xdeltabottom, listpoints.get(i).getY() - ydeltaright);
+		i=3;
+		listpoints.get(i).setLocation(listpoints.get(i).getX() - xdeltatop, listpoints.get(i).getY() + ydeltaright);
 	}
 	
 	/*
@@ -1162,11 +1187,11 @@ public class ROItoRoiArray extends EzPlug implements ViewerListener {
 		sequence.getValue(true).addROI(roiL2, true);
 	}
 	
-	private void createROISFromPolygon(int ioption) {
+	private void createROISFromSelectedPolygon(int ioption) {
 		
 		ROI2D roi = sequence.getValue(true).getSelectedROI2D();
 		if ( ! ( roi instanceof ROI2DPolygon ) ) {
-			new AnnounceFrame("The frame must be a ROI 2D POLYGON");
+			new AnnounceFrame("Select a 2D ROI polygon");
 			return;
 		}
 
@@ -1271,13 +1296,13 @@ public class ROItoRoiArray extends EzPlug implements ViewerListener {
 	protected void execute() {
 		String choice = splitAsComboBox.getValue();
 		if (choice == "vertical lines") {
-			createROISFromPolygon(0);
+			createROISFromSelectedPolygon(0);
 		}
 		else if (choice == "polygons") {
-			createROISFromPolygon(1);
+			createROISFromSelectedPolygon(1);
 		}
 		else if (choice == "circles") {
-			createROISFromPolygon(2);
+			createROISFromSelectedPolygon(2);
 		}		
 	}
 	

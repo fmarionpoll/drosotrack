@@ -206,7 +206,7 @@ class AreaAnalysisThread extends Thread
 			// ------------------------ loop over all the cages of the stack & count n pixels above threshold
 			results = new ArrayList<MeasureAndName> ();
 			for (ROI2D roi: roiList) {
-				SequenceDataIterator iterator = new SequenceDataIterator(resultSequence, roi);
+				SequenceDataIterator iterator = new SequenceDataIterator(resultSequence, roi, true, 0, 0 , -1);
 				double sum = 0;
 				double sample = 0;
 				while (!iterator.done()) {
