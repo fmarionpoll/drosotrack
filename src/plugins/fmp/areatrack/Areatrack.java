@@ -92,6 +92,7 @@ public class Areatrack extends PluginActionable implements ActionListener, Chang
 	private JSpinner threshold2Spinner		= new JSpinner(new SpinnerNumberModel(50, 0, 255, 10));
 	private JTextField analyzeStepTextField = new JTextField("1");
 	private JCheckBox thresholdedImageCheckBox = new JCheckBox("Display overlay");
+	private JCheckBox thresholdMovementCheckBox = new JCheckBox("Display (for test)");
 	
 	private String[] availableFilter 		= new String[] {"raw data", "running average", "running median"};
 	private JComboBox<String> filterComboBox= new JComboBox<String> (availableFilter);
@@ -185,6 +186,7 @@ public class Areatrack extends PluginActionable implements ActionListener, Chang
 		thresholdLabel.setHorizontalAlignment(SwingConstants.RIGHT);
 		analysisPanel.add( GuiUtil.besidesPanel( thresholdLabel, thresholdSpinner));
 		analysisPanel.add( GuiUtil.besidesPanel(measureHeatmapCheckBox ));
+		analysisPanel.add( GuiUtil.besidesPanel(new JLabel("   "), thresholdMovementCheckBox));
 		JLabel thresholdLabel2 = new JLabel("'move' threshold ");
 		thresholdLabel2.setHorizontalAlignment(SwingConstants.RIGHT);
 		analysisPanel.add( GuiUtil.besidesPanel( thresholdLabel2, threshold2Spinner));
@@ -216,6 +218,7 @@ public class Areatrack extends PluginActionable implements ActionListener, Chang
 		measureSurfacesCheckBox.setSelected(true);
 		measureHeatmapCheckBox.setSelected(true);
 		thresholdedImageCheckBox.setSelected(false);
+		thresholdMovementCheckBox.setSelected(false);
 
 		 // display an announcement with Plugin description
 		new ToolTipFrame ( "<html>This plugin is designed to analyse <br>the consumption of arrays of leaf disks<br>by lepidoptera larvae.<br><br>To open a stack of files (jpg, jpeg), <br>use the 'open' button <br>and select a file within a stack <br>or select a directory containing a stack",
@@ -229,14 +232,21 @@ public class Areatrack extends PluginActionable implements ActionListener, Chang
 		startComputationButton.addActionListener(this);
 		stopComputationButton.addActionListener( this);
 		thresholdSpinner.addChangeListener(this);
+		threshold2Spinner.addChangeListener(this);
 		thresholdedImageCheckBox.addActionListener(this);
+		thresholdMovementCheckBox.addActionListener(this);
 		updateChartsButton.addActionListener(this);
 		
 		transformsComboBox.addActionListener(new ActionListener () {
 			@Override
 			public void actionPerformed( final ActionEvent e ) { 
-				updateOverlay(); 
+				if (thresholdOverlay != null) {
+					TransformOp transformop = (TransformOp) transformsComboBox.getSelectedItem();
+					int threshold = Integer.parseInt(thresholdSpinner.getValue().toString());
+					setThresholdOverlay(true, threshold, transformop);
+				} 
 			} } );
+		
 		exportToXLSButton.addActionListener(this);
 		closeAllButton.addActionListener(new ActionListener () {
 			@Override
@@ -264,10 +274,19 @@ public class Areatrack extends PluginActionable implements ActionListener, Chang
 
 	@Override
 	public void stateChanged(ChangeEvent e) {
-		if (e.getSource() == thresholdSpinner) {
-			vSequence.threshold = Integer.parseInt(thresholdSpinner.getValue().toString());
-			updateOverlay();
+		if (thresholdOverlay == null)
+			return;
+		
+		if ((e.getSource() == thresholdSpinner) && thresholdedImageCheckBox.isSelected()) {
+			TransformOp transformop = (TransformOp) transformsComboBox.getSelectedItem();
+			int threshold = Integer.parseInt(thresholdSpinner.getValue().toString());
+			setThresholdOverlay(true, threshold, transformop);
 		}
+		else if ((e.getSource() == threshold2Spinner) && thresholdMovementCheckBox.isSelected()) {
+			int threshold2 = Integer.parseInt(threshold2Spinner.getValue().toString());
+			setThresholdOverlay(true, threshold2, TransformOp.REFn);
+		}
+	
 	}
 
 	@Override
@@ -333,15 +352,32 @@ public class Areatrack extends PluginActionable implements ActionListener, Chang
 		else if (o == thresholdedImageCheckBox && (vSequence != null))  {
 
 			if (thresholdedImageCheckBox.isSelected()) {
-				setThresholdOverlay();
+				thresholdMovementCheckBox.setSelected(false);
+				TransformOp transformop = (TransformOp) transformsComboBox.getSelectedItem();
+				int threshold = Integer.parseInt(thresholdSpinner.getValue().toString());
+				setThresholdOverlay(true, threshold, transformop);
 			}
-			else {
-				if (thresholdOverlay != null) 
-					vSequence.removeOverlay(thresholdOverlay);
-				vSequence.setThresholdOverlay(null);
-				thresholdOverlay = null;
-			}
+			else 
+				removeThresholdOverlay();
 		}
+		
+		// _______________________________________________
+				else if (o == thresholdMovementCheckBox && (vSequence != null))  {
+
+					if (thresholdMovementCheckBox.isSelected()) {
+						int threshold2 = Integer.parseInt(threshold2Spinner.getValue().toString());
+						setThresholdOverlay(true, threshold2, TransformOp.REFn);
+					}
+					else {
+						if (thresholdedImageCheckBox.isSelected()) {
+							TransformOp transformop = (TransformOp) transformsComboBox.getSelectedItem();
+							int threshold = Integer.parseInt(thresholdSpinner.getValue().toString());
+							setThresholdOverlay(true, threshold, transformop);
+						}
+						else 
+							removeThresholdOverlay();
+					}
+				}
 		
 		//___________________________________________________
 		else if (o == updateChartsButton) {
@@ -354,16 +390,22 @@ public class Areatrack extends PluginActionable implements ActionListener, Chang
 			if (file != null) {
 				ThreadUtil.bgRun( new Runnable() { 	
 					@Override
-					public void run() { final String filename = file; exportToXLS(filename);}
+					public void run() { 
+						final String filename = file; 
+						exportToXLS(filename);}
 					});
 				}
 			}
-		
 	}
 	
 	private void startAnalysisThread() {
 		stopAnalysisThread();
-		updateOverlay ();
+		
+		TransformOp transformop = (TransformOp) transformsComboBox.getSelectedItem();
+		int threshold = Integer.parseInt(thresholdSpinner.getValue().toString());
+		int threshold2 = Integer.parseInt(threshold2Spinner.getValue().toString());
+		setThresholdOverlay(true, threshold, transformop);
+		
 		analysisThread = new AreaAnalysisThread();
 		try { 
 			vSequence.istep = Integer.parseInt( analyzeStepTextField.getText() );
@@ -371,16 +413,9 @@ public class Areatrack extends PluginActionable implements ActionListener, Chang
 		catch( Exception ee ) { new AnnounceFrame("Can't interpret the analyze step value."); }
 		if (!thresholdedImageCheckBox.isSelected()) {
 			thresholdedImageCheckBox.setSelected(true);
-			setThresholdOverlay();
+			setThresholdOverlay(true, threshold, transformop);
 		}
-		analysisThread.setAnalysisThreadParameters(
-				vSequence, 
-				getROIsToAnalyze(),
-				startFrame,
-				endFrame,
-				0,
-				(TransformOp) transformsComboBox.getSelectedItem(),
-				Integer.parseInt(threshold2Spinner.getValue().toString()), 
+		analysisThread.setAnalysisThreadParameters(vSequence, getROIsToAnalyze(), startFrame, endFrame, 0, transformop, threshold2, 
 				measureSurfacesCheckBox.isSelected(), measureHeatmapCheckBox.isSelected());
 		analysisThread.start();	
 	}
@@ -397,30 +432,22 @@ public class Areatrack extends PluginActionable implements ActionListener, Chang
 		}
 	}
 	
-	private void setThresholdOverlay() {
-		if (thresholdOverlay == null) {
-			thresholdOverlay = new ThresholdOverlay();
-			vSequence.setThresholdOverlay(thresholdOverlay);
-		}
-		vSequence.threshold = Integer.parseInt(thresholdSpinner.getValue().toString());
-		vSequence.addOverlay(thresholdOverlay);
-		updateOverlay();
+	private void setThresholdOverlay(boolean bdisplay, int threshold, TransformOp transformop) {
+		
+		vSequence.threshold = threshold;
+		if (thresholdOverlay == null)
+			thresholdOverlay = new ThresholdOverlay();	
+		if (vSequence.getThresholdOverlay () == null)
+			vSequence.addOverlay(thresholdOverlay);
+		vSequence.setThresholdOverlay(thresholdOverlay);
+		thresholdOverlay.setThresholdOverlayParameters( vSequence, bdisplay, threshold, transformop);
+		thresholdOverlay.painterChanged();
 	}
-	private void updateOverlay () {
-
-		if (thresholdOverlay == null) {
-			thresholdOverlay = new ThresholdOverlay();
-			vSequence.setThresholdOverlay(thresholdOverlay);
-		}
-		TransformOp transformop = (TransformOp) transformsComboBox.getSelectedItem();
-		thresholdOverlay.setThresholdOverlayParameters( vSequence,
-				thresholdedImageCheckBox.isSelected(), 
-				vSequence.threshold, 
-				transformop);
-			
-		if (thresholdOverlay != null) {
-			thresholdOverlay.painterChanged();
-		}
+	private void removeThresholdOverlay() {
+		if (thresholdOverlay != null) 
+			vSequence.removeOverlay(thresholdOverlay);
+		vSequence.setThresholdOverlay(null);
+		thresholdOverlay = null;
 	}
 	
 	private void filterClipValues(int span, int constraintoption) {

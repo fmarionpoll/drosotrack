@@ -8,7 +8,6 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.geom.Line2D;
 import java.awt.geom.Point2D;
-import java.io.IOException;
 import java.awt.Rectangle;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -39,11 +38,6 @@ import icy.roi.ROI2D;
 import icy.sequence.DimensionId;
 import icy.type.collection.array.Array1DUtil;
 import icy.type.geom.GeomUtil;
-import icy.util.XLSUtil;
-
-import jxl.write.WritableSheet;
-import jxl.write.WritableWorkbook;
-import jxl.write.WriteException;
 
 import plugins.adufour.ezplug.EzButton;
 import plugins.adufour.ezplug.EzGroup;
@@ -87,7 +81,7 @@ public class ROItoRoiArray extends EzPlug implements ViewerListener {
 	EzButton		saveXMLButton;
 	EzButton		generateGridButton;
 	EzButton		generateAutoGridButton;
-	EzButton		exportSTDButton;
+//	EzButton		exportSTDButton;
 	EzButton		convertLinesToSquaresButton;
 	EzVarInteger 	areaShrink;
 	EzButton		changeGridNameButton;
@@ -121,8 +115,8 @@ public class ROItoRoiArray extends EzPlug implements ViewerListener {
 			public void actionPerformed(ActionEvent e) { findLeafDiskIntoRectangles(); }	});
 		findLinesButton = new EzButton("Build histograms",  new ActionListener() { 
 			public void actionPerformed(ActionEvent e) { findLines(); } });
-		exportSTDButton = new EzButton("Export histograms",  new ActionListener() { 
-			public void actionPerformed(ActionEvent e) { exportSTD(); } });
+//		exportSTDButton = new EzButton("Export histograms",  new ActionListener() { 
+//			public void actionPerformed(ActionEvent e) { exportSTD(); } });
 		openFileButton = new EzButton("Open file or sequence",  new ActionListener() { 
 			public void actionPerformed(ActionEvent e) { openFile(); } });
 		openXMLButton = new EzButton("Load XML file with ROIs",  new ActionListener() { 
@@ -163,7 +157,7 @@ public class ROItoRoiArray extends EzPlug implements ViewerListener {
 		EzGroup groupSequence = new EzGroup("Source data", sequence, openFileButton, openXMLButton);
 		super.addEzComponent (groupSequence);
 
-		EzGroup groupAutoDetect = new EzGroup("Automatic detection from lines", findLinesButton, exportSTDButton, 
+		EzGroup groupAutoDetect = new EzGroup("Automatic detection from lines", findLinesButton, /*exportSTDButton,*/ 
 				thresholdSTD, thresholdSTDFromChanComboBox, generateAutoGridButton, 
 				areaShrink, convertLinesToSquaresButton);
 		super.addEzComponent (groupAutoDetect);
@@ -1345,25 +1339,7 @@ public class ROItoRoiArray extends EzPlug implements ViewerListener {
 	
 	private void saveXMLFile() {
 		vSequence.capillariesGrouping = 1;
-//		List<ROI> roisList = vSequence.getROIs(true);
-//		boolean flagstar = false;
-//		for (ROI roi : roisList) {
-//			if (!roi.getName().contains("grid"))
-//				 vSequence.removeROI(roi);
-//			if (!roi.getName().contains("*"))
-//				flagstar = true;
-//		}
-//		
-//		if (flagstar) {
-//			for (ROI roi : roisList) {
-//				if (!roi.getName().contains("*"))
-//					 vSequence.removeROI(roi);
-//			}
-//		}
-		
 		vSequence.xmlWriteROIsAndData("roisarray.xml");
-//		vSequence.removeAllROI(); 
-//		vSequence.addROIs(roisList, false);
 	}
 	
 	private void changeGridName() {
@@ -1378,6 +1354,7 @@ public class ROItoRoiArray extends EzPlug implements ViewerListener {
 		}
 	}
 	
+/*
 	private void exportSTD() {
 		String filename = Tools.saveFileAs(vSequence.getDirectory(), "xls");
 		// xls output - successive positions
@@ -1452,5 +1429,6 @@ public class ROItoRoiArray extends EzPlug implements ViewerListener {
 			e.printStackTrace();
 		}
 	}
+	*/
 }
 

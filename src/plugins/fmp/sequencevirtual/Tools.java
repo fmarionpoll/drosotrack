@@ -1,5 +1,6 @@
 package plugins.fmp.sequencevirtual;
 
+import java.awt.List;
 import java.awt.Polygon;
 import java.awt.Rectangle;
 import java.io.File;
@@ -59,25 +60,31 @@ public class Tools {
 	}
 
 	// TODO use LoaderDialog from Icy
-	public static String openFile(String directory, String csExt)
+	public static String[] selectFiles(String directory, String csExt)
 	{
 		// load last preferences for loader
-		String name = null;
 		final JFileChooser fileChooser = new JFileChooser();
 
 		final String path = directory;
 		fileChooser.setCurrentDirectory(new File(path));
 		fileChooser.setFileSelectionMode(JFileChooser.FILES_ONLY );
+		fileChooser.setMultiSelectionEnabled(true);
 		FileNameExtensionFilter csFilter = new FileNameExtensionFilter(csExt+" files",  csExt, csExt);
 		fileChooser.addChoosableFileFilter(csFilter);
 		fileChooser.setFileFilter(csFilter);
 
 		final int returnValue = fileChooser.showDialog(null, "Load");
+		String[] liststrings = null;
 		if (returnValue == JFileChooser.APPROVE_OPTION)
 		{
-			name = fileChooser.getSelectedFile().getAbsolutePath();
+			File[] files = fileChooser.getSelectedFiles();
+			liststrings = new String[files.length];
+			
+			for (int i=0; i< files.length; i++) {
+				liststrings[i] = files[i].getAbsolutePath();
+			}
 		}
-		return name;
+		return liststrings;
 	}
 
 	public static class ROI2DLineLeftXComparator implements Comparator<ROI2DLine> {

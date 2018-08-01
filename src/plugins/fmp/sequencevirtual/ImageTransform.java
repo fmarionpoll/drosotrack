@@ -63,7 +63,7 @@ public class ImageTransform {
 		case XYDIFFN: computeXYDiffn (img); break;
 
 		case REFt0: functionSubtractRef(img); break;
-		case REFn: referenceImage = vinputSequence.loadVImage(t-1); functionSubtractRef(img); break;
+		case REFn: if (t>0) {referenceImage = vinputSequence.loadVImage(t-1); functionSubtractRef(img);} break;
 		case REF: functionSubtractRef(img); break;
 		
 		case NORM_BRmG: functionNormRGB_sumC1C2Minus2C3(img, 1, 2, 0); break;

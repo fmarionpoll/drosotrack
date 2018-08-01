@@ -8,9 +8,7 @@ import icy.gui.frame.progress.ProgressFrame;
 import icy.gui.viewer.Viewer;
 import icy.image.IcyBufferedImage;
 import icy.main.Icy;
-import icy.math.ArrayMath;
 import icy.roi.BooleanMask2D;
-import icy.roi.ROI;
 import icy.roi.ROI2D;
 
 import icy.sequence.Sequence;
@@ -18,14 +16,11 @@ import icy.sequence.SequenceDataIterator;
 import icy.system.profile.Chronometer;
 import icy.type.DataType;
 import icy.type.collection.array.Array1DUtil;
-import icy.type.geom.Polygon2D;
 import plugins.fmp.sequencevirtual.ImageTransform;
 import plugins.fmp.sequencevirtual.ImageTransform.TransformOp;
 import plugins.fmp.sequencevirtual.SequenceVirtual;
 import plugins.fmp.sequencevirtual.ThresholdOverlay;
 import plugins.fmp.sequencevirtual.Tools;
-import plugins.kernel.roi.roi2d.ROI2DPolygon;
-
 
 class AreaAnalysisThread extends Thread
 {
@@ -133,7 +128,7 @@ class AreaAnalysisThread extends Thread
 				viewer = resultViewer;
 			ThresholdOverlay tov = vSequence.getThresholdOverlay();
 			if (tov == null) {
-				// TODO
+				System.out.println("threshold overlay was null; exit routine");
 				return;
 			}
 			vSequence.beginUpdate();

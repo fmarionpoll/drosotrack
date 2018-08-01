@@ -424,15 +424,20 @@ public class SequenceVirtual extends Sequence
 
 	public boolean xmlReadROIsAndData() {
 
-		String [] filedummy = new String[1];
-		ThreadUtil.invoke (new Runnable() {
+		String [] filedummy = null;
+		/*ThreadUtil.invoke (new Runnable() {
 			@Override
-			public void run() {
-				filedummy[0] = Tools.openFile(directory,"xml");
-			}
-		}, true);
-		String csFile = filedummy[0];
-		return xmlReadROIsAndData(csFile);
+			public void run() {*/
+		filedummy = Tools.selectFiles(directory,"xml");
+			/*}
+		}, true);*/
+		
+		boolean wasOk = true;
+		for (int i= 0; i< filedummy.length; i++) {
+			String csFile = filedummy[i];
+			wasOk &= xmlReadROIsAndData(csFile);
+		}
+		return wasOk;
 	}
 	
 	public boolean xmlReadROIsAndData(String csFileName) {
@@ -478,6 +483,10 @@ public class SequenceVirtual extends Sequence
 		}, true);
 
 		String csFile = filedummy[0];
+		csFile.toLowerCase();
+		if (!csFile.contains(".xml")) {
+			csFile += ".xml";
+		}
 		return xmlWriteROIsAndDataNoQuestion(csFile);
 	}
 	
