@@ -676,11 +676,11 @@ public class Areatrack extends PluginActionable implements ActionListener, Chang
 		XLSUtil.setCellString( filteredDataPage , 1, irow, vSequence.getName() );
 		// write  type of data exported
 		irow++;
-		String cs = filterComboBox.getSelectedItem().toString();
-		if (filterComboBox.getSelectedIndex() > 0 ) {
-			cs = cs + " - over "+spanTextField.getText() +" points - " + conditionsComboBox.getSelectedItem().toString();
+		String cs = worksheetname;
+		if (!worksheetname.contains("raw")) {
+			cs = cs + " - over "+spanTextField.getText() +" points - ";
 		}
-		XLSUtil.setCellString(filteredDataPage,  0,  irow, cs);
+		XLSUtil.setCellString(filteredDataPage,  0,  irow, worksheetname);
 		// write filter and threshold applied
 		irow++;
 		cs = "Detect surface: "+ transformsComboBox.getSelectedItem().toString() + " threshold=" + thresholdSpinner.getValue().toString();
