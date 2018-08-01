@@ -68,7 +68,7 @@ import plugins.fmp.sequencevirtual.Tools;
 public class Areatrack extends PluginActionable implements ActionListener, ChangeListener, ViewerListener
 {	
 	// -------------------------------------- interface
-	IcyFrame mainFrame = new IcyFrame("AreaTrack 28-08-2018", true, true, true, true);
+	IcyFrame mainFrame = new IcyFrame("AreaTrack 1-08-2018", true, true, true, true);
 	IcyFrame mainChartFrame = null;
 	JPanel 	mainChartPanel = null;
 	

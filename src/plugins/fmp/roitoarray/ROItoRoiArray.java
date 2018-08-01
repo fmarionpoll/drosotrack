@@ -109,7 +109,7 @@ public class ROItoRoiArray extends EzPlug implements ViewerListener {
 		nrows 			= new EzVarInteger("N rows ", 10, 1, 1000, 1); 
 		rowWidth		= new EzVarInteger("row height ", 10, 0, 1000, 1);
 		rowInterval 	= new EzVarInteger("space btw. row ", 0, 0, 1000, 1);
-		areaShrink		= new EzVarInteger("area shrink (%)", 1, -100, 100, 5);
+		areaShrink		= new EzVarInteger("area shrink (%)", 5, -100, 100, 1);
 		
 		adjustAndCenterEllipsesButton = new EzButton("Find leaf disks", new ActionListener() { 
 			public void actionPerformed(ActionEvent e) { findLeafDiskIntoRectangles(); }	});
@@ -723,10 +723,10 @@ public class ROItoRoiArray extends EzPlug implements ViewerListener {
 	
 	private void areaShrink(List <Point2D> listpoints, int areaShrinkPCT) {
 	// assume 4 ordered points 0 (topleft), 1 (bottomleft), 2 (bottomright), 3 (topright)
-		double xdeltatop = (listpoints.get(3).getX()-listpoints.get(0).getX() +1)*areaShrinkPCT/100 ;
-		double xdeltabottom = (listpoints.get(2).getX()-listpoints.get(1).getX() +1)*areaShrinkPCT/100;
-		double ydeltaleft = (listpoints.get(1).getY()-listpoints.get(0).getY() +1)*areaShrinkPCT/100;
-		double ydeltaright = (listpoints.get(2).getY()-listpoints.get(3).getY() +1)*areaShrinkPCT/100;
+		double xdeltatop = (listpoints.get(3).getX()-listpoints.get(0).getX() +1)*areaShrinkPCT/200 ;
+		double xdeltabottom = (listpoints.get(2).getX()-listpoints.get(1).getX() +1)*areaShrinkPCT/200;
+		double ydeltaleft = (listpoints.get(1).getY()-listpoints.get(0).getY() +1)*areaShrinkPCT/200;
+		double ydeltaright = (listpoints.get(2).getY()-listpoints.get(3).getY() +1)*areaShrinkPCT/200;
 		int i=0;
 		listpoints.get(i).setLocation(listpoints.get(i).getX() + xdeltatop, listpoints.get(i).getY() + ydeltaleft); 	
 		i=1;

@@ -1,6 +1,5 @@
 package plugins.fmp.sequencevirtual;
 
-import java.awt.List;
 import java.awt.Polygon;
 import java.awt.Rectangle;
 import java.io.File;
