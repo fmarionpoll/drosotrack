@@ -42,8 +42,6 @@ import org.jfree.data.xy.XYSeriesCollection;
 import org.jfree.ui.RectangleEdge;
 
 import icy.gui.frame.IcyFrame;
-
-import icy.gui.frame.progress.AnnounceFrame;
 import icy.gui.frame.progress.ToolTipFrame;
 import icy.gui.util.GuiUtil;
 import icy.gui.viewer.Viewer;
@@ -406,15 +404,15 @@ public class Areatrack extends PluginActionable implements ActionListener, Chang
 		int threshold2 = Integer.parseInt(threshold2Spinner.getValue().toString());
 		setThresholdOverlay(true, threshold, transformop);
 		
-		analysisThread = new AreaAnalysisThread();
-		try { 
-			vSequence.istep = Integer.parseInt( analyzeStepTextField.getText() );
-		}
-		catch( Exception ee ) { new AnnounceFrame("Can't interpret the analyze step value."); }
+		analysisThread = new AreaAnalysisThread(); 
+
 		if (!thresholdedImageCheckBox.isSelected()) {
 			thresholdedImageCheckBox.setSelected(true);
 			setThresholdOverlay(true, threshold, transformop);
 		}
+		startFrame 	= Integer.parseInt( startFrameTextField.getText() );
+		endFrame 	= Integer.parseInt( endFrameTextField.getText() );
+		vSequence.istep = Integer.parseInt( analyzeStepTextField.getText() );
 		analysisThread.setAnalysisThreadParameters(vSequence, getROIsToAnalyze(), startFrame, endFrame, 0, transformop, threshold2, 
 				measureSurfacesCheckBox.isSelected(), measureHeatmapCheckBox.isSelected());
 		analysisThread.start();	
