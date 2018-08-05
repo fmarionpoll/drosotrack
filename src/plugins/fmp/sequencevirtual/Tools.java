@@ -215,11 +215,13 @@ public class Tools {
 		return extFrame;
 	}
 
-	public static File chooseDirectory() {
+	public static File chooseDirectory(String rootdirectory) {
 
 		File dummy_selected = null;
 				
 		JFileChooser fc = new JFileChooser(); 
+		if (rootdirectory != null)
+			fc.setCurrentDirectory(new File(rootdirectory));
 	    fc.setDialogTitle("Select a root directory...");
 	    fc.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
 	    fc.setAcceptAllFileFilterUsed(false);
@@ -231,5 +233,6 @@ public class Tools {
 	      }
 		return dummy_selected;
 	}
+	
 }
 

@@ -49,7 +49,7 @@ import plugins.fmp.sequencevirtual.*;
 public class BuildKymos extends PluginActionable implements ActionListener, ChangeListener, ViewerListener
 {
 	// -------------------------------------- interface
-	private IcyFrame 	mainFrame 				= new IcyFrame("Build Kymographs from list 04-04-2018", true, true, true, true);
+	private IcyFrame 	mainFrame 				= new IcyFrame("Build Kymographs from list 05-08-2018", true, true, true, true);
 
 	// ---------------------------------------- list of files
 	private JTextField 	filterTextField 		= new JTextField("roisline");
@@ -131,10 +131,14 @@ public class BuildKymos extends PluginActionable implements ActionListener, Chan
 	}
 
 	// ------------------------------------------
-	private void getListofXMLFiles() {
+	private void getListofFiles() {
 		
-		File dir = Tools.chooseDirectory();
-		Path pdir = Paths.get(dir.getAbsolutePath());
+		XMLPreferences guiPrefs = this.getPreferences("gui");
+		String lastUsedPathString = guiPrefs.get("lastUsedPath", "");
+		File dir = Tools.chooseDirectory(lastUsedPathString);
+		lastUsedPathString = dir.getAbsolutePath();
+		guiPrefs.put("lastUsedPath", lastUsedPathString);
+		Path pdir = Paths.get(lastUsedPathString);
 		String extension = filterTextField.getText();
 		
 		try {
@@ -152,6 +156,7 @@ public class BuildKymos extends PluginActionable implements ActionListener, Chan
 	}
 	
 	private void addIfNew(String fileName) {
+		
 		fileName = fileName.toLowerCase();
 		int ilast = ((DefaultListModel<String>) xmlFilesJList.getModel()).getSize();
 		boolean found = false;
@@ -212,7 +217,7 @@ public class BuildKymos extends PluginActionable implements ActionListener, Chan
 
 		// _______________________________________________
 		if (o == findButton) {
-			getListofXMLFiles();	
+			getListofFiles();	
 			startComputationButton.setEnabled(true);
 		}
 		
@@ -228,113 +233,117 @@ public class BuildKymos extends PluginActionable implements ActionListener, Chan
 		}
 		
 		// _______________________________________________
-		else if (o == startComputationButton) 
-		{		
-			int i = ((DefaultListModel<String>) xmlFilesJList.getModel()).getSize()-1;
-			if (i >= 0) {
-				i = 0;
-				xmlFilesJList.setSelectedIndex(i);
-				String oo = ((DefaultListModel<String>) xmlFilesJList.getModel()).getElementAt(i);
-				// clear sequence
-				if (vinputSequence == null) 
-					vinputSequence = new SequenceVirtual();
-				else
-					vinputSequence.removeAllROI();
-				// load parameters
-				vinputSequence.xmlReadROIsAndData(oo);
-				if (vinputSequence.sourceFile == null)
-				{
-					// try reading files from the same directory as the xml file
-					File oofile = new File(oo);
-					String csdummy = oofile.getParentFile().getAbsolutePath();
-					vinputSequence.loadInputVirtualFromName(csdummy);
-					
-					if (vinputSequence.status == SequenceVirtual.Status.FAILURE) {
-						XMLPreferences guiPrefs = this.getPreferences("gui");
-						String lastUsedPath = guiPrefs.get("lastUsedPath", "");
-						String path = vinputSequence.loadInputVirtualStack(lastUsedPath);
-						if (path.isEmpty())
-							return;
-						vinputSequence.sourceFile = path;
-						guiPrefs.put("lastUsedPath", path);
-					}
-					else
-						vinputSequence.sourceFile = csdummy;
-					vinputSequence.xmlWriteROIsAndDataNoQuestion(oo);
-				}
-				vinputSequence.loadInputVirtualFromName(vinputSequence.sourceFile);
-				startstopBufferingThread();
-				if (viewer1 == null)
-					initInputSeq2();
-				boolean flag = vinputSequence.setCurrentVImage(0);
-				
-				if (flag) {
-					// build kymograph
-					buildKymographsThread = new BuildKymographsThread();
-					buildKymographsThread.vinputSequence  		= vinputSequence;
-					buildKymographsThread.analyzeStep 			= analyzeStep;
-					buildKymographsThread.startFrame 			= (int) vinputSequence.analysisStart;
-					buildKymographsThread.endFrame 				= (int) vinputSequence.nTotalFrames-1;
-					buildKymographsThread.diskRadius 			= diskRadius;
-					buildKymographsThread.kymographArrayList 	= kymographArrayList;
-					buildKymographsThread.start();
-
-					// change display status
-					sComputation = StatusComputation.STOP_COMPUTATION;
-					stopComputationButton.setEnabled(true);
-					startComputationButton.setEnabled(false);
-					
-					//observer thread for notifications
-					Thread waitcompletionThread = new Thread(new Runnable(){public void run()
-					{
-						try{buildKymographsThread.join();}
-						catch(Exception e){;} 
-						finally{ stopComputationButton.doClick();}
-					}});
-					waitcompletionThread.start();
-				}
-			}
+		else if (o == startComputationButton) {		
+			startComputation();
 		}
 
 		// _______________________________________________
 		else if ( o == stopComputationButton ) {
-			boolean gotonext = true;
-			if (sComputation == StatusComputation.STOP_COMPUTATION) {
-				if (buildKymographsThread.isAlive()) {
-					gotonext = false;
-					buildKymographsThread.interrupt();
-					try {
-						buildKymographsThread.join();
-					} catch (InterruptedException e1) {
-						e1.printStackTrace();
-					}
-					buildKymographsThread.progress.close();
-				}
-				else {
-					kymographsSaveToFileIntoResults();
-				}
-			}
+			stopComputation();
+		}
+	}
+
+	private void startComputation() {
+		
+		int i = ((DefaultListModel<String>) xmlFilesJList.getModel()).getSize()-1;
+		if (i >= 0) {
+			i = 0;
+			xmlFilesJList.setSelectedIndex(i);
+			String oo = ((DefaultListModel<String>) xmlFilesJList.getModel()).getElementAt(i);
+			// clear sequence
+			if (vinputSequence == null) 
+				vinputSequence = new SequenceVirtual();
+			else
+				vinputSequence.removeAllROI();
+			// load parameters
+			vinputSequence.xmlReadROIsAndData(oo);
+
+			File oofile = new File(oo);
+			String csdummy = oofile.getParentFile().getAbsolutePath();
+			vinputSequence.loadInputVirtualFromName(csdummy);
+			vinputSequence.sourceFile = csdummy;
 			
-			sComputation = StatusComputation.START_COMPUTATION;
-			startComputationButton.setEnabled(true);
-			if (gotonext && ((DefaultListModel<String>) xmlFilesJList.getModel()).getSize() > 0)
-			{
-				String oo = ((DefaultListModel<String>) xmlFilesJList.getModel()).getElementAt(0);
-				((DefaultListModel<String>) xmlFilesJList.getModel()).removeElement(oo);				
-				startComputationButton.doClick();
+			if (vinputSequence.status == SequenceVirtual.Status.FAILURE) {
+				XMLPreferences guiPrefs = this.getPreferences("gui");
+				String lastUsedPath = guiPrefs.get("lastUsedPath", "");
+				String path = vinputSequence.loadInputVirtualStack(lastUsedPath);
+				if (path.isEmpty())
+					return;
+				vinputSequence.sourceFile = path;
+				guiPrefs.put("lastUsedPath", path);
+				vinputSequence.loadInputVirtualFromName(vinputSequence.sourceFile);
 			}
 
-			if (((DefaultListModel<String>) xmlFilesJList.getModel()).getSize() == 0) {
-				viewer1.close();
-				viewer1 = null;
+			vinputSequence.xmlWriteROIsAndDataNoQuestion(oo);
+
+			startstopBufferingThread();
+			if (viewer1 == null)
+				initInputSeq2();
+			
+			if (vinputSequence.setCurrentVImage(0)) {
+				// build kymograph
+				buildKymographsThread 						= new BuildKymographsThread();
+				buildKymographsThread.vinputSequence  		= vinputSequence;
+				buildKymographsThread.analyzeStep 			= analyzeStep;
+				buildKymographsThread.startFrame 			= (int) vinputSequence.analysisStart;
+				buildKymographsThread.endFrame 				= (int) vinputSequence.nTotalFrames-1;
+				buildKymographsThread.diskRadius 			= diskRadius;
+				buildKymographsThread.kymographArrayList 	= kymographArrayList;
+				buildKymographsThread.start();
+
+				// change display status
+				sComputation = StatusComputation.STOP_COMPUTATION;
+				stopComputationButton.setEnabled(true);
+				startComputationButton.setEnabled(false);
+				
+				//observer thread for notifications
+				Thread waitcompletionThread = new Thread(new Runnable(){public void run()
+				{
+					try{buildKymographsThread.join();}
+					catch(Exception e){;} 
+					finally{ stopComputationButton.doClick();}
+				}});
+				waitcompletionThread.start();	
 			}
 		}
 	}
 
+	private void stopComputation() {
+		
+		boolean gotonext = true;
+		if (sComputation == StatusComputation.STOP_COMPUTATION) {
+			if (buildKymographsThread.isAlive()) {
+				gotonext = false;
+				buildKymographsThread.interrupt();
+				try {
+					buildKymographsThread.join();
+				} catch (InterruptedException e1) {
+					e1.printStackTrace();
+				}
+				buildKymographsThread.progress.close();
+			}
+			else 
+				kymographsSaveToFileIntoResults();
+		}
+		
+		sComputation = StatusComputation.START_COMPUTATION;
+		startComputationButton.setEnabled(true);
+		if (gotonext && ((DefaultListModel<String>) xmlFilesJList.getModel()).getSize() > 0)
+		{
+			String oo = ((DefaultListModel<String>) xmlFilesJList.getModel()).getElementAt(0);
+			((DefaultListModel<String>) xmlFilesJList.getModel()).removeElement(oo);				
+			startComputationButton.doClick();
+		}
 
+		if (((DefaultListModel<String>) xmlFilesJList.getModel()).getSize() == 0) {
+			viewer1.close();
+			viewer1 = null;
+		}
+	}
+	
 	private void kymographsSaveToFileIntoResults() {
 
-		Path dir = Paths.get(vinputSequence.sourceFile).getParent();
+		Path dir = Paths.get(vinputSequence.sourceFile); //.getParent();
 		dir = dir.resolve("results");
 		String directory = dir.toAbsolutePath().toString();
 		
