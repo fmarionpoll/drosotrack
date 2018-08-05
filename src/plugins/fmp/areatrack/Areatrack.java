@@ -84,7 +84,7 @@ public class Areatrack extends PluginActionable implements ActionListener, Chang
 	private JTextField startFrameTextField	= new JTextField("0");
 	private JTextField endFrameTextField	= new JTextField("99999999");
 	
-	private JComboBox<TransformOp> transformsComboBox; 
+	private JComboBox<TransformOp> transformsComboBox = new JComboBox<TransformOp> (TransformOp.values());
 	private int tdefault 					= 7;
 	private JSpinner thresholdSpinner		= new JSpinner(new SpinnerNumberModel(70, 0, 255, 10));
 	private JSpinner threshold2Spinner		= new JSpinner(new SpinnerNumberModel(50, 0, 255, 10));
@@ -178,7 +178,6 @@ public class Areatrack extends PluginActionable implements ActionListener, Chang
 		analysisPanel.add( GuiUtil.besidesPanel(new JLabel("   "), thresholdedImageCheckBox));
 		JLabel videochannel = new JLabel("filter as ");
 		videochannel.setHorizontalAlignment(SwingConstants.RIGHT);
-		transformsComboBox = new JComboBox<TransformOp> (TransformOp.values());
 		analysisPanel.add( GuiUtil.besidesPanel( videochannel, transformsComboBox));			
 		JLabel thresholdLabel = new JLabel("filter threshold ");
 		thresholdLabel.setHorizontalAlignment(SwingConstants.RIGHT);

@@ -18,7 +18,7 @@ import icy.sequence.Sequence;
 import icy.sequence.SequenceEvent.SequenceEventType;
 import icy.type.geom.Polyline2D;
 import icy.util.XMLUtil;
-
+import plugins.fmp.sequencevirtual.ImageTransform.TransformOp;
 import plugins.kernel.roi.roi2d.ROI2DPolyLine;
 
 public class SequencePlus extends Sequence {
@@ -35,11 +35,11 @@ public class SequencePlus extends Sequence {
 	public boolean detectBottom = true;
 	public boolean detectAllLevel = true;
 	public boolean detectAllGulps = true;
-	public	int	transformForLevels;
+	public	TransformOp	transformForLevels = TransformOp.GBmR;
 	public 	int direction = 0;
 	public 	int	detectLevelThreshold = 35;
 	public	int detectGulpsThreshold = 90;
-	public	int transformForGulps = 1;
+	public	TransformOp transformForGulps = TransformOp.XDIFFN;
 
 	// -----------------------------------------------------
 	public ArrayList<Integer> getArrayList (int ioption) {
@@ -167,10 +167,6 @@ public class SequencePlus extends Sequence {
     @Override
     public void roiChanged(ROIEvent event)
     {
-        // notify the ROI has changed
-//    	ROI roi = (ROI)event.getSource();
-//    	System.out.println("roi changed "+ roi.getName());
-//    	if (!roi.getName().contains("gulp)"))
     	hasChanged = true;
         super.roiChanged(event.getSource(), SequenceEventType.CHANGED);
     }
@@ -205,12 +201,15 @@ public class SequencePlus extends Sequence {
 		detectAllGulps = XMLUtil.getElementBooleanValue(myNode, "detectAllGulps", true); 
 		bStatusChanged = XMLUtil.getElementBooleanValue(myNode, "bStatusChanged", false);
 
-		transformForLevels = XMLUtil.getElementIntValue(myNode, "transformForLevels", 0);
+		//transformForLevels 
+		int dummy = XMLUtil.getElementIntValue(myNode, "transformForLevels", 0);
+		transformForLevels = TransformOp.values()[dummy];
 		direction = XMLUtil.getElementIntValue(myNode, "direction", 0);
 		detectLevelThreshold = XMLUtil.getElementIntValue(myNode, "detectLevelThreshold", 35);
 		detectGulpsThreshold = XMLUtil.getElementIntValue(myNode, "detectGulpsThreshold", 75);
-		transformForGulps = XMLUtil.getElementIntValue(myNode, "transformForGulps", 3);
-		
+		int dummy2 = XMLUtil.getElementIntValue(myNode, "transformForGulps", 3);
+		transformForGulps = TransformOp.values()[dummy2];
+				
 		return flag;
 	}
 
@@ -237,11 +236,13 @@ public class SequencePlus extends Sequence {
 		XMLUtil.setElementBooleanValue(myNode, "detectAllGulps", detectAllGulps); 
 		XMLUtil.setElementBooleanValue(myNode, "bStatusChanged", bStatusChanged);
 
-		XMLUtil.setElementIntValue(myNode, "transformForLevels", transformForLevels);
+		int dummy1 = transformForLevels.ordinal(); 
+		XMLUtil.setElementIntValue(myNode, "transformForLevels", dummy1);
 		XMLUtil.setElementIntValue(myNode, "direction", direction);
 		XMLUtil.setElementIntValue(myNode, "detectLevelThreshold", detectLevelThreshold);
 		XMLUtil.setElementIntValue(myNode, "detectGulpsThreshold", detectGulpsThreshold);
-		XMLUtil.setElementIntValue(myNode, "transformForGulps", transformForGulps);
+		int dummy2 = transformForGulps.ordinal();
+		XMLUtil.setElementIntValue(myNode, "transformForGulps", dummy2);
 		
 		// save file
 		setFilename(resultsDirectory+getName()+start+"_to_"+end+".xml");

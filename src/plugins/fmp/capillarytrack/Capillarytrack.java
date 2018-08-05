@@ -49,7 +49,6 @@ import icy.gui.viewer.ViewerEvent;
 import icy.gui.viewer.ViewerEvent.ViewerEventType;
 import icy.gui.viewer.ViewerListener;
 import icy.image.IcyBufferedImage;
-import icy.image.IcyBufferedImageUtil;
 import icy.painter.Anchor2D;
 import icy.plugin.abstract_.PluginActionable;
 import icy.preferences.XMLPreferences;
@@ -67,10 +66,12 @@ import jxl.write.WriteException;
 
 import loci.formats.FormatException;
 import plugins.fmp.capillarytrack.KymoOverlay;
+import plugins.fmp.sequencevirtual.ImageTransform;
 import plugins.fmp.sequencevirtual.Line2DPlus;
 import plugins.fmp.sequencevirtual.SequencePlus;
 import plugins.fmp.sequencevirtual.SequenceVirtual;
 import plugins.fmp.sequencevirtual.Tools;
+import plugins.fmp.sequencevirtual.ImageTransform.TransformOp;
 import plugins.kernel.roi.roi2d.ROI2DLine;
 import plugins.kernel.roi.roi2d.ROI2DPolyLine;
 import plugins.kernel.roi.roi2d.ROI2DPolygon;
@@ -79,7 +80,7 @@ import plugins.kernel.roi.roi2d.ROI2DShape;
 public class Capillarytrack extends PluginActionable implements ActionListener, ChangeListener, ViewerListener
 {
 	// -------------------------------------- interface
-	private IcyFrame 	mainFrame 				= new IcyFrame("CapillaryTrack 20-07-2018", true, true, true, true);
+	private IcyFrame 	mainFrame 				= new IcyFrame("CapillaryTrack 04-08-2018", true, true, true, true);
 
 	// ---------------------------------------- video
 	private JButton 	setVideoSourceButton 	= new JButton("Open...");
@@ -119,8 +120,7 @@ public class Capillarytrack extends PluginActionable implements ActionListener, 
 	// ---------------------------------------- measure
 	private JCheckBox	detectTopCheckBox 		= new JCheckBox ("detect top");
 	private JCheckBox	detectBottomCheckBox 	= new JCheckBox ("detect bottom");
-	private String[] 	availableTransforms 	= new String[] {"(G+B)/2-R", "XDiffn", "XYDiffn", "R", "G", "B","H(HSB)", "S(HSB)", "B(HSB)"};
-	private JComboBox<String> transformForLevelsComboBox = new JComboBox<String> (availableTransforms);
+	private JComboBox<TransformOp> transformForLevelsComboBox = new JComboBox<TransformOp> (TransformOp.values());
 	private JComboBox<String> directionComboBox = new JComboBox<String> (new String[] {" threshold >", " threshold <" });
 	private JCheckBox	detectAllLevelCheckBox 	= new JCheckBox ("all", true);
 	private JCheckBox	detectAllGulpsCheckBox 	= new JCheckBox ("all", true);
@@ -133,7 +133,7 @@ public class Capillarytrack extends PluginActionable implements ActionListener, 
 	private JTextField	spanTransf2TextField	= new JTextField("3");
 	private JTextField 	detectGulpsThresholdTextField 	= new JTextField("90");
 	private JButton 	detectGulpsButton 		= new JButton("Detect gulps");
-	private JComboBox<String> transformForGulpsComboBox = new JComboBox<String> (availableTransforms);
+	private JComboBox<TransformOp> transformForGulpsComboBox = new JComboBox<TransformOp> (TransformOp.values());
 	private JButton		displayTransform2Button	= new JButton("Display");
 	private JButton		openMeasuresButton		= new JButton("Load");
 	private JButton		saveMeasuresButton		= new JButton("Save");
@@ -198,6 +198,7 @@ public class Capillarytrack extends PluginActionable implements ActionListener, 
 	private ROI2DLine	roiRefLineUpper = new ROI2DLine ();
 	private ROI2DLine	roiRefLineLower = new ROI2DLine ();
 	private BuildKymographsThread buildKymographsThread = null;
+	private ImageTransform tImg = null;
 	
 	// -------------------------------------------
 	@Override
@@ -325,8 +326,8 @@ public class Capillarytrack extends PluginActionable implements ActionListener, 
 		displayPanel.add( GuiUtil.besidesPanel( closeAllButton));
 
 		// -------------------------------------------- action listeners, etc
-		transformForLevelsComboBox.setSelectedIndex(0);
-		transformForGulpsComboBox.setSelectedIndex(1);
+		transformForLevelsComboBox.setSelectedItem(TransformOp.GBmR);
+		transformForGulpsComboBox.setSelectedItem(TransformOp.XDIFFN);
 		detectTopCheckBox.setSelected(true);
 		detectBottomCheckBox.setSelected(false);
 
@@ -363,6 +364,20 @@ public class Capillarytrack extends PluginActionable implements ActionListener, 
 		kymographNamesComboBox.addActionListener(this);
 		previousButton.addActionListener(this);
 		nextButton.addActionListener(this);
+		
+		transformForLevelsComboBox.addActionListener(new ActionListener() {			
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				displayFilteredKymo(1);
+			}
+		});
+		
+		transformForGulpsComboBox.addActionListener(new ActionListener() {			
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				displayFilteredKymo(2);
+			}
+		});
 
 		buttonsVisibilityUpdate(StatusAnalysis.NODATA);
 
@@ -513,26 +528,24 @@ public class Capillarytrack extends PluginActionable implements ActionListener, 
 		else if (o == detectTopButton || o == displayTopButton) 
 		{
 			parseTextFields();
-			final String transform = (String) transformForLevelsComboBox.getSelectedItem();
+			// sort array of kymographs names alphabetically
+			Collections.sort(kymographArrayList, new Tools.SequenceNameComparator()); 
+			
+			final TransformOp transform = (TransformOp) transformForLevelsComboBox.getSelectedItem();
 			detectTopButton.setEnabled( false);
-			ThreadUtil.bgRun( new Runnable() { 	
-				@Override
-				public void run() {
-					// build filtered image from image 9 and stores it into image 1
-					kymographsBuildFiltered(0, 1, transform, spanDiffTop);
-					// detect level from image 1 
-					if (o == detectTopButton) {
-						detectCapillaryLevels();
-						buttonsVisibilityUpdate(StatusAnalysis.MEASURETOP_OK); 
-					}
-					// or display image1
-					else  {
-						kymographsDisplayUpdate(); //1);
-						displayKymosCheckBox.setSelected(true);
-						detectTopButton.setEnabled( true);
-					}
-				}
-			});
+			// build filtered image from image 9 and stores it into image 1
+			kymographsBuildFiltered(0, 1, transform, spanDiffTop);
+			// detect level from image 1 
+			if (o == detectTopButton) {
+				detectCapillaryLevels();
+				buttonsVisibilityUpdate(StatusAnalysis.MEASURETOP_OK); 
+			}
+			// or display image1
+			else  {
+				kymographsDisplayUpdate(); //1);
+				displayKymosCheckBox.setSelected(true);
+				detectTopButton.setEnabled( true);
+			}
 		}
 
 		// _______________________________________________
@@ -540,22 +553,17 @@ public class Capillarytrack extends PluginActionable implements ActionListener, 
 		{
 			parseTextFields();
 			detectGulpsButton.setEnabled( false);
-			final String transform = (String) transformForGulpsComboBox.getSelectedItem();
-			ThreadUtil.bgRun( new Runnable() { 	
-				@Override
-				public void run() {
-					kymographsBuildFiltered(0, 2, transform, spanDiffTransf2);
-					if (o == detectGulpsButton) { 
-						detectGulps();
-						buttonsVisibilityUpdate(StatusAnalysis.MEASUREGULPS_OK );
-					}
-					else {
-						kymographsDisplayUpdate(); //2);
-						displayKymosCheckBox.setSelected(true);
-						detectGulpsButton.setEnabled( true);
-						}
-				}
-			});
+			final TransformOp transform = (TransformOp) transformForGulpsComboBox.getSelectedItem();
+			kymographsBuildFiltered(0, 2, transform, spanDiffTransf2);
+			if (o == detectGulpsButton) { 
+				detectGulps();
+				buttonsVisibilityUpdate(StatusAnalysis.MEASUREGULPS_OK );
+			}
+			else {
+				kymographsDisplayUpdate(); //2);
+				displayKymosCheckBox.setSelected(true);
+				detectGulpsButton.setEnabled( true);
+			}
 		}
 
 		// _______________________________________________
@@ -858,261 +866,26 @@ public class Capillarytrack extends PluginActionable implements ActionListener, 
 
 		progress.close();
 	}
-
-	private void computeChanRGB(int channel, int sourceImage, int transformedImage) {
-
-		for (int i=0; i < kymographArrayList.size(); i++) {
-
-			SequencePlus kymographSeq = kymographArrayList.get(i); 
-			kymographSeq.beginUpdate();
-
-			IcyBufferedImage image = kymographSeq.getImage(sourceImage, 0);
-			IcyBufferedImage img2 = IcyBufferedImageUtil.getCopy(image); 
-
-			int kymographSizeX = image.getSizeX();
-			int yheight = image.getSizeY();
-			double[] tabValues = image.getDataXYAsDouble(channel);
-
-			double[] outValues0 = img2.getDataXYAsDouble(0);
-			double[] outValues1 = img2.getDataXYAsDouble(1);
-			double[] outValues2 = img2.getDataXYAsDouble(2);
-
-			for (int ix =0; ix < kymographSizeX; ix++) {
-				// compute values
-				for (int iy = 0; iy < yheight; iy++) {
-
-					int ky = ix + iy* kymographSizeX;
-					double val = tabValues[ky];
-					outValues0[ky] = val;
-					outValues1[ky] = val;
-					outValues2[ky] = val;
-				}
-			}
-			// end of loop
-			if (kymographSeq.getSizeZ() < (transformedImage+1))
-				kymographSeq.addImage(img2);
-			else
-				kymographSeq.setImage(0, transformedImage, img2);
-			kymographSeq.dataChanged();
-			kymographSeq.endUpdate();
-		}
+	
+	private void displayFilteredKymo(int zChannel) {
+		
+		if (kymographArrayList == null)
+			return;
+		
+		parseTextFields();
+		Collections.sort(kymographArrayList, new Tools.SequenceNameComparator()); 
+		
+		TransformOp transform;
+		if (zChannel == 1)
+			transform = (TransformOp) transformForLevelsComboBox.getSelectedItem();
+		else
+			transform = (TransformOp) transformForGulpsComboBox.getSelectedItem();
+		
+		kymographsBuildFiltered(0, zChannel, transform, spanDiffTop);
+		kymographsDisplayUpdate(); //1);
+		displayKymosCheckBox.setSelected(true);
 	}
-
-	private void computeChanHSB(int channel, int sourceImage, int transformedImage) {
-
-		for (int i=0; i < kymographArrayList.size(); i++) {
-
-			SequencePlus kymographSeq = kymographArrayList.get(i);
-			kymographSeq.beginUpdate();
-
-			IcyBufferedImage imageR = kymographSeq.getImage(sourceImage, 0); 
-			IcyBufferedImage img2 = IcyBufferedImageUtil.getCopy(imageR); 
-
-			double[] tabValuesR = imageR.getDataXYAsDouble(0);
-			double[] tabValuesG = imageR.getDataXYAsDouble(1);
-			double[] tabValuesB = imageR.getDataXYAsDouble(2);
-
-			double[] outValues0 = img2.getDataXYAsDouble(0);
-			double[] outValues1 = img2.getDataXYAsDouble(1);
-			double[] outValues2 = img2.getDataXYAsDouble(2);
-			
-			int kymographSizeX = imageR.getSizeX();
-			int yheight = imageR.getSizeY();
-
-			for (int ix =0; ix < kymographSizeX; ix++) {	
-
-				// compute values
-				for (int iy = 0; iy < yheight; iy++) {
-
-					int ky = ix + iy* kymographSizeX;
-					int R = (int) tabValuesR[ky];
-					int G = (int) tabValuesG[ky];
-					int B = (int) tabValuesB[ky];
-					
-					float[] hsb = Color.RGBtoHSB(R, G, B, null) ;
-					double val = (double) hsb[channel] * 100;
-					outValues0 [ky] = val;
-					outValues1 [ky] = val;
-					outValues2 [ky] = val;
-				}
-			}
-			// end of loop
-			if (kymographSeq.getSizeZ() < (transformedImage+1))
-				kymographSeq.addImage(img2);
-			else
-				kymographSeq.setImage(0, transformedImage, img2);
-			kymographSeq.dataChanged();
-			kymographSeq.endUpdate();
-		}
-	}
-
-	private void computeXDiffn(int span, int sourceImage, int transformedImage) {
-
-		for (int i=0; i < kymographArrayList.size(); i++) {
-
-			SequencePlus kymographSeq = kymographArrayList.get(i);
-			kymographSeq.beginUpdate();
-
-			int chan0 = 0;
-			int chan1 =  kymographSeq.getSizeC();
-			IcyBufferedImage image = kymographSeq.getImage(sourceImage, 0, -1);
-			IcyBufferedImage img2 = IcyBufferedImageUtil.getCopy(image); 
-
-			for (int c=chan0; c < chan1; c++) {
-
-				double[] tabValues = image.getDataXYAsDouble(c);
-				double[] outValues = img2.getDataXYAsDouble(c);
-
-				int kymographSizeX = image.getSizeX();
-				int yheight = image.getSizeY();
-
-				for (int iy = 0; iy < yheight; iy++) {	
-
-					// erase border values
-					for (int ix = 0; ix < span; ix++) {
-						outValues[ix + iy* kymographSizeX] = 0;
-					}
-
-					// compute values
-					int deltay = iy* kymographSizeX;
-					for (int ix =span; ix < kymographSizeX -span; ix++) {
-
-						int kx = ix + deltay;
-						int deltax =  0;
-						double outVal = 0;
-						for (int ispan = 1; ispan < span; ispan++) {
-							deltax += 1; 
-							outVal += tabValues [kx+deltax] - tabValues[kx-deltax];
-						}
-						outValues [kx] = Math.abs(outVal);
-					}
-
-					// erase border values
-					for (int ix = kymographSizeX-span; ix < kymographSizeX; ix++) {
-						outValues[ix + iy* kymographSizeX] = 0;
-					}
-				}
-			}
-			// end of loop
-			if (kymographSeq.getSizeZ() < (transformedImage+1))
-				kymographSeq.addImage(img2);
-			else
-				kymographSeq.setImage(0, transformedImage, img2);
-			kymographSeq.dataChanged();
-			kymographSeq.endUpdate();
-		}
-	}
-
-	private void computeXYDiffn(int yspan, int sourceImage, int transformedImage) {
-
-		for (int i=0; i < kymographArrayList.size(); i++) {
-
-			SequencePlus kymographSeq = kymographArrayList.get(i);
-			kymographSeq.beginUpdate();
-			int chan0 = 0;
-			int chan1 =  kymographSeq.getSizeC();
-
-			IcyBufferedImage image = kymographSeq.getImage(sourceImage, 0, -1);
-			IcyBufferedImage img2 = IcyBufferedImageUtil.getCopy(image); 
-
-			for (int c=chan0; c < chan1; c++) {
-
-				double[] tabValues = image.getDataXYAsDouble(c);
-				double[] outValues = img2.getDataXYAsDouble(c);
-
-				int kymographSizeX = image.getSizeX();
-				int yheight = image.getSizeY();
-
-				// main loop
-				for (int ix =0; ix < kymographSizeX; ix++) {	
-
-					for (int iy = yspan; iy < yheight-yspan; iy++) {
-
-						int ky = ix + iy* kymographSizeX;
-						int deltay =  0;
-						double outVal = 0;
-						// loop vertically
-						for (int ispan = 1; ispan < yspan; ispan++) {
-							deltay += kymographSizeX;
-							outVal += tabValues [ky+deltay] - tabValues[ky-deltay];
-						}
-
-						// loop horizontally
-						int deltax = 0;
-						int yspan2 = 10;
-						if (ix >yspan2 && ix < kymographSizeX - yspan2) {
-							for (int ispan = 1; ispan < yspan2; ispan++) {
-								deltax += 1;
-								outVal += tabValues [ky+deltax] - tabValues[ky-deltax];
-							}
-						}
-						outValues [ky] = Math.abs(outVal);
-					}
-
-					// erase out-of-bounds points
-					for (int iy = 0; iy < yspan; iy++) 
-						outValues[ix + iy* kymographSizeX] = 0;
-
-					for (int iy = yheight-yspan; iy < yheight; iy++) 
-						outValues[ix + iy* kymographSizeX] = 0;
-				}
-			}
-			// output image
-			if (kymographSeq.getSizeZ() < (transformedImage+1))
-				kymographSeq.addImage(img2);
-			else
-				kymographSeq.setImage(0, transformedImage, img2);
-			kymographSeq.dataChanged();
-			kymographSeq.endUpdate();
-		}
-	}
-
-	private void computeGBminusR(int sourceImage, int transformedImage) {
-
-		// send some info
-		ProgressFrame progress = new ProgressFrame("Compute R minus (G+B)/2 on all kymographs ...");
-		progress.setLength(kymographArrayList.size());
-
-		for (int i=0; i < kymographArrayList.size(); i++) {
-
-			SequencePlus kymographSeq = kymographArrayList.get(i);
-			progress.setPosition( i );
-			progress.setMessage( "Process kymograph " + kymographSeq.getName());
-
-			kymographSeq.beginUpdate();
-
-			IcyBufferedImage img2 = IcyBufferedImageUtil.getCopy(kymographSeq.getImage(sourceImage, 0, -1)); 
-			double[] tabValuesR = kymographSeq.getImage(sourceImage, 0, 0).getDataXYAsDouble(0);
-			double[] tabValuesG = kymographSeq.getImage(sourceImage, 0, 1).getDataXYAsDouble(0);
-			double[] tabValuesB = kymographSeq.getImage(sourceImage, 0, 2).getDataXYAsDouble(0);
-			double[] outValues = img2.getDataXYAsDouble(0);
-
-			int xwidth = img2.getSizeX();
-			int yheight = img2.getSizeY();
-
-			// main loop
-			for (int iy = 0; iy < yheight; iy++) {
-				
-				for (int ix =0; ix < xwidth; ix++) {
-					
-					int ky = ix + iy* xwidth;
-					outValues [ky] = (tabValuesG[ky] + tabValuesB[ky])/2 - tabValuesR [ky];
-				}
-			}
-			
-			// duplicate channel 0 to chan 1 & 2
-			img2.copyData(img2, 0, 1);
-			img2.copyData(img2, 0, 2);
-			if (kymographSeq.getSizeZ() < (transformedImage+1))
-				kymographSeq.addImage(img2);
-			else
-				kymographSeq.setImage(0, transformedImage, img2);
-			kymographSeq.dataChanged();
-			kymographSeq.endUpdate();
-		}
-		progress.close();
-	}
-
+	
 	private void initKymographForGulpsDetection(SequencePlus kymographSeq) {
 		
 		getDialogBoxParametersForDetection(kymographSeq, false, true);
@@ -1492,41 +1265,24 @@ public class Capillarytrack extends PluginActionable implements ActionListener, 
 		vinputSequence.capillariesArrayList.clear();
 	}
 
-	private void kymographsBuildFiltered(int sourceimage, int transformedImage, String csTransform, int spanDiff) {
+	private void kymographsBuildFiltered(int zSource, int zTransform, TransformOp transformop, int spanDiff) {
 
-		// sort array of kymographs names alphabetically
-		Collections.sort(kymographArrayList, new Tools.SequenceNameComparator()); 
+		if (tImg == null) 
+			tImg = new ImageTransform();
+		tImg.setSpanDiff(spanDiff);
 		
-		// transform data & add an image to the kymograph
-		switch (csTransform) {
-		case "(G+B)/2-R":
-			computeGBminusR(sourceimage, transformedImage);
-			break;
-		case "XDiffn":
-			computeXDiffn(spanDiff, sourceimage, transformedImage);
-			break;
-		case "XYDiffn":
-			computeXYDiffn(spanDiff, sourceimage, transformedImage);
-			break;
-		case "H(HSB)":
-			computeChanHSB(0, sourceimage, transformedImage);
-			break;
-		case "S(HSB)":
-			computeChanHSB(1, sourceimage, transformedImage);
-			break;
-		case "B(HSB)":
-			computeChanHSB(2, sourceimage, transformedImage);
-			break;
-		case "G":
-			computeChanRGB(1, sourceimage, transformedImage);
-			break;
-		case "B":
-			computeChanRGB(2, sourceimage, transformedImage);
-			break;
-		case "R":
-		default:
-			computeChanRGB(0, sourceimage, transformedImage);
-			break;
+		for (int i=0; i < kymographArrayList.size(); i++) {
+
+			SequencePlus kymographSeq = kymographArrayList.get(i); 
+			kymographSeq.beginUpdate();
+			IcyBufferedImage img = kymographSeq.getImage(zSource, 0);
+			IcyBufferedImage img2 = tImg.transformImage (img, transformop);
+			if (kymographSeq.getSizeZ() < (zTransform+1))
+				kymographSeq.addImage(img2);
+			else
+				kymographSeq.setImage(0, zTransform, img2);
+			kymographSeq.dataChanged();
+			kymographSeq.endUpdate();
 		}
 	}
 
@@ -1652,7 +1408,7 @@ public class Capillarytrack extends PluginActionable implements ActionListener, 
 				cv.setScaleY(scaleY);
 			}
 
-			// display rois correctly according to the 2 checkboxes
+			// display rois correctly according to the 2 checkbox
 			roisDisplay();
 			if (!seq.hasOverlay()) {
 				KymoOverlay koverlay = new KymoOverlay();
@@ -1831,13 +1587,13 @@ public class Capillarytrack extends PluginActionable implements ActionListener, 
 	private void measureSetStatusFromSequence(SequencePlus seq) {
 		detectTopCheckBox.setSelected(seq.detectTop);
 		detectBottomCheckBox.setSelected(seq.detectBottom);
-		transformForLevelsComboBox.setSelectedIndex(seq.transformForLevels);
+		transformForLevelsComboBox.setSelectedItem(seq.transformForLevels);
 		directionComboBox.setSelectedIndex(seq.direction);
 		detectLevelThreshold = seq.detectLevelThreshold;
 		detectTopTextField.setText(Integer.toString(seq.detectLevelThreshold));
 		detectGulpsThreshold = seq.detectGulpsThreshold ;
 		detectGulpsThresholdTextField.setText(Integer.toString(seq.detectGulpsThreshold));
-		transformForGulpsComboBox.setSelectedIndex(seq.transformForGulps);
+		transformForGulpsComboBox.setSelectedItem(seq.transformForGulps);
 		detectAllGulpsCheckBox.setSelected(seq.detectAllGulps);
 		detectAllLevelCheckBox.setSelected(seq.detectAllLevel);
 	}
@@ -1846,7 +1602,7 @@ public class Capillarytrack extends PluginActionable implements ActionListener, 
 		if (blevel) {
 			seq.detectTop 				= detectTopCheckBox.isSelected();
 			seq.detectBottom 			= detectBottomCheckBox.isSelected();
-			seq.transformForLevels 		= transformForLevelsComboBox.getSelectedIndex();
+			seq.transformForLevels 		= (TransformOp) transformForLevelsComboBox.getSelectedItem();
 			seq.direction 				= directionComboBox.getSelectedIndex();
 			seq.detectLevelThreshold 	= (int) detectLevelThreshold;
 			seq.detectAllLevel 			= detectAllLevelCheckBox.isSelected();
@@ -1854,7 +1610,7 @@ public class Capillarytrack extends PluginActionable implements ActionListener, 
 		
 		if (bgulps) {
 			seq.detectGulpsThreshold 	= (int) detectGulpsThreshold;
-			seq.transformForGulps 		= transformForGulpsComboBox.getSelectedIndex();
+			seq.transformForGulps 		= (TransformOp) transformForGulpsComboBox.getSelectedItem();
 			seq.detectAllGulps 			= detectAllGulpsCheckBox.isSelected();
 		}
 		seq.bStatusChanged = true;
