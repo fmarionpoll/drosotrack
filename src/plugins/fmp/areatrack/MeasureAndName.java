@@ -1,5 +1,6 @@
 package plugins.fmp.areatrack;
 
+// simple container for 2 values and a string descriptor
 public class MeasureAndName {
 	public String name;
 	public double data;
