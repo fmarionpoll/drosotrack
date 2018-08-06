@@ -317,10 +317,6 @@ public class BuildKymos extends PluginActionable implements ActionListener, Chan
 				}
 				buildKymographsThread.progress.close();
 			}
-//			else {
-//				kymographsSaveToFileIntoResults();				
-//				closeSequence();
-//			}
 		}
 		sComputation = StatusComputation.START_COMPUTATION;
 		startComputationButton.setEnabled(true);

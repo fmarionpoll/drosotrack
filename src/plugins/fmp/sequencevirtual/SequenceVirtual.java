@@ -13,7 +13,6 @@ import org.w3c.dom.Element;
 import icy.canvas.Canvas2D;
 import icy.gui.dialog.LoaderDialog;
 import icy.gui.dialog.MessageDialog;
-import icy.gui.dialog.SaveDialog;
 import icy.gui.viewer.Viewer;
 import icy.image.IcyBufferedImage;
 import icy.image.IcyBufferedImageUtil;
