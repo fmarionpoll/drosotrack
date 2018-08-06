@@ -44,9 +44,6 @@ import plugins.nchenouard.kymographtracker.spline.CubicSmoothingSpline;
 				return;
 			sequenceViewer = Icy.getMainInterface().getFirstViewer(vinputSequence);
 
-			// prepare loop
-			kymographArrayList.clear();
-
 			// loop over Rois attached to the current sequence
 			if (startFrame < 0) 
 				startFrame = 0;
@@ -152,6 +149,7 @@ import plugins.nchenouard.kymographtracker.spline.CubicSmoothingSpline;
 			
 			int sizex = vinputSequence.getSizeX();
 			int sizey = vinputSequence.getSizeY();
+			kymographArrayList.clear();
 			
 			// build image kymographs which will be filled then
 			vinputSequence.getCapillariesArrayList();
@@ -161,7 +159,6 @@ import plugins.nchenouard.kymographtracker.spline.CubicSmoothingSpline;
 						
 			for (ROI2DShape roi:vinputSequence.capillariesArrayList)
 			{
-
 				ArrayList<ArrayList<int[]>> masks = new ArrayList<ArrayList<int[]>>();
 				masksArrayList.add(masks);
 				initExtractionParametersfromROI(roi, masks, diskRadius, sizex, sizey);

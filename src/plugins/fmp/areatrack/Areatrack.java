@@ -383,7 +383,7 @@ public class Areatrack extends PluginActionable implements ActionListener, Chang
 	
 		// _______________________________________________
 		else if (o == exportToXLSButton ) {
-			String file = Tools.saveFileAs(vSequence.getDirectory(), "xls");
+			String file = Tools.saveFileAs(null, vSequence.getDirectory(), "xls");
 			if (file != null) {
 				ThreadUtil.bgRun( new Runnable() { 	
 					@Override

@@ -316,7 +316,7 @@ public class Drosotrack extends PluginActionable implements ActionListener, View
 
 		// _______________________________________________
 		else if (o == exportToXLSButton ) {
-			String file = Tools.saveFileAs(vinputSequence.getDirectory(), "xls");
+			String file = Tools.saveFileAs(null, vinputSequence.getDirectory(), "xls");
 			if (file != null) {
 				ThreadUtil.bgRun( new Runnable() { 	
 					@Override

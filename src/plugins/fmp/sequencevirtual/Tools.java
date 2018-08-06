@@ -21,7 +21,7 @@ import plugins.kernel.roi.roi2d.ROI2DLine;
 // Your plugin class should extends \'icy.plugin.abstract_.Plugin\' class.
 public class Tools {
 
-	public static String saveFileAs(String directory, String csExt)
+	public static String saveFileAs(String defaultName, String directory, String csExt)
 	{		
 		// load last preferences for loader
 		String csFile = null;
@@ -33,6 +33,8 @@ public class Tools {
 		FileNameExtensionFilter xlsFilter = new FileNameExtensionFilter(csExt+" files",  csExt, csExt);
 		fileChooser.addChoosableFileFilter(xlsFilter);
 		fileChooser.setFileFilter(xlsFilter);
+		if (defaultName != null)
+			fileChooser.setSelectedFile(new File(defaultName));
 
 		final int returnValue = fileChooser.showSaveDialog(null);
 		if (returnValue == JFileChooser.APPROVE_OPTION)

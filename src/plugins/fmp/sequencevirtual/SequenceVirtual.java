@@ -425,13 +425,8 @@ public class SequenceVirtual extends Sequence
 	public boolean xmlReadROIsAndData() {
 
 		String [] filedummy = null;
-		/*ThreadUtil.invoke (new Runnable() {
-			@Override
-			public void run() {*/
 		filedummy = Tools.selectFiles(directory,"xml");
-			/*}
-		}, true);*/
-		
+
 		boolean wasOk = true;
 		for (int i= 0; i< filedummy.length; i++) {
 			String csFile = filedummy[i];
@@ -474,15 +469,15 @@ public class SequenceVirtual extends Sequence
 
 	public boolean xmlWriteROIsAndData(String name) {
 
-		String [] filedummy = new String[1];
-		ThreadUtil.invoke (new Runnable() {
-			@Override
-			public void run() {
-				filedummy[0] = SaveDialog.chooseFile("Save roi(s)...", directory, name);
-			}
-		}, true);
-
-		String csFile = filedummy[0];
+		String csFile = Tools.saveFileAs(name, this.getDirectory(), "xml");
+//	x	ThreadUtil.invoke (new Runnable() {
+//			@Override
+//			public void run() {
+//				filedummy[0] = SaveDialog.chooseFile("Save roi(s)...", directory, name, ".xml");
+//			}
+//		}, true);
+//
+//		String csFile = filedummy[0];
 		csFile.toLowerCase();
 		if (!csFile.contains(".xml")) {
 			csFile += ".xml";

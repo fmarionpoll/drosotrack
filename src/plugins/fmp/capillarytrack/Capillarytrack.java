@@ -80,7 +80,7 @@ import plugins.kernel.roi.roi2d.ROI2DShape;
 public class Capillarytrack extends PluginActionable implements ActionListener, ChangeListener, ViewerListener
 {
 	// -------------------------------------- interface
-	private IcyFrame 	mainFrame 				= new IcyFrame("CapillaryTrack 04-08-2018", true, true, true, true);
+	private IcyFrame 	mainFrame 				= new IcyFrame("CapillaryTrack 05-08-2018", true, true, true, true);
 
 	// ---------------------------------------- video
 	private JButton 	setVideoSourceButton 	= new JButton("Open...");
@@ -417,6 +417,7 @@ public class Capillarytrack extends PluginActionable implements ActionListener, 
 				guiPrefs.put("lastUsedPath", path);
 				initInputSeq();
 				buttonsVisibilityUpdate(StatusAnalysis.FILE_OK);
+				openROIs(path+"\\roislines.xml");
 			}
 		}
 
@@ -570,7 +571,7 @@ public class Capillarytrack extends PluginActionable implements ActionListener, 
 		else if (o == exportToXLSButton ) {
 			roisSaveEdits();
 			// define file name
-			String file = Tools.saveFileAs(vinputSequence.getDirectory(), "xls");
+			String file = Tools.saveFileAs(null, vinputSequence.getDirectory(), "xls");
 			if (file != null) {
 				final String filename = file;
 				exportToXLSButton.setEnabled( false);
@@ -589,31 +590,7 @@ public class Capillarytrack extends PluginActionable implements ActionListener, 
 		// _______________________________________________
 		else if (o == openROIsButton) {
 
-			vinputSequence.removeAllROI();
-			vinputSequence.xmlReadROIsAndData();
-			
-			capillaryVolume = vinputSequence.capillaryVolume;
-			capillaryPixels = vinputSequence.capillaryPixels;
-			startFrame = (int) vinputSequence.analysisStart;
-			endFrame = (int) vinputSequence.analysisEnd;
-			if (endFrame < 0)
-				endFrame = (int) vinputSequence.nTotalFrames-1;
-			
-			capillaryVolumeTextField.setText( Double.toString(capillaryVolume));
-			capillaryPixelsTextField.setText( Double.toString(capillaryPixels));
-			endFrameTextField.setText( Integer.toString(endFrame));
-			startFrameTextField.setText( Integer.toString(startFrame));
-			
-			vinputSequence.getCapillariesArrayList();
-			roisUpdateCombo(vinputSequence.capillariesArrayList);
-
-			// get nb rois and type of distance between them
-			int nrois = vinputSequence.capillariesArrayList.size();
-			nbcapillariesTextField.setText(Integer.toString(nrois));
-			boolean groupedBy2 = (vinputSequence.capillariesGrouping == 2);
-			selectGroupedby2Button.setSelected(groupedBy2);
-			selectRegularButton.setSelected(!groupedBy2);	
-			buttonsVisibilityUpdate(StatusAnalysis.ROIS_OK);
+			openROIs(null);
 		}
 
 		// _______________________________________________
@@ -833,6 +810,41 @@ public class Capillarytrack extends PluginActionable implements ActionListener, 
 		
 	}
 
+	private void openROIs(String csFileName) {
+		
+		vinputSequence.removeAllROI();
+		boolean flag = false;
+		if (csFileName == null)
+			flag = vinputSequence.xmlReadROIsAndData();
+		else
+			flag = vinputSequence.xmlReadROIsAndData(csFileName);
+		if (!flag)
+			return;
+		
+		capillaryVolume = vinputSequence.capillaryVolume;
+		capillaryPixels = vinputSequence.capillaryPixels;
+		startFrame = (int) vinputSequence.analysisStart;
+		endFrame = (int) vinputSequence.analysisEnd;
+		if (endFrame < 0)
+			endFrame = (int) vinputSequence.nTotalFrames-1;
+		
+		capillaryVolumeTextField.setText( Double.toString(capillaryVolume));
+		capillaryPixelsTextField.setText( Double.toString(capillaryPixels));
+		endFrameTextField.setText( Integer.toString(endFrame));
+		startFrameTextField.setText( Integer.toString(startFrame));
+		
+		vinputSequence.getCapillariesArrayList();
+		roisUpdateCombo(vinputSequence.capillariesArrayList);
+
+		// get nb rois and type of distance between them
+		int nrois = vinputSequence.capillariesArrayList.size();
+		nbcapillariesTextField.setText(Integer.toString(nrois));
+		boolean groupedBy2 = (vinputSequence.capillariesGrouping == 2);
+		selectGroupedby2Button.setSelected(groupedBy2);
+		selectRegularButton.setSelected(!groupedBy2);	
+		buttonsVisibilityUpdate(StatusAnalysis.ROIS_OK);
+	}
+	
 	private void closeAll() {
 
 		ProgressFrame progress = new ProgressFrame("Closing windows");
@@ -1256,8 +1268,7 @@ public class Capillarytrack extends PluginActionable implements ActionListener, 
 		v.setBounds(rectv);
 
 		vinputSequence.removeAllImages();
-		startstopBufferingThread();
-		checkBufferTimer.start();		
+		startstopBufferingThread();		
 		
 		endFrame = vinputSequence.getSizeT()-1;
 		endFrameTextField.setText( Integer.toString(endFrame));
