@@ -80,7 +80,7 @@ import plugins.kernel.roi.roi2d.ROI2DShape;
 public class Capillarytrack extends PluginActionable implements ActionListener, ChangeListener, ViewerListener
 {
 	// -------------------------------------- interface
-	private IcyFrame 	mainFrame 				= new IcyFrame("CapillaryTrack 05-08-2018", true, true, true, true);
+	private IcyFrame 	mainFrame 				= new IcyFrame("CapillaryTrack 08-08-2018", true, true, true, true);
 
 	// ---------------------------------------- video
 	private JButton 	setVideoSourceButton 	= new JButton("Open...");
@@ -417,7 +417,12 @@ public class Capillarytrack extends PluginActionable implements ActionListener, 
 				guiPrefs.put("lastUsedPath", path);
 				initInputSeq();
 				buttonsVisibilityUpdate(StatusAnalysis.FILE_OK);
-				openROIs(path+"\\roislines.xml");
+				// optional loading: roislines & tiff if present
+				boolean flag = openROIs(path+"\\capillarytrack.xml");
+				if (!flag)
+						openROIs(path+"\\roislines.xml");
+				if (openKymographsFromDirectory(path+"\\results"))
+					buttonsVisibilityUpdate(StatusAnalysis.KYMOS_OK);
 			}
 		}
 
@@ -602,7 +607,7 @@ public class Capillarytrack extends PluginActionable implements ActionListener, 
 				vinputSequence.capillariesGrouping = 2;
 			else
 				vinputSequence.capillariesGrouping = 1;
-			vinputSequence.xmlWriteROIsAndData("roislines.xml");
+			vinputSequence.xmlWriteROIsAndData("capillarytrack.xml");
 		}
 
 		// _______________________________________________
@@ -614,7 +619,7 @@ public class Capillarytrack extends PluginActionable implements ActionListener, 
 			ThreadUtil.bgRun( new Runnable() { 	
 				@Override
 				public void run() {	
-					boolean flag = kymographsOpenFromFile(); 
+					boolean flag = openKymographsFromDirectory(null); 
 					openKymographsButton.setEnabled(true);
 					saveKymographsButton.setEnabled(true);
 					startComputationButton.setEnabled(true);
@@ -810,7 +815,7 @@ public class Capillarytrack extends PluginActionable implements ActionListener, 
 		
 	}
 
-	private void openROIs(String csFileName) {
+	private boolean openROIs(String csFileName) {
 		
 		vinputSequence.removeAllROI();
 		boolean flag = false;
@@ -819,7 +824,7 @@ public class Capillarytrack extends PluginActionable implements ActionListener, 
 		else
 			flag = vinputSequence.xmlReadROIsAndData(csFileName);
 		if (!flag)
-			return;
+			return false;
 		
 		capillaryVolume = vinputSequence.capillaryVolume;
 		capillaryPixels = vinputSequence.capillaryPixels;
@@ -843,6 +848,7 @@ public class Capillarytrack extends PluginActionable implements ActionListener, 
 		selectGroupedby2Button.setSelected(groupedBy2);
 		selectRegularButton.setSelected(!groupedBy2);	
 		buttonsVisibilityUpdate(StatusAnalysis.ROIS_OK);
+		return true;
 	}
 	
 	private void closeAll() {
@@ -888,10 +894,12 @@ public class Capillarytrack extends PluginActionable implements ActionListener, 
 		Collections.sort(kymographArrayList, new Tools.SequenceNameComparator()); 
 		
 		TransformOp transform;
-		if (zChannel == 1)
+		if (zChannel == 1) {
 			transform = (TransformOp) transformForLevelsComboBox.getSelectedItem();
-		else
+		}
+		else {
 			transform = (TransformOp) transformForGulpsComboBox.getSelectedItem();
+		}
 		
 		kymographsBuildFiltered(0, zChannel, transform, spanDiffTop);
 		kymographsDisplayUpdate(); //1);
@@ -1292,6 +1300,11 @@ public class Capillarytrack extends PluginActionable implements ActionListener, 
 				kymographSeq.addImage(img2);
 			else
 				kymographSeq.setImage(0, zTransform, img2);
+			
+			if (zTransform == 1)
+				kymographSeq.transformForLevels = transformop;
+			else
+				kymographSeq.transformForGulps = transformop;
 			kymographSeq.dataChanged();
 			kymographSeq.endUpdate();
 		}
@@ -1433,24 +1446,27 @@ public class Capillarytrack extends PluginActionable implements ActionListener, 
 		}
 	}
 
-	private boolean kymographsOpenFromFile() {
+	private boolean openKymographsFromDirectory(String directory) {
+		
+		if (directory == null) {
+			final String[] listDummy = new String[1];
+			ThreadUtil.invoke(new Runnable() {
+				@Override
+				public void run() {
+					JFileChooser f = new JFileChooser(vinputSequence.getDirectory());
+					f.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY); 
+					int v = f.showOpenDialog(null);
+					if (v == JFileChooser.APPROVE_OPTION)
+						listDummy[0] =  f.getSelectedFile().getAbsolutePath();
+				}
+			}, true);
 
-		final String[] listDummy = new String[1];
-		ThreadUtil.invoke(new Runnable() {
-			@Override
-			public void run() {
-				JFileChooser f = new JFileChooser(vinputSequence.getDirectory());
-				f.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY); 
-				int v = f.showOpenDialog(null);
-				if (v == JFileChooser.APPROVE_OPTION)
-					listDummy[0] =  f.getSelectedFile().getAbsolutePath();
-			}
-		}, true);
-
-		String dummyString = listDummy[0];
-		if (dummyString == null)
-			return false;
-		String[] list = (new File(dummyString)).list();
+			directory = listDummy[0];
+			if (directory == null)
+				return false;
+		}
+		
+		String[] list = (new File(directory)).list();
 		if (list == null)
 			return false;
 		Arrays.sort(list, String.CASE_INSENSITIVE_ORDER);
@@ -1474,7 +1490,7 @@ public class Capillarytrack extends PluginActionable implements ActionListener, 
 				continue;
 
 			SequencePlus kymographSeq = new SequencePlus();
-			filename = dummyString + "\\" + filename;
+			filename = directory + "\\" + filename;
 
 			iprogress++;
 			progress.setPosition( iprogress );
@@ -1596,17 +1612,19 @@ public class Capillarytrack extends PluginActionable implements ActionListener, 
 	}
 	
 	private void measureSetStatusFromSequence(SequencePlus seq) {
+		
 		detectTopCheckBox.setSelected(seq.detectTop);
 		detectBottomCheckBox.setSelected(seq.detectBottom);
 		transformForLevelsComboBox.setSelectedItem(seq.transformForLevels);
 		directionComboBox.setSelectedIndex(seq.direction);
 		detectLevelThreshold = seq.detectLevelThreshold;
 		detectTopTextField.setText(Integer.toString(seq.detectLevelThreshold));
+		detectAllLevelCheckBox.setSelected(seq.detectAllLevel);
+		
 		detectGulpsThreshold = seq.detectGulpsThreshold ;
 		detectGulpsThresholdTextField.setText(Integer.toString(seq.detectGulpsThreshold));
 		transformForGulpsComboBox.setSelectedItem(seq.transformForGulps);
 		detectAllGulpsCheckBox.setSelected(seq.detectAllGulps);
-		detectAllLevelCheckBox.setSelected(seq.detectAllLevel);
 	}
 
 	private void getDialogBoxParametersForDetection(SequencePlus seq, boolean blevel, boolean bgulps) {

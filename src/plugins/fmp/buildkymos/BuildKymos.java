@@ -212,13 +212,11 @@ public class BuildKymos extends PluginActionable implements ActionListener, Chan
 
 	private boolean loadSequence(String oo) {
 
-		// clear sequence
-		//if (vinputSequence == null) 
-		vinputSequence = new SequenceVirtual();
-
 		// open sequence
 		File oofile = new File(oo);
 		String csdummy = oofile.getParentFile().getAbsolutePath();
+		
+		vinputSequence = new SequenceVirtual();
 		vinputSequence.loadInputVirtualFromName(csdummy);
 		vinputSequence.sourceFile = csdummy;
 		if (vinputSequence.status == SequenceVirtual.Status.FAILURE) {
