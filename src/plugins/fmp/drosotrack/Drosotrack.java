@@ -113,7 +113,7 @@ public class Drosotrack extends PluginActionable implements ActionListener, View
 	//------------------------------------------- global variables
 
 	private SequenceVirtual vinputSequence 	= null;
-	private Timer 			checkBufferTimer= new Timer(1000, this);
+	private Timer 		checkBufferTimer 	= new Timer(1000, this);
 	enum StateD { NORMAL, STOP_COMPUTATION, INIT, NO_FILE };
 	private StateD state = StateD.NORMAL;
 
@@ -144,6 +144,7 @@ public class Drosotrack extends PluginActionable implements ActionListener, View
 	private boolean  blimitUp;
 	private int  limitLow;
 	private int  limitUp;
+	private XMLPreferences guiPrefs = null;
 
 	// -------------------------------------------
 	@Override
@@ -223,33 +224,150 @@ public class Drosotrack extends PluginActionable implements ActionListener, View
 		exportPanel.add( GuiUtil.besidesPanel(closeAllButton));
 		mainPanel.add(GuiUtil.besidesPanel(exportPanel));
 
-		setVideoSourceButton.addActionListener(this);
-		startComputationButton.addActionListener(this);
-		stopComputationButton.addActionListener( this);
-		createROIsFromPolygonButton.addActionListener (this);
-		exportToXLSButton.addActionListener (this);
-		openROIsButton.addActionListener(this);
-		saveROIsButton.addActionListener(this);
+		guiPrefs = this.getPreferences("gui");
+		setVideoSourceButton.addActionListener(new ActionListener () {
+			@Override
+			public void actionPerformed( final ActionEvent e ) { 
+				String path = null;
+				if (vinputSequence != null)
+					closeAll();
+				vinputSequence = new SequenceVirtual();
+				
+				path = vinputSequence.loadInputVirtualStack(null);
+				if (path != null) {
+					guiPrefs.put("lastUsedPath", path);
+					initInputSeq();
+				}
+			} } );
+		
+		startComputationButton.addActionListener(new ActionListener () {
+			@Override
+			public void actionPerformed( final ActionEvent e ) { 
+				parseTextFields();
+				updateButtonsVisibility(StateD.NORMAL);
+				ichanselected = colorChannelComboBox.getSelectedIndex();
+				trackAllFliesThread = new TrackFliesThread();
+				trackAllFliesThread.start();
+				startComputationButton.setEnabled( false );
+				stopComputationButton.setEnabled ( true );
+			}});
+		
+		stopComputationButton.addActionListener(new ActionListener () {
+			@Override
+			public void actionPerformed( final ActionEvent e ) { 
+				if (trackAllFliesThread != null && trackAllFliesThread.isAlive()) {
+					trackAllFliesThread.interrupt();
+					try {
+						trackAllFliesThread.join();
+					} catch (InterruptedException e1) {
+						e1.printStackTrace();
+					}
+				}
+				updateButtonsVisibility(StateD.STOP_COMPUTATION);
+			}});
+		
+		createROIsFromPolygonButton.addActionListener(new ActionListener () {
+			@Override
+			public void actionPerformed( final ActionEvent e ) { 
+				createROISfromPolygon();
+			}});
+		
+		exportToXLSButton.addActionListener (new ActionListener () {
+			@Override
+			public void actionPerformed( final ActionEvent e ) { 
+				String file = Tools.saveFileAs(null, vinputSequence.getDirectory(), "xls");
+				if (file != null) {
+					ThreadUtil.bgRun( new Runnable() { 	
+						@Override
+						public void run() {
+							final String filename = file;
+							exportToXLS(filename);}
+					});
+				}
+			}});
+		
+		openROIsButton.addActionListener(new ActionListener () {
+			@Override
+			public void actionPerformed( final ActionEvent e ) { 
+				vinputSequence.xmlReadROIsAndData();	
+				ArrayList<ROI2D> list = vinputSequence.getROI2Ds();
+				Collections.sort(list, new Tools.ROI2DNameComparator());
+				int nrois = list.size();
+				if (nrois > 0)
+					nbcagesTextField.setText(Integer.toString(nrois));
+				if (vinputSequence.threshold != -1) {
+					threshold = vinputSequence.threshold;
+					thresholdSpinner.setValue(threshold);
+				}
+			}});
+		
+		saveROIsButton.addActionListener(new ActionListener () {
+			@Override
+			public void actionPerformed( final ActionEvent e ) { 
+				vinputSequence.threshold = threshold;
+				List<ROI> roisList = vinputSequence.getROIs(true);
+				List<ROI> roisCages = new ArrayList<ROI>();
+				for (ROI roi : roisList) {
+					if (roi.getName().contains("cage"))
+						roisCages.add(roi);
+				}
+				vinputSequence.removeAllROI();
+				vinputSequence.addROIs(roisCages, false);
+				vinputSequence.xmlWriteROIsAndData("roisbox.xml");
+				vinputSequence.removeAllROI();
+				vinputSequence.addROIs(roisList, false);
+			}});
+		
 		openROIsButton.setEnabled(false);
 		saveROIsButton.setEnabled(false);
-		thresholdedImageCheckBox.addActionListener(this);
-		analyzeStepTextField.addActionListener(this);
+		
+		thresholdedImageCheckBox.addActionListener(new ActionListener () {
+			@Override
+			public void actionPerformed( final ActionEvent e ) { 
+				if (thresholdedImageCheckBox.isSelected()) {
+					if (ov == null)
+						ov = new ThresholdOverlay();
+					if (vinputSequence != null)
+						vinputSequence.addOverlay(ov);
+					updateOverlay();
+				}
+				else {
+					vinputSequence.removeOverlay(ov);
+				}
+			}});
+		
+		analyzeStepTextField.addActionListener(new ActionListener () {
+			@Override
+			public void actionPerformed( final ActionEvent e ) { 
+				parseTextFields();
+				if (vinputSequence != null) 
+					vinputSequence.istep = analyzeStep;
+			} } );
+		
 		displayChartsButton.addActionListener ( new ActionListener() {
 			@Override
-			public void actionPerformed( final ActionEvent e ) { displayGraphs(); 
+			public void actionPerformed( final ActionEvent e ) { 
+				displayGraphs(); 
 			} } );
+		
 		closeAllButton.addActionListener ( new ActionListener() {
 			@Override
-			public void actionPerformed( final ActionEvent e ) { closeAll(); } 
-		} );
+			public void actionPerformed( final ActionEvent e ) { 
+				closeAll(); 
+			} } );
+		
 		colorChannelComboBox.addActionListener(new ActionListener () {
 			@Override
-			public void actionPerformed( final ActionEvent e ) { updateOverlay(); 
+			public void actionPerformed( final ActionEvent e ) { 
+				updateOverlay(); 
 			} } );
+		
 		backgroundComboBox.addActionListener(new ActionListener () {
 			@Override
-			public void actionPerformed( final ActionEvent e ) { updateOverlay(); 
+			public void actionPerformed( final ActionEvent e ) { 
+				updateOverlay(); 
 			} } );
+		
 		thresholdSpinner.addChangeListener(this);
 		updateButtonsVisibility(StateD.NO_FILE);
 
@@ -272,120 +390,6 @@ public class Drosotrack extends PluginActionable implements ActionListener, View
 				bufferValue.setText(bufferPercent + " %");
 			}
 		}
-
-		// _______________________________________________
-		else if (o == setVideoSourceButton) {
-			String path = null;
-			if (vinputSequence != null)
-				closeAll();
-			vinputSequence = new SequenceVirtual();
-			
-			path = vinputSequence.loadInputVirtualStack(null);
-			if (path != null) {
-				XMLPreferences guiPrefs = this.getPreferences("gui");
-				guiPrefs.put("lastUsedPath", path);
-				initInputSeq();
-			}
-		}
-
-		// _______________________________________________
-		else if ( o == startComputationButton ) {
-			//			sliderTime.setValue(0);
-			parseTextFields();
-			updateButtonsVisibility(StateD.NORMAL);
-			ichanselected = colorChannelComboBox.getSelectedIndex();
-			trackAllFliesThread = new TrackFliesThread();
-			trackAllFliesThread.start();
-			startComputationButton.setEnabled( false );
-			stopComputationButton.setEnabled ( true );
-			 
-		}
-
-		// _______________________________________________
-		else if ( o == stopComputationButton ) {
-			if (trackAllFliesThread != null && trackAllFliesThread.isAlive()) {
-				trackAllFliesThread.interrupt();
-				try {
-					trackAllFliesThread.join();
-				} catch (InterruptedException e1) {
-					e1.printStackTrace();
-				}
-			}
-			updateButtonsVisibility(StateD.STOP_COMPUTATION);
-		}
-
-		// _______________________________________________
-		else if (o == exportToXLSButton ) {
-			String file = Tools.saveFileAs(null, vinputSequence.getDirectory(), "xls");
-			if (file != null) {
-				ThreadUtil.bgRun( new Runnable() { 	
-					@Override
-					public void run() {
-						final String filename = file;
-						exportToXLS(filename);}
-				});
-			}
-		}
-		
-		// _______________________________________________
-		else if (o == createROIsFromPolygonButton) {
-			createROISfromPolygon();
-		}
-
-		// _______________________________________________
-		else if (o == openROIsButton) {
-
-			vinputSequence.xmlReadROIsAndData();	
-			ArrayList<ROI2D> list = vinputSequence.getROI2Ds();
-			Collections.sort(list, new Tools.ROI2DNameComparator());
-			int nrois = list.size();
-			if (nrois > 0)
-				nbcagesTextField.setText(Integer.toString(nrois));
-			if (vinputSequence.threshold != -1) {
-				threshold = vinputSequence.threshold;
-				thresholdSpinner.setValue(threshold);
-			}
-		}
-		
-		// _______________________________________________
-		else if (o == saveROIsButton) {	
-			vinputSequence.threshold = threshold;
-			List<ROI> roisList = vinputSequence.getROIs(true);
-			List<ROI> roisCages = new ArrayList<ROI>();
-			for (ROI roi : roisList) {
-				if (roi.getName().contains("cage"))
-					roisCages.add(roi);
-			}
-			vinputSequence.removeAllROI();
-			vinputSequence.addROIs(roisCages, false);
-			vinputSequence.xmlWriteROIsAndData("roisbox.xml");
-			vinputSequence.removeAllROI();
-			vinputSequence.addROIs(roisList, false);
-		}
-
-		// _______________________________________________
-		else if (o == thresholdedImageCheckBox) {
-
-			if (thresholdedImageCheckBox.isSelected()) {
-				if (ov == null)
-					ov = new ThresholdOverlay();
-				if (vinputSequence != null)
-					vinputSequence.addOverlay(ov);
-				updateOverlay();
-			}
-			else {
-				vinputSequence.removeOverlay(ov);
-			}
-		}
-
-		// _______________________________________________
-		else if (o == analyzeStepTextField) {
-			parseTextFields();
-			if (vinputSequence != null) {
-				vinputSequence.istep = analyzeStep;
-			}
-		}
-		
 	}
 	
 	private void closeAll() {

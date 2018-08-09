@@ -60,7 +60,7 @@ public class SequenceVirtual extends Sequence
 	public long 	analysisEnd	= 99999999;
 	public int		threshold = -1;
 	public VImageBufferThread bufferThread = null;
-	public ArrayList <ROI2DShape> capillariesArrayList 	= new ArrayList <ROI2DShape>();			// list of ROIs describing capillaries (e.g. profiles to follow)
+	public ArrayList <ROI2DShape> capillariesArrayList 	= new ArrayList <ROI2DShape>();			// list of ROIs describing objects in all images for ex. glass capillaries 
 	public String [] seriesname = null;
 	public int [][] data_raw = null;
 	public double [][] data_filtered = null;
