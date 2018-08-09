@@ -2113,7 +2113,10 @@ public class Capillarytrack extends PluginActionable implements ActionListener, 
 		// output last interval at which movement was detected over the whole period analyzed
 		int irow = 0;
 		XLSUtil.setCellString( excelSheet , 0, irow, "name:" );
-		XLSUtil.setCellString( excelSheet , 1, irow, vinputSequence.getName() );
+		
+		File file = new File(vinputSequence.getName());
+		String path = file.getAbsolutePath();
+		XLSUtil.setCellString( excelSheet , 1, irow, path );
 		irow++;
 		int icol00 = 0;
 		XLSUtil.setCellString( excelSheet, icol00++, irow, "capillary" );
@@ -2146,7 +2149,10 @@ public class Capillarytrack extends PluginActionable implements ActionListener, 
 		for (int j=0; j<nrows; j++) {
 			icol0 = 0;
 			if (blistofFiles) {
-				XLSUtil.setCellString( excelSheet , icol0, irow, vinputSequence.getFileName(j+startFrame) );
+				String cs = vinputSequence.getFileName(j+startFrame);
+				int index = cs.lastIndexOf("\\");
+				String fileName = cs.substring(index + 1);
+				XLSUtil.setCellString( excelSheet , icol0, irow, fileName );
 				icol0++;
 			}
 
