@@ -23,45 +23,21 @@ import plugins.kernel.roi.roi2d.ROI2DPolyLine;
 
 public class SequencePlus extends Sequence {
 	
-	private ArrayList<Integer> levelTopArrayList 	= new ArrayList<Integer>();	// result of the detection of the top of the capillary level
-	private ArrayList<Integer> levelBottomArrayList = new ArrayList<Integer>();	// result of the detection of the top of the capillary level
 	public ArrayList<Integer> derivedValuesArrayList= new ArrayList<Integer>(); // (derivative) result of the detection of the capillary level
-	private ArrayList<Integer> consumptionArrayList 	= new ArrayList<Integer>();	// (derivative) result of the detection of the capillary level
 	public boolean hasChanged = false;
-	
 	public boolean bStatusChanged = false;
 	public boolean detectTop = true;
 	public boolean detectBottom = true;
 	public boolean detectAllLevel = true;
 	public boolean detectAllGulps = true;
-	public	TransformOp	transformForLevels = TransformOp.GBmR;
 	public 	int direction = 0;
 	public 	int	detectLevelThreshold = 35;
 	public	int detectGulpsThreshold = 90;
+	public	TransformOp	transformForLevels = TransformOp.GBmR;
 	public	TransformOp transformForGulps = TransformOp.XDIFFN;
 	public enum ArrayListType {topLevel, bottomLevel, derivedValues, cumSum, topAndBottom}
 
 	// -----------------------------------------------------
-	public ArrayList<Integer> getArrayList (ArrayListType option) {
-		
-		ArrayList<Integer> datai = new ArrayList<Integer> ();
-		switch (option) {
-		case derivedValues:	// 1
-			datai = derivedValuesArrayList;
-			break;
-		case cumSum:		// 2
-			datai = consumptionArrayList;
-			break;
-		case bottomLevel: 	// 4
-			datai = levelBottomArrayList;
-			break;
-		case topLevel:		// 0
-		default:
-			datai = levelTopArrayList;
-			break;
-		}
-		return datai;
-	}
 	
 	public ArrayList<Integer> getArrayListFromRois (ArrayListType option) {
 		
@@ -77,20 +53,20 @@ public class SequencePlus extends Sequence {
 			break;
 		case cumSum:		// 2
 			datai = new ArrayList<Integer>(Collections.nCopies(this.getWidth(), 0));
-			addRoitoDataArray("gulp", datai);
+			addRoisMatchingFilterToCumSumDataArray("gulp", datai);
 			break;
 		case bottomLevel: 	// 4
-			datai = copyRoitoDataArray("bottomlevel");
+			datai = copyFirstRoiMatchingFilterToDataArray("bottomlevel");
 			break;
 		case topLevel:		// 0
 		default:
-			datai = copyRoitoDataArray("toplevel");
+			datai = copyFirstRoiMatchingFilterToDataArray("toplevel");
 			break;
 		}
 		return datai;
 	}
 	
-	private ArrayList<Integer> copyRoitoDataArray(String filter) {
+	private ArrayList<Integer> copyFirstRoiMatchingFilterToDataArray (String filter) {
 		
 		ArrayList<ROI2D> listRois = getROI2Ds();
 		for (ROI2D roi: listRois) {
@@ -102,7 +78,7 @@ public class SequencePlus extends Sequence {
 		return null;
 	}
 	
-	private void addRoitoDataArray(String filter, ArrayList<Integer> cumSumArray) {
+	private void addRoisMatchingFilterToCumSumDataArray (String filter, ArrayList<Integer> cumSumArray) {
 		
 		ArrayList<ROI2D> listRois = getROI2Ds();
 		for (ROI2D roi: listRois) {
@@ -111,13 +87,7 @@ public class SequencePlus extends Sequence {
 		}
 		return ;
 	}
-	
-	private void copyRoitoDataArray(ROI2DPolyLine roiLine, ArrayList<Integer> intArray) {
 
-		interpolateMissingPointsAlongXAxis (roiLine);
-		intArray = transfertRoiYValuesToDataArray(roiLine);
-	}
-	
 	private ArrayList<Integer> transfertRoiYValuesToDataArray(ROI2DPolyLine roiLine) {
 
 		Polyline2D line = roiLine.getPolyline2D();
@@ -164,7 +134,7 @@ public class SequencePlus extends Sequence {
 		return true;
 	}
 	
-	private void addRoitoCumulatedSumArray(ROI2DPolyLine roi, ArrayList<Integer> consumptionArrayList) {
+	private void addRoitoCumulatedSumArray(ROI2DPolyLine roi, ArrayList<Integer> sumArrayList) {
 		
 		interpolateMissingPointsAlongXAxis (roi);
 		ArrayList<Integer> intArray = transfertRoiYValuesToDataArray(roi);
@@ -176,45 +146,10 @@ public class SequencePlus extends Sequence {
 			int val = intArray.get(i);
 			int deltaY = val - previousY;
 			previousY = val;
-			for (int j = jstart+i; j< consumptionArrayList.size(); j++) {
-				consumptionArrayList.set(j, consumptionArrayList.get(j) +deltaY);
+			for (int j = jstart+i; j< sumArrayList.size(); j++) {
+				sumArrayList.set(j, sumArrayList.get(j) +deltaY);
 			}
 		}
-	}
-	
-	public void transferRoistoData () {
-
-		// load topLevelArrayList = 1 polyline...	
-		ArrayList<ROI2D> listRois = getROI2Ds();
-		if (listRois == null)
-			return;
-
-		// prepare consumption array list (erase it and fill with null values)
-		consumptionArrayList.clear();
-		int nelements = getWidth();
-		if (levelTopArrayList.size() > 0)
-			nelements = levelTopArrayList.size();
-		if (consumptionArrayList.size() != nelements) {
-			consumptionArrayList= new ArrayList<Integer>(Collections.nCopies(nelements, 0));
-		}
-
-		// ----------------------- read topLevel polyline & unselect any rois
-		for (ROI2D roi: listRois) {
-			if (roi.isSelected())
-				roi.setSelected(false);
-
-			String name = roi.getName();
-			if (name.contains("toplevel")) 
-				copyRoitoDataArray((ROI2DPolyLine) roi, levelTopArrayList);
-
-			else if (name.contains("bottomlevel"))
-				copyRoitoDataArray((ROI2DPolyLine) roi, levelBottomArrayList);
-
-			else if (name.contains("gulp")) {
-				addRoitoCumulatedSumArray((ROI2DPolyLine)roi, consumptionArrayList);
-			}
-		}
-		Collections.sort(listRois, new Tools.ROI2DNameComparator()); 
 	}
 	
 	public void validateRois() {

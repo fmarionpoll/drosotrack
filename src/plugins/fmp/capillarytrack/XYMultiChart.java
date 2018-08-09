@@ -70,16 +70,11 @@ public class XYMultiChart extends IcyFrame  {
 			{
 				SequencePlus seq = kymographArrayList.get(i+k);
 				ArrayListType ooption = option;
-				if (option == ArrayListType.topAndBottom) {
+				if (option == ArrayListType.topAndBottom) 
 					ooption = ArrayListType.topLevel;
-					XYSeries seriesXY = getXYSeries(seq.getArrayListFromRois(ArrayListType.bottomLevel), seq.getName(), startFrame);
-					if (seriesXY == null) 
-						return;
-					xyDataset2.addSeries( seriesXY );
-					getMaxMin();
-				}
-				
 				XYSeries seriesXY = getXYSeries(seq.getArrayListFromRois(ooption), seq.getName(), startFrame);
+				if (option == ArrayListType.topAndBottom) 
+					appendDataToXYSeries(seriesXY, seq.getArrayListFromRois(ArrayListType.bottomLevel), startFrame );
 				xyDataset.addSeries( seriesXY );
 				getMaxMin();
 			}
@@ -139,12 +134,10 @@ public class XYMultiChart extends IcyFrame  {
 			for (int k=0; k <kmax; k++) {
 				
 				SequencePlus seq = kymographArrayList.get(i+k);
-				if (option == ArrayListType.topAndBottom) {
-					XYSeries seriesXY = getXYSeries(seq.getArrayListFromRois(ArrayListType.bottomLevel), seq.getName(), startFrame);
-					xyDataset2.addSeries( seriesXY );
-					getMaxMin();
-				}
 				XYSeries seriesXY = getXYSeries(seq.getArrayListFromRois(ooption), seq.getName(), startFrame);
+				if (option == ArrayListType.topAndBottom) 
+					appendDataToXYSeries(seriesXY, seq.getArrayListFromRois(ArrayListType.bottomLevel), startFrame );
+				
 				xyDataset.addSeries( seriesXY );
 				getMaxMin();
 			}
@@ -167,13 +160,11 @@ public class XYMultiChart extends IcyFrame  {
 			if (option ==  ArrayListType.topAndBottom) {
 				xyDataset2 = xyDataSetList2.get(i);
 				xyChart.getXYPlot().setDataset(1, xyDataset2);
-//				xyChart.getXYPlot().getRangeAxis(1).setRange(globalMin2, globalMax2);
 			}
 			// invert Y scale if raw levels
 			if (option == ArrayListType.topLevel || option == ArrayListType.bottomLevel || option == ArrayListType.topAndBottom) {
 					xyChart.getXYPlot().getRangeAxis(0).setInverted(true);
-//				if (ioption == 10)
-//					xyChart.getXYPlot().getRangeAxis(1).setInverted(true);	
+
 			}
 		}
 	}
@@ -194,7 +185,7 @@ public class XYMultiChart extends IcyFrame  {
 	// --------------------------------------
 	private XYSeries getXYSeries(ArrayList<Integer> data, String name, int startFrame) {
 		
-		XYSeries seriesXY = new XYSeries(name);
+		XYSeries seriesXY = new XYSeries(name, false);
 		int npoints = data.size();
 		if (npoints != 0) {
 			int x = 0;
@@ -212,6 +203,22 @@ public class XYMultiChart extends IcyFrame  {
 		return seriesXY;
 	}
 
+	private void appendDataToXYSeries(XYSeries seriesXY, ArrayList<Integer> data, int startFrame ) {
+		
+		int npoints = data.size();
+		if (npoints != 0) {
+			seriesXY.add(Double.NaN, Double.NaN);
+			int x = 0;
+			for (int j=0; j < npoints; j++) 
+			{
+				int y = data.get(j);
+				seriesXY.add( x+startFrame , y );
+				if (ymax < y) ymax = y;
+				if (ymin > y) ymin = y;
+				x++;
+			}
+		}
+	}
 	
 	//----------------------------------------
 	public void setLocationRelativeToRectangle(Rectangle rectv, Point deltapt) {

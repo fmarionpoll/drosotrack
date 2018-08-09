@@ -984,7 +984,7 @@ public class Capillarytrack extends PluginActionable implements ActionListener, 
 			// scan each image row
 			kymographSeq.derivedValuesArrayList.add(0);
 			// once an event is detected, we will cut and save the corresponding part of topLevelArray
-			ArrayList <Integer> topLevelArray = kymographSeq.getArrayList(ArrayListType.topLevel);
+			ArrayList <Integer> topLevelArray = kymographSeq.getArrayListFromRois(ArrayListType.topLevel);
 
 			for (ix = 1; ix < topLevelArray.size(); ix++) 
 			{
@@ -1091,8 +1091,6 @@ public class Capillarytrack extends PluginActionable implements ActionListener, 
 					kymographSeq.removeROI(roi);
 			}
 			kymographSeq.removeAllROI();
-//			kymographSeq.levelTopArrayList.clear();
-//			kymographSeq.levelBottomArrayList.clear();
 			
 			// save parameters status
 			getDialogBoxParametersForDetection(kymographSeq, true, false); 
@@ -1155,7 +1153,6 @@ public class Capillarytrack extends PluginActionable implements ActionListener, 
 							flag = tabValues [ix + iy* xwidth] < detectLevelThreshold;
 
 						if( flag) {
-//							kymographSeq.levelTopArrayList.add(iy);
 							y = iy;
 							found = true;
 							oldiytop = iy;
@@ -1163,7 +1160,6 @@ public class Capillarytrack extends PluginActionable implements ActionListener, 
 						}
 					}
 					if (!found) {
-//						kymographSeq.levelTopArrayList.add(-1);
 						oldiytop = 0;
 					}
 					// add new point to display as roi
@@ -1186,8 +1182,7 @@ public class Capillarytrack extends PluginActionable implements ActionListener, 
 						else 
 							flag = tabValues [ix + iy* xwidth] < detectLevelThreshold;
 
-						if( flag) {
-//							kymographSeq.levelBottomArrayList.add(iy);
+						if (flag) {
 							y = iy;
 							found = true;
 							oldiybottom = iy;
@@ -1195,7 +1190,6 @@ public class Capillarytrack extends PluginActionable implements ActionListener, 
 						}
 					}
 					if (!found) {
-//						kymographSeq.levelBottomArrayList.add(-1);
 						oldiybottom = yheight - 1;
 					}
 					// add new point to display as roi
@@ -1205,7 +1199,7 @@ public class Capillarytrack extends PluginActionable implements ActionListener, 
 			
 			roiTopTrack.setPoints(ptsTop);
 			roiBottomTrack.setPoints(ptsBottom);
-			kymographSeq.transferRoistoData();
+			kymographSeq.getArrayListFromRois(ArrayListType.cumSum);
 			kymographSeq.endUpdate();
 			done += xwidth;
 		}
@@ -1591,7 +1585,7 @@ public class Capillarytrack extends PluginActionable implements ActionListener, 
 			seq.beginUpdate();
 			if (flag = seq.loadXMLResults(directory, startFrame, endFrame)) {
 				seq.validateRois();
-				seq.transferRoistoData();
+				seq.getArrayListFromRois(ArrayListType.cumSum);
 			}
 			else 
 				System.out.println(" -> failed");
@@ -1995,7 +1989,7 @@ public class Capillarytrack extends PluginActionable implements ActionListener, 
 		for (SequencePlus seq: kymographArrayList) {
 			if (seq.hasChanged) {
 				seq.validateRois();
-				seq.transferRoistoData();
+				seq.getArrayListFromRois(ArrayListType.cumSum);
 				seq.hasChanged = false;
 			}
 		}
@@ -2073,18 +2067,18 @@ public class Capillarytrack extends PluginActionable implements ActionListener, 
 		for (SequencePlus seq: kymographArrayList) {
 			switch (ioption) {
 			case 1:
-				arrayList.add(seq.getArrayList(ArrayListType.derivedValues));
+				arrayList.add(seq.getArrayListFromRois(ArrayListType.derivedValues));
 				break;
 			case 2: 
-				seq.transferRoistoData();
-				arrayList.add(seq.getArrayList(ArrayListType.cumSum));
+				seq.getArrayListFromRois(ArrayListType.cumSum);
+				arrayList.add(seq.getArrayListFromRois(ArrayListType.cumSum));
 				break;
 			case 3:
-				arrayList.add(seq.getArrayList(ArrayListType.bottomLevel));
+				arrayList.add(seq.getArrayListFromRois(ArrayListType.bottomLevel));
 				break;
 			case 0:
 			default:
-				arrayList.add(seq.getArrayList(ArrayListType.topLevel));
+				arrayList.add(seq.getArrayListFromRois(ArrayListType.topLevel));
 				break;
 			}
 		}
