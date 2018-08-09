@@ -421,8 +421,16 @@ public class Capillarytrack extends PluginActionable implements ActionListener, 
 				boolean flag = openROIs(path+"\\capillarytrack.xml");
 				if (!flag)
 						openROIs(path+"\\roislines.xml");
-				if (openKymographsFromDirectory(path+"\\results"))
-					buttonsVisibilityUpdate(StatusAnalysis.KYMOS_OK);
+				final String cs = path+"\\results";
+				ThreadUtil.bgRun( new Runnable() { 	
+				@Override
+				public void run() {
+					if (openKymographsFromDirectory(cs))
+						buttonsVisibilityUpdate(StatusAnalysis.KYMOS_OK);
+					measuresFileOpen();
+					buttonsVisibilityUpdate(StatusAnalysis.MEASUREGULPS_OK ); 
+				}
+			});
 			}
 		}
 
@@ -585,11 +593,11 @@ public class Capillarytrack extends PluginActionable implements ActionListener, 
 					public void run() {
 						xlsExportResultsToFile(filename);
 						exportToXLSButton.setEnabled( true );
+						// save also measures on disk
+						measuresFileSave();
 					}
 				});
 			}
-			// save also measures on disk
-			measuresFileSave();
 		}
 
 		// _______________________________________________
@@ -679,6 +687,7 @@ public class Capillarytrack extends PluginActionable implements ActionListener, 
 			measuresFileSave();
 			saveMeasuresButton.setEnabled(true);
 		}
+		
 		//_______________________________________________
 		else if (o == zoomTopLevelButton) {
 			Canvas2D cv = (Canvas2D) viewer1.getCanvas();
@@ -2059,11 +2068,12 @@ public class Capillarytrack extends PluginActionable implements ActionListener, 
 		} catch (WriteException e) {
 			e.printStackTrace();
 		}
+		System.out.println("XLS output finished");
 	}
 
 	private void xlsExportToWorkbook(WritableWorkbook xlsWorkBook, String title, int ioption, double ratio, boolean blistofFiles) {
 		
-		
+		System.out.println("export worksheet "+title);
 		int ncols = kymographArrayList.size();
 		ArrayList <ArrayList<Integer >> arrayList = new ArrayList <ArrayList <Integer>> ();
 		for (SequencePlus seq: kymographArrayList) {
@@ -2086,8 +2096,14 @@ public class Capillarytrack extends PluginActionable implements ActionListener, 
 		
 		if (arrayList.size() == 0)
 			return;
-		ArrayList<Integer> datai = arrayList.get(0);
-		int nrows = datai.size()-1;
+
+		int nrowmax = 0;
+		for (int i=0; i< arrayList.size(); i++) {
+			ArrayList<Integer> datai = arrayList.get(i);
+			if (datai.size() > nrowmax)
+				nrowmax = datai.size();
+		}
+		int nrows = nrowmax-1;
 		// exit if no data in the first sequence
 		if (nrows <= 0)
 			return;
