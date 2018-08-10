@@ -49,7 +49,6 @@ public class SequencePlus extends Sequence {
 		switch (option) {
 		case derivedValues:	// 1
 			datai = derivedValuesArrayList;
-			//datai = new ArrayList<Integer>(Collections.nCopies(this.getWidth(), 0));
 			break;
 		case cumSum:		// 2
 			datai = new ArrayList<Integer>(Collections.nCopies(this.getWidth(), 0));
