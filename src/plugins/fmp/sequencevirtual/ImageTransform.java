@@ -11,8 +11,8 @@ public class ImageTransform {
 
 	public enum TransformOp { None("none"),
 		RGBall("RGB"), R_RGB("R(RGB)"), G_RGB("G(RGB)"), B_RGB("B(RGB)"),  
-		GBmR ("(G+B)/2-R"), BRmG("(B+R)/2-G"), GRmB("(G+R)/2-B"),
-		RmGB ("R-(G+B)/2"), GmBR("G-(B+R)/2"), BmGR("B-(G+R)/2"),
+		GBmR ("(G+B)-2R"), BRmG("(B+R)-2G"), GRmB("(G+R)-2B"),
+		RmGB ("2R-(G+B)"), GmBR("2G-(B+R)"), BmGR("2B-(G+R)"),
 		RGB ("(R+G+B)/3"),
 		H_HSB ("H(HSB)"), S_HSB ("S(HSB)"), B_HSB("B(HSB)"),  
 		XDIFFN("XDiffn"), XYDIFFN( "XYDiffn"), 
@@ -158,7 +158,7 @@ public class ImageTransform {
 		// from 0 to 255
 		ArrayMath.multiply(ExG, 255, ExG);
 		
-		Array1DUtil.doubleArrayToSafeArray(ExG,  img2.getDataXY(0),  true); //true, img2.isSignedDataType());
+		Array1DUtil.doubleArrayToSafeArray(ExG,  img2.getDataXY(0),  true); 
 	}
 	
 	private void functionRGB_sumC1C2Minus2C3 (IcyBufferedImage sourceImage, int ADD1, int ADD2, int SUB) {
@@ -169,14 +169,14 @@ public class ImageTransform {
 		double[] img2Values = (double[]) Array1DUtil.createArray(DataType.DOUBLE, tabSubtract.length);
 		
 		for (int i = 0; i < img2Values.length; i++) {	
-			img2Values [i] = (tabAdd1[i] + tabAdd2[i])/2 - tabSubtract [i];
+			img2Values [i] = tabAdd1[i] + tabAdd2[i] - 2*tabSubtract [i];
 		}
 		
 		Array1DUtil.doubleArrayToSafeArray(img2Values,  img2.getDataXY(0),  true); //true, img2.isSignedDataType());
 		
 		// duplicate channel 0 to chan 1 & 2
-		img2.copyData(img2, 0, 1);
-		img2.copyData(img2, 0, 2);
+//		img2.copyData(img2, 0, 1);
+//		img2.copyData(img2, 0, 2);
 	}
 	
 	
@@ -188,14 +188,14 @@ public class ImageTransform {
 		double[] img2Values = (double[]) Array1DUtil.createArray(DataType.DOUBLE, tabSubtract.length);
 
 		for (int i = 0; i < img2Values.length; i++) {	
-			img2Values [i] = tabSubtract [i] - (tabAdd1[i] + tabAdd2[i])/2 ;
+			img2Values [i] = 2*tabSubtract [i] - tabAdd1[i] - tabAdd2[i] ;
 		}
 		
 		Array1DUtil.doubleArrayToSafeArray(img2Values,  img2.getDataXY(0),  true); //true, img2.isSignedDataType());
 		
 		// duplicate channel 0 to chan 1 & 2
-		img2.copyData(img2, 0, 1);
-		img2.copyData(img2, 0, 2);
+//		img2.copyData(img2, 0, 1);
+//		img2.copyData(img2, 0, 2);
 	}
 	
 	private void computeXDiffn(IcyBufferedImage sourceImage) {

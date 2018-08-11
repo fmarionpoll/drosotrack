@@ -35,7 +35,6 @@ import javax.swing.Timer;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
-import icy.canvas.Canvas2D;
 import icy.canvas.IcyCanvas;
 import icy.canvas.Layer;
 import icy.common.exception.UnsupportedFormatException;
