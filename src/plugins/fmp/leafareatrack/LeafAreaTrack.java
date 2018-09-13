@@ -838,10 +838,11 @@ public class LeafAreaTrack extends PluginActionable implements ActionListener, C
 			if (image.isInside(new Point(x, y))) {
 				// c = ColorSpaceTools.getColorComponentsI_0_255(image, ColorSpaceTools.RGB, x, y);			
 				int argb = image.getRGB(x, y);
+//				Viewer v = vSequence.getFirstViewer();
+//				int argb = image.getRGB(x, y, v.getLut());
 				int r = (argb>>16) & 0xFF;
 				int g = (argb>>8) & 0xFF;
 				int b = (argb>>0) & 0xFF;
-				
 				pickColorButton.setBackground(new Color(r, g, b));
 			}
 

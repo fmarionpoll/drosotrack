@@ -190,8 +190,6 @@ public class Capillarytrack extends PluginActionable implements ActionListener, 
 		{true, true, true, true, true}
 	};
 	private StatusComputation 	sComputation = StatusComputation.START_COMPUTATION; 
-	private Viewer viewer1 = null;
-	private Viewer viewer2 = null;
 	private int offsetX = 0;
 	private double scaleX = 0;
 	private int offsetY = 0;
@@ -697,7 +695,8 @@ public class Capillarytrack extends PluginActionable implements ActionListener, 
 		
 		//_______________________________________________
 		else if (o == zoomTopLevelButton) {
-			Canvas2D cv = (Canvas2D) viewer1.getCanvas();
+			Viewer v = vinputSequence.getFirstViewer();
+			Canvas2D cv = (Canvas2D) v.getCanvas();
 			if (cv != null) {
 				if (!previousZoomSet) {	
 					offsetX = 0;
@@ -873,13 +872,7 @@ public class Capillarytrack extends PluginActionable implements ActionListener, 
 
 		for (SequencePlus seq:kymographArrayList)
 			seq.close();
-		if (viewer1 != null)
-			viewer1.close();
-		if (viewer2 != null)
-			viewer2.close();
-		viewer1 = null;
-		viewer2= null;
-
+		
 		if (firstChart != null) 
 			firstChart.mainChartFrame.dispose();
 		if (secondChart != null) 
@@ -1849,7 +1842,8 @@ public class Capillarytrack extends PluginActionable implements ActionListener, 
 		// check display rois
 		boolean displayTop = editLevelsCheckbox.isSelected();
 		boolean displayGulps = editGulpsCheckbox.isSelected();
-		IcyCanvas canvas = viewer1.getCanvas();
+		Viewer v = vinputSequence.getFirstViewer();
+		IcyCanvas canvas = v.getCanvas();
 		List<Layer> layers = canvas.getLayers(false);
 		if (layers == null)
 			return;
