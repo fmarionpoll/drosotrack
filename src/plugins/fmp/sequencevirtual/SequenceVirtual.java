@@ -771,16 +771,6 @@ public class SequenceVirtual extends Sequence
 		return true;
 	}
 	
-//	public XYSeries[] getResults () 
-//	{
-//		return results;
-//	}
-//	
-//	public XYSeries[] getPixels () 
-//	{
-//		return pixels;
-//	}
-
 	public void setThresholdOverlay(ThresholdOverlay ov) 
 	{
 		tov = ov;

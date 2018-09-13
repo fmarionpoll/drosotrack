@@ -81,7 +81,6 @@ public class ROItoRoiArray extends EzPlug implements ViewerListener {
 	EzButton		saveXMLButton;
 	EzButton		generateGridButton;
 	EzButton		generateAutoGridButton;
-//	EzButton		exportSTDButton;
 	EzButton		convertLinesToSquaresButton;
 	EzVarInteger 	areaShrink;
 	EzButton		changeGridNameButton;
@@ -115,8 +114,6 @@ public class ROItoRoiArray extends EzPlug implements ViewerListener {
 			public void actionPerformed(ActionEvent e) { findLeafDiskIntoRectangles(); }	});
 		findLinesButton = new EzButton("Build histograms",  new ActionListener() { 
 			public void actionPerformed(ActionEvent e) { findLines(); } });
-//		exportSTDButton = new EzButton("Export histograms",  new ActionListener() { 
-//			public void actionPerformed(ActionEvent e) { exportSTD(); } });
 		openFileButton = new EzButton("Open file or sequence",  new ActionListener() { 
 			public void actionPerformed(ActionEvent e) { openFile(); } });
 		openXMLButton = new EzButton("Load XML file with ROIs",  new ActionListener() { 
