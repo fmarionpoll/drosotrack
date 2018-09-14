@@ -69,9 +69,10 @@ import plugins.fmp.areatrack.AreaAnalysisThread;
 import plugins.fmp.sequencevirtual.ImageTransform.TransformOp;
 import plugins.fmp.sequencevirtual.SequenceVirtual;
 import plugins.fmp.sequencevirtual.ThresholdOverlay;
+import plugins.fmp.sequencevirtual.ComboBoxColorRenderer;
 import plugins.fmp.sequencevirtual.Tools;
 import plugins.fmp.sequencevirtual.TrapMouseOverlay;
-import plugins.nherve.toolbox.image.toolboxes.ColorSpaceTools;
+
 
 public class LeafAreaTrack extends PluginActionable implements ActionListener, ChangeListener, ViewerListener, OverlayListener
 {	
@@ -104,11 +105,13 @@ public class LeafAreaTrack extends PluginActionable implements ActionListener, C
 	// TODO
 	private String[] availableOverlays 		= new String[] {"None", "Color filter", "Movements"};
 	private JComboBox<String> overlayComboBox	= new JComboBox<String> (availableOverlays);
+
+	private JComboBox<Color> coolorCombo = new JComboBox<Color>();
+	private ComboBoxColorRenderer renderer = new ComboBoxColorRenderer(coolorCombo);
 	
-	private JComboBox<TransformOp> colorComboBox = new JComboBox<TransformOp> (TransformOp.values());
-	private JButton		pickColorButton		= new JButton("Pick");
-	private JButton		addColorButton		= new JButton("Add");
-	private JButton		deleteColorButton	= new JButton("Del");
+	private String textPickAPixel = "Pick a pixel on the image";
+	private JButton		pickColorButton		= new JButton(textPickAPixel);
+	private JButton		deleteColorButton	= new JButton("Delete color");
 	private JRadioButton		L1Button	= new JRadioButton ("L1");
 	private JRadioButton		L2Button	= new JRadioButton("L2");
 	private JSpinner    distanceThreshold	= new JSpinner(new SpinnerNumberModel(10, 0, 255, 10));
@@ -197,10 +200,11 @@ public class LeafAreaTrack extends PluginActionable implements ActionListener, C
 		analysisPanel.add( GuiUtil.besidesPanel(overlayLabel, overlayComboBox, new JLabel("  ")));
 		analysisPanel.add( GuiUtil.besidesPanel(measureSurfacesCheckBox));
 		
-		JLabel colorLabel = new JLabel("Color picker ");
-		analysisPanel.add( GuiUtil.besidesPanel(colorLabel, colorComboBox));
-		analysisPanel.add( GuiUtil.besidesPanel(new JLabel("  "), pickColorButton, addColorButton, deleteColorButton));
-		
+	
+		analysisPanel.add( GuiUtil.besidesPanel(pickColorButton));
+		coolorCombo.setRenderer(renderer);
+		analysisPanel.add( GuiUtil.besidesPanel(coolorCombo, deleteColorButton));
+				
 		JLabel distanceLabel = new JLabel("Distance  ");
 		distanceLabel.setHorizontalAlignment(SwingConstants.RIGHT);
 		ButtonGroup bgd = new ButtonGroup();
@@ -259,6 +263,8 @@ public class LeafAreaTrack extends PluginActionable implements ActionListener, C
 		measureSurfacesCheckBox.setSelected(true);
 		measureHeatmapCheckBox.setSelected(true);
 		overlayComboBox.setSelectedIndex(0);
+		L1Button.setSelected(true);
+		RGBButton.setSelected(true);
 
 		// -------------------------------------------- action listeners, etc
 		setVideoSourceButton.addActionListener(this);
@@ -272,6 +278,7 @@ public class LeafAreaTrack extends PluginActionable implements ActionListener, C
 		overlayComboBox.addActionListener(this);
 		updateChartsButton.addActionListener(this);
 		pickColorButton.addActionListener(this);
+		deleteColorButton.addActionListener(this);
 		
 		transformsComboBox.addActionListener(new ActionListener () {
 			@Override
@@ -424,9 +431,28 @@ public class LeafAreaTrack extends PluginActionable implements ActionListener, C
 		}
 		//________________________________________________
 		else if (o == pickColorButton) {
-			if (trapOverlay == null)
-				trapOverlay = new TrapMouseOverlay(this);
-			vSequence.addOverlay(trapOverlay);
+			if (pickColorButton.getText().contains("*") || pickColorButton.getText().contains(":")) {
+				pickColorButton.setBackground(Color.LIGHT_GRAY);
+				pickColorButton.setText("Pick");
+				if (trapOverlay != null) {
+					trapOverlay.remove();
+					trapOverlay = null;
+				}
+			}
+			else
+			{
+				pickColorButton.setText("*"+textPickAPixel+"*");
+				pickColorButton.setBackground(Color.DARK_GRAY);
+				if (trapOverlay == null)
+					trapOverlay = new TrapMouseOverlay(this);
+				vSequence.addOverlay(trapOverlay);
+			}
+		}
+		//________________________________________________
+		else if (o == deleteColorButton) {
+			if (coolorCombo.getItemCount() > 0) {
+				coolorCombo.removeItemAt(coolorCombo.getSelectedIndex());				
+			}
 		}
 	}
 	
@@ -827,7 +853,6 @@ public class LeafAreaTrack extends PluginActionable implements ActionListener, C
 		System.out.println("XLS output done");
 	}
 
-	
 	@Override
 	public void overlayChanged(OverlayEvent event) {
 		if (event.getType() == OverlayEventType.PROPERTY_CHANGED) {
@@ -835,21 +860,39 @@ public class LeafAreaTrack extends PluginActionable implements ActionListener, C
 			int x = (int) trapOverlay.getClickPoint().getX();
 			int y = (int) trapOverlay.getClickPoint().getY();
 			IcyBufferedImage image = vSequence.getImage(vSequence.getT(), 0, -1);
-			if (image.isInside(new Point(x, y))) {
-				// c = ColorSpaceTools.getColorComponentsI_0_255(image, ColorSpaceTools.RGB, x, y);			
+			boolean isInside = image.isInside(new Point(x, y)); 
+			if (isInside) {
 				int argb = image.getRGB(x, y);
-//				Viewer v = vSequence.getFirstViewer();
-//				int argb = image.getRGB(x, y, v.getLut());
 				int r = (argb>>16) & 0xFF;
 				int g = (argb>>8) & 0xFF;
 				int b = (argb>>0) & 0xFF;
 				pickColorButton.setBackground(new Color(r, g, b));
+				String cs = Integer.toString(r) + ":"+ Integer.toString(g) +":" + Integer.toString(b);
+				pickColorButton.setText(cs);
 			}
 
-			if (event.getPropertyName() == "click")
+			if (event.getPropertyName() == "click") {
 				trapOverlay = null;
+				if (isInside) {
+					Color color = pickColorButton.getBackground();
+					boolean isnewcolor = true;
+					int isel = 0;
+					for (int i=0; i<coolorCombo.getItemCount(); i++) {
+						if (color == coolorCombo.getItemAt(i)) {
+							isnewcolor = false;
+							isel = i;
+						}
+					}
+					if (isnewcolor) {
+						coolorCombo.addItem(color);
+						isel = coolorCombo.getItemCount()-1;
+					}
+					coolorCombo.setSelectedIndex(isel);
+				}
+				pickColorButton.setBackground(Color.LIGHT_GRAY);
+				pickColorButton.setText(textPickAPixel);
+			}
 		} 
-		
 	}
 
 }
