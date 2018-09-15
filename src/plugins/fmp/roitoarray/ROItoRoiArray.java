@@ -49,7 +49,7 @@ import plugins.adufour.ezplug.EzVarInteger;
 import plugins.adufour.ezplug.EzVarListener;
 import plugins.adufour.ezplug.EzVarSequence;
 import plugins.adufour.ezplug.EzVarText;
-import plugins.fmp.sequencevirtual.ImageTransform.TransformOp;
+import plugins.fmp.sequencevirtual.ImageTransformTools.TransformOp;
 import plugins.fmp.sequencevirtual.SequenceVirtual;
 import plugins.fmp.sequencevirtual.ThresholdOverlay;
 import plugins.fmp.sequencevirtual.Tools;

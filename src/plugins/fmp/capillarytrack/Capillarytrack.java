@@ -70,13 +70,13 @@ import jxl.write.WritableWorkbook;
 import jxl.write.WriteException;
 
 import plugins.fmp.capillarytrack.KymoOverlay;
-import plugins.fmp.sequencevirtual.ImageTransform;
+import plugins.fmp.sequencevirtual.ImageTransformTools;
 import plugins.fmp.sequencevirtual.Line2DPlus;
 import plugins.fmp.sequencevirtual.SequencePlus;
 import plugins.fmp.sequencevirtual.SequencePlus.ArrayListType;
 import plugins.fmp.sequencevirtual.SequenceVirtual;
 import plugins.fmp.sequencevirtual.Tools;
-import plugins.fmp.sequencevirtual.ImageTransform.TransformOp;
+import plugins.fmp.sequencevirtual.ImageTransformTools.TransformOp;
 import plugins.kernel.roi.roi2d.ROI2DLine;
 import plugins.kernel.roi.roi2d.ROI2DPolyLine;
 import plugins.kernel.roi.roi2d.ROI2DPolygon;
@@ -201,7 +201,7 @@ public class Capillarytrack extends PluginActionable implements ActionListener, 
 	private ROI2DLine	roiRefLineUpper = new ROI2DLine ();
 	private ROI2DLine	roiRefLineLower = new ROI2DLine ();
 	private BuildKymographsThread buildKymographsThread = null;
-	private ImageTransform tImg = null;
+	private ImageTransformTools tImg = null;
 	
 	// -------------------------------------------
 	@Override
@@ -1274,7 +1274,7 @@ public class Capillarytrack extends PluginActionable implements ActionListener, 
 	private void kymosBuildFiltered(int zSource, int zTransform, TransformOp transformop, int spanDiff) {
 
 		if (tImg == null) 
-			tImg = new ImageTransform();
+			tImg = new ImageTransformTools();
 		tImg.setSpanDiff(spanDiff);
 		
 		for (int i=0; i < kymographArrayList.size(); i++) {

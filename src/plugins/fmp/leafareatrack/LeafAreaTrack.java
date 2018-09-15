@@ -66,9 +66,10 @@ import jxl.write.WriteException;
 import plugins.fmp.areatrack.MeasureAndName;
 import plugins.fmp.areatrack.AreaAnalysisThread;
 
-import plugins.fmp.sequencevirtual.ImageTransform.TransformOp;
+import plugins.fmp.sequencevirtual.ImageTransformTools.TransformOp;
 import plugins.fmp.sequencevirtual.SequenceVirtual;
 import plugins.fmp.sequencevirtual.ThresholdOverlay;
+import plugins.fmp.sequencevirtual.ThresholdOverlay.ThresholdType;
 import plugins.fmp.sequencevirtual.ComboBoxColorRenderer;
 import plugins.fmp.sequencevirtual.Tools;
 import plugins.fmp.sequencevirtual.TrapMouseOverlay;
@@ -77,7 +78,7 @@ import plugins.fmp.sequencevirtual.TrapMouseOverlay;
 public class LeafAreaTrack extends PluginActionable implements ActionListener, ChangeListener, ViewerListener, OverlayListener
 {	
 	// -------------------------------------- interface
-	IcyFrame mainFrame = new IcyFrame("AreaTrack 11-09-2018", true, true, true, true);
+	IcyFrame mainFrame = new IcyFrame("LeafAreaTrack 15-09-2018", true, true, true, true);
 	IcyFrame mainChartFrame = null;
 	JPanel 	mainChartPanel = null;
 	
@@ -95,9 +96,9 @@ public class LeafAreaTrack extends PluginActionable implements ActionListener, C
 	private JTextField startFrameTextField	= new JTextField("0");
 	private JTextField endFrameTextField	= new JTextField("99999999");
 	
-	private JComboBox<TransformOp> transformsComboBox = new JComboBox<TransformOp> (TransformOp.values());
-	private int tdefault 					= 7;
-	private JSpinner thresholdSpinner		= new JSpinner(new SpinnerNumberModel(70, 0, 255, 10));
+	//private JComboBox<TransformOp> transformsComboBox = new JComboBox<TransformOp> (TransformOp.values());
+	//private int tdefault 					= 7;
+
 	private JSpinner threshold2Spinner		= new JSpinner(new SpinnerNumberModel(50, 0, 255, 10));
 	private JTextField analyzeStepTextField = new JTextField("1");
 	
@@ -106,18 +107,18 @@ public class LeafAreaTrack extends PluginActionable implements ActionListener, C
 	private String[] availableOverlays 		= new String[] {"None", "Color filter", "Movements"};
 	private JComboBox<String> overlayComboBox	= new JComboBox<String> (availableOverlays);
 
-	private JComboBox<Color> coolorCombo = new JComboBox<Color>();
-	private ComboBoxColorRenderer renderer = new ComboBoxColorRenderer(coolorCombo);
+	private JComboBox<Color> colorPickCombo = new JComboBox<Color>();
+	private ComboBoxColorRenderer colorPickComboRenderer = new ComboBoxColorRenderer(colorPickCombo);
 	
 	private String textPickAPixel = "Pick a pixel on the image";
 	private JButton		pickColorButton		= new JButton(textPickAPixel);
 	private JButton		deleteColorButton	= new JButton("Delete color");
-	private JRadioButton		L1Button	= new JRadioButton ("L1");
-	private JRadioButton		L2Button	= new JRadioButton("L2");
-	private JSpinner    distanceThreshold	= new JSpinner(new SpinnerNumberModel(10, 0, 255, 10));
-	private JRadioButton		RGBButton	= new JRadioButton("RGB");
-	private JRadioButton		HSVButton	= new JRadioButton("HSV");
-	private JRadioButton		H123Button	= new JRadioButton("H1H2H3");
+	private JRadioButton		rbL1		= new JRadioButton ("L1");
+	private JRadioButton		rbL2		= new JRadioButton("L2");
+	private JSpinner    		distance 	= new JSpinner(new SpinnerNumberModel(10, 0, 800, 10));
+	private JRadioButton		rbRGB		= new JRadioButton("RGB");
+	private JRadioButton		rbHSV		= new JRadioButton("HSV");
+	private JRadioButton		rbH1H2H3	= new JRadioButton("H1H2H3");
 	
 	//---------------------------------------------------------------------------
 	private String[] availableFilter 		= new String[] {"raw data", "running average", "running median"};
@@ -139,8 +140,9 @@ public class LeafAreaTrack extends PluginActionable implements ActionListener, C
 	private int endFrame 					= 99999999;
 	private int numberOfImageForBuffer 		= 100;
 	private AreaAnalysisThread analysisThread = null;
-	private ThresholdOverlay thresholdOverlay= null;
+	private ThresholdOverlay thresholdOverlay = null;
 	private TrapMouseOverlay trapOverlay = null;
+	private TransformOp colorspace;
 	
 	// --------------------------------------------------------------------------
 	@Override
@@ -202,22 +204,22 @@ public class LeafAreaTrack extends PluginActionable implements ActionListener, C
 		
 	
 		analysisPanel.add( GuiUtil.besidesPanel(pickColorButton));
-		coolorCombo.setRenderer(renderer);
-		analysisPanel.add( GuiUtil.besidesPanel(coolorCombo, deleteColorButton));
+		colorPickCombo.setRenderer(colorPickComboRenderer);
+		analysisPanel.add( GuiUtil.besidesPanel(colorPickCombo, deleteColorButton));
 				
 		JLabel distanceLabel = new JLabel("Distance  ");
 		distanceLabel.setHorizontalAlignment(SwingConstants.RIGHT);
 		ButtonGroup bgd = new ButtonGroup();
-		bgd.add(L1Button);
-		bgd.add(L2Button);
-		analysisPanel.add( GuiUtil.besidesPanel(distanceLabel, L1Button, L2Button, distanceThreshold));
+		bgd.add(rbL1);
+		bgd.add(rbL2);
+		analysisPanel.add( GuiUtil.besidesPanel(distanceLabel, rbL1, rbL2, distance));
 		JLabel colorspaceLabel = new JLabel("Color space ");
 		colorspaceLabel.setHorizontalAlignment(SwingConstants.RIGHT);
 		ButtonGroup bgcs = new ButtonGroup();
-		bgcs.add(RGBButton);
-		bgcs.add(HSVButton);
-		bgcs.add(H123Button);
-		analysisPanel.add( GuiUtil.besidesPanel(colorspaceLabel, RGBButton, HSVButton, H123Button));
+		bgcs.add(rbRGB);
+		bgcs.add(rbHSV);
+		bgcs.add(rbH1H2H3);
+		analysisPanel.add( GuiUtil.besidesPanel(colorspaceLabel, rbRGB, rbHSV, rbH1H2H3));
 		// ------------------------------------------------------------------------------
 		analysisPanel.add( GuiUtil.besidesPanel(measureHeatmapCheckBox ));
 		JLabel thresholdLabel2 = new JLabel("'move' threshold ");
@@ -259,12 +261,13 @@ public class LeafAreaTrack extends PluginActionable implements ActionListener, C
 		// -------------------------------------------- default selection
 		conditionsComboBox.setSelectedIndex(1);
 		filterComboBox.setSelectedIndex(1);
-		transformsComboBox.setSelectedIndex(tdefault);
+		//transformsComboBox.setSelectedIndex(tdefault);
 		measureSurfacesCheckBox.setSelected(true);
 		measureHeatmapCheckBox.setSelected(true);
 		overlayComboBox.setSelectedIndex(0);
-		L1Button.setSelected(true);
-		RGBButton.setSelected(true);
+		rbL1.setSelected(true);
+		rbRGB.setSelected(true);
+		colorspace = TransformOp.None;
 
 		// -------------------------------------------- action listeners, etc
 		setVideoSourceButton.addActionListener(this);
@@ -273,23 +276,23 @@ public class LeafAreaTrack extends PluginActionable implements ActionListener, C
 		saveROIsButton.addActionListener(this);
 		startComputationButton.addActionListener(this);
 		stopComputationButton.addActionListener( this);
-		thresholdSpinner.addChangeListener(this);
+		distance.addChangeListener(this);
 		threshold2Spinner.addChangeListener(this);
 		overlayComboBox.addActionListener(this);
 		updateChartsButton.addActionListener(this);
 		pickColorButton.addActionListener(this);
 		deleteColorButton.addActionListener(this);
-		
+		/*
 		transformsComboBox.addActionListener(new ActionListener () {
 			@Override
 			public void actionPerformed( final ActionEvent e ) { 
 				if (thresholdOverlay != null) {
 					TransformOp transformop = (TransformOp) transformsComboBox.getSelectedItem();
-					int threshold = Integer.parseInt(thresholdSpinner.getValue().toString());
+					int threshold = Integer.parseInt(distance.getValue().toString());
 					setThresholdOverlay(true, threshold, transformop);
 				} 
 			} } );
-		
+		*/
 		exportToXLSButton.addActionListener(this);
 		closeAllButton.addActionListener(new ActionListener () {
 			@Override
@@ -301,6 +304,25 @@ public class LeafAreaTrack extends PluginActionable implements ActionListener, C
 				}
 				vSequence.close();
 				checkBufferTimer.stop(); 
+			} } );
+		
+		rbRGB.addActionListener(new ActionListener () {
+			@Override
+			public void actionPerformed( final ActionEvent e ) { 
+				colorspace = TransformOp.None;
+				updateThresholdOverlay();
+			} } );
+		rbHSV.addActionListener(new ActionListener () {
+			@Override
+			public void actionPerformed( final ActionEvent e ) { 
+				colorspace = TransformOp.RGB_TO_HSV;
+				updateThresholdOverlay();
+			} } );
+		rbH1H2H3.addActionListener(new ActionListener () {
+			@Override
+			public void actionPerformed( final ActionEvent e ) { 
+				colorspace = TransformOp.RGB_TO_H1H2H3;
+				updateThresholdOverlay();
 			} } );
 	}
 
@@ -320,16 +342,8 @@ public class LeafAreaTrack extends PluginActionable implements ActionListener, C
 		if (thresholdOverlay == null)
 			return;
 		
-		if ((e.getSource() == thresholdSpinner) && overlayComboBox.getSelectedIndex() == 1) {
-			TransformOp transformop = (TransformOp) transformsComboBox.getSelectedItem();
-			int threshold = Integer.parseInt(thresholdSpinner.getValue().toString());
-			setThresholdOverlay(true, threshold, transformop);
-		}
-
-		else if ((e.getSource() == threshold2Spinner) && overlayComboBox.getSelectedIndex() == 2) {
-			int threshold2 = Integer.parseInt(threshold2Spinner.getValue().toString());
-			setThresholdOverlay(true, threshold2, TransformOp.REFn);
-		}
+		if (e.getSource() == distance || e.getSource() == threshold2Spinner) 
+			updateThresholdOverlay();
 	}
 
 	@Override
@@ -387,29 +401,12 @@ public class LeafAreaTrack extends PluginActionable implements ActionListener, C
 		
 		// _______________________________________________
 		else if (o == stopComputationButton) {
-
 			stopAnalysisThread();
 		}
 		
-
 		// _______________________________________________
 		else if (o == overlayComboBox && (vSequence != null))  {
-			int iselected = overlayComboBox.getSelectedIndex();
-			removeThresholdOverlay();
-			switch (iselected) {
-			case 1:
-				TransformOp transformop = (TransformOp) transformsComboBox.getSelectedItem();
-				int threshold = Integer.parseInt(thresholdSpinner.getValue().toString());
-				setThresholdOverlay(true, threshold, transformop);
-				break;
-			case 2:
-				int threshold2 = Integer.parseInt(threshold2Spinner.getValue().toString());
-				setThresholdOverlay(true, threshold2, TransformOp.REFn);
-				break;
-			default:
-				break;
-			}	
-
+			setThresholdOverlay();
 		}
 		
 		//___________________________________________________
@@ -433,7 +430,7 @@ public class LeafAreaTrack extends PluginActionable implements ActionListener, C
 		else if (o == pickColorButton) {
 			if (pickColorButton.getText().contains("*") || pickColorButton.getText().contains(":")) {
 				pickColorButton.setBackground(Color.LIGHT_GRAY);
-				pickColorButton.setText("Pick");
+				pickColorButton.setText("textPickAPixel");
 				if (trapOverlay != null) {
 					trapOverlay.remove();
 					trapOverlay = null;
@@ -450,8 +447,8 @@ public class LeafAreaTrack extends PluginActionable implements ActionListener, C
 		}
 		//________________________________________________
 		else if (o == deleteColorButton) {
-			if (coolorCombo.getItemCount() > 0) {
-				coolorCombo.removeItemAt(coolorCombo.getSelectedIndex());				
+			if (colorPickCombo.getItemCount() > 0) {
+				colorPickCombo.removeItemAt(colorPickCombo.getSelectedIndex());				
 			}
 		}
 	}
@@ -459,16 +456,15 @@ public class LeafAreaTrack extends PluginActionable implements ActionListener, C
 	private void startAnalysisThread() {
 		stopAnalysisThread();
 		
-		TransformOp transformop = (TransformOp) transformsComboBox.getSelectedItem();
-		int threshold = Integer.parseInt(thresholdSpinner.getValue().toString());
+		TransformOp transformop = TransformOp.COLORARRAY1; //(TransformOp) transformsComboBox.getSelectedItem();
 		int threshold2 = Integer.parseInt(threshold2Spinner.getValue().toString());
-		setThresholdOverlay(true, threshold, transformop);
+		setThresholdOverlayParameters();
 		
 		analysisThread = new AreaAnalysisThread(); 
 
 		if (overlayComboBox.getSelectedIndex() != 1) {
 			overlayComboBox.setSelectedIndex(1);
-			setThresholdOverlay(true, threshold, transformop);
+			setThresholdOverlayParameters();
 		}
 		startFrame 	= Integer.parseInt( startFrameTextField.getText() );
 		endFrame 	= Integer.parseInt( endFrameTextField.getText() );
@@ -490,15 +486,55 @@ public class LeafAreaTrack extends PluginActionable implements ActionListener, C
 		}
 	}
 	
-	private void setThresholdOverlay(boolean bdisplay, int threshold, TransformOp transformop) {
-		
-		vSequence.threshold = threshold;
+	private void setThresholdOverlay() {
+		removeThresholdOverlay();
+		setThresholdOverlayParameters();
+	}
+	
+	private void updateThresholdOverlay() {
 		if (thresholdOverlay == null)
-			thresholdOverlay = new ThresholdOverlay();	
-		if (vSequence.getThresholdOverlay () == null)
-			vSequence.addOverlay(thresholdOverlay);
+			return;	
+		setThresholdOverlayParameters();
+	}
+	
+	private void setThresholdOverlayParameters() {
+		boolean bdisplay=false; 
+		int threshold =0; 
+		ThresholdType thresholdtype = ThresholdType.SINGLE;
+		TransformOp transformop = TransformOp.None;
+		int iselected = overlayComboBox.getSelectedIndex();
+		switch (iselected) {
+		case 1:
+			threshold = Integer.parseInt(distance.getValue().toString());
+			transformop = colorspace;
+			thresholdtype = ThresholdType.COLORARRAY;
+			bdisplay = true;
+			break;
+		case 2:
+			threshold = Integer.parseInt(threshold2Spinner.getValue().toString());
+			thresholdtype = ThresholdType.SINGLE;
+			transformop = TransformOp.REFn;
+			bdisplay=true;
+			break;
+		default:
+			return;
+		}
+		
+		//--------------------------------
+		vSequence.threshold = threshold;
 		vSequence.setThresholdOverlay(thresholdOverlay);
-		thresholdOverlay.setThresholdOverlayParameters( vSequence, bdisplay, threshold, transformop);
+		ArrayList <Color> colorarray = new ArrayList <Color>();
+		for (int i=0; i<colorPickCombo.getItemCount(); i++) {
+			colorarray.add(colorPickCombo.getItemAt(i));
+		}
+		int distanceType = 1;
+		if (rbL2.isSelected()) 
+			distanceType = 2;	
+		
+		int colorthreshold = Integer.parseInt(distance.getValue().toString());
+ 		thresholdOverlay.setThresholdOverlayParametersColors( vSequence, 
+ 				bdisplay, threshold, transformop, thresholdtype,
+				distanceType, colorthreshold, colorarray);
 		thresholdOverlay.painterChanged();
 	}
 	
@@ -509,7 +545,7 @@ public class LeafAreaTrack extends PluginActionable implements ActionListener, C
 		thresholdOverlay = null;
 	}
 	
-	private void filterClipValues(int span, int constraintoption) {
+	private void filterMeasures_ClipValues(int span, int constraintoption) {
 		if (constraintoption == 1) {
 			int nrois = vSequence.data_raw.length;
 			for (int iroi=0; iroi < nrois; iroi++) {
@@ -521,7 +557,7 @@ public class LeafAreaTrack extends PluginActionable implements ActionListener, C
 		}
 	}
 	
-	private void filterRunningAverage(int span) {
+	private void filterMeasures_RunningAverage(int span) {
 		int nrois = vSequence.data_raw.length;
 		for (int iroi=0; iroi < nrois; iroi++) {
 			double sum = 0;
@@ -543,7 +579,7 @@ public class LeafAreaTrack extends PluginActionable implements ActionListener, C
 		}
 	}
 		
-	private void filterRunningMedian(int span) {
+	private void filterMeasures_RunningMedian(int span) {
 		
 		int nrois = vSequence.data_raw.length;
 		int nbspan = span/2;
@@ -575,27 +611,27 @@ public class LeafAreaTrack extends PluginActionable implements ActionListener, C
 		}
 	}
 	
-	private void filterData () {
+	private void filterMeasures () {
 		int filteroption = filterComboBox.getSelectedIndex();
 		int constraintoption = conditionsComboBox.getSelectedIndex();
 		int span = Integer.parseInt(spanTextField.getText());
-		filterData (filteroption, span,  constraintoption);
+		filterMeasures_parameters (filteroption, span,  constraintoption);
 		
 	}
 	
-	private void filterData (int filteroption, int span, int constraintoption) {
+	private void filterMeasures_parameters (int filteroption, int span, int constraintoption) {
 		int nrois = vSequence.data_raw.length;
 		if (vSequence.data_filtered == null || vSequence.data_filtered.length != vSequence.data_raw.length)
 			vSequence.data_filtered = new double [nrois][endFrame-startFrame+1];
 		
 		switch (filteroption) {
 			case 1: // running average over "span" points
-				filterRunningAverage(span);
-				filterClipValues(span, constraintoption);
+				filterMeasures_RunningAverage(span);
+				filterMeasures_ClipValues(span, constraintoption);
 				break;
 			case 2:
-				filterRunningMedian(span);
-				filterClipValues(span, constraintoption);
+				filterMeasures_RunningMedian(span);
+				filterMeasures_ClipValues(span, constraintoption);
 				break;
 			default:	
 				for (int iroi=0; iroi < nrois; iroi++) {
@@ -645,7 +681,7 @@ public class LeafAreaTrack extends PluginActionable implements ActionListener, C
 	}
 	
 	private void updateCharts() {
-		filterData ();
+		filterMeasures ();
 		
 		String title = "Measures from " + vSequence.getFileName(0);
 		Point pt = new Point(10, 10);
@@ -742,7 +778,8 @@ public class LeafAreaTrack extends PluginActionable implements ActionListener, C
 		XLSUtil.setCellString(filteredDataPage,  0,  irow, worksheetname);
 		// write filter and threshold applied
 		irow++;
-		cs = "Detect surface: "+ transformsComboBox.getSelectedItem().toString() + " threshold=" + thresholdSpinner.getValue().toString();
+		//cs = "Detect surface: "+ transformsComboBox.getSelectedItem().toString() + " threshold=" + distance.getValue().toString();
+		cs = "Detect surface: colors array with distance=" + distance.getValue().toString();
 		XLSUtil.setCellString(filteredDataPage,  0,  irow, cs);	
 		irow++;
 		cs = "Detect movement using image (n) - (n-1) threshold=" + threshold2Spinner.getValue().toString();
@@ -832,15 +869,15 @@ public class LeafAreaTrack extends PluginActionable implements ActionListener, C
 		try {
 			WritableWorkbook xlsWorkBook = XLSUtil.createWorkbook( filename);
 
-			filterData (0, span, 0);
+			filterMeasures_parameters (0, span, 0);
 			exportToXLSWorksheet(xlsWorkBook, "raw");
-			filterData (1, span, 0);
+			filterMeasures_parameters (1, span, 0);
 			exportToXLSWorksheet(xlsWorkBook, "avg");
-			filterData (1, span, 1);
+			filterMeasures_parameters (1, span, 1);
 			exportToXLSWorksheet(xlsWorkBook, "avg_clipped");
-			filterData (2, span, 0);
+			filterMeasures_parameters (2, span, 0);
 			exportToXLSWorksheet(xlsWorkBook, "median");
-			filterData (2, span, 1);
+			filterMeasures_parameters (2, span, 1);
 			exportToXLSWorksheet(xlsWorkBook, "median_clipped");
 			
 			// --------------
@@ -867,30 +904,31 @@ public class LeafAreaTrack extends PluginActionable implements ActionListener, C
 				int g = (argb>>8) & 0xFF;
 				int b = (argb>>0) & 0xFF;
 				pickColorButton.setBackground(new Color(r, g, b));
-				String cs = Integer.toString(r) + ":"+ Integer.toString(g) +":" + Integer.toString(b);
+				String cs = "RGB= "+Integer.toString(r) + ":"+ Integer.toString(g) +":" + Integer.toString(b);
 				pickColorButton.setText(cs);
 			}
 
 			if (event.getPropertyName() == "click") {
-				trapOverlay = null;
+
 				if (isInside) {
 					Color color = pickColorButton.getBackground();
 					boolean isnewcolor = true;
 					int isel = 0;
-					for (int i=0; i<coolorCombo.getItemCount(); i++) {
-						if (color == coolorCombo.getItemAt(i)) {
+					for (int i=0; i<colorPickCombo.getItemCount(); i++) {
+						if (color == colorPickCombo.getItemAt(i)) {
 							isnewcolor = false;
 							isel = i;
 						}
 					}
 					if (isnewcolor) {
-						coolorCombo.addItem(color);
-						isel = coolorCombo.getItemCount()-1;
+						colorPickCombo.addItem(color);
+						isel = colorPickCombo.getItemCount()-1;
 					}
-					coolorCombo.setSelectedIndex(isel);
+					colorPickCombo.setSelectedIndex(isel);
 				}
 				pickColorButton.setBackground(Color.LIGHT_GRAY);
 				pickColorButton.setText(textPickAPixel);
+				updateThresholdOverlay();
 			}
 		} 
 	}

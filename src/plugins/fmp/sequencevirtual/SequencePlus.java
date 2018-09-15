@@ -18,7 +18,7 @@ import icy.sequence.Sequence;
 import icy.sequence.SequenceEvent.SequenceEventType;
 import icy.type.geom.Polyline2D;
 import icy.util.XMLUtil;
-import plugins.fmp.sequencevirtual.ImageTransform.TransformOp;
+import plugins.fmp.sequencevirtual.ImageTransformTools.TransformOp;
 import plugins.kernel.roi.roi2d.ROI2DPolyLine;
 
 public class SequencePlus extends Sequence {

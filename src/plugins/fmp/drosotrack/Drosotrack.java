@@ -61,7 +61,7 @@ import icy.util.XLSUtil;
 import jxl.write.WritableSheet;
 import jxl.write.WritableWorkbook;
 import jxl.write.WriteException;
-import plugins.fmp.sequencevirtual.ImageTransform.TransformOp;
+import plugins.fmp.sequencevirtual.ImageTransformTools.TransformOp;
 import plugins.fmp.sequencevirtual.SequenceVirtual;
 import plugins.fmp.sequencevirtual.ThresholdOverlay;
 import plugins.fmp.sequencevirtual.Tools;

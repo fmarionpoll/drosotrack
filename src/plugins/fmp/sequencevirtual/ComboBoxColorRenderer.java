@@ -35,7 +35,7 @@ public class ComboBoxColorRenderer extends JPanel implements ListCellRenderer<Ob
         	int r = argb.getRed();
 			int g = argb.getGreen();
 			int b = argb.getBlue();
-			cs = Integer.toString(r) + " : "+ Integer.toString(g) +" : " + Integer.toString(b);
+			cs = "RGB = "+ Integer.toString(r) + " : "+ Integer.toString(g) +" : " + Integer.toString(b);
             text.setText(cs);
             // adapt color of text according to background
             // https://stackoverflow.com/questions/1855884/determine-font-color-based-on-background-color/34883645
