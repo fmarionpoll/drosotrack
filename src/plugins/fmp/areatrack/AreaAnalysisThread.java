@@ -19,7 +19,7 @@ import icy.type.collection.array.Array1DUtil;
 import plugins.fmp.sequencevirtual.ImageTransformTools;
 import plugins.fmp.sequencevirtual.ImageTransformTools.TransformOp;
 import plugins.fmp.sequencevirtual.SequenceVirtual;
-import plugins.fmp.sequencevirtual.ThresholdOverlay;
+import plugins.fmp.sequencevirtual.ThresholdImage;
 import plugins.fmp.sequencevirtual.Tools;
 
 public class AreaAnalysisThread extends Thread
@@ -65,7 +65,9 @@ public class AreaAnalysisThread extends Thread
 			int endFrame, 
 			int imageref,
 			TransformOp transf, 
-			int thresholdForHeatMap, boolean measureROIsEvolution, boolean measureROIsMove)
+			int thresholdForHeatMap, 
+			boolean measureROIsEvolution, 
+			boolean measureROIsMove)
 	{
 		vSequence = virtualSequence;
 		this.roiList = roiList;
@@ -126,11 +128,7 @@ public class AreaAnalysisThread extends Thread
 				viewer = Icy.getMainInterface().getFirstViewer(vSequence);
 			else 
 				viewer = resultViewer;
-			ThresholdOverlay tov = vSequence.getThresholdOverlay();
-			if (tov == null) {
-				System.out.println("threshold overlay is null; exit");
-				return;
-			}
+			ThresholdImage tov = new ThresholdImage();
 			vSequence.beginUpdate();
 			ImageTransformTools tImg = new ImageTransformTools();
 			tImg.setSequenceOfReferenceImage(vSequence);
@@ -149,8 +147,8 @@ public class AreaAnalysisThread extends Thread
 					viewer.setTitle(vSequence.getVImageName(t));
 
 					// ------------------------ compute global mask
-					tov.getBoolMapOverThresholdFromDoubleImage(workImage, threshold);
-					BooleanMask2D maskAll2D = new BooleanMask2D(workImage.getBounds(), tov.boolMap); 
+					boolean [] boolMap = tov.getBoolMapOverThresholdFromDoubleImage(workImage, threshold);
+					BooleanMask2D maskAll2D = new BooleanMask2D(workImage.getBounds(), boolMap); 
 					
 					// ------------------------ loop over all the cages of the stack & count n pixels above threshold
 					for (int imask = 0; imask < areaMaskList.size(); imask++ )

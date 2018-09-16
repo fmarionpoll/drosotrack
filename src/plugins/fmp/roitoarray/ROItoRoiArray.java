@@ -1089,7 +1089,7 @@ public class ROItoRoiArray extends EzPlug implements ViewerListener {
 			
 			if (thresholdOverlay == null) {
 				thresholdOverlay = new ThresholdOverlay();
-				vSequence.setThresholdOverlay(thresholdOverlay);
+				vSequence.addOverlay(thresholdOverlay);
 			}
 			vSequence.threshold = thresholdOv.getValue();
 			vSequence.addOverlay(thresholdOverlay);
@@ -1100,7 +1100,6 @@ public class ROItoRoiArray extends EzPlug implements ViewerListener {
 				return;
 			if (thresholdOverlay != null) 
 				vSequence.removeOverlay(thresholdOverlay);
-			vSequence.setThresholdOverlay(null);
 			thresholdOverlay = null;
 		}
 	}
@@ -1118,14 +1117,12 @@ public class ROItoRoiArray extends EzPlug implements ViewerListener {
 			return;
 		if (thresholdOverlay == null) {
 			thresholdOverlay = new ThresholdOverlay();
-			vSequence.setThresholdOverlay(thresholdOverlay);
+			vSequence.addOverlay(thresholdOverlay);
 		}
 		TransformOp transformop = filterComboBox.getValue();
 
-		thresholdOverlay.setThresholdOverlayParameters( vSequence,
-				overlayCheckBox.getValue(), 
-				vSequence.threshold, 
-				transformop);
+		thresholdOverlay.setThresholdSequence (vSequence);
+		thresholdOverlay.setThresholdOverlayParameters( vSequence.threshold, transformop);
 			
 		if (thresholdOverlay != null) {
 			thresholdOverlay.painterChanged();

@@ -36,7 +36,6 @@ public class ImageTransformTools {
 
 	private IcyBufferedImage referenceImage = null;
 	private int spanDiff = 3;
-	//private int	spanDiffTransf2 = 3;
 	private	IcyBufferedImage img2;
 	private SequenceVirtual vinputSequence 	= null;
 	
@@ -64,34 +63,35 @@ public class ImageTransformTools {
 		
 		switch (transformop) {
 		case None: 
-		case COLORARRAY1:
-			break;
+		case COLORARRAY1: /*System.out.println("transform image - " + transformop);*/  break;
+		
 		case R_RGB: functionRGB_keepOneChan(img, 0); break;
 		case G_RGB: functionRGB_keepOneChan(img, 1); break;
 		case B_RGB: functionRGB_keepOneChan(img, 2); break;
-		
-		case GBMINUS2R: functionRGB_C1C2Minus2C3 (img, 1, 2, 0); break;
-		case RBMINUS2G: functionRGB_C1C2Minus2C3 (img, 0, 2, 1); break;
-		case RGMINUS2B: functionRGB_C1C2Minus2C3 (img, 0, 1, 2); break;
-		
 		case RGB: functionRGB_grey (img);
 		
 		case H_HSB: functionRGBtoHSB(img, 0); break;
 		case S_HSB: functionRGBtoHSB(img, 1); break;
 		case B_HSB: functionRGBtoHSB(img, 2); break;
 
+		case GBMINUS2R: functionRGB_C1C2Minus2C3 (img, 1, 2, 0); break;
+		case RBMINUS2G: functionRGB_C1C2Minus2C3 (img, 0, 2, 1); break;
+		case RGMINUS2B: functionRGB_C1C2Minus2C3 (img, 0, 1, 2); break;
+		case NORM_BRmG: functionNormRGB_sumC1C2Minus2C3(img, 1, 2, 0); break;
+			
+		case REFt0: functionSubtractRef(img); break;
+		case REF: functionSubtractRef(img); break;
+		case REFn: 
+			int t = vinputSequence.currentFrame;
+			if (t>0) 
+				{referenceImage = vinputSequence.loadVImage(t-1); 
+			functionSubtractRef(img);} 
+			break;
+			
 		case XDIFFN: computeXDiffn (img); break;
 //		case XYDIFFN: computeXYDiffn (img); break;
 
-		case REFt0: functionSubtractRef(img); break;
-		case REFn: //if (t>0) {referenceImage = vinputSequence.loadVImage(t-1); functionSubtractRef(img);} break;
-			break;
-		case REF: functionSubtractRef(img); break;
-		
-		case NORM_BRmG: functionNormRGB_sumC1C2Minus2C3(img, 1, 2, 0); break;
-		
 		case RGB_TO_HSV: functionRGBtoHSV(img); break;
-			
 		case RGB_TO_H1H2H3: functionRGBtoH1H2H3(img); break;
 		}
 		return img2;
@@ -148,7 +148,7 @@ public class ImageTransformTools {
 		}
 		
 		Array1DUtil.doubleArrayToSafeArray(tabResult,  img2.getDataXY(0),  true); //true, img2.isSignedDataType());
-		System.out.println("max" + max + " min=" + min);
+		//System.out.println("RGB_C1C2Minus2C3 max " + max + " min=" + min);
 		
 		// duplicate channel 0 to chan 1 & 2
 //		img2.copyData(img2, 0, 1);

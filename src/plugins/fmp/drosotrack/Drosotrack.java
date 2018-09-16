@@ -773,10 +773,8 @@ public class Drosotrack extends PluginActionable implements ActionListener, View
 			ov = new ThresholdOverlay();
 			vinputSequence.addOverlay(ov);
 		}
-		ov.setThresholdOverlayParameters( vinputSequence,
-				thresholdedImageCheckBox.isSelected(), 
-				threshold, 
-				(TransformOp) backgroundComboBox.getSelectedItem());
+		ov.setThresholdSequence (vinputSequence);
+		ov.setThresholdOverlayParameters(threshold, (TransformOp) backgroundComboBox.getSelectedItem());
 		if (ov != null) {
 			ov.painterChanged();
 		}

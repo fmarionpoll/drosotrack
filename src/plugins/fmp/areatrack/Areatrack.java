@@ -240,7 +240,7 @@ public class Areatrack extends PluginActionable implements ActionListener, Chang
 				if (thresholdOverlay != null) {
 					TransformOp transformop = (TransformOp) transformsComboBox.getSelectedItem();
 					int threshold = Integer.parseInt(thresholdSpinner.getValue().toString());
-					setThresholdOverlay(true, threshold, transformop);
+					setThresholdOverlay(threshold, transformop);
 				} 
 			} } );
 		
@@ -277,11 +277,11 @@ public class Areatrack extends PluginActionable implements ActionListener, Chang
 		if ((e.getSource() == thresholdSpinner) && thresholdedImageCheckBox.isSelected()) {
 			TransformOp transformop = (TransformOp) transformsComboBox.getSelectedItem();
 			int threshold = Integer.parseInt(thresholdSpinner.getValue().toString());
-			setThresholdOverlay(true, threshold, transformop);
+			setThresholdOverlay(threshold, transformop);
 		}
 		else if ((e.getSource() == threshold2Spinner) && thresholdMovementCheckBox.isSelected()) {
 			int threshold2 = Integer.parseInt(threshold2Spinner.getValue().toString());
-			setThresholdOverlay(true, threshold2, TransformOp.REFn);
+			setThresholdOverlay(threshold2, TransformOp.REFn);
 		}
 	
 	}
@@ -352,7 +352,7 @@ public class Areatrack extends PluginActionable implements ActionListener, Chang
 				thresholdMovementCheckBox.setSelected(false);
 				TransformOp transformop = (TransformOp) transformsComboBox.getSelectedItem();
 				int threshold = Integer.parseInt(thresholdSpinner.getValue().toString());
-				setThresholdOverlay(true, threshold, transformop);
+				setThresholdOverlay(threshold, transformop);
 			}
 			else 
 				removeThresholdOverlay();
@@ -363,13 +363,13 @@ public class Areatrack extends PluginActionable implements ActionListener, Chang
 
 					if (thresholdMovementCheckBox.isSelected()) {
 						int threshold2 = Integer.parseInt(threshold2Spinner.getValue().toString());
-						setThresholdOverlay(true, threshold2, TransformOp.REFn);
+						setThresholdOverlay(threshold2, TransformOp.REFn);
 					}
 					else {
 						if (thresholdedImageCheckBox.isSelected()) {
 							TransformOp transformop = (TransformOp) transformsComboBox.getSelectedItem();
 							int threshold = Integer.parseInt(thresholdSpinner.getValue().toString());
-							setThresholdOverlay(true, threshold, transformop);
+							setThresholdOverlay(threshold, transformop);
 						}
 						else 
 							removeThresholdOverlay();
@@ -401,13 +401,13 @@ public class Areatrack extends PluginActionable implements ActionListener, Chang
 		TransformOp transformop = (TransformOp) transformsComboBox.getSelectedItem();
 		int threshold = Integer.parseInt(thresholdSpinner.getValue().toString());
 		int threshold2 = Integer.parseInt(threshold2Spinner.getValue().toString());
-		setThresholdOverlay(true, threshold, transformop);
+		setThresholdOverlay(threshold, transformop);
 		
 		analysisThread = new AreaAnalysisThread(); 
 
 		if (!thresholdedImageCheckBox.isSelected()) {
 			thresholdedImageCheckBox.setSelected(true);
-			setThresholdOverlay(true, threshold, transformop);
+			setThresholdOverlay(threshold, transformop);
 		}
 		startFrame 	= Integer.parseInt( startFrameTextField.getText() );
 		endFrame 	= Integer.parseInt( endFrameTextField.getText() );
@@ -429,21 +429,23 @@ public class Areatrack extends PluginActionable implements ActionListener, Chang
 		}
 	}
 	
-	private void setThresholdOverlay(boolean bdisplay, int threshold, TransformOp transformop) {
+	private void setThresholdOverlay(int threshold, TransformOp transformop) {
 		
 		vSequence.threshold = threshold;
 		if (thresholdOverlay == null)
 			thresholdOverlay = new ThresholdOverlay();	
-		if (vSequence.getThresholdOverlay () == null)
+		if (vSequence.contains(thresholdOverlay))
 			vSequence.addOverlay(thresholdOverlay);
-		vSequence.setThresholdOverlay(thresholdOverlay);
-		thresholdOverlay.setThresholdOverlayParameters( vSequence, bdisplay, threshold, transformop);
+		//vSequence.setThresholdOverlay(thresholdOverlay);
+		thresholdOverlay.setThresholdSequence (vSequence);
+		thresholdOverlay.setThresholdOverlayParameters(threshold, transformop);
 		thresholdOverlay.painterChanged();
 	}
+	
 	private void removeThresholdOverlay() {
 		if (thresholdOverlay != null) 
 			vSequence.removeOverlay(thresholdOverlay);
-		vSequence.setThresholdOverlay(null);
+		//vSequence.setThresholdOverlay(null);
 		thresholdOverlay = null;
 	}
 	

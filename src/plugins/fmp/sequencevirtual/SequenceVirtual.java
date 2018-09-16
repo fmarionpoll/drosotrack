@@ -42,28 +42,27 @@ public class SequenceVirtual extends Sequence
 	private String			directory = null;
 	private static final String XML_KEY_ID = "ID";
 	private IcyBufferedImage refImage = null;
-	private ThresholdOverlay tov;
 	
-	public String	sourceFile = null;
-	public enum Status { AVIFILE, FILESTACK, REGULAR, FAILURE };
-	public boolean	bBufferON = false;
-	public Status 	status;
-	public int 		currentFrame = 0;
-	public int		nTotalFrames = 0;
-	public int 		istep = 1;
-	public boolean 	flag = false;
-	public String	comment = null;
-	public double 	capillaryVolume = 1.;
-	public double 	capillaryPixels = 1.;
-	public int		capillariesGrouping = 1;
-	public long		analysisStart = 0;
-	public long 	analysisEnd	= 99999999;
-	public int		threshold = -1;
+	public String			sourceFile = null;
+	public enum 			Status { AVIFILE, FILESTACK, REGULAR, FAILURE };
+	public boolean			bBufferON = false;
+	public Status 			status;
+	public int 				currentFrame = 0;
+	public int				nTotalFrames = 0;
+	public int 				istep = 1;
+	public boolean 			flag = false;
+	public String			comment = null;
+	public double 			capillaryVolume = 1.;
+	public double 			capillaryPixels = 1.;
+	public int				capillariesGrouping = 1;
+	public long				analysisStart = 0;
+	public long 			analysisEnd	= 99999999;
+	public int				threshold = -1;
 	public VImageBufferThread bufferThread = null;
 	public ArrayList <ROI2DShape> capillariesArrayList 	= new ArrayList <ROI2DShape>();			// list of ROIs describing objects in all images for ex. glass capillaries 
-	public String [] seriesname = null;
-	public int [][] data_raw = null;
-	public double [][] data_filtered = null;
+	public String [] 		seriesname = null;
+	public int [][] 		data_raw = null;
+	public double [][] 		data_filtered = null;
 	
 	// ----------------------------------------
 	public SequenceVirtual () 
@@ -329,10 +328,6 @@ public class SequenceVirtual extends Sequence
 				buf = aviFile.getImage(t);
 			}
 			ibufImage=  IcyBufferedImage.createFrom(buf);
-//			if (imageTransformSelected != 0) 
-//			{
-//				ibufImage = imgTransf.transformImage(ibufImage, imageTransformSelected);
-//			}
 		}	
 		return ibufImage;
 	}
@@ -769,14 +764,5 @@ public class SequenceVirtual extends Sequence
 		XMLUtil.setAttributeIntValue(xmlVal, "threshold", threshold); 
 
 		return true;
-	}
-	
-	public void setThresholdOverlay(ThresholdOverlay ov) 
-	{
-		tov = ov;
-	}
-	
-	public ThresholdOverlay getThresholdOverlay() {
-		return tov;
 	}
 }

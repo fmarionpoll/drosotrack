@@ -7,6 +7,7 @@ package plugins.fmp.sequencevirtual;
  *            the generic type
  * @author Nicolas HERVE - nherve@ina.fr
  */
+
 public interface NHDistance<T> {
 	
 	/**
