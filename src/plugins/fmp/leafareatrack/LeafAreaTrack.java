@@ -479,7 +479,6 @@ public class LeafAreaTrack extends PluginActionable implements ActionListener, C
 		}
 	}
 	
-	
 	private void activateSequenceThresholdOverlay(boolean activate) {
 //		System.out.println("activateSequenceThresholdOverlay "+activate);
 		if (activate) {
@@ -489,7 +488,7 @@ public class LeafAreaTrack extends PluginActionable implements ActionListener, C
 					thresholdOverlay = new ThresholdOverlay();
 					thresholdOverlay.setThresholdSequence (vSequence);
 				}
-				if (vSequence.contains(thresholdOverlay)) 
+				if (!vSequence.contains(thresholdOverlay)) 
 					vSequence.addOverlay(thresholdOverlay);
 				thresholdOverlayON = true;
 			}			
@@ -504,7 +503,6 @@ public class LeafAreaTrack extends PluginActionable implements ActionListener, C
 			thresholdOverlayON = false;
 		}
 	}
-	
 	
 	private void updateThresholdOverlayParameters() {
 		 
@@ -554,7 +552,6 @@ public class LeafAreaTrack extends PluginActionable implements ActionListener, C
 			thresholdOverlay.painterChanged();
 		}
 	}
-	
 	
 	private void filterMeasures_ClipValues(int span, int constraintoption) {
 		if (constraintoption == 1) {

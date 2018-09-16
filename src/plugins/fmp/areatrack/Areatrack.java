@@ -359,22 +359,22 @@ public class Areatrack extends PluginActionable implements ActionListener, Chang
 		}
 		
 		// _______________________________________________
-				else if (o == thresholdMovementCheckBox && (vSequence != null))  {
+		else if (o == thresholdMovementCheckBox && (vSequence != null))  {
 
-					if (thresholdMovementCheckBox.isSelected()) {
-						int threshold2 = Integer.parseInt(threshold2Spinner.getValue().toString());
-						setThresholdOverlay(threshold2, TransformOp.REFn);
-					}
-					else {
-						if (thresholdedImageCheckBox.isSelected()) {
-							TransformOp transformop = (TransformOp) transformsComboBox.getSelectedItem();
-							int threshold = Integer.parseInt(thresholdSpinner.getValue().toString());
-							setThresholdOverlay(threshold, transformop);
-						}
-						else 
-							removeThresholdOverlay();
-					}
+			if (thresholdMovementCheckBox.isSelected()) {
+				int threshold2 = Integer.parseInt(threshold2Spinner.getValue().toString());
+				setThresholdOverlay(threshold2, TransformOp.REFn);
+			}
+			else {
+				if (thresholdedImageCheckBox.isSelected()) {
+					TransformOp transformop = (TransformOp) transformsComboBox.getSelectedItem();
+					int threshold = Integer.parseInt(thresholdSpinner.getValue().toString());
+					setThresholdOverlay(threshold, transformop);
 				}
+				else 
+					removeThresholdOverlay();
+			}
+		}
 		
 		//___________________________________________________
 		else if (o == updateChartsButton) {
@@ -412,8 +412,8 @@ public class Areatrack extends PluginActionable implements ActionListener, Chang
 		startFrame 	= Integer.parseInt( startFrameTextField.getText() );
 		endFrame 	= Integer.parseInt( endFrameTextField.getText() );
 		vSequence.istep = Integer.parseInt( analyzeStepTextField.getText() );
-		analysisThread.setAnalysisThreadParameters(vSequence, getROIsToAnalyze(), startFrame, endFrame, 0, transformop, threshold2, 
-				measureSurfacesCheckBox.isSelected(), measureHeatmapCheckBox.isSelected());
+		analysisThread.setAnalysisThreadParameters(vSequence, getROIsToAnalyze(), startFrame, endFrame, 
+				0, transformop, threshold2, measureSurfacesCheckBox.isSelected(), measureHeatmapCheckBox.isSelected());
 		analysisThread.start();	
 	}
 	
@@ -434,7 +434,7 @@ public class Areatrack extends PluginActionable implements ActionListener, Chang
 		vSequence.threshold = threshold;
 		if (thresholdOverlay == null)
 			thresholdOverlay = new ThresholdOverlay();	
-		if (vSequence.contains(thresholdOverlay))
+		if (!vSequence.contains(thresholdOverlay))
 			vSequence.addOverlay(thresholdOverlay);
 		//vSequence.setThresholdOverlay(thresholdOverlay);
 		thresholdOverlay.setThresholdSequence (vSequence);
@@ -445,8 +445,8 @@ public class Areatrack extends PluginActionable implements ActionListener, Chang
 	private void removeThresholdOverlay() {
 		if (thresholdOverlay != null) 
 			vSequence.removeOverlay(thresholdOverlay);
-		//vSequence.setThresholdOverlay(null);
-		thresholdOverlay = null;
+//		vSequence.setThresholdOverlay(null);
+//		thresholdOverlay = null;
 	}
 	
 	private void filterClipValues(int span, int constraintoption) {
