@@ -14,6 +14,8 @@ import icy.image.IcyBufferedImageUtil;
 import icy.painter.Overlay;
 import icy.sequence.Sequence;
 import icy.type.DataType;
+import icy.type.collection.array.Array1DUtil;
+import icy.type.collection.array.Array2DUtil;
 import icy.type.point.Point5D;
 import plugins.fmp.sequencevirtual.ImageTransformTools.TransformOp;
 
@@ -60,7 +62,7 @@ public class ThresholdOverlay extends Overlay
 		thresholdValue = sthreshold;
 		transformop = stransf;
 		vinputSequence = sseq;
-		imgTransf.setSequence(sseq);
+		imgTransf.setSequenceOfReferenceImage(sseq);
 	}
 	
 	public void setThresholdOverlayParametersColors (SequenceVirtual sseq, 
@@ -72,7 +74,7 @@ public class ThresholdOverlay extends Overlay
 		this.transformop = stransf;
 		this.vinputSequence = sseq;
 		
-		imgTransf.setSequence(sseq);
+		imgTransf.setSequenceOfReferenceImage(sseq);
 		this.thresholdtype = thresholdtype;
 		this.colorarray = new ArrayList<Color> (colorarray);
 		this.colorthreshold = colorthreshold;
@@ -114,35 +116,42 @@ public class ThresholdOverlay extends Overlay
 
 	private void filter1(IcyBufferedImage sourceImage) {
 
-		ArrayList<double[]> csColors = new ArrayList<double[]>();
-		for (int k = 0; k < colorarray.size(); k++) {
-			csColors.add(ColorSpaceTools.getColorComponentsD_0_255(choosenCS, 
-					colorarray.get(k).getRed(), colorarray.get(k).getGreen(), colorarray.get(k).getBlue()));
+//		ArrayList<double[]> csColors = new ArrayList<double[]>();
+//		for (int k = 0; k < colorarray.size(); k++) {
+//			csColors.add(ColorSpaceTools.getColorComponentsD_0_255(choosenCS, 
+//					colorarray.get(k).getRed(), colorarray.get(k).getGreen(), colorarray.get(k).getBlue()));
+//		}
+		IcyBufferedImage colorRef = new IcyBufferedImage(colorarray.size(), 1, 3, DataType.DOUBLE);
+		for (int k1 = 0; k1 < colorarray.size(); k1++) {
+			colorRef.setData(k1, 1, 0, colorarray.get(k1).getRed());
+			colorRef.setData(k1, 1, 1, colorarray.get(k1).getGreen());
+			colorRef.setData(k1, 1, 2, colorarray.get(k1).getBlue());
 		}
-
-		ColorDistance distance; 
+		IcyBufferedImage colorRefTransformed = imgTransf.transformImage(colorRef, transformop);
+		double[][] csColors = Array2DUtil.arrayToDoubleArray(colorRefTransformed, colorRefTransformed.isSignedDataType());
+		double[][] imgColors = Array2DUtil.arrayToDoubleArray(sourceImage, sourceImage.isSignedDataType());
+		
+		NHColorDistance distance; 
 		if (distanceType == 1)
-			distance = new L1ColorDistance();
+			distance = new NHL1ColorDistance();
 		else
-			distance = new L2ColorDistance();
+			distance = new NHL2ColorDistance();
 		
 		int chan = 0;
 		byte[] binaryResultBuffer = binaryMap.getDataXYAsByte(chan);
 
-		int idx = 0;
-		for (int j = 0; j < sourceImage.getHeight(); j++) {
-			for (int i = 0; i < sourceImage.getWidth(); i++) {
-				double[] cc = ColorSpaceTools.getColorComponentsD_0_255(sourceImage, choosenCS, i, j);
-				byte val = byteFALSE;
-				for (int k = 0; k < colorarray.size(); k++) {
-					if (distance.computeDistance(cc, csColors.get(k)) < colorthreshold) {
-						val = byteTRUE;
-						break;
-					}
+		int idx_length = imgColors.length;
+		for (int idx = 0; idx < idx_length; idx++) {
+			
+			byte val = byteFALSE;
+			for (int k = 0; k < colorarray.size(); k++) {
+				if (distance.computeDistance(imgColors[idx], csColors[idx]) < colorthreshold) {
+					val = byteTRUE;
+					break;
 				}
-				binaryResultBuffer[idx] = val;
-				idx++;
 			}
+			binaryResultBuffer[idx] = val;
+			
 		}
 		/*
 		Color c = box.getAverageColor();
@@ -165,7 +174,7 @@ public class ThresholdOverlay extends Overlay
 			g2.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 0.5f));
 			if (bTthresholdedImage) {
 
-				IcyBufferedImage bufImage = imgTransf.transformImage(vinputSequence.currentFrame, transformop);
+				IcyBufferedImage bufImage = imgTransf.transformImageTFromSequence(vinputSequence.currentFrame, transformop);
 				if (binaryMap == null) 
 					binaryMap = new IcyBufferedImage(bufImage.getSizeX(), bufImage.getSizeY(), 1, DataType.UBYTE);
 

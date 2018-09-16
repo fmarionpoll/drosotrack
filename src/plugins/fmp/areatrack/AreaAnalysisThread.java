@@ -16,8 +16,8 @@ import icy.sequence.SequenceDataIterator;
 import icy.system.profile.Chronometer;
 import icy.type.DataType;
 import icy.type.collection.array.Array1DUtil;
-import plugins.fmp.sequencevirtual.ImageTransform;
-import plugins.fmp.sequencevirtual.ImageTransform.TransformOp;
+import plugins.fmp.sequencevirtual.ImageTransformTools;
+import plugins.fmp.sequencevirtual.ImageTransformTools.TransformOp;
 import plugins.fmp.sequencevirtual.SequenceVirtual;
 import plugins.fmp.sequencevirtual.ThresholdOverlay;
 import plugins.fmp.sequencevirtual.Tools;
@@ -37,7 +37,7 @@ public class AreaAnalysisThread extends Thread
 	 *  limitUp
 	 */
 	
-	private int threshold = 0;
+	private int threshold = 0;			// also distance
 	private TransformOp transformop;
 	SequenceVirtual vSequence = null;
 	private ArrayList<ROI2D> roiList = null;
@@ -128,12 +128,12 @@ public class AreaAnalysisThread extends Thread
 				viewer = resultViewer;
 			ThresholdOverlay tov = vSequence.getThresholdOverlay();
 			if (tov == null) {
-				System.out.println("threshold overlay was null; exit routine");
+				System.out.println("threshold overlay is null; exit");
 				return;
 			}
 			vSequence.beginUpdate();
-			ImageTransform tImg = new ImageTransform();
-			tImg.setSequence(vSequence);
+			ImageTransformTools tImg = new ImageTransformTools();
+			tImg.setSequenceOfReferenceImage(vSequence);
 				
 			// ----------------- loop over all images of the stack
 
@@ -143,13 +143,13 @@ public class AreaAnalysisThread extends Thread
 
 				if (measureROIsEvolution) {
 					// load next image and compute threshold
-					IcyBufferedImage workImage = tImg.transformImage(t, transformop); 
+					IcyBufferedImage workImage = tImg.transformImageTFromSequence(t, transformop); 
 					vSequence.currentFrame = t;
 					viewer.setPositionT(t);
 					viewer.setTitle(vSequence.getVImageName(t));
 
 					// ------------------------ compute global mask
-					tov.getBinaryOverThresholdFromDoubleImage(workImage, threshold);
+					tov.getBoolMapOverThresholdFromDoubleImage(workImage, threshold);
 					BooleanMask2D maskAll2D = new BooleanMask2D(workImage.getBounds(), tov.boolMap); 
 					
 					// ------------------------ loop over all the cages of the stack & count n pixels above threshold
@@ -167,7 +167,7 @@ public class AreaAnalysisThread extends Thread
 					if (t < startFrame+20)
 						continue;
 					
-					IcyBufferedImage diffImage = tImg.transformImage(t,  TransformOp.REFn);
+					IcyBufferedImage diffImage = tImg.transformImageTFromSequence(t,  TransformOp.REFn);
 					int cmax = 3;
 					for (int c=0; c< cmax; c++) {
 						double[] img1DoubleArray = Array1DUtil.arrayToDoubleArray(diffImage.getDataXY(c), diffImage.isSignedDataType());

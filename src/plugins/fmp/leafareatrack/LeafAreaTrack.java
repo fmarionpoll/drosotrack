@@ -488,6 +488,8 @@ public class LeafAreaTrack extends PluginActionable implements ActionListener, C
 	
 	private void setThresholdOverlay() {
 		removeThresholdOverlay();
+		thresholdOverlay = new ThresholdOverlay();
+		vSequence.setThresholdOverlay(thresholdOverlay);
 		setThresholdOverlayParameters();
 	}
 	
@@ -522,7 +524,6 @@ public class LeafAreaTrack extends PluginActionable implements ActionListener, C
 		
 		//--------------------------------
 		vSequence.threshold = threshold;
-		vSequence.setThresholdOverlay(thresholdOverlay);
 		ArrayList <Color> colorarray = new ArrayList <Color>();
 		for (int i=0; i<colorPickCombo.getItemCount(); i++) {
 			colorarray.add(colorPickCombo.getItemAt(i));
