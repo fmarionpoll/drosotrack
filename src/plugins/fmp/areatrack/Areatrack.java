@@ -106,8 +106,8 @@ public class Areatrack extends PluginActionable implements ActionListener, Chang
 	
 	//---------------------------------------------------------------------------
 	// TODO
-	private JRadioButton		rbFilterOptionColor		= new JRadioButton ("color filter");
-	private JRadioButton		rbFilterOptionSimple		= new JRadioButton ("simple filter");
+	private JRadioButton rbFilterOptionColor  = new JRadioButton ("color filter");
+	private JRadioButton rbFilterOptionSimple = new JRadioButton ("simple filter");
 	
 	private String[] 	availableOverlays	= new String[] {"None", "Color filter", "Movements"};
 	private JComboBox<String> overlayComboBox = new JComboBox<String> (availableOverlays);
@@ -344,7 +344,8 @@ public class Areatrack extends PluginActionable implements ActionListener, Chang
 			@Override
 			public void actionPerformed( final ActionEvent e ) { 
 				if (colorPickCombo.getItemCount() > 0) 
-					colorPickCombo.removeItemAt(colorPickCombo.getSelectedIndex());				
+					colorPickCombo.removeItemAt(colorPickCombo.getSelectedIndex());	
+				updateThresholdOverlayParameters();
 			} } );
 		rbFilterOptionColor.addActionListener(new ActionListener () {
 			@Override
@@ -589,6 +590,7 @@ public class Areatrack extends PluginActionable implements ActionListener, Chang
 				threshold = Integer.parseInt(distance.getValue().toString());
 				thresholdtype = ThresholdType.COLORARRAY;
 				transformop = colorspace;
+				colorarray.clear();
 				for (int i=0; i<colorPickCombo.getItemCount(); i++) {
 					colorarray.add(colorPickCombo.getItemAt(i));
 				}

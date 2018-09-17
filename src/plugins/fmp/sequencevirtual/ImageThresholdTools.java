@@ -94,10 +94,8 @@ public class ImageThresholdTools {
 			colorRef.setData(k1, 0, 2, colorarray.get(k1).getBlue());
 		}
 		
-		IcyBufferedImage binaryMap = new IcyBufferedImage(sourceImage.getSizeX(), sourceImage.getSizeY(), 1, DataType.UBYTE);
-		
+		IcyBufferedImage binaryMap = new IcyBufferedImage(sourceImage.getSizeX(), sourceImage.getSizeY(), 1, DataType.UBYTE);	
 		IcyBufferedImage colorRefTransformed = imgTransf.transformImage(colorRef, transformop);
-		
 		ArrayList<double[]> colorsarray = new ArrayList<double[]>();
 		ArrayList<double[]> imagearray = new ArrayList<double[]>();
 		for (int chan = 0; chan < 3; chan++) {
@@ -111,14 +109,12 @@ public class ImageThresholdTools {
 		else
 			distance = new NHL2ColorDistance();
 		
-		
 		int chan = 0;
 		byte[] binaryResultBuffer = binaryMap.getDataXYAsByte(chan);
 		double[] pixel = new double [3];
 		double[] color = new double [3];
 		
-		int npixels = sourceImage.getHeight() * sourceImage.getWidth(); 
-		npixels = imagearray.get(0).length;
+		int npixels = imagearray.get(0).length;
 		for (int ipixel = 0; ipixel < npixels; ipixel++) {
 			
 			byte val = byteFALSE;
@@ -134,7 +130,6 @@ public class ImageThresholdTools {
 				}
 			}
 			binaryResultBuffer[ipixel] = val;
-			
 		}
 		/*
 		Color c = box.getAverageColor();
