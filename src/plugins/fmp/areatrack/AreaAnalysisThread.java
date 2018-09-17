@@ -1,5 +1,6 @@
 package plugins.fmp.areatrack;
 
+import java.awt.Color;
 import java.util.ArrayList;
 import java.util.Collections;
 
@@ -18,6 +19,7 @@ import icy.type.DataType;
 import icy.type.collection.array.Array1DUtil;
 import plugins.fmp.sequencevirtual.ImageTransformTools;
 import plugins.fmp.sequencevirtual.ImageTransformTools.TransformOp;
+import plugins.fmp.sequencevirtual.ThresholdImage.ThresholdType;
 import plugins.fmp.sequencevirtual.SequenceVirtual;
 import plugins.fmp.sequencevirtual.ThresholdImage;
 import plugins.fmp.sequencevirtual.Tools;
@@ -37,7 +39,6 @@ public class AreaAnalysisThread extends Thread
 	 *  limitUp
 	 */
 	
-	private int threshold = 0;			// also distance
 	private TransformOp transformop;
 	SequenceVirtual vSequence = null;
 	private ArrayList<ROI2D> roiList = null;
@@ -55,6 +56,10 @@ public class AreaAnalysisThread extends Thread
 	public Viewer resultViewer = null;
 	public Canvas2D resultCanvas = null;
 	public ArrayList<MeasureAndName> results = null;
+	
+	private ThresholdType thresholdtype = ThresholdType.SINGLE;
+	private ThresholdImage imgThresh = new ThresholdImage();
+	private ImageTransformTools imgTransf = new ImageTransformTools();
 	 
 	// --------------------------------------------------------------------------------------
 	
@@ -79,6 +84,9 @@ public class AreaAnalysisThread extends Thread
 		this.measureROIsEvolution = measureROIsEvolution;
 		this.measureROIsMove = measureROIsMove;
 		
+		imgTransf.setSequenceOfReferenceImage(virtualSequence);
+		imgThresh.setThresholdOverlayParameters(vSequence.threshold, transf);
+		
 		if (transformop == TransformOp.REFt0 || transformop == TransformOp.REFn || transformop == TransformOp.REF)
 			vSequence.setRefImageForSubtraction(this.imageref);
 		
@@ -90,12 +98,17 @@ public class AreaAnalysisThread extends Thread
 		resultCanvas = new Canvas2D(resultViewer);
 	}
 	
+	public void setAnalysisThreadParametersColors (ThresholdType thresholdtype, int distanceType, int colorthreshold, ArrayList<Color> colorarray)
+	{
+		imgThresh.setThresholdOverlayParametersColors(distanceType, colorthreshold, colorarray);
+		this.thresholdtype = thresholdtype;
+	}
+	
 	@Override
 	public void run()
 	{
 		// global parameters
 		analyzeStep = vSequence.istep;
-		threshold = vSequence.threshold;
 		roiList = vSequence.getROI2Ds();
 		Collections.sort(roiList, new Tools.ROI2DNameComparator());
 		if ( vSequence.nTotalFrames < endFrame+1 )
@@ -128,10 +141,10 @@ public class AreaAnalysisThread extends Thread
 				viewer = Icy.getMainInterface().getFirstViewer(vSequence);
 			else 
 				viewer = resultViewer;
-			ThresholdImage tov = new ThresholdImage();
+			
 			vSequence.beginUpdate();
-			ImageTransformTools tImg = new ImageTransformTools();
-			tImg.setSequenceOfReferenceImage(vSequence);
+			imgTransf.setSequenceOfReferenceImage(vSequence);
+			
 				
 			// ----------------- loop over all images of the stack
 
@@ -141,13 +154,20 @@ public class AreaAnalysisThread extends Thread
 
 				if (measureROIsEvolution) {
 					// load next image and compute threshold
-					IcyBufferedImage workImage = tImg.transformImageTFromSequence(t, transformop); 
+					IcyBufferedImage workImage = imgTransf.transformImageTFromSequence(t, transformop); 
 					vSequence.currentFrame = t;
 					viewer.setPositionT(t);
 					viewer.setTitle(vSequence.getVImageName(t));
 
 					// ------------------------ compute global mask
-					boolean [] boolMap = tov.getBoolMapOverThresholdFromDoubleImage(workImage, threshold);
+					IcyBufferedImage binaryMap;
+					if (thresholdtype == ThresholdType.COLORARRAY)
+						binaryMap = imgThresh.filter1(workImage);
+					else 
+						binaryMap = imgThresh.getBinaryOverThresholdFromDoubleImage(workImage);
+					 boolean[] boolMap = imgThresh.getBoolMapFromUBYTEBinaryImage(binaryMap);
+					//boolean [] boolMap = tov.getBoolMapOverThresholdFromDoubleImage(workImage, threshold);
+					
 					BooleanMask2D maskAll2D = new BooleanMask2D(workImage.getBounds(), boolMap); 
 					
 					// ------------------------ loop over all the cages of the stack & count n pixels above threshold
@@ -165,7 +185,7 @@ public class AreaAnalysisThread extends Thread
 					if (t < startFrame+20)
 						continue;
 					
-					IcyBufferedImage diffImage = tImg.transformImageTFromSequence(t,  TransformOp.REFn);
+					IcyBufferedImage diffImage = imgTransf.transformImageTFromSequence(t,  TransformOp.REFn);
 					int cmax = 3;
 					for (int c=0; c< cmax; c++) {
 						double[] img1DoubleArray = Array1DUtil.arrayToDoubleArray(diffImage.getDataXY(c), diffImage.isSignedDataType());
@@ -176,7 +196,6 @@ public class AreaAnalysisThread extends Thread
 						}
 						Array1DUtil.doubleArrayToArray(resultDoubleArray, resultImage.getDataXY(c));
 					}
-	//				resultImage.dataChanged();
 				}
 			}
 			

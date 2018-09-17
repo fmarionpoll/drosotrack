@@ -78,7 +78,7 @@ import plugins.fmp.sequencevirtual.TrapMouseOverlay;
 public class LeafAreaTrack extends PluginActionable implements ActionListener, ChangeListener, ViewerListener, OverlayListener
 {	
 	// -------------------------------------- interface
-	IcyFrame mainFrame = new IcyFrame("LeafAreaTrack 15-09-2018", true, true, true, true);
+	IcyFrame mainFrame = new IcyFrame("AreaTrack 17-09-2018", true, true, true, true);
 	IcyFrame mainChartFrame = null;
 	JPanel 	mainChartPanel = null;
 	
@@ -97,7 +97,6 @@ public class LeafAreaTrack extends PluginActionable implements ActionListener, C
 	private JTextField endFrameTextField	= new JTextField("99999999");
 	
 	private JComboBox<TransformOp> transformsComboBox = new JComboBox<TransformOp> (TransformOp.values());
-	private int tdefault 					= 7;
 	private JSpinner thresholdSpinner		= new JSpinner(new SpinnerNumberModel(70, 0, 255, 10));
 	JLabel videochannel 	= new JLabel("filter  ");
 	JLabel thresholdLabel 	= new JLabel("threshold ");
@@ -150,6 +149,11 @@ public class LeafAreaTrack extends PluginActionable implements ActionListener, C
 	private boolean thresholdOverlayON = false;
 	private TrapMouseOverlay trapOverlay = null;
 	private TransformOp colorspace;
+	private ThresholdType thresholdtype = ThresholdType.SINGLE;
+	private TransformOp transformop = TransformOp.None;
+	private int distanceType = 0;
+	private int colorthreshold = 0;
+	private ArrayList <Color> colorarray = new ArrayList <Color>();
 	
 	// --------------------------------------------------------------------------
 	@Override
@@ -352,7 +356,12 @@ public class LeafAreaTrack extends PluginActionable implements ActionListener, C
 			public void actionPerformed( final ActionEvent e ) { 
 				setFilterOptionsAsColors(false);
 			} } );
-		
+		transformsComboBox.addActionListener(new ActionListener () {
+			@Override
+			public void actionPerformed( final ActionEvent e ) { 
+				updateThresholdOverlayParameters(); 
+			} } );
+		thresholdSpinner.addChangeListener(this); 
 		
 		// -------------------------------------------- default selection
 		thresholdOverlay = new ThresholdOverlay();
@@ -365,6 +374,7 @@ public class LeafAreaTrack extends PluginActionable implements ActionListener, C
 		rbL1.setSelected(true);
 		rbRGB.setSelected(true);
 		colorspace = TransformOp.None;
+		transformsComboBox.setSelectedIndex(TransformOp.RGMINUS2B.ordinal());
 	}
 
 	@Override
@@ -380,8 +390,11 @@ public class LeafAreaTrack extends PluginActionable implements ActionListener, C
 
 	@Override
 	public void stateChanged(ChangeEvent e) {
+		if (e.getSource() == thresholdSpinner)  {
+			updateThresholdOverlayParameters();
+		}
 		
-		if (e.getSource() == distance || e.getSource() == threshold2Spinner) 
+		else if (e.getSource() == distance || e.getSource() == threshold2Spinner) 
 			updateThresholdOverlayParameters();
 	}
 
@@ -465,6 +478,7 @@ public class LeafAreaTrack extends PluginActionable implements ActionListener, C
 			}
 		}
 	}
+	
 	private void setFilterOptionsAsColors (boolean detectfromcolors) {
 		boolean displaycolors = true;
 		boolean displayfilter = false;
@@ -489,26 +503,31 @@ public class LeafAreaTrack extends PluginActionable implements ActionListener, C
 		thresholdSpinner.setEnabled(displayfilter);
 		videochannel.setEnabled(displayfilter);
 		thresholdLabel.setEnabled(displayfilter);
+		
+		updateThresholdOverlayParameters();
 	}
 	
 	private void startAnalysisThread() {
 		stopAnalysisThread();
 		
-		TransformOp transformop = TransformOp.COLORARRAY1; //(TransformOp) transformsComboBox.getSelectedItem();
-		int threshold2 = Integer.parseInt(threshold2Spinner.getValue().toString());
-		updateThresholdOverlayParameters();
-		
 		analysisThread = new AreaAnalysisThread(); 
-
 		if (overlayComboBox.getSelectedIndex() != 1) {
 			overlayComboBox.setSelectedIndex(1);
-			updateThresholdOverlayParameters();
 		}
+		updateThresholdOverlayParameters();
+		
 		startFrame 	= Integer.parseInt( startFrameTextField.getText() );
 		endFrame 	= Integer.parseInt( endFrameTextField.getText() );
 		vSequence.istep = Integer.parseInt( analyzeStepTextField.getText() );
-		analysisThread.setAnalysisThreadParameters(vSequence, getROIsToAnalyze(), startFrame, endFrame, 0, transformop, threshold2, 
-				measureSurfacesCheckBox.isSelected(), measureHeatmapCheckBox.isSelected());
+		
+		TransformOp transformop = (TransformOp) transformsComboBox.getSelectedItem();
+		int threshold = Integer.parseInt(thresholdSpinner.getValue().toString());
+		analysisThread.setAnalysisThreadParameters(vSequence, getROIsToAnalyze(), startFrame, endFrame, 0, 
+			transformop, 
+			threshold, 
+			measureSurfacesCheckBox.isSelected(), 
+			measureHeatmapCheckBox.isSelected());
+		analysisThread.setAnalysisThreadParametersColors (thresholdtype, distanceType, colorthreshold, colorarray);
 		analysisThread.start();	
 	}
 	
@@ -552,16 +571,9 @@ public class LeafAreaTrack extends PluginActionable implements ActionListener, C
 	private void updateThresholdOverlayParameters() {
 		 
 		int threshold =0; 
-		ThresholdType thresholdtype = ThresholdType.SINGLE;
-		TransformOp transformop = TransformOp.None;
-		int iselected = overlayComboBox.getSelectedIndex();
-		int distanceType = 0;
-		int colorthreshold = 0;
-		ArrayList <Color> colorarray = new ArrayList <Color>();
-		
-//		System.out.println("updateThresholdOverlayParameters " + iselected);
 		boolean activateThreshold = true;
-		switch (iselected) {
+		
+		switch (overlayComboBox.getSelectedIndex()) {
 		case 0:
 			activateThreshold = false;;
 
@@ -573,16 +585,23 @@ public class LeafAreaTrack extends PluginActionable implements ActionListener, C
 			
 		default:
 		case 1:
-			threshold = Integer.parseInt(distance.getValue().toString());
-			thresholdtype = ThresholdType.COLORARRAY;
-			transformop = colorspace;
-			for (int i=0; i<colorPickCombo.getItemCount(); i++) {
-				colorarray.add(colorPickCombo.getItemAt(i));
+			if (rbFilterOptionColor.isSelected() ) {
+				threshold = Integer.parseInt(distance.getValue().toString());
+				thresholdtype = ThresholdType.COLORARRAY;
+				transformop = colorspace;
+				for (int i=0; i<colorPickCombo.getItemCount(); i++) {
+					colorarray.add(colorPickCombo.getItemAt(i));
+				}
+				distanceType = 1;
+				if (rbL2.isSelected()) 
+					distanceType = 2;				
+				colorthreshold = Integer.parseInt(distance.getValue().toString());
 			}
-			distanceType = 1;
-			if (rbL2.isSelected()) 
-				distanceType = 2;				
-			colorthreshold = Integer.parseInt(distance.getValue().toString());
+			else {
+				transformop = (TransformOp) transformsComboBox.getSelectedItem();
+				threshold = Integer.parseInt(thresholdSpinner.getValue().toString());
+				thresholdtype = ThresholdType.SINGLE;
+			}
 			break;
 		}
 		

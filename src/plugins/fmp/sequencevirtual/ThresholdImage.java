@@ -55,6 +55,18 @@ public class ThresholdImage {
 		return binaryMap;
 	}
 	
+	public boolean[] getBoolMapFromUBYTEBinaryImage(IcyBufferedImage img) {
+		boolean[]	boolMap = new boolean[ img.getSizeX() * img.getSizeY() ];
+		byte[] imgByte = img.getDataXYAsByte(0);
+		for (int x = 0; x < boolMap.length; x++)  {
+			if (imgByte[x] == byteTRUE)
+				boolMap[x] =  true;
+			else
+				boolMap[x] =  false;
+		}
+		return boolMap;
+	}
+	
 	public boolean[] getBoolMapOverThresholdFromDoubleImage(IcyBufferedImage img, int threshold) {
 		
 		boolean[]	boolMap = new boolean[ img.getSizeX() * img.getSizeY() ];

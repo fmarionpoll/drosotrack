@@ -65,14 +65,11 @@ public class ThresholdOverlay extends Overlay
 			g2.setStroke(new BasicStroke(0.3f));
 			g2.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 0.5f));
 
-
-			IcyBufferedImage bufImage = imgTransf.transformImageTFromSequence(vinputSequence.currentFrame, transformop);
-			 // = new IcyBufferedImage(bufImage.getSizeX(), bufImage.getSizeY(), 1, DataType.UBYTE);
-
+			IcyBufferedImage workImage = imgTransf.transformImageTFromSequence(vinputSequence.currentFrame, transformop);
 			if (thresholdtype == ThresholdType.COLORARRAY)
-				binaryMap = imgThresh.filter1(bufImage);
+				binaryMap = imgThresh.filter1(workImage);
 			else 
-				binaryMap = imgThresh.getBinaryOverThresholdFromDoubleImage(bufImage);
+				binaryMap = imgThresh.getBinaryOverThresholdFromDoubleImage(workImage);
 
 			if (binaryMap != null) {
 				g2.drawImage(IcyBufferedImageUtil.toBufferedImage(binaryMap, null), null, 0, 0);
