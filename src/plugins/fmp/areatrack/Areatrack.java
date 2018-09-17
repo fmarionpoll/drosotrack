@@ -42,7 +42,6 @@ import org.jfree.data.xy.XYSeriesCollection;
 import org.jfree.ui.RectangleEdge;
 
 import icy.gui.frame.IcyFrame;
-import icy.gui.frame.progress.ToolTipFrame;
 import icy.gui.util.GuiUtil;
 import icy.gui.viewer.Viewer;
 import icy.gui.viewer.ViewerEvent;
@@ -217,10 +216,6 @@ public class Areatrack extends PluginActionable implements ActionListener, Chang
 		thresholdedImageCheckBox.setSelected(false);
 		thresholdMovementCheckBox.setSelected(false);
 
-		 // display an announcement with Plugin description
-		new ToolTipFrame ( "<html>This plugin is designed to analyse <br>the consumption of arrays of leaf disks<br>by lepidoptera larvae.<br><br>To open a stack of files (jpg, jpeg), <br>use the 'open' button <br>and select a file within a stack <br>or select a directory containing a stack",
-				10);
-		
 		// -------------------------------------------- action listeners, etc
 		setVideoSourceButton.addActionListener(this);
 		openROIsButton.addActionListener(this);

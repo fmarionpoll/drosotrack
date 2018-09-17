@@ -96,21 +96,27 @@ public class LeafAreaTrack extends PluginActionable implements ActionListener, C
 	private JTextField startFrameTextField	= new JTextField("0");
 	private JTextField endFrameTextField	= new JTextField("99999999");
 	
-	//private JComboBox<TransformOp> transformsComboBox = new JComboBox<TransformOp> (TransformOp.values());
-	//private int tdefault 					= 7;
-
+	private JComboBox<TransformOp> transformsComboBox = new JComboBox<TransformOp> (TransformOp.values());
+	private int tdefault 					= 7;
+	private JSpinner thresholdSpinner		= new JSpinner(new SpinnerNumberModel(70, 0, 255, 10));
+	JLabel videochannel 	= new JLabel("filter  ");
+	JLabel thresholdLabel 	= new JLabel("threshold ");
+	
 	private JSpinner threshold2Spinner		= new JSpinner(new SpinnerNumberModel(50, 0, 255, 10));
 	private JTextField analyzeStepTextField = new JTextField("1");
 	
 	//---------------------------------------------------------------------------
 	// TODO
+	private JRadioButton		rbFilterOptionColor		= new JRadioButton ("color filter");
+	private JRadioButton		rbFilterOptionSimple		= new JRadioButton ("simple filter");
+	
 	private String[] 	availableOverlays	= new String[] {"None", "Color filter", "Movements"};
 	private JComboBox<String> overlayComboBox = new JComboBox<String> (availableOverlays);
 
 	private JComboBox<Color> colorPickCombo = new JComboBox<Color>();
 	private ComboBoxColorRenderer colorPickComboRenderer = new ComboBoxColorRenderer(colorPickCombo);
 	
-	private String 		textPickAPixel 		= "Pick a pixel on the image";
+	private String 		textPickAPixel 		= "Pick a pixel";
 	private JButton		pickColorButton		= new JButton(textPickAPixel);
 	private JButton		deleteColorButton	= new JButton("Delete color");
 	private JRadioButton		rbL1		= new JRadioButton ("L1");
@@ -119,15 +125,15 @@ public class LeafAreaTrack extends PluginActionable implements ActionListener, C
 	private JRadioButton		rbRGB		= new JRadioButton("RGB");
 	private JRadioButton		rbHSV		= new JRadioButton("HSV");
 	private JRadioButton		rbH1H2H3	= new JRadioButton("H1H2H3");
-	
+	JLabel distanceLabel = new JLabel("Distance  ");
+	JLabel colorspaceLabel = new JLabel("Color space ");
+		
 	//---------------------------------------------------------------------------
-	private String[] availableFilter 		= new String[] {"raw data", "running average", "running median"};
+	private String[] availableFilter 		= new String[] {"raw data", "average", "median"};
 	private JComboBox<String> filterComboBox= new JComboBox<String> (availableFilter);
 	private JTextField spanTextField		= new JTextField("10");
-	private String[] availableConditions 	= new String[] {"no condition", "clip increase of size"};
-	private JComboBox<String> conditionsComboBox = new JComboBox<String> (availableConditions);
 
-	private JButton updateChartsButton 		= new JButton("Update charts");
+	private JButton updateChartsButton 		= new JButton("Display charts");
 	private JButton exportToXLSButton 		= new JButton("Save XLS file..");
 	private JButton	closeAllButton			= new JButton("Close views");
 
@@ -192,7 +198,7 @@ public class LeafAreaTrack extends PluginActionable implements ActionListener, C
 		commentText1.setHorizontalAlignment(SwingConstants.LEFT);
 		roiPanel.add(GuiUtil.besidesPanel(commentText1));
 		JLabel emptyText1	= new JLabel (" ");
-		roiPanel.add(GuiUtil.besidesPanel(openROIsButton, addROIsButton, saveROIsButton, emptyText1));
+		roiPanel.add(GuiUtil.besidesPanel(emptyText1, openROIsButton, addROIsButton, saveROIsButton));
 		
 		final JPanel analysisPanel =  GuiUtil.generatePanel("ANALYSIS PARAMETERS");
 		mainPanel.add(GuiUtil.besidesPanel(analysisPanel));
@@ -202,30 +208,36 @@ public class LeafAreaTrack extends PluginActionable implements ActionListener, C
 		JLabel overlayLabel = new JLabel("Display overlay ");
 		analysisPanel.add( GuiUtil.besidesPanel(overlayLabel, overlayComboBox, new JLabel("  ")));
 		analysisPanel.add( GuiUtil.besidesPanel(measureSurfacesCheckBox));
-		
-	
-		analysisPanel.add( GuiUtil.besidesPanel(pickColorButton));
+		// TODO
+		ButtonGroup bgfilter = new ButtonGroup();
+		bgfilter.add(rbFilterOptionColor);
+		bgfilter.add(rbFilterOptionSimple);
+		analysisPanel.add(GuiUtil.besidesPanel(new JLabel("Method:"), rbFilterOptionColor, rbFilterOptionSimple));
+		// ----------------------------------------------------------
 		colorPickCombo.setRenderer(colorPickComboRenderer);
-		analysisPanel.add( GuiUtil.besidesPanel(colorPickCombo, deleteColorButton));
-				
-		JLabel distanceLabel = new JLabel("Distance  ");
+		analysisPanel.add( GuiUtil.besidesPanel(pickColorButton, colorPickCombo, deleteColorButton));
 		distanceLabel.setHorizontalAlignment(SwingConstants.RIGHT);
 		ButtonGroup bgd = new ButtonGroup();
 		bgd.add(rbL1);
 		bgd.add(rbL2);
 		analysisPanel.add( GuiUtil.besidesPanel(distanceLabel, rbL1, rbL2, distance));
-		JLabel colorspaceLabel = new JLabel("Color space ");
 		colorspaceLabel.setHorizontalAlignment(SwingConstants.RIGHT);
 		ButtonGroup bgcs = new ButtonGroup();
 		bgcs.add(rbRGB);
 		bgcs.add(rbHSV);
 		bgcs.add(rbH1H2H3);
 		analysisPanel.add( GuiUtil.besidesPanel(colorspaceLabel, rbRGB, rbHSV, rbH1H2H3));
+		// TODO
+		videochannel.setHorizontalAlignment(SwingConstants.RIGHT);
+		analysisPanel.add( GuiUtil.besidesPanel( videochannel, transformsComboBox));			
+		thresholdLabel.setHorizontalAlignment(SwingConstants.RIGHT);
+		analysisPanel.add( GuiUtil.besidesPanel( thresholdLabel, thresholdSpinner));
+				
 		// ------------------------------------------------------------------------------
 		analysisPanel.add( GuiUtil.besidesPanel(measureHeatmapCheckBox ));
 		JLabel thresholdLabel2 = new JLabel("'move' threshold ");
 		thresholdLabel2.setHorizontalAlignment(SwingConstants.RIGHT);
-		analysisPanel.add( GuiUtil.besidesPanel(new JLabel("   "), thresholdLabel2, threshold2Spinner));
+		analysisPanel.add( GuiUtil.besidesPanel(new JLabel(" "), thresholdLabel2, threshold2Spinner));
 		
 		final JPanel runPanel =  GuiUtil.generatePanel("RUN ANALYSIS");
 		mainPanel.add(GuiUtil.besidesPanel(runPanel));
@@ -243,13 +255,9 @@ public class LeafAreaTrack extends PluginActionable implements ActionListener, C
 		mainPanel.add(GuiUtil.besidesPanel(displayPanel));
 		JLabel outputLabel = new JLabel ("output ");
 		outputLabel.setHorizontalAlignment(SwingConstants.RIGHT);
-		displayPanel.add(GuiUtil.besidesPanel(outputLabel, filterComboBox )); 
 		JLabel spanLabel = new JLabel ("span ");
 		spanLabel.setHorizontalAlignment(SwingConstants.RIGHT);
-		displayPanel.add(GuiUtil.besidesPanel(spanLabel, spanTextField));
-		JLabel conditionLabel = new JLabel ("condition ");
-		conditionLabel.setHorizontalAlignment(SwingConstants.RIGHT);
-		displayPanel.add(GuiUtil.besidesPanel(conditionLabel, conditionsComboBox)); 
+		displayPanel.add(GuiUtil.besidesPanel(outputLabel, filterComboBox, spanLabel, spanTextField));
 		displayPanel.add(GuiUtil.besidesPanel(updateChartsButton, exportToXLSButton)); 
 		displayPanel.add(GuiUtil.besidesPanel(closeAllButton));
 
@@ -334,14 +342,26 @@ public class LeafAreaTrack extends PluginActionable implements ActionListener, C
 				if (colorPickCombo.getItemCount() > 0) 
 					colorPickCombo.removeItemAt(colorPickCombo.getSelectedIndex());				
 			} } );
+		rbFilterOptionColor.addActionListener(new ActionListener () {
+			@Override
+			public void actionPerformed( final ActionEvent e ) { 
+				setFilterOptionsAsColors(true);
+			} } );
+		rbFilterOptionSimple.addActionListener(new ActionListener () {
+			@Override
+			public void actionPerformed( final ActionEvent e ) { 
+				setFilterOptionsAsColors(false);
+			} } );
+		
 		
 		// -------------------------------------------- default selection
 		thresholdOverlay = new ThresholdOverlay();
-		conditionsComboBox.setSelectedIndex(1);
-		filterComboBox.setSelectedIndex(1);
+		filterComboBox.setSelectedIndex(2);
 		measureSurfacesCheckBox.setSelected(true);
 		measureHeatmapCheckBox.setSelected(true);
 		overlayComboBox.setSelectedIndex(0);
+		rbFilterOptionColor.setSelected(true);
+		setFilterOptionsAsColors(true);
 		rbL1.setSelected(true);
 		rbRGB.setSelected(true);
 		colorspace = TransformOp.None;
@@ -444,6 +464,31 @@ public class LeafAreaTrack extends PluginActionable implements ActionListener, C
 				vSequence.addOverlay(trapOverlay);
 			}
 		}
+	}
+	private void setFilterOptionsAsColors (boolean detectfromcolors) {
+		boolean displaycolors = true;
+		boolean displayfilter = false;
+		if (!detectfromcolors) {
+			displaycolors = false;
+			displayfilter = true;
+		}
+
+		pickColorButton.setEnabled(displaycolors);
+		colorPickCombo.setEnabled(displaycolors);
+		deleteColorButton.setEnabled(displaycolors);
+		rbL1.setEnabled(displaycolors);
+		rbL2.setEnabled(displaycolors);
+		distance.setEnabled(displaycolors);
+		rbRGB.setEnabled(displaycolors);
+		rbHSV.setEnabled(displaycolors);
+		rbH1H2H3.setEnabled(displaycolors);
+		distanceLabel.setEnabled(displaycolors);
+		colorspaceLabel.setEnabled(displaycolors);
+		
+		transformsComboBox.setEnabled(displayfilter);
+		thresholdSpinner.setEnabled(displayfilter);
+		videochannel.setEnabled(displayfilter);
+		thresholdLabel.setEnabled(displayfilter);
 	}
 	
 	private void startAnalysisThread() {
@@ -553,18 +598,6 @@ public class LeafAreaTrack extends PluginActionable implements ActionListener, C
 		}
 	}
 	
-	private void filterMeasures_ClipValues(int span, int constraintoption) {
-		if (constraintoption == 1) {
-			int nrois = vSequence.data_raw.length;
-			for (int iroi=0; iroi < nrois; iroi++) {
-				
-			for (int t= span/2; t< endFrame-startFrame; t++)
-				if (vSequence.data_filtered[iroi][t] > vSequence.data_filtered[iroi][t-1])
-					vSequence.data_filtered[iroi][t] = vSequence.data_filtered[iroi][t-1];
-			}
-		}
-	}
-	
 	private void filterMeasures_RunningAverage(int span) {
 		int nrois = vSequence.data_raw.length;
 		for (int iroi=0; iroi < nrois; iroi++) {
@@ -621,13 +654,12 @@ public class LeafAreaTrack extends PluginActionable implements ActionListener, C
 	
 	private void filterMeasures () {
 		int filteroption = filterComboBox.getSelectedIndex();
-		int constraintoption = conditionsComboBox.getSelectedIndex();
 		int span = Integer.parseInt(spanTextField.getText());
-		filterMeasures_parameters (filteroption, span,  constraintoption);
+		filterMeasures_parameters (filteroption, span);
 		
 	}
 	
-	private void filterMeasures_parameters (int filteroption, int span, int constraintoption) {
+	private void filterMeasures_parameters (int filteroption, int span) {
 		int nrois = vSequence.data_raw.length;
 		if (vSequence.data_filtered == null || vSequence.data_filtered.length != vSequence.data_raw.length)
 			vSequence.data_filtered = new double [nrois][endFrame-startFrame+1];
@@ -635,11 +667,9 @@ public class LeafAreaTrack extends PluginActionable implements ActionListener, C
 		switch (filteroption) {
 			case 1: // running average over "span" points
 				filterMeasures_RunningAverage(span);
-				filterMeasures_ClipValues(span, constraintoption);
 				break;
 			case 2:
 				filterMeasures_RunningMedian(span);
-				filterMeasures_ClipValues(span, constraintoption);
 				break;
 			default:	
 				for (int iroi=0; iroi < nrois; iroi++) {
@@ -879,16 +909,12 @@ public class LeafAreaTrack extends PluginActionable implements ActionListener, C
 		try {
 			WritableWorkbook xlsWorkBook = XLSUtil.createWorkbook( filename);
 
-			filterMeasures_parameters (0, span, 0);
+			filterMeasures_parameters (0, span);
 			exportToXLSWorksheet(xlsWorkBook, "raw");
-			filterMeasures_parameters (1, span, 0);
+			filterMeasures_parameters (1, span);
 			exportToXLSWorksheet(xlsWorkBook, "avg");
-			filterMeasures_parameters (1, span, 1);
-			exportToXLSWorksheet(xlsWorkBook, "avg_clipped");
-			filterMeasures_parameters (2, span, 0);
+			filterMeasures_parameters (2, span);
 			exportToXLSWorksheet(xlsWorkBook, "median");
-			filterMeasures_parameters (2, span, 1);
-			exportToXLSWorksheet(xlsWorkBook, "median_clipped");
 			
 			// --------------
 			XLSUtil.saveAndClose( xlsWorkBook );
