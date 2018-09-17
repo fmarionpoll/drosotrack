@@ -19,9 +19,9 @@ import icy.type.DataType;
 import icy.type.collection.array.Array1DUtil;
 import plugins.fmp.sequencevirtual.ImageTransformTools;
 import plugins.fmp.sequencevirtual.ImageTransformTools.TransformOp;
-import plugins.fmp.sequencevirtual.ThresholdImage.ThresholdType;
+import plugins.fmp.sequencevirtual.ImageThresholdTools.ThresholdType;
 import plugins.fmp.sequencevirtual.SequenceVirtual;
-import plugins.fmp.sequencevirtual.ThresholdImage;
+import plugins.fmp.sequencevirtual.ImageThresholdTools;
 import plugins.fmp.sequencevirtual.Tools;
 
 public class AreaAnalysisThread extends Thread
@@ -58,7 +58,7 @@ public class AreaAnalysisThread extends Thread
 	public ArrayList<MeasureAndName> results = null;
 	
 	private ThresholdType thresholdtype = ThresholdType.SINGLE;
-	private ThresholdImage imgThresh = new ThresholdImage();
+	private ImageThresholdTools imgThresh = new ImageThresholdTools();
 	private ImageTransformTools imgTransf = new ImageTransformTools();
 	 
 	// --------------------------------------------------------------------------------------

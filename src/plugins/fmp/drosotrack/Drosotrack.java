@@ -63,7 +63,7 @@ import jxl.write.WritableWorkbook;
 import jxl.write.WriteException;
 import plugins.fmp.sequencevirtual.ImageTransformTools.TransformOp;
 import plugins.fmp.sequencevirtual.SequenceVirtual;
-import plugins.fmp.sequencevirtual.ThresholdOverlay;
+import plugins.fmp.sequencevirtual.OverlayThreshold;
 import plugins.fmp.sequencevirtual.Tools;
 import plugins.kernel.roi.roi2d.ROI2DArea;
 import plugins.kernel.roi.roi2d.ROI2DPolygon;
@@ -129,7 +129,7 @@ public class Drosotrack extends PluginActionable implements ActionListener, View
 	private int 	numberOfImageForBuffer 	= 100;
 	private IcyFrame mainChartFrame 		= null;
 
-	ThresholdOverlay ov = null;
+	OverlayThreshold ov = null;
 
 	// results arrays
 	private ArrayList<ROI2D> 			roiList 				= null;
@@ -326,7 +326,7 @@ public class Drosotrack extends PluginActionable implements ActionListener, View
 			public void actionPerformed( final ActionEvent e ) { 
 				if (thresholdedImageCheckBox.isSelected()) {
 					if (ov == null)
-						ov = new ThresholdOverlay();
+						ov = new OverlayThreshold();
 					if (vinputSequence != null)
 						vinputSequence.addOverlay(ov);
 					updateOverlay();
@@ -770,7 +770,7 @@ public class Drosotrack extends PluginActionable implements ActionListener, View
 
 	private void updateOverlay () {
 		if (ov == null) {
-			ov = new ThresholdOverlay();
+			ov = new OverlayThreshold();
 			vinputSequence.addOverlay(ov);
 		}
 		ov.setThresholdSequence (vinputSequence);

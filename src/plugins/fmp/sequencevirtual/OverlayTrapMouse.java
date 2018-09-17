@@ -12,16 +12,16 @@ import java.awt.event.MouseEvent;
 
 
 //our painter extends AbstractPainter as it provides painter facilities
-public class TrapMouseOverlay extends Overlay
+public class OverlayTrapMouse extends Overlay
 {
     Point5D.Double Pt;
 
-    public TrapMouseOverlay()
+    public OverlayTrapMouse()
     {
         super("Simple overlay");
     }
     
-    public TrapMouseOverlay(OverlayListener listener) {
+    public OverlayTrapMouse(OverlayListener listener) {
     	super("Simple overlay");
     	addOverlayListener(listener);
     }

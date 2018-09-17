@@ -68,11 +68,11 @@ import plugins.fmp.areatrack.AreaAnalysisThread;
 
 import plugins.fmp.sequencevirtual.ImageTransformTools.TransformOp;
 import plugins.fmp.sequencevirtual.SequenceVirtual;
-import plugins.fmp.sequencevirtual.ThresholdOverlay;
-import plugins.fmp.sequencevirtual.ThresholdImage.ThresholdType;
+import plugins.fmp.sequencevirtual.OverlayThreshold;
+import plugins.fmp.sequencevirtual.ImageThresholdTools.ThresholdType;
 import plugins.fmp.sequencevirtual.ComboBoxColorRenderer;
 import plugins.fmp.sequencevirtual.Tools;
-import plugins.fmp.sequencevirtual.TrapMouseOverlay;
+import plugins.fmp.sequencevirtual.OverlayTrapMouse;
 
 
 public class Areatrack extends PluginActionable implements ActionListener, ChangeListener, ViewerListener, OverlayListener
@@ -145,9 +145,9 @@ public class Areatrack extends PluginActionable implements ActionListener, Chang
 	private int endFrame 					= 99999999;
 	private int numberOfImageForBuffer 		= 100;
 	private AreaAnalysisThread analysisThread = null;
-	private ThresholdOverlay thresholdOverlay = null;
+	private OverlayThreshold thresholdOverlay = null;
 	private boolean thresholdOverlayON = false;
-	private TrapMouseOverlay trapOverlay = null;
+	private OverlayTrapMouse trapOverlay = null;
 	private TransformOp colorspace;
 	private ThresholdType thresholdtype = ThresholdType.SINGLE;
 	private TransformOp transformop = TransformOp.None;
@@ -364,7 +364,7 @@ public class Areatrack extends PluginActionable implements ActionListener, Chang
 		thresholdSpinner.addChangeListener(this); 
 		
 		// -------------------------------------------- default selection
-		thresholdOverlay = new ThresholdOverlay();
+		thresholdOverlay = new OverlayThreshold();
 		filterComboBox.setSelectedIndex(2);
 		measureSurfacesCheckBox.setSelected(true);
 		measureHeatmapCheckBox.setSelected(true);
@@ -473,7 +473,7 @@ public class Areatrack extends PluginActionable implements ActionListener, Chang
 				pickColorButton.setText("*"+textPickAPixel+"*");
 				pickColorButton.setBackground(Color.DARK_GRAY);
 				if (trapOverlay == null)
-					trapOverlay = new TrapMouseOverlay(this);
+					trapOverlay = new OverlayTrapMouse(this);
 				vSequence.addOverlay(trapOverlay);
 			}
 		}
@@ -549,7 +549,7 @@ public class Areatrack extends PluginActionable implements ActionListener, Chang
 			if (!thresholdOverlayON) {
 				if (thresholdOverlay == null) {
 					System.out.println("create overlay");
-					thresholdOverlay = new ThresholdOverlay();
+					thresholdOverlay = new OverlayThreshold();
 					thresholdOverlay.setThresholdSequence (vSequence);
 				}
 				if (!vSequence.contains(thresholdOverlay)) 

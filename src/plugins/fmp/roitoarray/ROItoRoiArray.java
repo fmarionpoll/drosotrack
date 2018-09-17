@@ -51,7 +51,7 @@ import plugins.adufour.ezplug.EzVarSequence;
 import plugins.adufour.ezplug.EzVarText;
 import plugins.fmp.sequencevirtual.ImageTransformTools.TransformOp;
 import plugins.fmp.sequencevirtual.SequenceVirtual;
-import plugins.fmp.sequencevirtual.ThresholdOverlay;
+import plugins.fmp.sequencevirtual.OverlayThreshold;
 import plugins.fmp.sequencevirtual.Tools;
 import plugins.kernel.roi.roi2d.ROI2DLine;
 import plugins.kernel.roi.roi2d.ROI2DPolygon;
@@ -85,7 +85,7 @@ public class ROItoRoiArray extends EzPlug implements ViewerListener {
 	EzVarInteger 	areaShrink;
 	EzButton		changeGridNameButton;
 	
-	private ThresholdOverlay thresholdOverlay = null;
+	private OverlayThreshold thresholdOverlay = null;
 	private SequenceVirtual vSequence = null;
 	private int numberOfImageForBuffer	= 100;
 	private IcyFrame mainChartFrame = null;
@@ -1088,7 +1088,7 @@ public class ROItoRoiArray extends EzPlug implements ViewerListener {
 		if (newValue) {
 			
 			if (thresholdOverlay == null) {
-				thresholdOverlay = new ThresholdOverlay();
+				thresholdOverlay = new OverlayThreshold();
 				vSequence.addOverlay(thresholdOverlay);
 			}
 			vSequence.threshold = thresholdOv.getValue();
@@ -1116,7 +1116,7 @@ public class ROItoRoiArray extends EzPlug implements ViewerListener {
 		if (vSequence == null)
 			return;
 		if (thresholdOverlay == null) {
-			thresholdOverlay = new ThresholdOverlay();
+			thresholdOverlay = new OverlayThreshold();
 			vSequence.addOverlay(thresholdOverlay);
 		}
 		TransformOp transformop = filterComboBox.getValue();

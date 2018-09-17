@@ -8,7 +8,7 @@ import icy.type.DataType;
 import icy.type.collection.array.Array1DUtil;
 import plugins.fmp.sequencevirtual.ImageTransformTools.TransformOp;
 
-public class ThresholdImage {
+public class ImageThresholdTools {
 
 	public enum ThresholdType { SINGLE ("simple threshold"), COLORARRAY ("Color array");
 		private String label;

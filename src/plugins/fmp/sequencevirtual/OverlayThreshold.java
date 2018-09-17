@@ -14,23 +14,23 @@ import icy.painter.Overlay;
 import icy.sequence.Sequence;
 
 import plugins.fmp.sequencevirtual.ImageTransformTools.TransformOp;
-import plugins.fmp.sequencevirtual.ThresholdImage.ThresholdType;
-import plugins.fmp.sequencevirtual.ThresholdImage;
+import plugins.fmp.sequencevirtual.ImageThresholdTools.ThresholdType;
+import plugins.fmp.sequencevirtual.ImageThresholdTools;
 import plugins.fmp.sequencevirtual.ImageTransformTools;
 
-public class ThresholdOverlay extends Overlay
+public class OverlayThreshold extends Overlay
 {
 	public IcyBufferedImage binaryMap;
 	
 	private ImageTransformTools imgTransf = null;
-	private ThresholdImage imgThresh = null;
+	private ImageThresholdTools imgThresh = null;
 	private SequenceVirtual vinputSequence 	= null;
 	private TransformOp transformop;
 	private ThresholdType thresholdtype = ThresholdType.SINGLE;
 
 	// ---------------------------------------------
 	
-	public ThresholdOverlay()
+	public OverlayThreshold()
 	{
 		super("ThresholdOverlay");
 	}
@@ -39,7 +39,7 @@ public class ThresholdOverlay extends Overlay
 	{
 		this.vinputSequence = sseq; 
 		this.imgTransf = new ImageTransformTools();
-		this.imgThresh = new ThresholdImage();
+		this.imgThresh = new ImageThresholdTools();
 		this.imgTransf.setSequenceOfReferenceImage(sseq);
 	}
 	
