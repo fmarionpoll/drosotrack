@@ -21,6 +21,7 @@ public class ImageThresholdTools {
 	private ArrayList <Color> colorarray = null;
 	private int distanceType;
 	private TransformOp transformop;
+	private ArrayList<double[]> ccolor = null;
 	
 	private final byte byteFALSE = (byte) 0;
 	private final byte byteTRUE = (byte) 255;
@@ -38,6 +39,31 @@ public class ImageThresholdTools {
 		this.colorarray = new ArrayList <Color> (colorarray);
 	}
 
+	private void transformColorArray() {
+		// transform color array into an image with 3 components 
+		IcyBufferedImage colorRef = new IcyBufferedImage(colorarray.size(), 1, 3, DataType.DOUBLE);
+		for (int k1 = 0; k1 < colorarray.size(); k1++) {
+			colorRef.setData(k1, 0, 0, colorarray.get(k1).getRed());
+			colorRef.setData(k1, 0, 1, colorarray.get(k1).getGreen());
+			colorRef.setData(k1, 0, 2, colorarray.get(k1).getBlue());
+		}
+		// create array of 3 channels for colors and transform it like sourceImage
+		IcyBufferedImage colorRefTransformed = imgTransf.transformImage(colorRef, transformop);
+		ArrayList<double[]> colorsarray = new ArrayList<double[]>();
+		for (int chan = 0; chan < 3; chan++) {
+			colorsarray.add (Array1DUtil.arrayToDoubleArray(colorRefTransformed.getDataXY(chan), colorRefTransformed.isSignedDataType()));
+		}
+		
+		// transform back into a color array
+		ccolor = new ArrayList<double []>();
+		for (int k = 0; k < colorarray.size(); k++) {
+			double[] color = new double [3];
+			for (int i=0; i<3; i++)
+				color[i] = colorsarray.get(i)[k];
+			ccolor.add(color);
+		}
+	}
+	
 	public IcyBufferedImage getBinaryOverThresholdFromDoubleImage(IcyBufferedImage img) {
 		
 		IcyBufferedImage binaryMap = new IcyBufferedImage(img.getSizeX(), img.getSizeY(), 1, DataType.UBYTE);
@@ -82,37 +108,12 @@ public class ImageThresholdTools {
 		return boolMap;
 	}
 
-	public IcyBufferedImage getBinaryFromColorsOverThresholdAndDoubleImage(IcyBufferedImage sourceImage, Color maskcolor) {
+	public IcyBufferedImage getBinaryFromColorsOverThresholdAndDoubleImage(IcyBufferedImage sourceImage) {
 
 		if (colorarray.size() == 0)
 			return null;
-
-		//TODO
-		byte bytemaskTRUE = (byte) (65536 * (255-maskcolor.getRed()) + 256 * (255-maskcolor.getGreen()) + (255-maskcolor.getBlue()));
-		
-		IcyBufferedImage colorRef = new IcyBufferedImage(colorarray.size(), 1, 3, DataType.DOUBLE);
-		for (int k1 = 0; k1 < colorarray.size(); k1++) {
-			colorRef.setData(k1, 0, 0, colorarray.get(k1).getRed());
-			colorRef.setData(k1, 0, 1, colorarray.get(k1).getGreen());
-			colorRef.setData(k1, 0, 2, colorarray.get(k1).getBlue());
-		}
-		
-		IcyBufferedImage binaryMap = new IcyBufferedImage(sourceImage.getSizeX(), sourceImage.getSizeY(), 1, DataType.UBYTE);	
-		IcyBufferedImage colorRefTransformed = imgTransf.transformImage(colorRef, transformop);
-		ArrayList<double[]> colorsarray = new ArrayList<double[]>();
-		ArrayList<double[]> imagearray = new ArrayList<double[]>();
-		for (int chan = 0; chan < 3; chan++) {
-			imagearray.add( Array1DUtil.arrayToDoubleArray(sourceImage.getDataXY(chan), sourceImage.isSignedDataType()));
-			colorsarray.add (Array1DUtil.arrayToDoubleArray(colorRefTransformed.getDataXY(chan), colorRefTransformed.isSignedDataType()));
-		}
-		
-		ArrayList<double[]> ccolor = new ArrayList<double []>();
-		for (int k = 0; k < colorarray.size(); k++) {
-			double[] color = new double [3];
-			for (int i=0; i<3; i++)
-				color[i] = colorsarray.get(i)[k];
-			ccolor.add(color);
-		}
+		if (ccolor == null)
+			transformColorArray();
 		
 		NHColorDistance distance; 
 		if (distanceType == 1)
@@ -120,12 +121,18 @@ public class ImageThresholdTools {
 		else
 			distance = new NHL2ColorDistance();
 		
-		int chan = 0;
-		byte[] binaryResultBuffer = binaryMap.getDataXYAsByte(chan);
+
+		IcyBufferedImage binaryMap = new IcyBufferedImage(sourceImage.getSizeX(), sourceImage.getSizeY(), 1, DataType.UBYTE);	
+		ArrayList<double[]> imagearray = new ArrayList<double[]>();
+		for (int chan = 0; chan < 3; chan++) {
+			imagearray.add( Array1DUtil.arrayToDoubleArray(sourceImage.getDataXY(chan), sourceImage.isSignedDataType()));
+		}
+		byte[] binaryResultBuffer = binaryMap.getDataXYAsByte(0);
+		int npixels = imagearray.get(0).length;
+		
 		double[] pixel = new double [3];
 		double[] color = new double [3];
 		
-		int npixels = imagearray.get(0).length;
 		for (int ipixel = 0; ipixel < npixels; ipixel++) {
 			
 			byte val = byteFALSE;

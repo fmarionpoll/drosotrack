@@ -109,7 +109,7 @@ public class Areatrack extends PluginActionable implements ActionListener, Chang
 	private JRadioButton rbFilterOptionColor  = new JRadioButton ("color filter");
 	private JRadioButton rbFilterOptionSimple = new JRadioButton ("simple filter");
 	
-	private String[] 	availableOverlays	= new String[] {"None", "Color filter", "Movements"};
+	private String[] 	availableOverlays	= new String[] {"Not visible", "Color/simple filter", "Movements filter"};
 	private JComboBox<String> overlayComboBox = new JComboBox<String> (availableOverlays);
 
 	private JComboBox<Color> colorPickCombo = new JComboBox<Color>();
@@ -210,7 +210,7 @@ public class Areatrack extends PluginActionable implements ActionListener, Chang
 		// -------------------------------------------------------------------------------
 		// TODO
 		JLabel overlayLabel = new JLabel("Display overlay ");
-		analysisPanel.add( GuiUtil.besidesPanel(overlayLabel, overlayComboBox, new JLabel("  ")));
+		analysisPanel.add( GuiUtil.besidesPanel(overlayLabel, overlayComboBox));
 		analysisPanel.add( GuiUtil.besidesPanel(measureSurfacesCheckBox));
 		// TODO
 		ButtonGroup bgfilter = new ButtonGroup();

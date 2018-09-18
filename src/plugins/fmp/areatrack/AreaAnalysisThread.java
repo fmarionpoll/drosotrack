@@ -162,7 +162,7 @@ public class AreaAnalysisThread extends Thread
 					// ------------------------ compute global mask
 					IcyBufferedImage binaryMap;
 					if (thresholdtype == ThresholdType.COLORARRAY)
-						binaryMap = imgThresh.getBinaryFromColorsOverThresholdAndDoubleImage(workImage, Color.BLACK);
+						binaryMap = imgThresh.getBinaryFromColorsOverThresholdAndDoubleImage(workImage);
 					else 
 						binaryMap = imgThresh.getBinaryOverThresholdFromDoubleImage(workImage);
 					 boolean[] boolMap = imgThresh.getBoolMapFromUBYTEBinaryImage(binaryMap);
