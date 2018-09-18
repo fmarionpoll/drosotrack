@@ -27,6 +27,8 @@ public class OverlayThreshold extends Overlay
 	private SequenceVirtual vinputSequence 	= null;
 	private TransformOp transformop;
 	private ThresholdType thresholdtype = ThresholdType.SINGLE;
+	private float opacity = 0.3f;
+	private float strokesize = 0.3f;
 
 	// ---------------------------------------------
 	
@@ -61,13 +63,14 @@ public class OverlayThreshold extends Overlay
 		// check if we are dealing with a 2D canvas and we have a valid Graphics object
 		if ((canvas instanceof IcyCanvas2D) && (g != null))
 		{
+			Color maskcolor = Color.RED;
 			final Graphics2D g2 = (Graphics2D) g.create();
-			g2.setStroke(new BasicStroke(0.3f));
-			g2.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 0.5f));
+			g2.setStroke(new BasicStroke(strokesize));
+			g2.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, opacity));
 
 			IcyBufferedImage workImage = imgTransf.transformImageTFromSequence(vinputSequence.currentFrame, transformop);
 			if (thresholdtype == ThresholdType.COLORARRAY)
-				binaryMap = imgThresh.filter1(workImage);
+				binaryMap = imgThresh.getBinaryFromColorsOverThresholdAndDoubleImage(workImage, maskcolor);
 			else 
 				binaryMap = imgThresh.getBinaryOverThresholdFromDoubleImage(workImage);
 

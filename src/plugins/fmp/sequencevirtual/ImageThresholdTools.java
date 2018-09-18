@@ -82,11 +82,14 @@ public class ImageThresholdTools {
 		return boolMap;
 	}
 
-	public IcyBufferedImage filter1(IcyBufferedImage sourceImage) {
+	public IcyBufferedImage getBinaryFromColorsOverThresholdAndDoubleImage(IcyBufferedImage sourceImage, Color maskcolor) {
 
 		if (colorarray.size() == 0)
 			return null;
 
+		//TODO
+		byte bytemaskTRUE = (byte) (65536 * (255-maskcolor.getRed()) + 256 * (255-maskcolor.getGreen()) + (255-maskcolor.getBlue()));
+		
 		IcyBufferedImage colorRef = new IcyBufferedImage(colorarray.size(), 1, 3, DataType.DOUBLE);
 		for (int k1 = 0; k1 < colorarray.size(); k1++) {
 			colorRef.setData(k1, 0, 0, colorarray.get(k1).getRed());
@@ -101,6 +104,14 @@ public class ImageThresholdTools {
 		for (int chan = 0; chan < 3; chan++) {
 			imagearray.add( Array1DUtil.arrayToDoubleArray(sourceImage.getDataXY(chan), sourceImage.isSignedDataType()));
 			colorsarray.add (Array1DUtil.arrayToDoubleArray(colorRefTransformed.getDataXY(chan), colorRefTransformed.isSignedDataType()));
+		}
+		
+		ArrayList<double[]> ccolor = new ArrayList<double []>();
+		for (int k = 0; k < colorarray.size(); k++) {
+			double[] color = new double [3];
+			for (int i=0; i<3; i++)
+				color[i] = colorsarray.get(i)[k];
+			ccolor.add(color);
 		}
 		
 		NHColorDistance distance; 
@@ -122,8 +133,7 @@ public class ImageThresholdTools {
 				pixel[i] = imagearray.get(i)[ipixel];
 		
 			for (int k = 0; k < colorarray.size(); k++) {
-				for (int i=0; i<3; i++)
-					color[i] = colorsarray.get(i)[k];
+				color = ccolor.get(k);
 				if (distance.computeDistance(pixel, color) < colorthreshold) {
 					val = byteTRUE;
 					break;
