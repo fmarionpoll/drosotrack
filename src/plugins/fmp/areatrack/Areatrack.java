@@ -343,8 +343,8 @@ public class Areatrack extends PluginActionable implements ActionListener, Chang
 		deleteColorButton.addActionListener(new ActionListener () {
 			@Override
 			public void actionPerformed( final ActionEvent e ) { 
-				if (colorPickCombo.getItemCount() > 0) 
-					colorPickCombo.removeItemAt(colorPickCombo.getSelectedIndex());	
+				if (colorPickCombo.getItemCount() > 0)
+					colorPickCombo.removeItemAt(colorPickCombo.getSelectedIndex());
 				updateThresholdOverlayParameters();
 			} } );
 		rbFilterOptionColor.addActionListener(new ActionListener () {

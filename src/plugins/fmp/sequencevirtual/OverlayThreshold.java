@@ -27,7 +27,7 @@ public class OverlayThreshold extends Overlay
 	private SequenceVirtual vinputSequence 	= null;
 	private TransformOp transformop;
 	private ThresholdType thresholdtype = ThresholdType.SINGLE;
-	private float opacity = 0.3f;
+	private float opacity = 1f; //.5f;
 	private float strokesize = 0.3f;
 
 	// ---------------------------------------------
