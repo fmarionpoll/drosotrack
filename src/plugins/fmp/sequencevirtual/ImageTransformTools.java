@@ -16,12 +16,13 @@ public class ImageTransformTools {
 		RGB ("(R+G+B)/3"),
 		H_HSB ("H(HSB)"), S_HSB ("S(HSB)"), B_HSB("B(HSB)"),  
 		XDIFFN("XDiffn"), 
-//		XYDIFFN( "XYDiffn"), 
+		XYDIFFN( "XYDiffn"), 
 		REFt0("subtract t0"), REFn("subtract n-1"), REF("subtract ref"),
 		NORM_BRmG("F. Rebaudo"),
 		COLORARRAY1("color array"),
 		RGB_TO_HSV("HSV"),
-		RGB_TO_H1H2H3("H1H2H3");
+		RGB_TO_H1H2H3("H1H2H3"),  
+		RTOGB ("R to G&B") ;
 		private String label;
 		TransformOp (String label) {
 			this.label = label;
@@ -78,6 +79,7 @@ public class ImageTransformTools {
 		case RBMINUS2G: functionRGB_C1C2Minus2C3 (img, 0, 2, 1); break;
 		case RGMINUS2B: functionRGB_C1C2Minus2C3 (img, 0, 1, 2); break;
 		case NORM_BRmG: functionNormRGB_sumC1C2Minus2C3(img, 1, 2, 0); break;
+		case RTOGB: functionTransferRedToGreenAndBlue(img); break;
 			
 		case REFt0: functionSubtractRef(img); break;
 		case REF: functionSubtractRef(img); break;
@@ -89,7 +91,7 @@ public class ImageTransformTools {
 			break;
 			
 		case XDIFFN: computeXDiffn (img); break;
-//		case XYDIFFN: computeXYDiffn (img); break;
+		case XYDIFFN: computeXYDiffn (img); break;
 
 		case RGB_TO_HSV: functionRGBtoHSV(img); break;
 		case RGB_TO_H1H2H3: functionRGBtoH1H2H3(img); break;
@@ -130,6 +132,12 @@ public class ImageTransformTools {
 		ArrayMath.multiply(ExG, 255, ExG);	// ExG = ExG * 255
 		
 		Array1DUtil.doubleArrayToSafeArray(ExG,  img2.getDataXY(0),  true); //true, img2.isSignedDataType());
+	}
+	
+	private void functionTransferRedToGreenAndBlue(IcyBufferedImage sourceImage) {
+		img2.copyData(sourceImage, 0, 0);
+		img2.copyData(sourceImage, 0, 1);
+		img2.copyData(sourceImage, 0, 2);
 	}
 	
 	private void functionRGB_C1C2Minus2C3 (IcyBufferedImage sourceImage, int addchan1, int addchan2, int subtractchan3) {
@@ -196,7 +204,7 @@ public class ImageTransformTools {
 		}
 	}
 	
-	/*
+	
 	private void computeXYDiffn(IcyBufferedImage sourceImage) {
 
 		int chan0 = 0;
@@ -244,7 +252,7 @@ public class ImageTransformTools {
 			Array1DUtil.doubleArrayToSafeArray(outValues,  img2.getDataXY(c),  img2.isSignedDataType());
 		}
 	}
-	*/
+	
 
 	private void functionRGB_keepOneChan (IcyBufferedImage sourceImage, int keepChan) {
 
@@ -301,11 +309,13 @@ public class ImageTransformTools {
 	
 	private void functionSubtractRef(IcyBufferedImage sourceImage) {
 		
-		/* algorithm borrowed from  Perrine.Paul-Gilloteaux@univ-nantes.fr in  EC-CLEM
+		/* algorithm from  Perrine.Paul-Gilloteaux@univ-nantes.fr in  EC-CLEM
 		 * original function: private IcyBufferedImage substractbg(Sequence ori, Sequence bg,int t, int z) 
 		 */
+		if (referenceImage == null)
+			referenceImage = vinputSequence.loadVImage(0);
 		IcyBufferedImage img = new IcyBufferedImage(sourceImage.getSizeX(), sourceImage.getSizeY(),sourceImage.getSizeC(), sourceImage.getDataType_());
-		double[] dummyzeros=Array1DUtil.arrayToDoubleArray(img.getDataXY(0), img.isSignedDataType());
+		double[] dummyzeros = Array1DUtil.arrayToDoubleArray(img.getDataXY(0), img.isSignedDataType());
 		
 		for (int c=0; c<sourceImage.getSizeC(); c++){
 			Object sourceArray = sourceImage.getDataXY(c);

@@ -1283,6 +1283,7 @@ public class Capillarytrack extends PluginActionable implements ActionListener, 
 			kymographSeq.beginUpdate();
 			IcyBufferedImage img = kymographSeq.getImage(zSource, 0);
 			IcyBufferedImage img2 = tImg.transformImage (img, transformop);
+			img2 = tImg.transformImage(img2, TransformOp.RTOGB);
 			if (kymographSeq.getSizeZ() < (zTransform+1))
 				kymographSeq.addImage(img2);
 			else
