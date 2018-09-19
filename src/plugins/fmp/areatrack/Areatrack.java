@@ -13,7 +13,6 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.List;
 
 import javax.swing.BoxLayout;
 import javax.swing.ButtonGroup;
@@ -65,10 +64,8 @@ import icy.painter.OverlayEvent.OverlayEventType;
 import icy.gui.viewer.ViewerEvent.ViewerEventType;
 import icy.plugin.abstract_.PluginActionable;
 import icy.preferences.XMLPreferences;
-import icy.roi.ROI;
 import icy.roi.ROI2D;
 import icy.sequence.DimensionId;
-import icy.sequence.edit.ROIAddsSequenceEdit;
 import icy.system.thread.ThreadUtil;
 import icy.util.XLSUtil;
 import icy.util.XMLUtil;
@@ -79,7 +76,6 @@ import plugins.fmp.areatrack.MeasureAndName;
 import plugins.fmp.areatrack.AreaAnalysisThread;
 
 import plugins.fmp.sequencevirtual.ImageTransformTools.TransformOp;
-import plugins.fmp.sequencevirtual.SequenceVirtual.Status;
 import plugins.fmp.sequencevirtual.SequenceVirtual;
 import plugins.fmp.sequencevirtual.OverlayThreshold;
 import plugins.fmp.sequencevirtual.ImageThresholdTools.ThresholdType;
@@ -175,8 +171,7 @@ public class Areatrack extends PluginActionable implements ActionListener, Chang
 	private ArrayList <Color> colorarray = new ArrayList <Color>();
 	// movement detection
 	private int thresholdmovement = 20;
-	private TransformOp movementtransformop = TransformOp.REFn;
-	
+		
 	final private String filename = "areatrack.xml";
 	
 	// --------------------------------------------------------------------------
@@ -407,13 +402,13 @@ public class Areatrack extends PluginActionable implements ActionListener, Chang
 		openFiltersButton.addActionListener(new ActionListener () {
 			@Override
 			public void actionPerformed( final ActionEvent e ) { 
-				loadDialogParameters(); 
+				loadParametersFromXMLFile(); 
 			} } );
 		
 		saveFiltersButton.addActionListener(new ActionListener () {
 			@Override
 			public void actionPerformed( final ActionEvent e ) { 
-				saveDialogParameters(); 
+				saveParametersToXMLFile(); 
 			} } );
 		
 		openROIsButton.addActionListener(new ActionListener () {
@@ -497,7 +492,7 @@ public class Areatrack extends PluginActionable implements ActionListener, Chang
 			XMLPreferences guiPrefs = this.getPreferences("gui");
 			guiPrefs.put("lastUsedPath", path);
 			initInputSeq();
-			loadDialogParameters();
+			loadParametersFromXMLFile();
 		}
 	}
 	
@@ -525,17 +520,13 @@ public class Areatrack extends PluginActionable implements ActionListener, Chang
 		}
 	}
 	
-	private void loadDialogParameters() {
-		final Document doc = XMLUtil.loadDocument(filename);
+	private void loadParametersFromXMLFile() {
+		String directory = vSequence.getDirectory();
+		String fileparameters = directory + "\\" + filename;
+		final Document doc = XMLUtil.loadDocument(fileparameters);
 		boolean flag = false;
 		if (doc != null) {
-			List<ROI> rois = ROI.loadROIsFromXML(XMLUtil.getRootElement(doc));
-			Collections.sort(rois, new Tools.ROINameComparator()); 
-			for (ROI roi : rois)  {
-				vSequence.addROI(roi);
-			}
 			flag = xmlReadAreaTrackParameters(doc);
-			
 			if (flag) 
 				transferParametersToDialog();
 			else
@@ -571,7 +562,7 @@ public class Areatrack extends PluginActionable implements ActionListener, Chang
 		threshold2Spinner.setValue(thresholdmovement);
 	}
 	
-	private void saveDialogParameters() {
+	private void saveParametersToXMLFile() {
 		
 		String csFile = Tools.saveFileAs(filename, vSequence.getDirectory(), "xml");
 		csFile.toLowerCase();
@@ -582,15 +573,10 @@ public class Areatrack extends PluginActionable implements ActionListener, Chang
 		boolean flag = false;
 		if (doc != null)
 		{
-			List<ROI> rois = vSequence.getROIs(true);
-			if (rois.size() > 0)
-				ROI.saveROIsToXML(XMLUtil.getRootElement(doc), rois);
 			flag = xmlWriteAreaTrackParameters (doc);
 			XMLUtil.saveDocument(doc, csFile);
 		}
-		if (flag)
-			new AnnounceFrame("data saved");
-		else
+		if (!flag)
 			new AnnounceFrame("saving data failed");
 	}
 	
@@ -606,19 +592,24 @@ public class Areatrack extends PluginActionable implements ActionListener, Chang
 		if (xmlElement == null) 
 			return false;
 
-		Element xmlVal = XMLUtil.getElement(xmlElement, "itabbed");
-		iselectedpane = XMLUtil.getAttributeIntValue(xmlVal, "value", 0);	
-		xmlVal = XMLUtil.getElement(xmlElement, "colortransformop");
-		String codestring = XMLUtil.getAttributeValue(xmlVal, "descriptor", "none");
-		colortransformop = TransformOp.valueOf(codestring);
+		Element xmlVal = XMLUtil.getElement(xmlElement, "itabbed");	
+		iselectedpane = XMLUtil.getAttributeIntValue(xmlVal, "value", 0);
+		
+		xmlVal = XMLUtil.getElement(xmlElement, "colortransformop");	
+		String codestring = XMLUtil.getAttributeValue(xmlVal, "descriptor", "none");		
+		colortransformop = TransformOp.findByText(codestring);
+		
 		xmlVal = XMLUtil.getElement(xmlElement, "thresholdtype");
 		codestring = XMLUtil.getAttributeValue(xmlVal, "descriptor", "simple threshold");
-		thresholdtype = ThresholdType.valueOf(codestring);
+		thresholdtype = ThresholdType.findByText(codestring);
+		
 		xmlVal = XMLUtil.getElement(xmlElement, "simpletransformop");
 		codestring = XMLUtil.getAttributeValue(xmlVal, "descriptor", "none");
-		simpletransformop = TransformOp.valueOf(codestring);
+		simpletransformop = TransformOp.findByText(codestring);
+		
 		xmlVal = XMLUtil.getElement(xmlElement, "colordistanceType");
 		colordistanceType = XMLUtil.getAttributeIntValue(xmlVal, "value", 20);
+		
 		xmlVal = XMLUtil.getElement(xmlElement, "colorthreshold");
 		colorthreshold = XMLUtil.getAttributeIntValue(xmlVal, "value", 20);
 		
@@ -626,15 +617,12 @@ public class Areatrack extends PluginActionable implements ActionListener, Chang
 		xmlVal = XMLUtil.getElement(xmlElement, "ncolors");
 		int ncolors = XMLUtil.getAttributeIntValue(xmlVal, "value", 0);
 		for (int i= 0; i<ncolors; i++) {
-			xmlVal = XMLUtil.getElement(xmlElement, "alpha");
-			int alpha = XMLUtil.getAttributeIntValue(xmlVal, "value", 0);
-			xmlVal = XMLUtil.getElement(xmlElement, "red");
-			int red = XMLUtil.getAttributeIntValue(xmlVal, "value", 0);
-			xmlVal = XMLUtil.getElement(xmlElement, "blue");
-			int blue = XMLUtil.getAttributeIntValue(xmlVal, "value", 0);
-			xmlVal = XMLUtil.getElement(xmlElement, "green");
-			int green = XMLUtil.getAttributeIntValue(xmlVal, "value", 0);
-			Color color = new Color(alpha, red, green, blue);
+			xmlVal = XMLUtil.getElement(xmlElement, "color"+Integer.toString(i));
+			int alpha = XMLUtil.getAttributeIntValue(xmlVal, "a", 0);
+			int red = XMLUtil.getAttributeIntValue(xmlVal, "r", 0);
+			int blue = XMLUtil.getAttributeIntValue(xmlVal, "b", 0);
+			int green = XMLUtil.getAttributeIntValue(xmlVal, "g", 0);
+			Color color = new Color(red, green, blue, alpha);
 			colorarray.add(color);
 		}
 	
@@ -650,22 +638,28 @@ public class Areatrack extends PluginActionable implements ActionListener, Chang
 			return false;
 		
 		Element xmlElement = XMLUtil.addElement(node, "Parameters");
+		
 		Element xmlVal = XMLUtil.addElement(xmlElement, "itabbed");
 		XMLUtil.setAttributeIntValue(xmlVal, "value", tabbedPane.getSelectedIndex());
+		
 		xmlVal = XMLUtil.addElement(xmlElement, "thresholdtype");
 		XMLUtil.setAttributeIntValue(xmlVal, "descriptor", tabbedPane.getSelectedIndex());
 		
+		xmlVal = XMLUtil.addElement(xmlElement, "simpletransformop");
 		XMLUtil.setAttributeValue(xmlVal, "descriptor", simpletransformop.toString());
+		
 		xmlVal = XMLUtil.addElement(xmlElement, "simplethreshold");
 		XMLUtil.setAttributeIntValue(xmlVal, "value", Integer.parseInt(thresholdSpinner.getValue().toString()));
 		
 		xmlVal = XMLUtil.addElement(xmlElement, "colortransformop");
 		XMLUtil.setAttributeValue(xmlVal, "descriptor", colortransformop.toString());
+		
 		xmlVal = XMLUtil.addElement(xmlElement, "thresholdtype");
-		XMLUtil.setAttributeValue(xmlVal, "descriptor", thresholdtype.toString());
-		xmlVal = XMLUtil.addElement(xmlElement, "simpletransformop");
+		XMLUtil.setAttributeValue(xmlVal, "descriptor", thresholdtype.toString());	
+		
 		xmlVal = XMLUtil.addElement(xmlElement, "colordistanceType");
 		XMLUtil.setAttributeIntValue(xmlVal, "value", colordistanceType);
+		
 		xmlVal = XMLUtil.addElement(xmlElement, "colorthreshold");
 		XMLUtil.setAttributeIntValue(xmlVal, "value", colorthreshold);
 		
@@ -673,14 +667,11 @@ public class Areatrack extends PluginActionable implements ActionListener, Chang
 		XMLUtil.setAttributeIntValue(xmlVal, "value", colorarray.size());
 		for (int i=0; i<colorarray.size(); i++) {
 			Color color = colorarray.get(i);
-			xmlVal = XMLUtil.addElement(xmlElement, "alpha");
-			XMLUtil.setAttributeIntValue(xmlVal, "value", color.getAlpha());
-			xmlVal = XMLUtil.addElement(xmlElement, "red");
-			XMLUtil.setAttributeIntValue(xmlVal, "value", color.getRed());
-			xmlVal = XMLUtil.addElement(xmlElement, "green");
-			XMLUtil.setAttributeIntValue(xmlVal, "value", color.getGreen());
-			xmlVal = XMLUtil.addElement(xmlElement, "blue");
-			XMLUtil.setAttributeIntValue(xmlVal, "value", color.getBlue());
+			xmlVal = XMLUtil.addElement(xmlElement, "color"+Integer.toString(i));
+			XMLUtil.setAttributeIntValue(xmlVal, "a", color.getAlpha());
+			XMLUtil.setAttributeIntValue(xmlVal, "r", color.getRed());
+			XMLUtil.setAttributeIntValue(xmlVal, "g", color.getGreen());
+			XMLUtil.setAttributeIntValue(xmlVal, "b", color.getBlue());
 		}
 		
 		return true;
@@ -716,7 +707,8 @@ public class Areatrack extends PluginActionable implements ActionListener, Chang
 		
 		startFrame 	= Integer.parseInt( startFrameTextField.getText() );
 		endFrame 	= Integer.parseInt( endFrameTextField.getText() );
-		vSequence.istep = Integer.parseInt( analyzeStepTextField.getText() );
+		analyzeStep = Integer.parseInt( analyzeStepTextField.getText() );
+		vSequence.istep = analyzeStep;
 		
 		TransformOp transformop = (TransformOp) transformsComboBox.getSelectedItem();
 		int threshold = Integer.parseInt(thresholdSpinner.getValue().toString());

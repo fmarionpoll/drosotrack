@@ -77,9 +77,7 @@ public class OverlayThreshold extends Overlay
 				g2.drawImage(IcyBufferedImageUtil.toBufferedImage(binaryMap, null), null, 0, 0);
 			}
 		}
-
 	}
-
 
 }
 

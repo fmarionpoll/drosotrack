@@ -10,26 +10,26 @@ import icy.type.collection.array.Array1DUtil;
 
 public class ImageTransformTools {
 
-	public enum TransformOp { None("none"),
+	public enum TransformOp { 
+		None("none"),
 		R_RGB("R(RGB)"), G_RGB("G(RGB)"), B_RGB("B(RGB)"),  
 		GBMINUS2R ("(G+B)-2R"), RBMINUS2G("(R+B)-2G"), RGMINUS2B("(R+G)-2B"),
 		RGB ("(R+G+B)/3"),
 		H_HSB ("H(HSB)"), S_HSB ("S(HSB)"), B_HSB("B(HSB)"),  
-		XDIFFN("XDiffn"), 
-		XYDIFFN( "XYDiffn"), 
+		XDIFFN("XDiffn"),  XYDIFFN( "XYDiffn"), 
 		REFt0("subtract t0"), REFn("subtract n-1"), REF("subtract ref"),
 		NORM_BRmG("F. Rebaudo"),
-		COLORARRAY1("color array"),
-		RGB_TO_HSV("HSV"),
-		RGB_TO_H1H2H3("H1H2H3"),  
+		COLORARRAY1("color array"), RGB_TO_HSV("HSV"), RGB_TO_H1H2H3("H1H2H3"), 
 		RTOGB ("R to G&B") ;
+		
 		private String label;
-		TransformOp (String label) {
-			this.label = label;
-			}
-		public String toString() {
-			return label;
-			}
+		TransformOp (String label) { this.label = label; }
+		public String toString() { return label; }
+		
+		public static TransformOp findByText(String abbr){
+		    for(TransformOp v : values()){ if( v.toString().equals(abbr)) { return v; } }
+		    return null;
+		}
 	}
 	public double factorR=1.;
 	public double factorG=1.;

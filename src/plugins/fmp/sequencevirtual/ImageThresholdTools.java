@@ -10,10 +10,17 @@ import plugins.fmp.sequencevirtual.ImageTransformTools.TransformOp;
 
 public class ImageThresholdTools {
 
-	public enum ThresholdType { SINGLE ("simple threshold"), COLORARRAY ("Color array");
+	public enum ThresholdType { 
+		SINGLE ("simple threshold"), COLORARRAY ("Color array");
+		
 		private String label;
 		ThresholdType (String label) { this.label = label;}
 		public String toString() { return label;}	
+		
+		public static ThresholdType findByText(String abbr){
+		    for(ThresholdType v : values()){ if( v.toString().equals(abbr)) { return v; }  }
+		    return null;
+		}
 	}
 	private ImageTransformTools imgTransf = new ImageTransformTools();
 	private int thresholdValue = 0;
