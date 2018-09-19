@@ -154,23 +154,24 @@ public class AreaAnalysisThread extends Thread
 
 				if (measureROIsEvolution) {
 					// load next image and compute threshold
-					IcyBufferedImage workImage = imgTransf.transformImageTFromSequence(t, transformop); 
+					IcyBufferedImage workImage = imgTransf.transformImageFromSequence(t, transformop); 
 					vSequence.currentFrame = t;
 					viewer.setPositionT(t);
 					viewer.setTitle(vSequence.getVImageName(t));
 
 					// ------------------------ compute global mask
+					// TODO: is this ok? img -> binaryMap -> boolMap -> maskAll2D
 					IcyBufferedImage binaryMap;
-					if (thresholdtype == ThresholdType.COLORARRAY)
-						binaryMap = imgThresh.getBinaryFromColorsOverThresholdAndDoubleImage(workImage);
-					else 
-						binaryMap = imgThresh.getBinaryOverThresholdFromDoubleImage(workImage);
-					 boolean[] boolMap = imgThresh.getBoolMapFromUBYTEBinaryImage(binaryMap);
-					//boolean [] boolMap = tov.getBoolMapOverThresholdFromDoubleImage(workImage, threshold);
 					
+					if (thresholdtype == ThresholdType.COLORARRAY) 
+						binaryMap = imgThresh.getBinaryInt_FromColorsThreshold_OverImageAsDouble(workImage);
+					else  
+						binaryMap = imgThresh.getBinaryInt_FromThreshold_OverImage(workImage);
+					
+					boolean[] boolMap = imgThresh.getBoolMap_FromBinaryInt(binaryMap);
 					BooleanMask2D maskAll2D = new BooleanMask2D(workImage.getBounds(), boolMap); 
 					
-					// ------------------------ loop over all the cages of the stack & count n pixels above threshold
+					// ------------------------ loop over each ROI & count number of pixels above threshold
 					for (int imask = 0; imask < areaMaskList.size(); imask++ )
 					{
 						BooleanMask2D areaMask = areaMaskList.get(imask);
@@ -185,7 +186,7 @@ public class AreaAnalysisThread extends Thread
 					if (t < startFrame+20)
 						continue;
 					
-					IcyBufferedImage diffImage = imgTransf.transformImageTFromSequence(t,  TransformOp.REFn);
+					IcyBufferedImage diffImage = imgTransf.transformImageFromSequence(t,  TransformOp.REFn);
 					int cmax = 3;
 					for (int c=0; c< cmax; c++) {
 						double[] img1DoubleArray = Array1DUtil.arrayToDoubleArray(diffImage.getDataXY(c), diffImage.isSignedDataType());

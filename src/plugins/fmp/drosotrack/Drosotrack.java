@@ -112,7 +112,7 @@ public class Drosotrack extends PluginActionable implements ActionListener, View
 
 	//------------------------------------------- global variables
 
-	private SequenceVirtual vinputSequence 	= null;
+	private SequenceVirtual vSequence 	= null;
 	private Timer 		checkBufferTimer 	= new Timer(1000, this);
 	enum StateD { NORMAL, STOP_COMPUTATION, INIT, NO_FILE };
 	private StateD state = StateD.NORMAL;
@@ -229,11 +229,11 @@ public class Drosotrack extends PluginActionable implements ActionListener, View
 			@Override
 			public void actionPerformed( final ActionEvent e ) { 
 				String path = null;
-				if (vinputSequence != null)
+				if (vSequence != null)
 					closeAll();
-				vinputSequence = new SequenceVirtual();
+				vSequence = new SequenceVirtual();
 				
-				path = vinputSequence.loadInputVirtualStack(null);
+				path = vSequence.loadInputVirtualStack(null);
 				if (path != null) {
 					guiPrefs.put("lastUsedPath", path);
 					initInputSeq();
@@ -275,7 +275,7 @@ public class Drosotrack extends PluginActionable implements ActionListener, View
 		exportToXLSButton.addActionListener (new ActionListener () {
 			@Override
 			public void actionPerformed( final ActionEvent e ) { 
-				String file = Tools.saveFileAs(null, vinputSequence.getDirectory(), "xls");
+				String file = Tools.saveFileAs(null, vSequence.getDirectory(), "xls");
 				if (file != null) {
 					ThreadUtil.bgRun( new Runnable() { 	
 						@Override
@@ -289,14 +289,14 @@ public class Drosotrack extends PluginActionable implements ActionListener, View
 		openROIsButton.addActionListener(new ActionListener () {
 			@Override
 			public void actionPerformed( final ActionEvent e ) { 
-				vinputSequence.xmlReadROIsAndData();	
-				ArrayList<ROI2D> list = vinputSequence.getROI2Ds();
+				vSequence.xmlReadROIsAndData();	
+				ArrayList<ROI2D> list = vSequence.getROI2Ds();
 				Collections.sort(list, new Tools.ROI2DNameComparator());
 				int nrois = list.size();
 				if (nrois > 0)
 					nbcagesTextField.setText(Integer.toString(nrois));
-				if (vinputSequence.threshold != -1) {
-					threshold = vinputSequence.threshold;
+				if (vSequence.threshold != -1) {
+					threshold = vSequence.threshold;
 					thresholdSpinner.setValue(threshold);
 				}
 			}});
@@ -304,18 +304,18 @@ public class Drosotrack extends PluginActionable implements ActionListener, View
 		saveROIsButton.addActionListener(new ActionListener () {
 			@Override
 			public void actionPerformed( final ActionEvent e ) { 
-				vinputSequence.threshold = threshold;
-				List<ROI> roisList = vinputSequence.getROIs(true);
+				vSequence.threshold = threshold;
+				List<ROI> roisList = vSequence.getROIs(true);
 				List<ROI> roisCages = new ArrayList<ROI>();
 				for (ROI roi : roisList) {
 					if (roi.getName().contains("cage"))
 						roisCages.add(roi);
 				}
-				vinputSequence.removeAllROI();
-				vinputSequence.addROIs(roisCages, false);
-				vinputSequence.xmlWriteROIsAndData("roisbox.xml");
-				vinputSequence.removeAllROI();
-				vinputSequence.addROIs(roisList, false);
+				vSequence.removeAllROI();
+				vSequence.addROIs(roisCages, false);
+				vSequence.xmlWriteROIsAndData("drosotrack.xml");
+				vSequence.removeAllROI();
+				vSequence.addROIs(roisList, false);
 			}});
 		
 		openROIsButton.setEnabled(false);
@@ -327,12 +327,12 @@ public class Drosotrack extends PluginActionable implements ActionListener, View
 				if (thresholdedImageCheckBox.isSelected()) {
 					if (ov == null)
 						ov = new OverlayThreshold();
-					if (vinputSequence != null)
-						vinputSequence.addOverlay(ov);
+					if (vSequence != null)
+						vSequence.addOverlay(ov);
 					updateOverlay();
 				}
 				else {
-					vinputSequence.removeOverlay(ov);
+					vSequence.removeOverlay(ov);
 				}
 			}});
 		
@@ -340,8 +340,8 @@ public class Drosotrack extends PluginActionable implements ActionListener, View
 			@Override
 			public void actionPerformed( final ActionEvent e ) { 
 				parseTextFields();
-				if (vinputSequence != null) 
-					vinputSequence.istep = analyzeStep;
+				if (vSequence != null) 
+					vSequence.istep = analyzeStep;
 			} } );
 		
 		displayChartsButton.addActionListener ( new ActionListener() {
@@ -384,9 +384,9 @@ public class Drosotrack extends PluginActionable implements ActionListener, View
 	{
 		Object o = e.getSource();
 		// _______________________________________________
-		if (o == checkBufferTimer && vinputSequence != null) {
-			if (vinputSequence.bufferThread != null ) {
-				int bufferPercent = vinputSequence.bufferThread.getCurrentBufferLoadPercent();
+		if (o == checkBufferTimer && vSequence != null) {
+			if (vSequence.bufferThread != null ) {
+				int bufferPercent = vSequence.bufferThread.getCurrentBufferLoadPercent();
 				bufferValue.setText(bufferPercent + " %");
 			}
 		}
@@ -404,8 +404,8 @@ public class Drosotrack extends PluginActionable implements ActionListener, View
 		points2D_rois_then_t_ListArray.clear();
 
 		// close sequences & their viewers
-		vinputSequence.removeAllROI();
-		vinputSequence.close();
+		vSequence.removeAllROI();
+		vSequence.close();
 
 		if (mainChartFrame != null) {
 			mainChartFrame.removeAll();
@@ -421,20 +421,20 @@ public class Drosotrack extends PluginActionable implements ActionListener, View
 			width_interval = Integer.parseInt( width_intervalTextField.getText() );
 		}catch( Exception e ) { new AnnounceFrame("Can't interpret one of the ROI parameters value"); }
 
-		ROI2D roi = vinputSequence.getSelectedROI2D();
+		ROI2D roi = vSequence.getSelectedROI2D();
 		if ( ! ( roi instanceof ROI2DPolygon ) ) {
 			new AnnounceFrame("The frame for the cages must be a ROI2D POLYGON");
 			return;
 		}
 
 		Polygon roiPolygon = Tools.orderVerticesofPolygon (((ROI2DPolygon) roi).getPolygon());
-		vinputSequence.removeROI(roi);
+		vSequence.removeROI(roi);
 
 		// generate cage frames
 		int span = nbcages*width_cage + (nbcages-1)*width_interval;
 		String cageRoot = "cage";
 		int iRoot = 0;
-		for (ROI iRoi: vinputSequence.getROIs()) {
+		for (ROI iRoi: vSequence.getROIs()) {
 			if (iRoi.getName().contains("cage")) {
 				String left = iRoi.getName().substring(4);
 				int item = Integer.parseInt(left);
@@ -471,10 +471,10 @@ public class Drosotrack extends PluginActionable implements ActionListener, View
 			ROI2DPolygon roiP = new ROI2DPolygon (points);
 			roiP.setName(cageRoot+String.format("%03d", iRoot));
 			iRoot++;
-			vinputSequence.addROI(roiP);
+			vSequence.addROI(roiP);
 		}
 
-		ArrayList<ROI2D> list = vinputSequence.getROI2Ds();
+		ArrayList<ROI2D> list = vSequence.getROI2Ds();
 		Collections.sort(list, new Tools.ROI2DNameComparator());
 	}
 
@@ -535,7 +535,7 @@ public class Drosotrack extends PluginActionable implements ActionListener, View
 
 		mainChartFrame.add(mainPanel);
 		mainChartFrame.pack();
-		Viewer v = vinputSequence.getFirstViewer();
+		Viewer v = vSequence.getFirstViewer();
 		Rectangle rectv = v.getBounds();
 		Point pt = new Point((int) rectv.getX(), (int) rectv.getY()+30);
 		mainChartFrame.setLocation(pt);
@@ -552,7 +552,7 @@ public class Drosotrack extends PluginActionable implements ActionListener, View
 		boolean blistofFiles = false;
 		if (selectInputStack2Button.isSelected() )
 		{
-			listofFiles = vinputSequence.getListofFiles();
+			listofFiles = vSequence.getListofFiles();
 			blistofFiles = true;
 		}
 
@@ -569,7 +569,7 @@ public class Drosotrack extends PluginActionable implements ActionListener, View
 			// --------------
 			WritableSheet distancePage = XLSUtil.createNewPage( xlsWorkBook , "distance" );
 			XLSUtil.setCellString( distancePage , 0, irow, "name:" );
-			XLSUtil.setCellString( distancePage , 1, irow, vinputSequence.getName() );
+			XLSUtil.setCellString( distancePage , 1, irow, vSequence.getName() );
 			irow++;;
 			
 			XLSUtil.setCellString( distancePage , 0, irow, "Last movement (index):" );
@@ -628,7 +628,7 @@ public class Drosotrack extends PluginActionable implements ActionListener, View
 			// output last interval at which movement was detected over the whole period analyzed
 			irow = 0;
 			XLSUtil.setCellString( xyMousePositionPage , 0, irow, "name:" );
-			XLSUtil.setCellString( xyMousePositionPage , 1, irow, vinputSequence.getName() );
+			XLSUtil.setCellString( xyMousePositionPage , 1, irow, vSequence.getName() );
 			irow++;
 			nrois = cageLimitROIList.size();
 			
@@ -695,18 +695,18 @@ public class Drosotrack extends PluginActionable implements ActionListener, View
 	private void initInputSeq () {
 
 		// transfer 1 image to the viewer
-		addSequence(vinputSequence);
-		Viewer v = vinputSequence.getFirstViewer();
+		addSequence(vSequence);
+		Viewer v = vSequence.getFirstViewer();
 		Rectangle rectv = v.getBoundsInternal();
 		Rectangle rect0 = mainFrame.getBoundsInternal();
 		rectv.setLocation(rect0.x+ rect0.width, rect0.y);
 		v.setBounds(rectv);
 
-		vinputSequence.removeAllImages();
+		vSequence.removeAllImages();
 		startStopBufferingThread();
 
 		updateButtonsVisibility(StateD.INIT);
-		endFrame = vinputSequence.getSizeT() - 1;
+		endFrame = vSequence.getSizeT() - 1;
 		endFrameTextField.setText( Integer.toString(endFrame));
 
 		ThreadUtil.invokeLater(new Runnable()
@@ -714,7 +714,7 @@ public class Drosotrack extends PluginActionable implements ActionListener, View
 			@Override
 			public void run()
 			{
-				final Viewer v = Icy.getMainInterface().getFirstViewer(vinputSequence);
+				final Viewer v = Icy.getMainInterface().getFirstViewer(vSequence);
 				if (v != null)
 					v.addListener(Drosotrack.this);
 			}
@@ -749,13 +749,13 @@ public class Drosotrack extends PluginActionable implements ActionListener, View
 	private void startStopBufferingThread() {
 
 		checkBufferTimer.stop();
-		if (vinputSequence == null)
+		if (vSequence == null)
 			return;
 
-		vinputSequence.vImageBufferThread_STOP();
+		vSequence.vImageBufferThread_STOP();
 		parseTextFields() ;
-		vinputSequence.istep = analyzeStep;
-		vinputSequence.vImageBufferThread_START(numberOfImageForBuffer);
+		vSequence.istep = analyzeStep;
+		vSequence.vImageBufferThread_START(numberOfImageForBuffer);
 		checkBufferTimer.start();
 	}
 
@@ -771,9 +771,9 @@ public class Drosotrack extends PluginActionable implements ActionListener, View
 	private void updateOverlay () {
 		if (ov == null) {
 			ov = new OverlayThreshold();
-			vinputSequence.addOverlay(ov);
+			vSequence.addOverlay(ov);
 		}
-		ov.setThresholdSequence (vinputSequence);
+		ov.setThresholdSequence (vSequence);
 		ov.setThresholdOverlayParameters(threshold, (TransformOp) backgroundComboBox.getSelectedItem());
 		if (ov != null) {
 			ov.painterChanged();
@@ -819,7 +819,7 @@ public class Drosotrack extends PluginActionable implements ActionListener, View
 	public void viewerChanged(ViewerEvent event)
 	{
 		if ((event.getType() == ViewerEventType.POSITION_CHANGED) && (event.getDim() == DimensionId.T))        
-			vinputSequence.currentFrame = event.getSource().getPositionT() ; 
+			vSequence.currentFrame = event.getSource().getPositionT() ; 
 	}
 
 	@Override
@@ -847,9 +847,9 @@ public class Drosotrack extends PluginActionable implements ActionListener, View
 		@Override
 		public void run()
 		{
-			roiList = vinputSequence.getROI2Ds();
-			if ( vinputSequence.nTotalFrames < endFrame+1 )
-				endFrame = (int) vinputSequence.nTotalFrames - 1;
+			roiList = vSequence.getROI2Ds();
+			if ( vSequence.nTotalFrames < endFrame+1 )
+				endFrame = (int) vSequence.nTotalFrames - 1;
 			int nbframes = endFrame - startFrame +1;
 
 			System.out.println("Computation over frames: " + startFrame + " - " + endFrame );
@@ -863,7 +863,7 @@ public class Drosotrack extends PluginActionable implements ActionListener, View
 			cageMaskList.clear();
 		
 			// find ROI describing cage areas - remove all others
-			vinputSequence.beginUpdate();
+			vSequence.beginUpdate();
 			Collections.sort(roiList, new Tools.ROI2DNameComparator());
 			for ( ROI2D roi : roiList )
 			{
@@ -880,9 +880,9 @@ public class Drosotrack extends PluginActionable implements ActionListener, View
 					cageMaskList.add(roi.getBooleanMask2D( 0 , 0, 1, true ));
 				}
 				else
-					vinputSequence.removeROI(roi);
+					vSequence.removeROI(roi);
 			}
-			vinputSequence.endUpdate();
+			vSequence.endUpdate();
 			Collections.sort(cageLimitROIList, new Tools.ROI2DNameComparator());
 
 			// create arrays for storing position and init their value to zero
@@ -897,7 +897,7 @@ public class Drosotrack extends PluginActionable implements ActionListener, View
 				lastTime_it_MovedList.add(0);
 				tempRectROI[i] = new ROI2DRectangle(0, 0, 10, 10);
 				tempRectROI[i].setName("fly_"+i);
-				vinputSequence.addROI(tempRectROI[i]);
+				vSequence.addROI(tempRectROI[i]);
 				ArrayList<Point2D> 	points2DList 	= new ArrayList<Point2D>();
 				points2DList.ensureCapacity(minCapacity);
 				points2D_rois_then_t_ListArray.add(points2DList);
@@ -922,8 +922,8 @@ public class Drosotrack extends PluginActionable implements ActionListener, View
 			}
 
 			try {
-				final Viewer v = Icy.getMainInterface().getFirstViewer(vinputSequence);	
-				vinputSequence.beginUpdate();
+				final Viewer v = Icy.getMainInterface().getFirstViewer(vSequence);	
+				vSequence.beginUpdate();
 
 			
 					// ----------------- loop over all images of the stack
@@ -938,16 +938,16 @@ public class Drosotrack extends PluginActionable implements ActionListener, View
 						progress.setMessage( "Processing: " + pos + " % - Elapsed time: " + nbSeconds + " s - Estimated time left: " + timeleft + " s");
 
 						// load next image and compute threshold
-						IcyBufferedImage workImage = vinputSequence.loadVImageTransf(t, transf); 
+						IcyBufferedImage workImage = vSequence.loadVImageTransf(t, transf); 
 						
-						vinputSequence.currentFrame = t;
+						vSequence.currentFrame = t;
 						v.setPositionT(t);
-						v.setTitle(vinputSequence.getVImageName(t));
+						v.setTitle(vSequence.getVImageName(t));
 						if (workImage == null) {
 							// try another time
 							System.out.println("Error reading image: " + t + " ... trying again"  );
-							vinputSequence.removeImage(t, 0);
-							workImage = vinputSequence.loadVImageTransf(t, transf); 
+							vSequence.removeImage(t, 0);
+							workImage = vSequence.loadVImageTransf(t, transf); 
 							if (workImage == null) {
 								System.out.println("Fatal error occurred while reading image: " + t + " : Procedure stopped"  );
 								return;
@@ -1020,24 +1020,24 @@ public class Drosotrack extends PluginActionable implements ActionListener, View
 			} finally {
 				progress.close();
 				state = StateD.NORMAL;
-				vinputSequence.endUpdate();
+				vSequence.endUpdate();
 				for (int i=0; i < nbcages; i++)
-					vinputSequence.removeROI(tempRectROI[i]);
+					vSequence.removeROI(tempRectROI[i]);
 			}
 
 			//	 copy created ROIs to inputSequence
 			System.out.println("Copying results to input sequence");
 			try
 			{
-				vinputSequence.beginUpdate();
+				vSequence.beginUpdate();
 				int nrois = cageLimitROIList.size();
 				for ( int t = startFrame ; t <= lastFrameAnalyzed ; t  += analyzeStep )
 					for (int iroi=0; iroi < nrois; iroi++) 
-						vinputSequence.addROI( resultFlyPositionArrayList[t-startFrame][iroi] );
+						vSequence.addROI( resultFlyPositionArrayList[t-startFrame][iroi] );
 			}
 			finally
 			{
-				vinputSequence.endUpdate();
+				vSequence.endUpdate();
 			}
 
 			chrono.displayInSeconds();

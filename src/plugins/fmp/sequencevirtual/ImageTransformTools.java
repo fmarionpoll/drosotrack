@@ -29,7 +29,7 @@ public class ImageTransformTools {
 			}
 		public String toString() {
 			return label;
-			}	
+			}
 	}
 	public double factorR=1.;
 	public double factorG=1.;
@@ -99,7 +99,7 @@ public class ImageTransformTools {
 		return img2;
 	}
 	
-	public IcyBufferedImage transformImageTFromSequence (int t, TransformOp transformop) {
+	public IcyBufferedImage transformImageFromSequence (int t, TransformOp transformop) {
 		return transformImage(vinputSequence.loadVImage(t), transformop);
 	}
 		

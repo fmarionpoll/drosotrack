@@ -159,7 +159,7 @@ public class Capillarytrack extends PluginActionable implements ActionListener, 
 	private JButton		closeAllButton			= new JButton("Close views");
 
 	//------------------------------------------- global variables
-	private SequenceVirtual vinputSequence 		= null;
+	private SequenceVirtual vSequence 		= null;
 	private Timer checkBufferTimer				= new Timer(1000, this);
 	private int	analyzeStep = 1;
 	private int startFrame = 1;
@@ -398,10 +398,10 @@ public class Capillarytrack extends PluginActionable implements ActionListener, 
 		Object o = e.getSource();
 
 		// _______________________________________________
-		if (o == checkBufferTimer && vinputSequence != null) 
+		if (o == checkBufferTimer && vSequence != null) 
 		{
-			if (vinputSequence.bufferThread != null ) {
-				int bufferPercent = vinputSequence.bufferThread.getCurrentBufferLoadPercent();
+			if (vSequence.bufferThread != null ) {
+				int bufferPercent = vSequence.bufferThread.getCurrentBufferLoadPercent();
 				bufferValue.setText(bufferPercent + " %");
 			}
 		} 
@@ -410,10 +410,10 @@ public class Capillarytrack extends PluginActionable implements ActionListener, 
 		else if (o == setVideoSourceButton) 
 		{
 			String path = null;
-			if (vinputSequence != null)
+			if (vSequence != null)
 				closeAll();
-			vinputSequence = new SequenceVirtual();
-			path = vinputSequence.loadInputVirtualStack(null);
+			vSequence = new SequenceVirtual();
+			path = vSequence.loadInputVirtualStack(null);
 			
 			if (path != null) {
 				XMLPreferences guiPrefs = this.getPreferences("gui");
@@ -444,15 +444,15 @@ public class Capillarytrack extends PluginActionable implements ActionListener, 
 			saveKymographsButton.setEnabled(false);
 			startFrame 	= Integer.parseInt( startFrameTextField.getText() );
 			endFrame 	= Integer.parseInt( endFrameTextField.getText() );
-			if ( vinputSequence.nTotalFrames < endFrame ) {
-				endFrame = (int) vinputSequence.nTotalFrames-1;
+			if ( vSequence.nTotalFrames < endFrame ) {
+				endFrame = (int) vSequence.nTotalFrames-1;
 				endFrameTextField.setText( Integer.toString(endFrame));
 			}
 			stopComputationButton.setEnabled(true);
 			startComputationButton.setEnabled(false);
 			
 			buildKymographsThread = new BuildKymographsThread();
-			buildKymographsThread.vinputSequence  		= vinputSequence;
+			buildKymographsThread.vinputSequence  		= vSequence;
 			buildKymographsThread.analyzeStep 			= analyzeStep;
 			buildKymographsThread.startFrame 			= startFrame;
 			buildKymographsThread.endFrame 				= endFrame;
@@ -494,8 +494,8 @@ public class Capillarytrack extends PluginActionable implements ActionListener, 
 		else if (o == createROIsFromPolygonButton) 
 		{
 			roisGenerateFromPolygon();
-			vinputSequence.getCapillariesArrayList();
-			roisUpdateCombo(vinputSequence.capillariesArrayList);
+			vSequence.getCapillariesArrayList();
+			roisUpdateCombo(vSequence.capillariesArrayList);
 			buttonsVisibilityUpdate(StatusAnalysis.ROIS_OK); 
 		}
 
@@ -586,7 +586,7 @@ public class Capillarytrack extends PluginActionable implements ActionListener, 
 			// save ROIS if they had been edited
 			roisSaveEdits();
 			// define file name
-			Path directory = Paths.get(vinputSequence.getFileName(0)).getParent();
+			Path directory = Paths.get(vSequence.getFileName(0)).getParent();
 			Path subpath = directory.getName(directory.getNameCount()-1);
 			String tentativeName = subpath.toString()+".xls";
 			String file = Tools.saveFileAs(tentativeName, directory.getParent().toString(), "xls");
@@ -614,13 +614,13 @@ public class Capillarytrack extends PluginActionable implements ActionListener, 
 		// _______________________________________________
 		else if (o == saveROIsButton) {
 			parseTextFields();
-			vinputSequence.analysisStart = startFrame;
-			vinputSequence.analysisEnd = endFrame;
+			vSequence.analysisStart = startFrame;
+			vSequence.analysisEnd = endFrame;
 			if (selectGroupedby2Button.isSelected())
-				vinputSequence.capillariesGrouping = 2;
+				vSequence.capillariesGrouping = 2;
 			else
-				vinputSequence.capillariesGrouping = 1;
-			vinputSequence.xmlWriteROIsAndData("capillarytrack.xml");
+				vSequence.capillariesGrouping = 1;
+			vSequence.xmlWriteROIsAndData("capillarytrack.xml");
 		}
 
 		// _______________________________________________
@@ -695,7 +695,7 @@ public class Capillarytrack extends PluginActionable implements ActionListener, 
 		
 		//_______________________________________________
 		else if (o == zoomTopLevelButton) {
-			Viewer v = vinputSequence.getFirstViewer();
+			Viewer v = vSequence.getFirstViewer();
 			Canvas2D cv = (Canvas2D) v.getCanvas();
 			if (cv != null) {
 				if (!previousZoomSet) {	
@@ -724,8 +724,8 @@ public class Capillarytrack extends PluginActionable implements ActionListener, 
 		// _______________________________________________
 		else if (o == analyzeStepTextField) {
 			parseTextFields();
-			if (vinputSequence != null) {
-				vinputSequence.istep = analyzeStep;
+			if (vSequence != null) {
+				vSequence.istep = analyzeStep;
 			}
 		}
 	}
@@ -832,34 +832,34 @@ public class Capillarytrack extends PluginActionable implements ActionListener, 
 
 	private boolean openROIs(String csFileName) {
 		
-		vinputSequence.removeAllROI();
+		vSequence.removeAllROI();
 		boolean flag = false;
 		if (csFileName == null)
-			flag = vinputSequence.xmlReadROIsAndData();
+			flag = vSequence.xmlReadROIsAndData();
 		else
-			flag = vinputSequence.xmlReadROIsAndData(csFileName);
+			flag = vSequence.xmlReadROIsAndData(csFileName);
 		if (!flag)
 			return false;
 		
-		capillaryVolume = vinputSequence.capillaryVolume;
-		capillaryPixels = vinputSequence.capillaryPixels;
-		startFrame = (int) vinputSequence.analysisStart;
-		endFrame = (int) vinputSequence.analysisEnd;
+		capillaryVolume = vSequence.capillaryVolume;
+		capillaryPixels = vSequence.capillaryPixels;
+		startFrame = (int) vSequence.analysisStart;
+		endFrame = (int) vSequence.analysisEnd;
 		if (endFrame < 0)
-			endFrame = (int) vinputSequence.nTotalFrames-1;
+			endFrame = (int) vSequence.nTotalFrames-1;
 		
 		capillaryVolumeTextField.setText( Double.toString(capillaryVolume));
 		capillaryPixelsTextField.setText( Double.toString(capillaryPixels));
 		endFrameTextField.setText( Integer.toString(endFrame));
 		startFrameTextField.setText( Integer.toString(startFrame));
 		
-		vinputSequence.getCapillariesArrayList();
-		roisUpdateCombo(vinputSequence.capillariesArrayList);
+		vSequence.getCapillariesArrayList();
+		roisUpdateCombo(vSequence.capillariesArrayList);
 
 		// get nb rois and type of distance between them
-		int nrois = vinputSequence.capillariesArrayList.size();
+		int nrois = vSequence.capillariesArrayList.size();
 		nbcapillariesTextField.setText(Integer.toString(nrois));
-		boolean groupedBy2 = (vinputSequence.capillariesGrouping == 2);
+		boolean groupedBy2 = (vSequence.capillariesGrouping == 2);
 		selectGroupedby2Button.setSelected(groupedBy2);
 		selectRegularButton.setSelected(!groupedBy2);	
 		buttonsVisibilityUpdate(StatusAnalysis.ROIS_OK);
@@ -884,12 +884,12 @@ public class Capillarytrack extends PluginActionable implements ActionListener, 
 		secondChart = null;
 		thirdChart = null;
 
-		vinputSequence.close();
+		vSequence.close();
 		checkBufferTimer.stop();
 
 		// clean kymographs & results
 		kymographArrayList.clear();
-		vinputSequence.capillariesArrayList.clear();
+		vSequence.capillariesArrayList.clear();
 
 		progress.close();
 	}
@@ -1210,7 +1210,7 @@ public class Capillarytrack extends PluginActionable implements ActionListener, 
 		int kmax = 1;
 		if (selectGroupedby2Button.isSelected())
 			kmax = 2;
-		final Rectangle rectv = vinputSequence.getFirstViewer().getBounds();
+		final Rectangle rectv = vSequence.getFirstViewer().getBounds();
 		Point ptRelative = new Point(0,30);
 		final int deltay = 230;
 
@@ -1253,8 +1253,8 @@ public class Capillarytrack extends PluginActionable implements ActionListener, 
 	private void initInputSeq () {
 
 		// transfer 1 image to the viewer
-		addSequence(vinputSequence);
-		Viewer v = vinputSequence.getFirstViewer();
+		addSequence(vSequence);
+		Viewer v = vSequence.getFirstViewer();
 		v.addListener(Capillarytrack.this);
 	
 		Rectangle rectv = v.getBoundsInternal();
@@ -1262,13 +1262,13 @@ public class Capillarytrack extends PluginActionable implements ActionListener, 
 		rectv.setLocation(rect0.x+ rect0.width, rect0.y);
 		v.setBounds(rectv);
 
-		vinputSequence.removeAllImages();
+		vSequence.removeAllImages();
 		startstopBufferingThread();		
 		
-		endFrame = vinputSequence.getSizeT()-1;
+		endFrame = vSequence.getSizeT()-1;
 		endFrameTextField.setText( Integer.toString(endFrame));
 		kymographArrayList.clear();
-		vinputSequence.capillariesArrayList.clear();
+		vSequence.capillariesArrayList.clear();
 	}
 
 	private void kymosBuildFiltered(int zSource, int zTransform, TransformOp transformop, int spanDiff) {
@@ -1319,7 +1319,7 @@ public class Capillarytrack extends PluginActionable implements ActionListener, 
 		int nseq = kymographArrayList.size();
 		if (nseq < 1) return;
 
-		Rectangle rectMaster = vinputSequence.getFirstViewer().getBounds();
+		Rectangle rectMaster = vSequence.getFirstViewer().getBounds();
 		int deltax = (int) rectMaster.getWidth();
 		int deltay = 0;
 
@@ -1359,7 +1359,7 @@ public class Capillarytrack extends PluginActionable implements ActionListener, 
 			ThreadUtil.invoke(new Runnable() {
 				@Override
 				public void run() {
-					JFileChooser f = new JFileChooser(vinputSequence.getDirectory());
+					JFileChooser f = new JFileChooser(vSequence.getDirectory());
 					f.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY); 
 					int v = f.showOpenDialog(null);
 					if (v == JFileChooser.APPROVE_OPTION)
@@ -1445,7 +1445,7 @@ public class Capillarytrack extends PluginActionable implements ActionListener, 
 
 			@Override
 			public void run() {
-				JFileChooser f = new JFileChooser(vinputSequence.getDirectory());
+				JFileChooser f = new JFileChooser(vSequence.getDirectory());
 				f.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY); 
 				f.showSaveDialog(null);
 				dummyString[0] = f.getSelectedFile().getAbsolutePath();
@@ -1495,7 +1495,7 @@ public class Capillarytrack extends PluginActionable implements ActionListener, 
 
 	private void measuresFileOpen() {
 	
-		String directory = vinputSequence.getDirectory();
+		String directory = vSequence.getDirectory();
 		boolean flag = true;
 		for (int kymo=0; kymo < kymographArrayList.size(); kymo++) {
 			
@@ -1518,7 +1518,7 @@ public class Capillarytrack extends PluginActionable implements ActionListener, 
  
 	private void measuresFileSave() {
 		
-		String directory = vinputSequence.getDirectory();
+		String directory = vSequence.getDirectory();
 		for (int kymo=0; kymo < kymographArrayList.size(); kymo++) {
 			SequencePlus seq = kymographArrayList.get(kymo);
 			System.out.println("saving "+seq.getName());
@@ -1579,11 +1579,11 @@ public class Capillarytrack extends PluginActionable implements ActionListener, 
 		}catch( Exception e ) { new AnnounceFrame("Can't interpret the top threshold value."); }
 
 		try { capillaryVolume = Double.parseDouble(capillaryVolumeTextField.getText());
-		if (vinputSequence != null) vinputSequence.capillaryVolume = capillaryVolume;
+		if (vSequence != null) vSequence.capillaryVolume = capillaryVolume;
 		}catch( Exception e ) { new AnnounceFrame("Can't interpret capillary volume value."); }
 
 		try { capillaryPixels = Double.parseDouble(capillaryPixelsTextField.getText()); 
-		if (vinputSequence != null) vinputSequence.capillaryPixels = capillaryPixels;
+		if (vSequence != null) vSequence.capillaryPixels = capillaryPixels;
 		}catch( Exception e ) { new AnnounceFrame("Can't interpret capillary volume value."); }
 		
 		try { spanDiffTop = Integer.parseInt( spanTopTextField.getText() );
@@ -1601,7 +1601,7 @@ public class Capillarytrack extends PluginActionable implements ActionListener, 
 
 	private void roisCenterLinestoCapillaries() {
 		
-		if (vinputSequence.capillariesArrayList == null || vinputSequence.capillariesArrayList.size() == 0)
+		if (vSequence.capillariesArrayList == null || vSequence.capillariesArrayList.size() == 0)
 			return;
 		
 		if (!refBarCheckBox.isSelected()) 
@@ -1614,10 +1614,10 @@ public class Capillarytrack extends PluginActionable implements ActionListener, 
 		int jitter = Integer.parseInt( jitterTextField.getText() );
 		
 		// load image into a linear buffer
-		int t = vinputSequence.currentFrame;
+		int t = vSequence.currentFrame;
 
-		vinputSequence.setCurrentVImage(t);
-		IcyBufferedImage vinputImage = vinputSequence.getImage(t, 0, chan) ;
+		vSequence.setCurrentVImage(t);
+		IcyBufferedImage vinputImage = vSequence.getImage(t, 0, chan) ;
 		if (vinputImage == null) {
 			System.out.println("An error occurred while reading image: " + t );
 			return;
@@ -1626,8 +1626,8 @@ public class Capillarytrack extends PluginActionable implements ActionListener, 
 		double [] sourceValues = Array1DUtil.arrayToDoubleArray(vinputImage.getDataXY(0), vinputImage.isSignedDataType());
 		
 		// loop through all lines
-		for (int i=0; i< vinputSequence.capillariesArrayList.size(); i++) {
-			ROI2D roi = vinputSequence.capillariesArrayList.get(i);
+		for (int i=0; i< vSequence.capillariesArrayList.size(); i++) {
+			ROI2D roi = vSequence.capillariesArrayList.get(i);
 			if (!(roi instanceof ROI2DLine))
 				continue;
 			
@@ -1641,8 +1641,8 @@ public class Capillarytrack extends PluginActionable implements ActionListener, 
 		}
 		
 		refBarCheckBox.setSelected(false);
-		vinputSequence.removeROI(roiRefLineUpper);
-		vinputSequence.removeROI(roiRefLineLower);
+		vSequence.removeROI(roiRefLineUpper);
+		vSequence.removeROI(roiRefLineLower);
 	}
 	
 	private Line2D roisCenterLinetoCapillary(double [] sourceValues, int xwidth, ROI2DLine roi, int jitter) {
@@ -1771,7 +1771,7 @@ public class Capillarytrack extends PluginActionable implements ActionListener, 
 
 		}catch( Exception e ) { new AnnounceFrame("Can't interpret one of the ROI parameters value"); }
 
-		ROI2D roi = vinputSequence.getSelectedROI2D();
+		ROI2D roi = vSequence.getSelectedROI2D();
 		if ( ! ( roi instanceof ROI2DPolygon ) ) {
 			new AnnounceFrame("The frame must be a ROI2D POLYGON");
 			return;
@@ -1780,7 +1780,7 @@ public class Capillarytrack extends PluginActionable implements ActionListener, 
 		Polygon roiPolygon = Tools.orderVerticesofPolygon (((ROI2DPolygon) roi).getPolygon());
 			
 		// clear Rois from sequence
-		vinputSequence.removeROI(roi);
+		vSequence.removeROI(roi);
 
 		// generate lines from polygon frame
 		if (statusGroup2Mode) {	
@@ -1801,7 +1801,7 @@ public class Capillarytrack extends PluginActionable implements ActionListener, 
 				ROI2DLine roiL1 = new ROI2DLine (point0, point1);
 				roiL1.setName("line"+i/2+"L");
 				roiL1.setReadOnly(false);
-				vinputSequence.addROI(roiL1, true);
+				vSequence.addROI(roiL1, true);
 
 				span0 += width_between_capillaries ;
 				x = roiPolygon.xpoints[0]+ (roiPolygon.xpoints[3]-roiPolygon.xpoints[0]) * span0 /span;
@@ -1817,7 +1817,7 @@ public class Capillarytrack extends PluginActionable implements ActionListener, 
 				ROI2DLine roiL2 = new ROI2DLine (point3, point4);
 				roiL2.setName("line"+i/2+"R");
 				roiL2.setReadOnly(false);
-				vinputSequence.addROI(roiL2, true);
+				vSequence.addROI(roiL2, true);
 			}
 		}
 		else {
@@ -1833,7 +1833,7 @@ public class Capillarytrack extends PluginActionable implements ActionListener, 
 				ROI2DLine roiL1 = new ROI2DLine (point0, point1);				
 				roiL1.setName("line"+i);
 				roiL1.setReadOnly(false);
-				vinputSequence.addROI(roiL1, true);
+				vSequence.addROI(roiL1, true);
 			}
 		}
 	}
@@ -1843,7 +1843,7 @@ public class Capillarytrack extends PluginActionable implements ActionListener, 
 		// check display rois
 		boolean displayTop = editLevelsCheckbox.isSelected();
 		boolean displayGulps = editGulpsCheckbox.isSelected();
-		Viewer v = vinputSequence.getFirstViewer();
+		Viewer v = vSequence.getFirstViewer();
 		IcyCanvas canvas = v.getCanvas();
 		List<Layer> layers = canvas.getLayers(false);
 		if (layers == null)
@@ -1862,20 +1862,20 @@ public class Capillarytrack extends PluginActionable implements ActionListener, 
 	}
 	
 	public void roisDisplayrefBar() {
-		if (vinputSequence == null)
+		if (vSequence == null)
 			return;
 		
 		if (refBarCheckBox.isSelected()) 
 		{
 			if (refLineUpper == null) {
 				// take as ref the whole image otherwise, we won't see the lines if the use has not defined any capillaries
-				int seqheight = vinputSequence.getHeight();
-				int seqwidth = vinputSequence.getWidth();
+				int seqheight = vSequence.getHeight();
+				int seqwidth = vSequence.getWidth();
 				refLineUpper = new Line2D.Double (0, seqheight/3, seqwidth, seqheight/3);
 				refLineLower = new Line2D.Double (0, 2*seqheight/3, seqwidth, 2*seqheight/3);
 				
-				Rectangle extRect = new Rectangle (vinputSequence.capillariesArrayList.get(0).getBounds());
-				for (ROI2D roi: vinputSequence.capillariesArrayList)
+				Rectangle extRect = new Rectangle (vSequence.capillariesArrayList.get(0).getBounds());
+				for (ROI2D roi: vSequence.capillariesArrayList)
 				{
 					Rectangle rect = roi.getBounds();
 					extRect.add(rect);
@@ -1894,13 +1894,13 @@ public class Capillarytrack extends PluginActionable implements ActionListener, 
 			roiRefLineLower.setName("refBarLower");
 			roiRefLineLower.setColor(Color.YELLOW);
 			
-			vinputSequence.addROI(roiRefLineUpper);
-			vinputSequence.addROI(roiRefLineLower);
+			vSequence.addROI(roiRefLineUpper);
+			vSequence.addROI(roiRefLineLower);
 		}
 		else 
 		{
-			vinputSequence.removeROI(roiRefLineUpper);
-			vinputSequence.removeROI(roiRefLineLower);
+			vSequence.removeROI(roiRefLineUpper);
+			vSequence.removeROI(roiRefLineLower);
 		}
 	}
 		
@@ -1925,13 +1925,13 @@ public class Capillarytrack extends PluginActionable implements ActionListener, 
 	private void startstopBufferingThread() {
 
 		checkBufferTimer.stop();
-		if (vinputSequence == null)
+		if (vSequence == null)
 			return;
 
-		vinputSequence.vImageBufferThread_STOP();
+		vSequence.vImageBufferThread_STOP();
 		parseTextFields() ;
-		vinputSequence.istep = analyzeStep;
-		vinputSequence.vImageBufferThread_START(numberOfImageForBuffer);
+		vSequence.istep = analyzeStep;
+		vSequence.vImageBufferThread_START(numberOfImageForBuffer);
 		checkBufferTimer.start();
 	}
 
@@ -1945,7 +1945,7 @@ public class Capillarytrack extends PluginActionable implements ActionListener, 
 	public void viewerChanged(ViewerEvent event)
 	{
 		if ((event.getType() == ViewerEventType.POSITION_CHANGED) && (event.getDim() == DimensionId.T))        
-            vinputSequence.currentFrame = event.getSource().getPositionT() ;  
+            vSequence.currentFrame = event.getSource().getPositionT() ;  
 	}
 
 	@Override
@@ -2023,7 +2023,7 @@ public class Capillarytrack extends PluginActionable implements ActionListener, 
 		int irow = 0;
 		XLSUtil.setCellString( excelSheet , 0, irow, "name:" );
 		
-		File file = new File(vinputSequence.getFileName(0));
+		File file = new File(vSequence.getFileName(0));
 		String path = file.getParent();
 		XLSUtil.setCellString( excelSheet , 1, irow, path );
 		irow++;
@@ -2059,7 +2059,7 @@ public class Capillarytrack extends PluginActionable implements ActionListener, 
 		for (int j=0; j<nrows; j++) {
 			icol0 = 0;
 			if (blistofFiles) {
-				String cs = vinputSequence.getFileName(j+startFrame);
+				String cs = vSequence.getFileName(j+startFrame);
 				int index = cs.lastIndexOf("\\");
 				String fileName = cs.substring(index + 1);
 				XLSUtil.setCellString( excelSheet , icol0, irow, fileName );

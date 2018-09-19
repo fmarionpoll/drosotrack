@@ -436,7 +436,7 @@ public class SequenceVirtual extends Sequence
 			if (doc != null) {
 				final List<ROI> rois = ROI.loadROIsFromXML(XMLUtil.getRootElement(doc));
 				Collections.sort(rois, new Tools.ROINameComparator()); 
-
+				
 				beginUpdate();
 				try  {  
 					for (ROI roi : rois)  {
@@ -464,14 +464,6 @@ public class SequenceVirtual extends Sequence
 	public boolean xmlWriteROIsAndData(String name) {
 
 		String csFile = Tools.saveFileAs(name, this.getDirectory(), "xml");
-//	x	ThreadUtil.invoke (new Runnable() {
-//			@Override
-//			public void run() {
-//				filedummy[0] = SaveDialog.chooseFile("Save roi(s)...", directory, name, ".xml");
-//			}
-//		}, true);
-//
-//		String csFile = filedummy[0];
 		csFile.toLowerCase();
 		if (!csFile.contains(".xml")) {
 			csFile += ".xml";

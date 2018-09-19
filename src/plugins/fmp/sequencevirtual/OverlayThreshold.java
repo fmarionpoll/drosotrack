@@ -63,17 +63,16 @@ public class OverlayThreshold extends Overlay
 		// check if we are dealing with a 2D canvas and we have a valid Graphics object
 		if ((canvas instanceof IcyCanvas2D) && (g != null))
 		{
-			Color maskcolor = Color.RED;	// TODO 
-			IcyBufferedImage workImage = imgTransf.transformImageTFromSequence(vinputSequence.currentFrame, transformop);
+			//Color maskcolor = Color.RED;	// TODO 
+			IcyBufferedImage workImage = imgTransf.transformImageFromSequence(vinputSequence.currentFrame, transformop);
 			if (thresholdtype == ThresholdType.COLORARRAY)
-				binaryMap = imgThresh.getBinaryFromColorsOverThresholdAndDoubleImage(workImage);
+				binaryMap = imgThresh.getBinaryInt_FromColorsThreshold_OverImageAsDouble(workImage);
 			else 
-				binaryMap = imgThresh.getBinaryOverThresholdFromDoubleImage(workImage);
+				binaryMap = imgThresh.getBinaryInt_FromThreshold_OverImage(workImage);
 
 			if (binaryMap != null) {
 				final Graphics2D g2 = (Graphics2D) g.create();
 				g2.setStroke(new BasicStroke(strokesize));
-				g2.setColor(maskcolor);
 				g2.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, opacity));
 				g2.drawImage(IcyBufferedImageUtil.toBufferedImage(binaryMap, null), null, 0, 0);
 			}

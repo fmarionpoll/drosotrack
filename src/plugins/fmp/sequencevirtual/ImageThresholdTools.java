@@ -23,8 +23,8 @@ public class ImageThresholdTools {
 	private TransformOp transformop;
 	private ArrayList<double[]> ccolor = null;
 	
-	private final byte byteFALSE = (byte) 0;
-	private final byte byteTRUE = (byte) 255;
+	private final int byteFALSE = 0;
+	private final int byteTRUE = 0xFF;
 	
 	public void setThresholdOverlayParameters (int sthreshold, TransformOp stransf)
 	{
@@ -39,81 +39,81 @@ public class ImageThresholdTools {
 		this.colorarray = new ArrayList <Color> (colorarray);
 	}
 
-	private void transformColorArray() {
+	private ArrayList<double[]> transformColorArray(ArrayList<Color> colorarray_in, TransformOp transformop_in) 
+	{
 		// transform color array into an image with 3 components 
-		IcyBufferedImage colorRef = new IcyBufferedImage(colorarray.size(), 1, 3, DataType.DOUBLE);
-		for (int k1 = 0; k1 < colorarray.size(); k1++) {
-			colorRef.setData(k1, 0, 0, colorarray.get(k1).getRed());
-			colorRef.setData(k1, 0, 1, colorarray.get(k1).getGreen());
-			colorRef.setData(k1, 0, 2, colorarray.get(k1).getBlue());
+		IcyBufferedImage colorRef = new IcyBufferedImage(colorarray_in.size(), 1, 3, DataType.DOUBLE);
+		for (int k1 = 0; k1 < colorarray_in.size(); k1++) {
+			colorRef.setData(k1, 0, 0, colorarray_in.get(k1).getRed());
+			colorRef.setData(k1, 0, 1, colorarray_in.get(k1).getGreen());
+			colorRef.setData(k1, 0, 2, colorarray_in.get(k1).getBlue());
 		}
+		
 		// create array of 3 channels for colors and transform it like sourceImage
-		IcyBufferedImage colorRefTransformed = imgTransf.transformImage(colorRef, transformop);
+		IcyBufferedImage colorRefTransformed = imgTransf.transformImage(colorRef, transformop_in);
 		ArrayList<double[]> colorsarray = new ArrayList<double[]>();
 		for (int chan = 0; chan < 3; chan++) {
 			colorsarray.add (Array1DUtil.arrayToDoubleArray(colorRefTransformed.getDataXY(chan), colorRefTransformed.isSignedDataType()));
 		}
 		
 		// transform back into a color array
-		ccolor = new ArrayList<double []>();
-		for (int k = 0; k < colorarray.size(); k++) {
+		ArrayList<double []> cccolor = new ArrayList<double []>();
+		for (int k = 0; k < colorarray_in.size(); k++) {
 			double[] color = new double [3];
 			for (int i=0; i<3; i++)
 				color[i] = colorsarray.get(i)[k];
-			ccolor.add(color);
+			cccolor.add(color);
 		}
+		return cccolor;
 	}
 	
-	public IcyBufferedImage getBinaryOverThresholdFromDoubleImage(IcyBufferedImage img) {
-		
-		IcyBufferedImage binaryMap = new IcyBufferedImage(img.getSizeX(), img.getSizeY(), 1, DataType.UBYTE);
+	public IcyBufferedImage getBinaryInt_FromThreshold_OverImage(IcyBufferedImage sourceImage) 
+	{		
 		int chan = 0;
-		byte[] imageSourceDataBuffer = img.getDataXYAsByte(chan);
-		byte[] binaryMapDataBuffer = binaryMap.getDataXYAsByte(chan);
+		DataType datatype = sourceImage.getDataType_();
+		IcyBufferedImage binaryMap = new IcyBufferedImage(sourceImage.getSizeX(), sourceImage.getSizeY(), 1, DataType.INT);
+		int [] binaryMapDataBuffer = binaryMap.getDataXYAsInt(chan);
 		
-		for (int x = 0; x < binaryMapDataBuffer.length; x++)  {
-			int val = imageSourceDataBuffer[x] & 0xFF;
-			if (val > thresholdValue)
-				binaryMapDataBuffer[x] = byteFALSE;
-			else
-				binaryMapDataBuffer[x] = byteTRUE;
+		if (datatype.getBitSize() >8) {
+			int [] imageSourceDataBuffer = sourceImage.getDataXYAsInt(chan);
+			for (int x = 0; x < binaryMapDataBuffer.length; x++)  {
+				if ((imageSourceDataBuffer[x] & 0xFF) > thresholdValue)
+					binaryMapDataBuffer[x] = byteFALSE;
+				else
+					binaryMapDataBuffer[x] = byteTRUE;
+			}
+		}
+		else {
+			byte [] imageSourceDataBuffer = sourceImage.getDataXYAsByte(chan);
+			for (int x = 0; x < binaryMapDataBuffer.length; x++)  {
+				int val = imageSourceDataBuffer[x] & 0xFF;
+				if (val > thresholdValue)
+					binaryMapDataBuffer[x] = byteFALSE;
+				else
+					binaryMapDataBuffer[x] = byteTRUE;
+			}
 		}
 		return binaryMap;
 	}
 	
-	public boolean[] getBoolMapFromUBYTEBinaryImage(IcyBufferedImage img) {
+	public boolean[] getBoolMap_FromBinaryInt(IcyBufferedImage img) {
 		boolean[]	boolMap = new boolean[ img.getSizeX() * img.getSizeY() ];
-		byte[] imgByte = img.getDataXYAsByte(0);
+		int[] imgByte = img.getDataXYAsInt(0);
 		for (int x = 0; x < boolMap.length; x++)  {
-			if (imgByte[x] == byteTRUE)
-				boolMap[x] =  true;
-			else
+			if (imgByte[x] == byteFALSE)
 				boolMap[x] =  false;
+			else
+				boolMap[x] =  true;
 		}
 		return boolMap;
 	}
 	
-	public boolean[] getBoolMapOverThresholdFromDoubleImage(IcyBufferedImage img, int threshold) {
-		
-		boolean[]	boolMap = new boolean[ img.getSizeX() * img.getSizeY() ];
-		int chan = 0;
-		final byte[] imageSourceDataBuffer = img.getDataXYAsByte(chan);
-		for (int x = 0; x < boolMap.length; x++)  {
-			int val = imageSourceDataBuffer[x] & 0xFF;
-			if (val > threshold)
-				boolMap[x] = false;
-			else
-				boolMap[x] = true;
-		}
-		return boolMap;
-	}
-
-	public IcyBufferedImage getBinaryFromColorsOverThresholdAndDoubleImage(IcyBufferedImage sourceImage) {
-
+	public IcyBufferedImage getBinaryInt_FromColorsThreshold_OverImageAsDouble(IcyBufferedImage sourceImage) 
+	{
 		if (colorarray.size() == 0)
 			return null;
 		if (ccolor == null)
-			transformColorArray();
+			ccolor = transformColorArray(colorarray, transformop);
 		
 		NHColorDistance distance; 
 		if (distanceType == 1)
@@ -121,13 +121,22 @@ public class ImageThresholdTools {
 		else
 			distance = new NHL2ColorDistance();
 		
-
-		IcyBufferedImage binaryMap = new IcyBufferedImage(sourceImage.getSizeX(), sourceImage.getSizeY(), 1, DataType.UBYTE);	
+		int valFALSE = (int) byteFALSE;
+		int valTRUE = 0xFFF;
+		// TODO: can we define the color here?
+//		Color c = Color.red;
+//		int ir = 255 - c.getRed();
+//		int ig = 255 - c.getGreen();
+//		int ib = 255 - c.getBlue();
+//		c = new Color(ir, ig, ib);
+//		valTRUE = c.getRGB();
+		
+		IcyBufferedImage binaryInt = new IcyBufferedImage(sourceImage.getSizeX(), sourceImage.getSizeY(), 1, DataType.INT);	
 		ArrayList<double[]> imagearray = new ArrayList<double[]>();
 		for (int chan = 0; chan < 3; chan++) {
 			imagearray.add( Array1DUtil.arrayToDoubleArray(sourceImage.getDataXY(chan), sourceImage.isSignedDataType()));
 		}
-		byte[] binaryResultBuffer = binaryMap.getDataXYAsByte(0);
+		int[] binaryResultBuffer = binaryInt.getDataXYAsInt(0);
 		int npixels = imagearray.get(0).length;
 		
 		double[] pixel = new double [3];
@@ -135,28 +144,20 @@ public class ImageThresholdTools {
 		
 		for (int ipixel = 0; ipixel < npixels; ipixel++) {
 			
-			byte val = byteFALSE;
+			int val = valFALSE; 
 			for (int i=0; i<3; i++)
 				pixel[i] = imagearray.get(i)[ipixel];
 		
 			for (int k = 0; k < colorarray.size(); k++) {
 				color = ccolor.get(k);
 				if (distance.computeDistance(pixel, color) < colorthreshold) {
-					val = byteTRUE;
+					val = valTRUE; 
 					break;
 				}
 			}
 			binaryResultBuffer[ipixel] = val;
 		}
-		/*
-		Color c = box.getAverageColor();
-		int ir = 255 - c.getRed();
-		int ig = 255 - c.getGreen();
-		int ib = 255 - c.getBlue();
-		m.setColor(new Color(ir, ig, ib));
-		m.setOpacity(1f);
-		*/
-		return binaryMap;
+		return binaryInt;
 	}
 	
 
