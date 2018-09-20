@@ -140,11 +140,13 @@ public class ImageThresholdTools {
 //		c = new Color(ir, ig, ib);
 //		valTRUE = c.getRGB();
 		
-		IcyBufferedImage binaryInt = new IcyBufferedImage(sourceImage.getSizeX(), sourceImage.getSizeY(), 1, DataType.INT);	
+		IcyBufferedImage binaryInt = new IcyBufferedImage(sourceImage.getSizeX(), sourceImage.getSizeY(), 1, DataType.UBYTE);	
 		ArrayList<double[]> imagearray = new ArrayList<double[]>();
 		for (int chan = 0; chan < 3; chan++) {
 			imagearray.add( Array1DUtil.arrayToDoubleArray(sourceImage.getDataXY(chan), sourceImage.isSignedDataType()));
 		}
+		//sourceImage.getDataXYCAsByte()
+		
 		int[] binaryResultBuffer = binaryInt.getDataXYAsInt(0);
 		int npixels = imagearray.get(0).length;
 		

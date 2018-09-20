@@ -112,9 +112,9 @@ public class ImageTransformTools {
 		double[] ExG = (double[]) Array1DUtil.createArray(DataType.DOUBLE, Rn.length);
 		double[] sum = (double[]) Array1DUtil.createArray(DataType.DOUBLE, Rn.length);
 		
-		ArrayMath.divide (Rn, 255, Rn);		// R = R/255
-		ArrayMath.divide (Gn, 255, Gn);		// G = G/255
-		ArrayMath.divide (Bn, 255, Bn);		// B = B/255
+//		ArrayMath.divide (Rn, 255, Rn);		// R = R/255
+//		ArrayMath.divide (Gn, 255, Gn);		// G = G/255
+//		ArrayMath.divide (Bn, 255, Bn);		// B = B/255
 		
 		ArrayMath.add (Rn, Gn, sum);		// sum = R+G
 		ArrayMath.add (sum,  Bn, sum);		// sum = R+G+B
@@ -129,7 +129,7 @@ public class ImageTransformTools {
 		ArrayMath.subtract(ExG, Bn, ExG);	// ExG = 2 * G - R - B
 		
 		// from 0 to 255
-		ArrayMath.multiply(ExG, 255, ExG);	// ExG = ExG * 255
+//		ArrayMath.multiply(ExG, 255, ExG);	// ExG = ExG * 255
 		
 		Array1DUtil.doubleArrayToSafeArray(ExG,  img2.getDataXY(0),  true); //true, img2.isSignedDataType());
 	}

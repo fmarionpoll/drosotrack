@@ -4,12 +4,14 @@ import java.awt.AlphaComposite;
 import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Graphics2D;
+import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 
 import icy.canvas.IcyCanvas;
 import icy.canvas.IcyCanvas2D;
 import icy.image.IcyBufferedImage;
 import icy.image.IcyBufferedImageUtil;
+import icy.image.colormap.LinearColorMap;
 import icy.painter.Overlay;
 import icy.sequence.Sequence;
 
@@ -69,12 +71,18 @@ public class OverlayThreshold extends Overlay
 				binaryMap = imgThresh.getBinaryInt_FromColorsThreshold(workImage);
 			else 
 				binaryMap = imgThresh.getBinaryInt_FromThreshold(workImage);
+			
+			//binary is UBYTE type
+			LinearColorMap map = new LinearColorMap("", new Color(0x00000000, true), new Color(0xFFFF0000, true));
+			binaryMap.setColorMap(0, map);
+			BufferedImage bufferedImage = IcyBufferedImageUtil.getARGBImage(binaryMap);
 
 			if (binaryMap != null) {
 				final Graphics2D g2 = (Graphics2D) g.create();
-				g2.setStroke(new BasicStroke(strokesize));
-				g2.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, opacity));
-				g2.drawImage(IcyBufferedImageUtil.toBufferedImage(binaryMap, null), null, 0, 0);
+//				g2.setStroke(new BasicStroke(strokesize));
+//				g2.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, opacity));
+//				g2.drawImage(IcyBufferedImageUtil.toBufferedImage(binaryMap, null), null, 0, 0);
+				g2.drawImage(bufferedImage, null, 0, 0);
 			}
 		}
 	}
