@@ -87,7 +87,7 @@ import plugins.fmp.sequencevirtual.OverlayTrapMouse;
 public class Areatrack extends PluginActionable implements ActionListener, ChangeListener, ViewerListener, OverlayListener
 {	
 	// -------------------------------------- interface
-	IcyFrame mainFrame = new IcyFrame("AreaTrack 18-09-2018", true, true, true, true);
+	IcyFrame mainFrame = new IcyFrame("AreaTrack 20-09-2018", true, true, true, true);
 	IcyFrame mainChartFrame = null;
 	JPanel 	mainChartPanel = null;
 	
@@ -105,19 +105,20 @@ public class Areatrack extends PluginActionable implements ActionListener, Chang
 	private JTextField startFrameTextField	= new JTextField("0");
 	private JTextField endFrameTextField	= new JTextField("99999999");
 	
-	private JComboBox<TransformOp> transformsComboBox = new JComboBox<TransformOp> (TransformOp.values());
-	private JSpinner thresholdSpinner		= new JSpinner(new SpinnerNumberModel(70, 0, 255, 10));
-	JLabel videochannel 	= new JLabel("filter  ");
-	JLabel thresholdLabel 	= new JLabel("threshold ");
-	
-	private JSpinner threshold2Spinner		= new JSpinner(new SpinnerNumberModel(20, 0, 255, 10));
+	private JComboBox<TransformOp> transformsComboBox = new JComboBox<TransformOp> (new TransformOp[] {
+					TransformOp.R_RGB, TransformOp.G_RGB, TransformOp.B_RGB, 
+					TransformOp.GBMINUS2R, TransformOp.RBMINUS2G, TransformOp.RGMINUS2B, TransformOp.NORM_BRmG, TransformOp.RGB,
+					TransformOp.H_HSB, TransformOp.S_HSB, TransformOp.B_HSB	});
+	private JSpinner thresholdSpinner		= new JSpinner(new SpinnerNumberModel(70, 0, 255, 5));
+	private JLabel videochannel 			= new JLabel("filter  ");
+	private JLabel thresholdLabel 			= new JLabel("threshold ");
+	private JSpinner threshold2Spinner		= new JSpinner(new SpinnerNumberModel(20, 0, 255, 5));
 	private JTextField analyzeStepTextField = new JTextField("1");
 	
 	//---------------------------------------------------------------------------
 	// TODO
 	private JTabbedPane tabbedPane = new JTabbedPane();
-	private String[] 	availableOverlays	= new String[] {"Not visible", "Color/simple filter", "Movements filter"};
-	private JComboBox<String> overlayComboBox = new JComboBox<String> (availableOverlays);
+	private JComboBox<String> overlayComboBox = new JComboBox<String> (new String[] {"Not visible", "Color/simple filter", "Movements filter"});
 
 	private JComboBox<Color> colorPickCombo = new JComboBox<Color>();
 	private ComboBoxColorRenderer colorPickComboRenderer = new ComboBoxColorRenderer(colorPickCombo);
@@ -127,7 +128,7 @@ public class Areatrack extends PluginActionable implements ActionListener, Chang
 	private JButton		deleteColorButton	= new JButton ("Delete color");
 	private JRadioButton		rbL1		= new JRadioButton ("L1");
 	private JRadioButton		rbL2		= new JRadioButton ("L2");
-	private JSpinner    distanceSpinner 	= new JSpinner (new SpinnerNumberModel(10, 0, 800, 10));
+	private JSpinner    distanceSpinner 	= new JSpinner (new SpinnerNumberModel(10, 0, 800, 5));
 	private JRadioButton		rbRGB		= new JRadioButton ("RGB");
 	private JRadioButton		rbHSV		= new JRadioButton ("HSV");
 	private JRadioButton		rbH1H2H3	= new JRadioButton ("H1H2H3");
@@ -137,8 +138,7 @@ public class Areatrack extends PluginActionable implements ActionListener, Chang
 	private JButton		saveFiltersButton	= new JButton("Save...");
 	
 	//---------------------------------------------------------------------------
-	private String[] availableFilter 		= new String[] {"raw data", "average", "median"};
-	private JComboBox<String> filterComboBox= new JComboBox<String> (availableFilter);
+	private JComboBox<String> filterComboBox= new JComboBox<String> (new String[] {"raw data", "average", "median"});
 	private JTextField spanTextField		= new JTextField("10");
 
 	private JButton updateChartsButton 		= new JButton("Display charts");
@@ -155,24 +155,23 @@ public class Areatrack extends PluginActionable implements ActionListener, Chang
 	private int numberOfImageForBuffer 		= 100;
 	private AreaAnalysisThread analysisThread = null;
 	private OverlayThreshold thresholdOverlay = null;
-	private boolean thresholdOverlayON = false;
-	private OverlayTrapMouse trapOverlay = null;
+	private boolean thresholdOverlayON 		= false;
+	private OverlayTrapMouse trapOverlay 	= null;
 	
 	// parameters saved/read in xml file
-	private int iselectedpane = 0;
-	private ThresholdType thresholdtype = ThresholdType.COLORARRAY; 
+	private int iselectedpane 				= 0;
+	private ThresholdType thresholdtype 	= ThresholdType.COLORARRAY; 
 	// simple
-	private TransformOp simpletransformop = TransformOp.GBMINUS2R;
-	private int simplethreshold = 20;
+	private TransformOp simpletransformop 	= TransformOp.GBMINUS2R;
+	private int simplethreshold 			= 20;
 	// colors
-	private TransformOp colortransformop = TransformOp.None;
-	private int colordistanceType = 0;
-	private int colorthreshold = 20;
-	private ArrayList <Color> colorarray = new ArrayList <Color>();
+	private TransformOp colortransformop 	= TransformOp.None;
+	private int colordistanceType 			= 0;
+	private int colorthreshold 				= 20;
+	private ArrayList <Color> colorarray 	= new ArrayList <Color>();
 	// movement detection
-	private int thresholdmovement = 20;
-		
-	final private String filename = "areatrack.xml";
+	private int thresholdmovement 			= 20;	
+	final private String filename 			= "areatrack.xml";
 	
 	// --------------------------------------------------------------------------
 	@Override
@@ -389,7 +388,7 @@ public class Areatrack extends PluginActionable implements ActionListener, Chang
 		deleteColorButton.addActionListener(new ActionListener () {
 			@Override
 			public void actionPerformed( final ActionEvent e ) { 
-				if (colorPickCombo.getItemCount() > 0)
+				if (colorPickCombo.getItemCount() > 0 && colorPickCombo.getSelectedIndex() >= 0)
 					colorPickCombo.removeItemAt(colorPickCombo.getSelectedIndex());
 				updateThresholdOverlayParameters();
 			} } );

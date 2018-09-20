@@ -187,15 +187,15 @@ public class AreaAnalysisThread extends Thread
 						continue;
 					
 					IcyBufferedImage diffImage = imgTransf.transformImageFromSequence(t,  TransformOp.REFn);
-					int cmax = 3;
+					int cmax = diffImage.getSizeC();
 					for (int c=0; c< cmax; c++) {
-						double[] img1DoubleArray = Array1DUtil.arrayToDoubleArray(diffImage.getDataXY(c), diffImage.isSignedDataType());
-						double[] resultDoubleArray = Array1DUtil.arrayToDoubleArray(resultImage.getDataXY(c), resultImage.isSignedDataType());
-						for (int i= 0; i< img1DoubleArray.length; i++) {
-							if (img1DoubleArray[i] > thresholdForHeatMap) 
-								resultDoubleArray[i] += 1;
+						int [] diffArray = Array1DUtil.arrayToIntArray(diffImage.getDataXY(c), diffImage.isSignedDataType());
+						int [] resultArray = Array1DUtil.arrayToIntArray(resultImage.getDataXY(c), resultImage.isSignedDataType());
+						for (int i= 0; i< diffArray.length; i++) {
+							if (diffArray[i] > thresholdForHeatMap) 
+								resultArray[i] += 1;
 						}
-						Array1DUtil.doubleArrayToArray(resultDoubleArray, resultImage.getDataXY(c));
+						//Array1DUtil.intArrayToArray(resultArray, resultImage.getDataXY(c));
 					}
 				}
 			}
