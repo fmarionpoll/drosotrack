@@ -66,9 +66,9 @@ public class OverlayThreshold extends Overlay
 			//Color maskcolor = Color.RED;	// TODO 
 			IcyBufferedImage workImage = imgTransf.transformImageFromSequence(vinputSequence.currentFrame, transformop);
 			if (thresholdtype == ThresholdType.COLORARRAY)
-				binaryMap = imgThresh.getBinaryInt_FromColorsThreshold_OverImageAsDouble(workImage);
+				binaryMap = imgThresh.getBinaryInt_FromColorsThreshold(workImage);
 			else 
-				binaryMap = imgThresh.getBinaryInt_FromThreshold_OverImage(workImage);
+				binaryMap = imgThresh.getBinaryInt_FromThreshold(workImage);
 
 			if (binaryMap != null) {
 				final Graphics2D g2 = (Graphics2D) g.create();

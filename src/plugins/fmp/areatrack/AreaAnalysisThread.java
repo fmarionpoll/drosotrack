@@ -144,8 +144,7 @@ public class AreaAnalysisThread extends Thread
 			
 			vSequence.beginUpdate();
 			imgTransf.setSequenceOfReferenceImage(vSequence);
-			
-				
+							
 			// ----------------- loop over all images of the stack
 
 			for (int t = startFrame ; t <= endFrame && !isInterrupted(); t  += analyzeStep ) {				
@@ -161,12 +160,13 @@ public class AreaAnalysisThread extends Thread
 
 					// ------------------------ compute global mask
 					// TODO: is this ok? img -> binaryMap -> boolMap -> maskAll2D
+					// TODO! prevent computation to be done twice in a row (for overlay and for this loop)???
 					IcyBufferedImage binaryMap;
 					
 					if (thresholdtype == ThresholdType.COLORARRAY) 
-						binaryMap = imgThresh.getBinaryInt_FromColorsThreshold_OverImageAsDouble(workImage);
+						binaryMap = imgThresh.getBinaryInt_FromColorsThreshold(workImage);
 					else  
-						binaryMap = imgThresh.getBinaryInt_FromThreshold_OverImage(workImage);
+						binaryMap = imgThresh.getBinaryInt_FromThreshold(workImage);
 					
 					boolean[] boolMap = imgThresh.getBoolMap_FromBinaryInt(binaryMap);
 					BooleanMask2D maskAll2D = new BooleanMask2D(workImage.getBounds(), boolMap); 

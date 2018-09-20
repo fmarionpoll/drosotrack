@@ -74,7 +74,7 @@ public class ImageThresholdTools {
 		return cccolor;
 	}
 	
-	public IcyBufferedImage getBinaryInt_FromThreshold_OverImage(IcyBufferedImage sourceImage) 
+	public IcyBufferedImage getBinaryInt_FromThreshold(IcyBufferedImage sourceImage) 
 	{		
 		int chan = 0;
 		DataType datatype = sourceImage.getDataType_();
@@ -105,8 +105,10 @@ public class ImageThresholdTools {
 	
 	public boolean[] getBoolMap_FromBinaryInt(IcyBufferedImage img) {
 		boolean[]	boolMap = new boolean[ img.getSizeX() * img.getSizeY() ];
-		int[] imgByte = img.getDataXYAsInt(0);
+		
+		int [] imgByte = Array1DUtil.arrayToIntArray(img.getDataXYAsInt(0), img.isSignedDataType());
 		for (int x = 0; x < boolMap.length; x++)  {
+
 			if (imgByte[x] == byteFALSE)
 				boolMap[x] =  false;
 			else
@@ -115,7 +117,7 @@ public class ImageThresholdTools {
 		return boolMap;
 	}
 	
-	public IcyBufferedImage getBinaryInt_FromColorsThreshold_OverImageAsDouble(IcyBufferedImage sourceImage) 
+	public IcyBufferedImage getBinaryInt_FromColorsThreshold(IcyBufferedImage sourceImage) 
 	{
 		if (colorarray.size() == 0)
 			return null;
