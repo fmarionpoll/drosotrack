@@ -98,27 +98,27 @@ public class Areatrack extends PluginActionable implements ActionListener, Chang
 	private JButton		saveROIsButton		= new JButton("Save...");
 	
 	private JCheckBox measureSurfacesCheckBox = new JCheckBox("Measure surface of objects over threshold");
-	private JCheckBox measureHeatmapCheckBox = new JCheckBox("Build image heatmap");
-	
+	private JRadioButton rbFilterbyColor	= new JRadioButton ("filter by color array");
+	private JRadioButton rbFilterbyFunction	= new JRadioButton ("filter by function");
+	private JCheckBox measureHeatmapCheckBox= new JCheckBox("Detect movement and build image heatmap");
+	// TODO
 	private JButton startComputationButton 	= new JButton("Start");
 	private JButton stopComputationButton	= new JButton("Stop");
-	private JTextField startFrameTextField	= new JTextField("0");
-	private JTextField endFrameTextField	= new JTextField("99999999");
+	private JTextField 	startFrameTextField	= new JTextField("0");
+	private JTextField 	endFrameTextField	= new JTextField("99999999");
 	
 	private JComboBox<TransformOp> transformsComboBox = new JComboBox<TransformOp> (new TransformOp[] {
 					TransformOp.R_RGB, TransformOp.G_RGB, TransformOp.B_RGB, 
 					TransformOp.GBMINUS2R, TransformOp.RBMINUS2G, TransformOp.RGMINUS2B, TransformOp.NORM_BRmG, TransformOp.RGB,
 					TransformOp.H_HSB, TransformOp.S_HSB, TransformOp.B_HSB	});
-	private JSpinner thresholdSpinner		= new JSpinner(new SpinnerNumberModel(70, 0, 255, 5));
-	private JLabel videochannel 			= new JLabel("filter  ");
-	private JLabel thresholdLabel 			= new JLabel("threshold ");
-	private JSpinner threshold2Spinner		= new JSpinner(new SpinnerNumberModel(20, 0, 255, 5));
-	private JTextField analyzeStepTextField = new JTextField("1");
-	
+	private JSpinner 	thresholdSpinner	= new JSpinner(new SpinnerNumberModel(70, 0, 255, 5));
+	private JLabel 		videochannel 		= new JLabel("filter  ");
+	private JLabel 		thresholdLabel 		= new JLabel("threshold ");
+	private JSpinner 	threshold2Spinner	= new JSpinner(new SpinnerNumberModel(20, 0, 255, 5));
+	private JTextField 	analyzeStepTextField= new JTextField("1");
+		
 	//---------------------------------------------------------------------------
-	// TODO
-	private JTabbedPane tabbedPane = new JTabbedPane();
-	private JComboBox<String> overlayComboBox = new JComboBox<String> (new String[] {"Not visible", "Color/simple filter", "Movements filter"});
+	private JTabbedPane tabbedPane 			= new JTabbedPane();
 
 	private JComboBox<Color> colorPickCombo = new JComboBox<Color>();
 	private ComboBoxColorRenderer colorPickComboRenderer = new ComboBoxColorRenderer(colorPickCombo);
@@ -132,45 +132,44 @@ public class Areatrack extends PluginActionable implements ActionListener, Chang
 	private JRadioButton		rbRGB		= new JRadioButton ("RGB");
 	private JRadioButton		rbHSV		= new JRadioButton ("HSV");
 	private JRadioButton		rbH1H2H3	= new JRadioButton ("H1H2H3");
-	private JLabel 			distanceLabel 	= new JLabel("Distance  ");
-	private JLabel 			colorspaceLabel = new JLabel("Color space ");
+	private JLabel 		distanceLabel 		= new JLabel("Distance  ");
+	private JLabel 		colorspaceLabel 	= new JLabel("Color space ");
 	private JButton		openFiltersButton	= new JButton("Load...");
 	private JButton		saveFiltersButton	= new JButton("Save...");
 	
 	//---------------------------------------------------------------------------
 	private JComboBox<String> filterComboBox= new JComboBox<String> (new String[] {"raw data", "average", "median"});
-	private JTextField spanTextField		= new JTextField("10");
+	private JTextField 	spanTextField		= new JTextField("10");
 
-	private JButton updateChartsButton 		= new JButton("Display charts");
-	private JButton exportToXLSButton 		= new JButton("Save XLS file..");
-	private JButton	closeAllButton			= new JButton("Close views");
+	private JButton 	updateChartsButton 	= new JButton("Display charts");
+	private JButton 	exportToXLSButton 	= new JButton("Save XLS file..");
+	private JButton		closeAllButton		= new JButton("Close views");
 
 	//------------------------------------------- global variables
 	private SequenceVirtual vSequence 		= null;
 	private ArrayList<MeasureAndName> resultsHeatMap = null;
-	private Timer checkBufferTimer 			= new Timer(1000, this);
-	private int	analyzeStep 				= 1;
-	private int startFrame 					= 1;
-	private int endFrame 					= 99999999;
-	private int numberOfImageForBuffer 		= 100;
+	private Timer 		checkBufferTimer 	= new Timer(1000, this);
+	private int			analyzeStep 		= 1;
+	private int 		startFrame 			= 1;
+	private int 		endFrame 			= 99999999;
+	private int 		numberOfImageForBuffer = 100;
 	private AreaAnalysisThread analysisThread = null;
 	private OverlayThreshold thresholdOverlay = null;
-	private boolean thresholdOverlayON 		= false;
+	private boolean 	thresholdOverlayON	= false;
 	private OverlayTrapMouse trapOverlay 	= null;
 	
 	// parameters saved/read in xml file
-	private int iselectedpane 				= 0;
 	private ThresholdType thresholdtype 	= ThresholdType.COLORARRAY; 
 	// simple
 	private TransformOp simpletransformop 	= TransformOp.GBMINUS2R;
-	private int simplethreshold 			= 20;
+	private int 		simplethreshold 	= 20;
 	// colors
 	private TransformOp colortransformop 	= TransformOp.None;
-	private int colordistanceType 			= 0;
-	private int colorthreshold 				= 20;
+	private int 		colordistanceType 	= 0;
+	private int 		colorthreshold 		= 20;
 	private ArrayList <Color> colorarray 	= new ArrayList <Color>();
 	// movement detection
-	private int thresholdmovement 			= 20;	
+	private int 		thresholdmovement 	= 20;	
 	final private String filename 			= "areatrack.xml";
 	
 	// --------------------------------------------------------------------------
@@ -226,12 +225,15 @@ public class Areatrack extends PluginActionable implements ActionListener, Chang
 		mainPanel.add(GuiUtil.besidesPanel(analysisPanel));
 
 		// -------------------------------------------------------------------------------
-		// TODO
-		JLabel overlayLabel = new JLabel("Display overlay ");
-		analysisPanel.add( GuiUtil.besidesPanel(overlayLabel, overlayComboBox));
 		analysisPanel.add( GuiUtil.besidesPanel(measureSurfacesCheckBox));
 		
-		// first tab : colors
+		analysisPanel.add( GuiUtil.besidesPanel(rbFilterbyColor, rbFilterbyFunction));
+		ButtonGroup bgchoice = new ButtonGroup();
+		bgchoice.add(rbFilterbyColor);
+		bgchoice.add(rbFilterbyFunction);
+		analysisPanel.add( GuiUtil.besidesPanel(measureHeatmapCheckBox ));
+		
+		// first tab : threshold on colors
 		JComponent panel1 = new JPanel(false);
 		panel1.setLayout(new GridLayout(3, 2));
 		colorPickCombo.setRenderer(colorPickComboRenderer);
@@ -247,26 +249,33 @@ public class Areatrack extends PluginActionable implements ActionListener, Chang
 		bgcs.add(rbHSV);
 		bgcs.add(rbH1H2H3);
 		panel1.add( GuiUtil.besidesPanel(colorspaceLabel, rbRGB, rbHSV, rbH1H2H3));
-		tabbedPane.addTab("Colors threshold", null, panel1, "Display parameters for thresholding an image with different colors and a distance");
+		tabbedPane.addTab("Colors", null, panel1, "Display parameters for thresholding an image with different colors and a distance");
 		
-		// second tab: simple filter
+		// second tab: threshold on filter
 		JComponent panel2 = new JPanel(false);
 		videochannel.setHorizontalAlignment(SwingConstants.RIGHT);
 		panel2.add( GuiUtil.besidesPanel( videochannel, transformsComboBox));			
 		thresholdLabel.setHorizontalAlignment(SwingConstants.RIGHT);
 		panel2.add( GuiUtil.besidesPanel( thresholdLabel));
 		panel2.add( GuiUtil.besidesPanel( thresholdSpinner));
-		tabbedPane.addTab("Simple threshold", null, panel2, "Display parameters for thresholding a transformed image with different filters");
+		tabbedPane.addTab("Filters", null, panel2, "Display parameters for thresholding a transformed image with different filters");
 		
+		// third tab: movement threshold
+		JComponent panel3 = new JPanel(false);
+		JLabel thresholdLabel2 = new JLabel("'move' threshold ");
+		thresholdLabel2.setHorizontalAlignment(SwingConstants.RIGHT);
+		panel3.add( GuiUtil.besidesPanel( thresholdLabel2, threshold2Spinner));
+		tabbedPane.addTab("Movement", null, panel3, "Display parameters for thresholding movements (image n - (n-1)");
+		
+		// fourth tab display image without overlay
+		JComponent panel4 = new JPanel(false);
+		panel4.add( GuiUtil.besidesPanel( new JLabel("display image with no overlay")));
+		tabbedPane.addTab("None", null, panel4, "Display image without overlay");
+				
 		tabbedPane.setTabLayoutPolicy(JTabbedPane.SCROLL_TAB_LAYOUT);
 		analysisPanel.add(GuiUtil.besidesPanel(tabbedPane));
 		 
 		// ----------------------------------------------------------
-
-		analysisPanel.add( GuiUtil.besidesPanel(measureHeatmapCheckBox ));
-		JLabel thresholdLabel2 = new JLabel("'move' threshold ");
-		thresholdLabel2.setHorizontalAlignment(SwingConstants.RIGHT);
-		analysisPanel.add( GuiUtil.besidesPanel( thresholdLabel2, threshold2Spinner));
 		
 		JLabel loadsaveText1 = new JLabel ("-> File (xml) ");
 		loadsaveText1.setHorizontalAlignment(SwingConstants.RIGHT); 
@@ -309,12 +318,14 @@ public class Areatrack extends PluginActionable implements ActionListener, Chang
 		filterComboBox.setSelectedIndex(2);
 		measureSurfacesCheckBox.setSelected(true);
 		measureHeatmapCheckBox.setSelected(true);
-		overlayComboBox.setSelectedIndex(0);
 
+		tabbedPane.setSelectedIndex(3);
+		rbFilterbyColor.setSelected(true);
 		rbL1.setSelected(true);
 		rbRGB.setSelected(true);
 		colortransformop = TransformOp.None;
 		transformsComboBox.setSelectedIndex(TransformOp.RGMINUS2B.ordinal());
+		filterComboBox.setSelectedIndex(0);
 	}
 
 	void declareChangeListeners() {
@@ -325,9 +336,7 @@ public class Areatrack extends PluginActionable implements ActionListener, Chang
 	}
 	
 	void declareActionListeners() {
-		closeAllButton.addActionListener(new ActionListener () {
-			@Override
-			public void actionPerformed( final ActionEvent e ) { 
+		closeAllButton.addActionListener(new ActionListener () { @Override public void actionPerformed( final ActionEvent e ) { 
 				if (mainChartFrame != null) {
 					mainChartFrame.removeAll();
 					mainChartFrame.close();
@@ -337,124 +346,104 @@ public class Areatrack extends PluginActionable implements ActionListener, Chang
 				checkBufferTimer.stop(); 
 			} } );
 		
-		rbRGB.addActionListener(new ActionListener () {
-			@Override
-			public void actionPerformed( final ActionEvent e ) { 
+		rbRGB.addActionListener(new ActionListener () { @Override public void actionPerformed( final ActionEvent e ) { 
 				colortransformop = TransformOp.None;
 				updateThresholdOverlayParameters();
 			} } );
-		rbHSV.addActionListener(new ActionListener () {
-			@Override
-			public void actionPerformed( final ActionEvent e ) { 
+		
+		rbHSV.addActionListener(new ActionListener () { @Override public void actionPerformed( final ActionEvent e ) { 
 				colortransformop = TransformOp.RGB_TO_HSV;
 				updateThresholdOverlayParameters();
 			} } );
-		rbH1H2H3.addActionListener(new ActionListener () {
-			@Override
-			public void actionPerformed( final ActionEvent e ) { 
+		
+		rbH1H2H3.addActionListener(new ActionListener () { @Override public void actionPerformed( final ActionEvent e ) { 
 				colortransformop = TransformOp.RGB_TO_H1H2H3;
 				updateThresholdOverlayParameters();
 			} } );
-		rbL1.addActionListener(new ActionListener () {
-			@Override
-			public void actionPerformed( final ActionEvent e ) { 
+		
+		rbL1.addActionListener(new ActionListener () { @Override public void actionPerformed( final ActionEvent e ) { 
 				updateThresholdOverlayParameters();
 			} } );
-		rbL2.addActionListener(new ActionListener () {
-			@Override
-			public void actionPerformed( final ActionEvent e ) { 
+		
+		rbL2.addActionListener(new ActionListener () { @Override public void actionPerformed( final ActionEvent e ) { 
 				updateThresholdOverlayParameters();
 			} } );
-		stopComputationButton.addActionListener(new ActionListener () {
-			@Override
-			public void actionPerformed( final ActionEvent e ) { 
+		
+		stopComputationButton.addActionListener(new ActionListener () { @Override public void actionPerformed( final ActionEvent e ) { 
 				stopAnalysisThread();
 			} } );
-		startComputationButton.addActionListener(new ActionListener () {
-			@Override
-			public void actionPerformed( final ActionEvent e ) { 
-				startAnalysisThread();
+		
+		startComputationButton.addActionListener(new ActionListener () { @Override public void actionPerformed( final ActionEvent e ) {  
+				startAnalysisThread(); 
+			} } );		
+		
+		updateChartsButton.addActionListener(new ActionListener () { @Override public void actionPerformed( final ActionEvent e ) { 
+				updateCharts(); 
 			} } );
-		overlayComboBox.addActionListener(new ActionListener () {
-			@Override
-			public void actionPerformed( final ActionEvent e ) { 
-				updateThresholdOverlayParameters();
-			} } );			
-		updateChartsButton.addActionListener(new ActionListener () {
-			@Override
-			public void actionPerformed( final ActionEvent e ) { 
-				updateCharts();
-			} } );
-		deleteColorButton.addActionListener(new ActionListener () {
-			@Override
-			public void actionPerformed( final ActionEvent e ) { 
+		
+		deleteColorButton.addActionListener(new ActionListener () { @Override public void actionPerformed( final ActionEvent e ) { 
 				if (colorPickCombo.getItemCount() > 0 && colorPickCombo.getSelectedIndex() >= 0)
 					colorPickCombo.removeItemAt(colorPickCombo.getSelectedIndex());
 				updateThresholdOverlayParameters();
 			} } );
-		transformsComboBox.addActionListener(new ActionListener () {
-			@Override
-			public void actionPerformed( final ActionEvent e ) { 
+		
+		transformsComboBox.addActionListener(new ActionListener () { @Override public void actionPerformed( final ActionEvent e ) { 
 				updateThresholdOverlayParameters(); 
 			} } );
 		
-		openFiltersButton.addActionListener(new ActionListener () {
-			@Override
-			public void actionPerformed( final ActionEvent e ) { 
+		openFiltersButton.addActionListener(new ActionListener () { @Override public void actionPerformed( final ActionEvent e ) { 
 				loadParametersFromXMLFile(); 
 			} } );
 		
-		saveFiltersButton.addActionListener(new ActionListener () {
-			@Override
-			public void actionPerformed( final ActionEvent e ) { 
+		saveFiltersButton.addActionListener(new ActionListener () { @Override public void actionPerformed( final ActionEvent e ) { 
 				saveParametersToXMLFile(); 
 			} } );
 		
-		openROIsButton.addActionListener(new ActionListener () {
-			@Override
-			public void actionPerformed( final ActionEvent e ) { 
+		openROIsButton.addActionListener(new ActionListener () { @Override public void actionPerformed( final ActionEvent e ) { 
 				openROIs(); 
 			} } );
 		
-		saveROIsButton.addActionListener(new ActionListener () {
-			@Override
-			public void actionPerformed( final ActionEvent e ) { 
+		saveROIsButton.addActionListener(new ActionListener () { @Override public void actionPerformed( final ActionEvent e ) { 
 				saveROIs(); 
 			} } );
 		
-		addROIsButton.addActionListener(new ActionListener () {
-			@Override
-			public void actionPerformed( final ActionEvent e ) { 
+		addROIsButton.addActionListener(new ActionListener () { @Override public void actionPerformed( final ActionEvent e ) { 
 				addROIs(); 
 			} } );
 		
-		pickColorButton.addActionListener(new ActionListener () {
-			@Override
-			public void actionPerformed( final ActionEvent e ) { 
+		pickColorButton.addActionListener(new ActionListener () { @Override public void actionPerformed( final ActionEvent e ) { 
 				pickColor(); 
 			} } );
 
-		exportToXLSButton.addActionListener(new ActionListener () {
-			@Override
-			public void actionPerformed( final ActionEvent e ) {
+		exportToXLSButton.addActionListener(new ActionListener () { @Override public void actionPerformed( final ActionEvent e ) {
 				String file = Tools.saveFileAs(null, vSequence.getDirectory(), "xls");
 				if (file != null) {
-					ThreadUtil.bgRun( new Runnable() { 	
-						@Override
-						public void run() { 
-							final String filename = file; 
-							exportToXLS(filename);}
-						});
-					}
+					ThreadUtil.bgRun( new Runnable() { @Override public void run() { 
+						final String filename = file; 
+						exportToXLS(filename);}
+					});
+				}
 			} } );
 		
-		setVideoSourceButton.addActionListener(new ActionListener () {
-			@Override
-			public void actionPerformed( final ActionEvent e ) {
+		setVideoSourceButton.addActionListener(new ActionListener () { @Override public void actionPerformed( final ActionEvent e ) {
 				openVideoOrStack();
 			} } );
+		
+		rbFilterbyColor.addActionListener(new ActionListener () { @Override public void actionPerformed( final ActionEvent e ) {
+			if (rbFilterbyColor.isSelected())
+				selectTab(0);
+		} } );
+		
+		rbFilterbyFunction.addActionListener(new ActionListener () { @Override public void actionPerformed( final ActionEvent e ) {
+			if (rbFilterbyFunction.isSelected())
+				selectTab(1);
+		} } );
 	}
-
+	
+	private void selectTab(int index) {
+		tabbedPane.setSelectedIndex(index);
+	}
+	
 	@Override
 	public void viewerChanged(ViewerEvent event) {
 		if ((event.getType() == ViewerEventType.POSITION_CHANGED) && (event.getDim() == DimensionId.T))        
@@ -534,9 +523,8 @@ public class Areatrack extends PluginActionable implements ActionListener, Chang
 	}
 	
 	private void transferParametersToDialog() {
-		overlayComboBox.setSelectedIndex(0);
 		distanceSpinner.setValue(colorthreshold);
-		tabbedPane.setSelectedIndex(iselectedpane);
+		tabbedPane.setSelectedIndex(3);
 		switch (colortransformop) {
 		case RGB_TO_HSV:
 			rbHSV.setSelected(true);
@@ -591,20 +579,20 @@ public class Areatrack extends PluginActionable implements ActionListener, Chang
 		if (xmlElement == null) 
 			return false;
 
-		Element xmlVal = XMLUtil.getElement(xmlElement, "itabbed");	
-		iselectedpane = XMLUtil.getAttributeIntValue(xmlVal, "value", 0);
+		Element xmlVal = XMLUtil.getElement(xmlElement, "colormodeselected");
+		boolean iscolorselected = XMLUtil.getAttributeBooleanValue(xmlVal, "value", true );
+		rbFilterbyColor.setSelected(iscolorselected);
 		
 		xmlVal = XMLUtil.getElement(xmlElement, "colortransformop");	
 		String codestring = XMLUtil.getAttributeValue(xmlVal, "descriptor", "none");		
 		colortransformop = TransformOp.findByText(codestring);
-		
-		xmlVal = XMLUtil.getElement(xmlElement, "thresholdtype");
-		codestring = XMLUtil.getAttributeValue(xmlVal, "descriptor", "simple threshold");
-		thresholdtype = ThresholdType.findByText(codestring);
-		
+			
 		xmlVal = XMLUtil.getElement(xmlElement, "simpletransformop");
 		codestring = XMLUtil.getAttributeValue(xmlVal, "descriptor", "none");
 		simpletransformop = TransformOp.findByText(codestring);
+
+		xmlVal = XMLUtil.getElement(xmlElement, "thresholdmovement");
+		thresholdmovement = XMLUtil.getAttributeIntValue(xmlVal, "value", 20);
 		
 		xmlVal = XMLUtil.getElement(xmlElement, "colordistanceType");
 		colordistanceType = XMLUtil.getAttributeIntValue(xmlVal, "value", 20);
@@ -637,12 +625,9 @@ public class Areatrack extends PluginActionable implements ActionListener, Chang
 		
 		Element xmlElement = XMLUtil.addElement(node, "Parameters");
 		
-		Element xmlVal = XMLUtil.addElement(xmlElement, "itabbed");
-		XMLUtil.setAttributeIntValue(xmlVal, "value", tabbedPane.getSelectedIndex());
-		
-		xmlVal = XMLUtil.addElement(xmlElement, "thresholdtype");
-		XMLUtil.setAttributeIntValue(xmlVal, "descriptor", tabbedPane.getSelectedIndex());
-		
+		Element xmlVal = XMLUtil.addElement(xmlElement, "colormodeselected");
+		XMLUtil.setAttributeBooleanValue(xmlVal, "value", rbFilterbyColor.isSelected() );
+	
 		xmlVal = XMLUtil.addElement(xmlElement, "simpletransformop");
 		XMLUtil.setAttributeValue(xmlVal, "descriptor", simpletransformop.toString());
 		
@@ -657,6 +642,9 @@ public class Areatrack extends PluginActionable implements ActionListener, Chang
 		
 		xmlVal = XMLUtil.addElement(xmlElement, "colordistanceType");
 		XMLUtil.setAttributeIntValue(xmlVal, "value", colordistanceType);
+
+		xmlVal = XMLUtil.addElement(xmlElement, "thresholdmovement");
+		XMLUtil.setAttributeIntValue(xmlVal, "value", thresholdmovement);
 		
 		xmlVal = XMLUtil.addElement(xmlElement, "colorthreshold");
 		XMLUtil.setAttributeIntValue(xmlVal, "value", colorthreshold);
@@ -698,9 +686,6 @@ public class Areatrack extends PluginActionable implements ActionListener, Chang
 		stopAnalysisThread();
 		
 		analysisThread = new AreaAnalysisThread(); 
-		if (overlayComboBox.getSelectedIndex() != 1) {
-			overlayComboBox.setSelectedIndex(1);
-		}
 		updateThresholdOverlayParameters();
 		
 		startFrame 	= Integer.parseInt( startFrameTextField.getText() );
@@ -709,13 +694,15 @@ public class Areatrack extends PluginActionable implements ActionListener, Chang
 		vSequence.istep = analyzeStep;
 		
 		TransformOp transformop = TransformOp.None;
-		if (tabbedPane.getSelectedIndex() == 1)
+		if (rbFilterbyFunction.isSelected())
 			transformop = (TransformOp) transformsComboBox.getSelectedItem();
-		int threshold = Integer.parseInt(thresholdSpinner.getValue().toString());
+		int thresholdforsurface = Integer.parseInt(thresholdSpinner.getValue().toString());
+		int thresholdformovement = Integer.parseInt(threshold2Spinner.getValue().toString());
 		
 		analysisThread.setAnalysisThreadParameters(vSequence, getROIsToAnalyze(), startFrame, endFrame, 0, 
 			transformop, 
-			threshold, 
+			thresholdforsurface,
+			thresholdformovement,
 			measureSurfacesCheckBox.isSelected(), 
 			measureHeatmapCheckBox.isSelected());
 		analysisThread.setAnalysisThreadParametersColors (thresholdtype, colordistanceType, colorthreshold, colorarray);
@@ -736,6 +723,9 @@ public class Areatrack extends PluginActionable implements ActionListener, Chang
 	
 	private void activateSequenceThresholdOverlay(boolean activate) {
 //		System.out.println("activateSequenceThresholdOverlay "+activate);
+		if (vSequence == null)
+			return;
+		
 		if (activate) {
 			if (!thresholdOverlayON) {
 				if (thresholdOverlay == null) {
@@ -760,26 +750,17 @@ public class Areatrack extends PluginActionable implements ActionListener, Chang
 	}
 	
 	private void updateThresholdOverlayParameters() {
-		 
+		
+		if (vSequence == null)
+			return;
+		
 		boolean activateThreshold = true;
 		int thresholdForOverlay=0;
 		TransformOp transformOpForOverlay = TransformOp.None;
 		ThresholdType thresholdTypeForOverlay = ThresholdType.SINGLE;
 		
-		switch (overlayComboBox.getSelectedIndex()) {
-		case 0:
-			activateThreshold = false;
-
-		case 2:
-			thresholdmovement = Integer.parseInt(threshold2Spinner.getValue().toString());
-			thresholdForOverlay = thresholdmovement;
-			thresholdTypeForOverlay = ThresholdType.SINGLE;
-			transformOpForOverlay = TransformOp.REFn;
-			break;
-			
-		default:
-		case 1:
-			if (tabbedPane.getSelectedIndex() == 0) {
+		switch (tabbedPane.getSelectedIndex()) {
+			case 0:
 				colorthreshold = Integer.parseInt(distanceSpinner.getValue().toString());
 				thresholdForOverlay = colorthreshold;
 				thresholdtype = ThresholdType.COLORARRAY;
@@ -792,21 +773,33 @@ public class Areatrack extends PluginActionable implements ActionListener, Chang
 				colordistanceType = 1;
 				if (rbL2.isSelected()) 
 					colordistanceType = 2;
-			}
-			else {
+				break;
+				
+			case 1:
 				simpletransformop = (TransformOp) transformsComboBox.getSelectedItem();
 				transformOpForOverlay = simpletransformop;
 				simplethreshold = Integer.parseInt(thresholdSpinner.getValue().toString());
 				thresholdForOverlay = simplethreshold; 
 				thresholdtype = ThresholdType.SINGLE;
-				thresholdTypeForOverlay = thresholdtype;
-			}
-			break;
+				thresholdTypeForOverlay = thresholdtype;	
+				break;
+
+			case 2:
+				thresholdmovement = Integer.parseInt(threshold2Spinner.getValue().toString());
+				thresholdForOverlay = thresholdmovement;
+				thresholdTypeForOverlay = ThresholdType.SINGLE;
+				transformOpForOverlay = TransformOp.REFn;
+				break;
+			
+			case 3:
+			default:
+				activateThreshold = false;
+				break;
 		}
 		
 		//--------------------------------
 		activateSequenceThresholdOverlay(activateThreshold);
-		if (activateThreshold) {
+		if (activateThreshold && vSequence != null) {
 //			System.out.println("updateThresholdOverlayParameters - pass parameters");
 			thresholdOverlay.setThresholdSequence (vSequence);
 			thresholdOverlay.setThresholdOverlayParameters(thresholdForOverlay, transformOpForOverlay);
@@ -900,9 +893,7 @@ public class Areatrack extends PluginActionable implements ActionListener, Chang
 	}
 	
 	private void initInputSeq () {
-
-		System.out.println("initInputSeq");
-		
+	
 		// transfer 1 image to the viewer
 		addSequence(vSequence);
 		Viewer v = vSequence.getFirstViewer();

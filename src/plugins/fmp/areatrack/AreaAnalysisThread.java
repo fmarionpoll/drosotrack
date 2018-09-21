@@ -49,7 +49,8 @@ public class AreaAnalysisThread extends Thread
 	private int imageref = 0;
 	private boolean measureROIsEvolution;
 	private boolean measureROIsMove;
-	private int thresholdForHeatMap = 50;
+	private int thresholdForHeatMap = 230;
+	private int thresholdForSurface = 20;
 	
 	public IcyBufferedImage resultImage = null;
 	public Sequence resultSequence = null;
@@ -70,6 +71,7 @@ public class AreaAnalysisThread extends Thread
 			int endFrame, 
 			int imageref,
 			TransformOp transf, 
+			int thresholdForSurface,
 			int thresholdForHeatMap, 
 			boolean measureROIsEvolution, 
 			boolean measureROIsMove)
@@ -80,12 +82,12 @@ public class AreaAnalysisThread extends Thread
 		this.endFrame = endFrame;
 		this.transformop = transf;
 		this.imageref = imageref;
+		this.thresholdForSurface = thresholdForSurface;
 		this.thresholdForHeatMap = thresholdForHeatMap;
 		this.measureROIsEvolution = measureROIsEvolution;
 		this.measureROIsMove = measureROIsMove;
 		
 		imgTransf.setSequenceOfReferenceImage(virtualSequence);
-		imgThresh.setThresholdOverlayParameters(vSequence.threshold, transf);
 		
 		if (transformop == TransformOp.REFt0 || transformop == TransformOp.REFn || transformop == TransformOp.REF)
 			vSequence.setRefImageForSubtraction(this.imageref);
@@ -165,7 +167,7 @@ public class AreaAnalysisThread extends Thread
 					if (thresholdtype == ThresholdType.COLORARRAY) 
 						binaryMap = imgThresh.getBinaryInt_FromColorsThreshold(workImage);
 					else  
-						binaryMap = imgThresh.getBinaryInt_FromThreshold(workImage);
+						binaryMap = imgThresh.getBinaryInt_FromThreshold(workImage, thresholdForSurface);
 					
 					boolean[] boolMap = imgThresh.getBoolMap_FromBinaryInt(binaryMap);
 					BooleanMask2D maskAll2D = new BooleanMask2D(workImage.getBounds(), boolMap); 
@@ -186,15 +188,13 @@ public class AreaAnalysisThread extends Thread
 						continue;
 					
 					IcyBufferedImage diffImage = imgTransf.transformImageFromSequence(t,  TransformOp.REFn);
-					int cmax = diffImage.getSizeC();
-					for (int c=0; c< cmax; c++) {
-						int [] diffArray = Array1DUtil.arrayToIntArray(diffImage.getDataXY(c), diffImage.isSignedDataType());
-						int [] resultArray = Array1DUtil.arrayToIntArray(resultImage.getDataXY(c), resultImage.isSignedDataType());
-						for (int i= 0; i< diffArray.length; i++) {
-							if (diffArray[i] > thresholdForHeatMap) 
-								resultArray[i] += 1;
-						}
-						//Array1DUtil.intArrayToArray(resultArray, resultImage.getDataXY(c));
+					IcyBufferedImage binaryMap = imgThresh.getBinaryInt_FromThreshold(diffImage, thresholdForHeatMap);
+					
+					int [] binaryArray = Array1DUtil.arrayToIntArray(binaryMap.getDataXY(0), binaryMap.isSignedDataType());
+					double [] resultArray = resultImage.getDataXYAsDouble(0);
+					for (int i= 0; i< binaryArray.length; i++) {
+						if (binaryArray[i] != 0) 
+							resultArray[i] += 1;
 					}
 				}
 			}

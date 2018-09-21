@@ -1,10 +1,8 @@
 package plugins.fmp.sequencevirtual;
 
 import java.awt.Color;
-
 import icy.image.IcyBufferedImage;
 import icy.image.IcyBufferedImageUtil;
-import icy.math.ArrayMath;
 import icy.type.DataType;
 import icy.type.collection.array.Array1DUtil;
 
@@ -112,26 +110,11 @@ public class ImageTransformTools {
 		double[] Gn = Array1DUtil.arrayToDoubleArray(sourceImage.getDataXY(Glayer), sourceImage.isSignedDataType());
 		double[] Bn = Array1DUtil.arrayToDoubleArray(sourceImage.getDataXY(Blayer), sourceImage.isSignedDataType());
 		double[] ExG = (double[]) Array1DUtil.createArray(DataType.DOUBLE, Rn.length);
-		double[] sum = (double[]) Array1DUtil.createArray(DataType.DOUBLE, Rn.length);
-		
-		ArrayMath.divide (Rn, 255, Rn);		// R = R/255
-		ArrayMath.divide (Gn, 255, Gn);		// G = G/255
-		ArrayMath.divide (Bn, 255, Bn);		// B = B/255
-		
-		ArrayMath.add (Rn, Gn, sum);		// sum = R+G
-		ArrayMath.add (sum,  Bn, sum);		// sum = R+G+B
-		
-		ArrayMath.divide (Rn, sum, Rn);		// R = R/sum
-		ArrayMath.divide (Gn, sum, Gn);		// G = G/sum
-		ArrayMath.divide (Bn, sum, Bn);		// B = B/sum
 
-		// compute ExG = 2*g - r - b
-		ArrayMath.multiply(Gn, 2, ExG);		// ExG = 2 * G
-		ArrayMath.subtract(ExG, Rn, ExG);	// ExG = 2 * G - R
-		ArrayMath.subtract(ExG, Bn, ExG);	// ExG = 2 * G - R - B
-		
-		// from 0 to 255
-		ArrayMath.multiply(ExG, 255, ExG);	// ExG = ExG * 255
+		for (int i=0; i< Rn.length; i++) {
+			double sum = (Rn[i] / 255) + (Gn[i] / 255) + (Bn [i] / 255);
+			ExG[i] = ((Gn[i] *2 / 255 / sum) - (Rn[i] / 255/sum) - (Bn [i] / 255/sum)) * 255;
+		}
 		
 		IcyBufferedImage img = new IcyBufferedImage (sourceImage.getWidth(), sourceImage.getHeight(), 1, DataType.BYTE);
 		Array1DUtil.doubleArrayToSafeArray(ExG,  img.getDataXY(0),  true); 
@@ -277,7 +260,6 @@ public class ImageTransformTools {
 			outValues0 [ky] = (tabValuesR[ky]+tabValuesG[ky]+tabValuesB[ky])/3;
 		}
 				
-		//Array1DUtil.intArrayToSafeArray(outValues0,  img2.getDataXY(0),  false, img2.isSignedDataType());
 		return img2;
 	}
 	
@@ -331,18 +313,18 @@ public class ImageTransformTools {
 			else 
 				imgSourceInt = Array1DUtil.arrayToIntArray(sourceImage.getDataXY(0), sourceImage.isSignedDataType());
 				
+			int [] img2Int = img2.getDataXYAsInt(c);
 			int [] imgReferenceInt = null;
 			if (referenceImage.getDataType_() == DataType.INT)
 				imgReferenceInt = referenceImage.getDataXYAsInt(c);
 			else 
 				imgReferenceInt = Array1DUtil.arrayToIntArray(referenceImage.getDataXY(0), referenceImage.isSignedDataType());
 			
-			int [] img2Int = img2.getDataXYAsInt(c);
-			
 			for (int i=0; i< imgSourceInt.length; i++) {
 				int val = imgSourceInt[i] - imgReferenceInt[i];
-				if (val < 0) val = 0;
-				img2Int[i] = val;
+				if (val < 0) 
+					val = -val;
+				img2Int[i] = 0xFF - val;
 			}
 		}
 		return img2;
