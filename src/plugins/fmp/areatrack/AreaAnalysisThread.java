@@ -159,7 +159,6 @@ public class AreaAnalysisThread extends Thread
 					viewer.setTitle(vSequence.getVImageName(t));
 
 					// ------------------------ compute global mask
-					// TODO: is this ok? img -> binaryMap -> boolMap -> maskAll2D
 					// TODO! prevent computation to be done twice in a row (for overlay and for this loop)???
 					IcyBufferedImage binaryMap;
 					

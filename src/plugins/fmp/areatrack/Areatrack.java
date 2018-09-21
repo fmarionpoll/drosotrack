@@ -624,7 +624,6 @@ public class Areatrack extends PluginActionable implements ActionListener, Chang
 			Color color = new Color(red, green, blue, alpha);
 			colorarray.add(color);
 		}
-	
 		return true;
 	}
 	
@@ -709,8 +708,11 @@ public class Areatrack extends PluginActionable implements ActionListener, Chang
 		analyzeStep = Integer.parseInt( analyzeStepTextField.getText() );
 		vSequence.istep = analyzeStep;
 		
-		TransformOp transformop = (TransformOp) transformsComboBox.getSelectedItem();
+		TransformOp transformop = TransformOp.None;
+		if (tabbedPane.getSelectedIndex() == 1)
+			transformop = (TransformOp) transformsComboBox.getSelectedItem();
 		int threshold = Integer.parseInt(thresholdSpinner.getValue().toString());
+		
 		analysisThread.setAnalysisThreadParameters(vSequence, getROIsToAnalyze(), startFrame, endFrame, 0, 
 			transformop, 
 			threshold, 
@@ -793,6 +795,7 @@ public class Areatrack extends PluginActionable implements ActionListener, Chang
 			}
 			else {
 				simpletransformop = (TransformOp) transformsComboBox.getSelectedItem();
+				transformOpForOverlay = simpletransformop;
 				simplethreshold = Integer.parseInt(thresholdSpinner.getValue().toString());
 				thresholdForOverlay = simplethreshold; 
 				thresholdtype = ThresholdType.SINGLE;

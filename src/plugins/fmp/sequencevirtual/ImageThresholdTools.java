@@ -58,9 +58,12 @@ public class ImageThresholdTools {
 		
 		// create array of 3 channels for colors and transform it like sourceImage
 		IcyBufferedImage colorRefTransformed = imgTransf.transformImage(colorRef, transformop_in);
+		
 		ArrayList<double[]> colorsarray = new ArrayList<double[]>();
 		for (int chan = 0; chan < 3; chan++) {
-			colorsarray.add (Array1DUtil.arrayToDoubleArray(colorRefTransformed.getDataXY(chan), colorRefTransformed.isSignedDataType()));
+			Object chanarray = colorRefTransformed.getDataXY(chan);
+			double [] chancolor = Array1DUtil.arrayToDoubleArray(chanarray, colorRefTransformed.isSignedDataType());
+			colorsarray.add (chancolor);
 		}
 		
 		// transform back into a color array
@@ -126,6 +129,8 @@ public class ImageThresholdTools {
 			return null;
 		if (ccolor == null)
 			ccolor = transformColorArray(colorarray, transformop);
+		if (sourceImage.getSizeC() <3 )
+			return null;
 		NHColorDistance distance; 
 		if (distanceType == 1)
 			distance = new NHL1ColorDistance();
