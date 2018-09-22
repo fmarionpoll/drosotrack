@@ -699,7 +699,7 @@ public class Areatrack extends PluginActionable implements ActionListener, Chang
 		int thresholdforsurface = Integer.parseInt(thresholdSpinner.getValue().toString());
 		int thresholdformovement = Integer.parseInt(threshold2Spinner.getValue().toString());
 		
-		analysisThread.setAnalysisThreadParameters(vSequence, getROIsToAnalyze(), startFrame, endFrame, 0, 
+		analysisThread.setAnalysisThreadParameters(vSequence, getROIsToAnalyze(), startFrame, endFrame,  
 			transformop, 
 			thresholdforsurface,
 			thresholdformovement,
@@ -730,8 +730,7 @@ public class Areatrack extends PluginActionable implements ActionListener, Chang
 			if (!thresholdOverlayON) {
 				if (thresholdOverlay == null) {
 					System.out.println("create overlay");
-					thresholdOverlay = new OverlayThreshold();
-					thresholdOverlay.setThresholdSequence (vSequence);
+					thresholdOverlay = new OverlayThreshold(vSequence);
 				}
 				if (!vSequence.contains(thresholdOverlay)) 
 					vSequence.addOverlay(thresholdOverlay);
@@ -799,11 +798,14 @@ public class Areatrack extends PluginActionable implements ActionListener, Chang
 		
 		//--------------------------------
 		activateSequenceThresholdOverlay(activateThreshold);
+		
 		if (activateThreshold && vSequence != null) {
-//			System.out.println("updateThresholdOverlayParameters - pass parameters");
-			thresholdOverlay.setThresholdSequence (vSequence);
-			thresholdOverlay.setThresholdOverlayParameters(thresholdForOverlay, transformOpForOverlay);
-	 		thresholdOverlay.setThresholdOverlayParametersColors(thresholdTypeForOverlay, colordistanceType, colorthreshold, colorarray);
+			thresholdOverlay.setSequence (vSequence);
+			thresholdOverlay.setTransform(transformOpForOverlay);
+			if (thresholdTypeForOverlay == ThresholdType.SINGLE)
+				thresholdOverlay.setThreshold(thresholdTypeForOverlay, thresholdForOverlay);
+			else
+				thresholdOverlay.setThreshold(thresholdTypeForOverlay, colorarray, colordistanceType, colorthreshold);
 			vSequence.threshold = thresholdForOverlay;
 			thresholdOverlay.painterChanged();
 		}

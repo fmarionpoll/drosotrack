@@ -16,21 +16,12 @@ import icy.sequence.Sequence;
 
 import plugins.fmp.sequencevirtual.ImageTransformTools.TransformOp;
 import plugins.fmp.sequencevirtual.ImageThresholdTools.ThresholdType;
-import plugins.fmp.sequencevirtual.ImageThresholdTools;
-import plugins.fmp.sequencevirtual.ImageTransformTools;
 
 public class OverlayThreshold extends Overlay
 {
-	public IcyBufferedImage thresholdedImage;
-	
-	private ImageTransformTools imgTransf = new ImageTransformTools();
-	private ImageThresholdTools imgThresh = new ImageThresholdTools();
-	private SequenceVirtual vinputSequence = null;
-	private TransformOp transformop;
-	private int thresholdforsimple = 20;
-	private ThresholdType thresholdtype = ThresholdType.SINGLE;
+	private ImageOperations imgOp = null;
 	private float opacity = 0.3f;
-	private OverlayColorMap map = new OverlayColorMap ("", new Color(0x00FF0000, true));
+	private OverlayColorMask map = new OverlayColorMask ("", new Color(0x00FF0000, true));
 	
 	// ---------------------------------------------
 	
@@ -39,24 +30,33 @@ public class OverlayThreshold extends Overlay
 		super("ThresholdOverlay");	
 	}
 	
-	public void setThresholdSequence (SequenceVirtual sseq)
+	public OverlayThreshold(SequenceVirtual seq) {
+		super("ThresholdOverlay");
+		setSequence(seq);
+	}
+	
+	public void setSequence (SequenceVirtual seq)
 	{
-		if (sseq == null)
+		if (seq == null)
 			return;
-		this.vinputSequence = sseq;
-		this.imgTransf.setSequenceOfReferenceImage(sseq);
+		if (imgOp == null)
+			imgOp = new ImageOperations (seq);
+		else
+			imgOp.setSequence(seq);
 	}
 	
-	public void setThresholdOverlayParameters (int sthreshold, TransformOp stransf)
-	{
-		this.thresholdforsimple = sthreshold;
-		this.transformop = stransf;
+	public void setTransform (TransformOp transf) {
+		imgOp.setTransform( transf);
 	}
 	
-	public void setThresholdOverlayParametersColors (ThresholdType thresholdtype, int distanceType, int colorthreshold, ArrayList<Color> colorarray)
+	public void setThreshold (ThresholdType thresholdtype, int threshold)
 	{
-		imgThresh.setThresholdOverlayParametersColors(distanceType, colorthreshold, colorarray);
-		this.thresholdtype = thresholdtype;
+		imgOp.setThreshold(thresholdtype, threshold);
+	}
+	
+	public void setThreshold (ThresholdType thresholdtype, ArrayList <Color> colorarray, int distancetype, int threshold)
+	{
+		imgOp.setThreshold(thresholdtype, colorarray, distancetype, threshold);
 	}
 	
 	@Override
@@ -65,14 +65,7 @@ public class OverlayThreshold extends Overlay
 		// check if we are dealing with a 2D canvas and we have a valid Graphics object
 		if ((canvas instanceof IcyCanvas2D) && (g != null))
 		{
-			IcyBufferedImage transformedImage = imgTransf.transformImageFromSequence(vinputSequence.currentFrame, transformop);
-			if (transformedImage == null)
-				return;
-			if (thresholdtype == ThresholdType.COLORARRAY)
-				thresholdedImage = imgThresh.getBinaryInt_FromColorsThreshold(transformedImage); //+ distancetype, colorthreshold, colorarray
-			else 
-				thresholdedImage = imgThresh.getBinaryInt_FromThreshold(transformedImage, thresholdforsimple);
-			
+			IcyBufferedImage thresholdedImage = imgOp.run();
 			if (thresholdedImage != null) {
 				thresholdedImage.setColorMap(0, map);
 				BufferedImage bufferedImage = IcyBufferedImageUtil.getARGBImage(thresholdedImage);
@@ -86,17 +79,4 @@ public class OverlayThreshold extends Overlay
 	}
 
 }
-/*
- * 		if (needRedraw) {
-			if (cache == null) {
-				cache = createCache(getColor());
-			} else {
-				fillCache(getColor(), cache);
-			}
-			needRedraw = false;
-		}
-		Composite bck = g.getComposite();
-		g.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, getOpacity()));
-		g.drawImage(cache, 0, 0, null);
-		g.setComposite(bck);
- * */
+

@@ -17,27 +17,14 @@ import icy.sequence.SequenceDataIterator;
 import icy.system.profile.Chronometer;
 import icy.type.DataType;
 import icy.type.collection.array.Array1DUtil;
-import plugins.fmp.sequencevirtual.ImageTransformTools;
 import plugins.fmp.sequencevirtual.ImageTransformTools.TransformOp;
 import plugins.fmp.sequencevirtual.ImageThresholdTools.ThresholdType;
 import plugins.fmp.sequencevirtual.SequenceVirtual;
-import plugins.fmp.sequencevirtual.ImageThresholdTools;
+import plugins.fmp.sequencevirtual.ImageOperations;
 import plugins.fmp.sequencevirtual.Tools;
 
 public class AreaAnalysisThread extends Thread
 {
-	/*
-	 * (non-Javadoc)
-	 * @see java.lang.Thread#run()
-	 * parameters:
-	 * 		threshold 
-	 * 		jitter
-	 * 		btrackWhite
-	 *  *  blimitLow
-	 *  blimitUp
-	 *  limitLow
-	 *  limitUp
-	 */
 	
 	private TransformOp transformop;
 	SequenceVirtual vSequence = null;
@@ -46,11 +33,9 @@ public class AreaAnalysisThread extends Thread
 	private int startFrame = 0;
 	private int endFrame = 99999999;
 	private int analyzeStep = 1;
-	private int imageref = 0;
 	private boolean measureROIsEvolution;
 	private boolean measureROIsMove;
 	private int thresholdForHeatMap = 230;
-	private int thresholdForSurface = 20;
 	
 	public IcyBufferedImage resultImage = null;
 	public Sequence resultSequence = null;
@@ -59,17 +44,15 @@ public class AreaAnalysisThread extends Thread
 	public ArrayList<MeasureAndName> results = null;
 	
 	private ThresholdType thresholdtype = ThresholdType.SINGLE;
-	private ImageThresholdTools imgThresh = new ImageThresholdTools();
-	private ImageTransformTools imgTransf = new ImageTransformTools();
+	private ImageOperations imgOp1;
+	private ImageOperations imgOp2;
 	 
 	// --------------------------------------------------------------------------------------
-	
-	
+		
 	public void setAnalysisThreadParameters (SequenceVirtual virtualSequence, 
 			ArrayList<ROI2D> roiList, 
 			int startFrame, 
 			int endFrame, 
-			int imageref,
 			TransformOp transf, 
 			int thresholdForSurface,
 			int thresholdForHeatMap, 
@@ -81,17 +64,20 @@ public class AreaAnalysisThread extends Thread
 		this.startFrame = startFrame;
 		this.endFrame = endFrame;
 		this.transformop = transf;
-		this.imageref = imageref;
-		this.thresholdForSurface = thresholdForSurface;
+;
 		this.thresholdForHeatMap = thresholdForHeatMap;
 		this.measureROIsEvolution = measureROIsEvolution;
 		this.measureROIsMove = measureROIsMove;
 		
-		imgTransf.setSequenceOfReferenceImage(virtualSequence);
+		imgOp1 = new ImageOperations (virtualSequence);
+		imgOp1.setTransform(transformop);
+		if (thresholdtype == ThresholdType.SINGLE) 
+			imgOp1.setThreshold(thresholdtype, thresholdForSurface);
 		
-		if (transformop == TransformOp.REF_T0 || transformop == TransformOp.REF_PREVIOUS || transformop == TransformOp.REF)
-			vSequence.setRefImageForSubtraction(this.imageref);
-		
+		imgOp2 = new ImageOperations (virtualSequence);
+		imgOp2.setTransform(TransformOp.REF_PREVIOUS);
+		imgOp2.setThreshold(ThresholdType.SINGLE, thresholdForHeatMap);
+				
 		IcyBufferedImage image = vSequence.loadVImage(vSequence.currentFrame);
 		resultImage = new IcyBufferedImage(image.getSizeX(), image.getSizeY(),image.getSizeC(), DataType.DOUBLE);
 		resultSequence = new Sequence(resultImage);
@@ -102,7 +88,7 @@ public class AreaAnalysisThread extends Thread
 	
 	public void setAnalysisThreadParametersColors (ThresholdType thresholdtype, int distanceType, int colorthreshold, ArrayList<Color> colorarray)
 	{
-		imgThresh.setThresholdOverlayParametersColors(distanceType, colorthreshold, colorarray);
+		imgOp1.setThreshold(thresholdtype, colorarray, distanceType, colorthreshold);
 		this.thresholdtype = thresholdtype;
 	}
 	
@@ -145,7 +131,6 @@ public class AreaAnalysisThread extends Thread
 				viewer = resultViewer;
 			
 			vSequence.beginUpdate();
-			imgTransf.setSequenceOfReferenceImage(vSequence);
 							
 			// ----------------- loop over all images of the stack
 
@@ -155,22 +140,14 @@ public class AreaAnalysisThread extends Thread
 
 				if (measureROIsEvolution) {
 					// load next image and compute threshold
-					IcyBufferedImage workImage = imgTransf.transformImageFromSequence(t, transformop); 
 					vSequence.currentFrame = t;
 					viewer.setPositionT(t);
 					viewer.setTitle(vSequence.getVImageName(t));
 
 					// ------------------------ compute global mask
-					// TODO! prevent computation to be done twice in a row (for overlay and for this loop)???
-					IcyBufferedImage binaryMap;
-					
-					if (thresholdtype == ThresholdType.COLORARRAY) 
-						binaryMap = imgThresh.getBinaryInt_FromColorsThreshold(workImage);
-					else  
-						binaryMap = imgThresh.getBinaryInt_FromThreshold(workImage, thresholdForSurface);
-					
-					boolean[] boolMap = imgThresh.getBoolMap_FromBinaryInt(binaryMap);
-					BooleanMask2D maskAll2D = new BooleanMask2D(workImage.getBounds(), boolMap); 
+					IcyBufferedImage binaryMap = imgOp1.run();	
+					boolean[] boolMap = imgOp1.convertToBoolean(binaryMap);
+					BooleanMask2D maskAll2D = new BooleanMask2D(binaryMap.getBounds(), boolMap); 
 					
 					// ------------------------ loop over each ROI & count number of pixels above threshold
 					for (int imask = 0; imask < areaMaskList.size(); imask++ )
@@ -186,10 +163,7 @@ public class AreaAnalysisThread extends Thread
 					// get difference image
 					if (t < startFrame+20)
 						continue;
-					
-					IcyBufferedImage diffImage = imgTransf.transformImageFromSequence(t,  TransformOp.REF_PREVIOUS);
-					IcyBufferedImage binaryMap = imgThresh.getBinaryInt_FromThreshold(diffImage, thresholdForHeatMap);
-					
+					IcyBufferedImage binaryMap = imgOp2.run_nocache();
 					int [] binaryArray = Array1DUtil.arrayToIntArray(binaryMap.getDataXY(0), binaryMap.isSignedDataType());
 					double [] resultArray = resultImage.getDataXYAsDouble(0);
 					for (int i= 0; i< binaryArray.length; i++) {
@@ -198,7 +172,6 @@ public class AreaAnalysisThread extends Thread
 					}
 				}
 			}
-			
 		} 
 		finally {
 			progress.close();

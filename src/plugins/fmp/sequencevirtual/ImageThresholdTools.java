@@ -29,7 +29,6 @@ public class ImageThresholdTools {
 	private final byte byteFALSE = 0;
 	private final byte byteTRUE = (byte) 0xFF;
 	ArrayList<double[]> colordoubleArray = null;
-
 	
 	public void setThresholdOverlayParametersColors (int distanceType, int colorthreshold, ArrayList<Color> colorarray)
 	{

@@ -29,13 +29,10 @@ public class ImageTransformTools {
 		    return null;
 		}
 	}
-	public double factorR=1.;
-	public double factorG=1.;
-	public double factorB=1.;
 
-	private IcyBufferedImage referenceImage = null;
-	private int spanDiff = 3;
-	private SequenceVirtual vinputSequence 	= null;
+	private IcyBufferedImage 	referenceImage = null;
+	private int 				spanDiff = 3;
+	private SequenceVirtual 	vinputSequence 	= null;
 	
 	// -------------------------------------
 	public void setReferenceImage(IcyBufferedImage img) {
@@ -50,7 +47,7 @@ public class ImageTransformTools {
 		return spanDiff;
 	}
 	
-	public void setSequenceOfReferenceImage (SequenceVirtual vinputSeq) {
+	public void setSequence (SequenceVirtual vinputSeq) {
 		vinputSequence = vinputSeq;
 		referenceImage = vinputSequence.loadVImage(0);
 	}
