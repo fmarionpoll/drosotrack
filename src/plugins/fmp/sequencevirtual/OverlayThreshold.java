@@ -21,16 +21,16 @@ import plugins.fmp.sequencevirtual.ImageTransformTools;
 
 public class OverlayThreshold extends Overlay
 {
-	public IcyBufferedImage binaryMap;
+	public IcyBufferedImage thresholdedImage;
 	
-	private ImageTransformTools imgTransf = new ImageTransformTools();;
-	private ImageThresholdTools imgThresh = new ImageThresholdTools();;
+	private ImageTransformTools imgTransf = new ImageTransformTools();
+	private ImageThresholdTools imgThresh = new ImageThresholdTools();
 	private SequenceVirtual vinputSequence = null;
 	private TransformOp transformop;
 	private int thresholdforsimple = 20;
 	private ThresholdType thresholdtype = ThresholdType.SINGLE;
 	private float opacity = 0.3f;
-	private OverlayColorMap map = new OverlayColorMap ("", new Color(0xFFFF0000, true));
+	private OverlayColorMap map = new OverlayColorMap ("", new Color(0x00FF0000, true));
 	
 	// ---------------------------------------------
 	
@@ -65,17 +65,17 @@ public class OverlayThreshold extends Overlay
 		// check if we are dealing with a 2D canvas and we have a valid Graphics object
 		if ((canvas instanceof IcyCanvas2D) && (g != null))
 		{
-			IcyBufferedImage workImage = imgTransf.transformImageFromSequence(vinputSequence.currentFrame, transformop);
-			if (workImage == null)
+			IcyBufferedImage transformedImage = imgTransf.transformImageFromSequence(vinputSequence.currentFrame, transformop);
+			if (transformedImage == null)
 				return;
 			if (thresholdtype == ThresholdType.COLORARRAY)
-				binaryMap = imgThresh.getBinaryInt_FromColorsThreshold(workImage);
+				thresholdedImage = imgThresh.getBinaryInt_FromColorsThreshold(transformedImage); //+ distancetype, colorthreshold, colorarray
 			else 
-				binaryMap = imgThresh.getBinaryInt_FromThreshold(workImage, thresholdforsimple);
+				thresholdedImage = imgThresh.getBinaryInt_FromThreshold(transformedImage, thresholdforsimple);
 			
-			if (binaryMap != null) {
-				binaryMap.setColorMap(0, map);
-				BufferedImage bufferedImage = IcyBufferedImageUtil.getARGBImage(binaryMap);
+			if (thresholdedImage != null) {
+				thresholdedImage.setColorMap(0, map);
+				BufferedImage bufferedImage = IcyBufferedImageUtil.getARGBImage(thresholdedImage);
 				Composite bck = g.getComposite();
 				g.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, opacity));
 				g.drawImage(bufferedImage, 0, 0, null);

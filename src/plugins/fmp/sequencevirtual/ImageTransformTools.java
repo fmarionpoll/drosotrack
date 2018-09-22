@@ -9,14 +9,14 @@ import icy.type.collection.array.Array1DUtil;
 public class ImageTransformTools {
 
 	public enum TransformOp { 
-		None("none"),
+		NONE("none"),
 		R_RGB("R(RGB)"), G_RGB("G(RGB)"), B_RGB("B(RGB)"),  
 		GBMINUS2R ("(G+B)-2R"), RBMINUS2G("(R+B)-2G"), RGMINUS2B("(R+G)-2B"),
 		RGB ("(R+G+B)/3"),
 		H_HSB ("H(HSB)"), S_HSB ("S(HSB)"), B_HSB("B(HSB)"),  
 		XDIFFN("XDiffn"),  XYDIFFN( "XYDiffn"), 
-		REFt0("subtract t0"), REFn("subtract n-1"), REF("subtract ref"),
-		NORM_BRmG("F. Rebaudo"),
+		REF_T0("subtract t0"), REF_PREVIOUS("subtract n-1"), REF("subtract ref"),
+		NORM_BRMINUSG("F. Rebaudo"),
 		COLORARRAY1("color array"), RGB_TO_HSV("HSV"), RGB_TO_H1H2H3("H1H2H3"), 
 		RTOGB ("R to G&B") ;
 		
@@ -60,7 +60,7 @@ public class ImageTransformTools {
 		IcyBufferedImage transformedImage = null;
 		
 		switch (transformop) {
-		case None: 
+		case NONE: 
 		case COLORARRAY1: /*System.out.println("transform image - " + transformop);*/
 			transformedImage = inputImage;
 			break;
@@ -77,12 +77,12 @@ public class ImageTransformTools {
 		case GBMINUS2R: transformedImage= functionRGB_C1C2Minus2C3 (inputImage, 1, 2, 0); break;
 		case RBMINUS2G: transformedImage= functionRGB_C1C2Minus2C3 (inputImage, 0, 2, 1); break;
 		case RGMINUS2B: transformedImage= functionRGB_C1C2Minus2C3 (inputImage, 0, 1, 2); break;
-		case NORM_BRmG: transformedImage= functionNormRGB_sumC1C2Minus2C3(inputImage, 1, 2, 0); break;
+		case NORM_BRMINUSG: transformedImage= functionNormRGB_sumC1C2Minus2C3(inputImage, 1, 2, 0); break;
 		case RTOGB: 	transformedImage= functionTransferRedToGreenAndBlue(inputImage); break;
 			
-		case REFt0: 	transformedImage= functionSubtractRef(inputImage); break;
+		case REF_T0: 	transformedImage= functionSubtractRef(inputImage); break;
 		case REF: 		transformedImage= functionSubtractRef(inputImage); break;
-		case REFn: 
+		case REF_PREVIOUS: 
 			int t = vinputSequence.currentFrame;
 			if (t>0) 
 				{referenceImage = vinputSequence.loadVImage(t-1); 
@@ -332,7 +332,7 @@ public class ImageTransformTools {
 	
 	private IcyBufferedImage functionRGBtoHSV (IcyBufferedImage sourceImage) {
 		
-		IcyBufferedImage img2 = new IcyBufferedImage(sourceImage.getWidth(), sourceImage.getHeight(), 1, sourceImage.getDataType_());
+		IcyBufferedImage img2 = new IcyBufferedImage(sourceImage.getWidth(), sourceImage.getHeight(), 3, sourceImage.getDataType_());
 		
 		double[] tabValuesR = Array1DUtil.arrayToDoubleArray(sourceImage.getDataXY(0), sourceImage.isSignedDataType());
 		double[] tabValuesG = Array1DUtil.arrayToDoubleArray(sourceImage.getDataXY(1), sourceImage.isSignedDataType());
@@ -363,7 +363,7 @@ public class ImageTransformTools {
 
 	private IcyBufferedImage functionRGBtoH1H2H3 (IcyBufferedImage sourceImage) {
 		
-		IcyBufferedImage img2 = new IcyBufferedImage(sourceImage.getWidth(), sourceImage.getHeight(), 1, sourceImage.getDataType_());
+		IcyBufferedImage img2 = new IcyBufferedImage(sourceImage.getWidth(), sourceImage.getHeight(), 3, sourceImage.getDataType_());
 		
 		double[] tabValuesR = Array1DUtil.arrayToDoubleArray(sourceImage.getDataXY(0), sourceImage.isSignedDataType());
 		double[] tabValuesG = Array1DUtil.arrayToDoubleArray(sourceImage.getDataXY(1), sourceImage.isSignedDataType());

@@ -10,7 +10,7 @@ import icy.type.collection.array.Array1DUtil;
 public class ImageThresholdTools {
 
 	public enum ThresholdType { 
-		SINGLE ("simple threshold"), COLORARRAY ("Color array");
+		SINGLE ("simple threshold"), COLORARRAY ("Color array"), NONE("undefined");
 		
 		private String label;
 		ThresholdType (String label) { this.label = label;}

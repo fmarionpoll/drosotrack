@@ -89,7 +89,7 @@ public class AreaAnalysisThread extends Thread
 		
 		imgTransf.setSequenceOfReferenceImage(virtualSequence);
 		
-		if (transformop == TransformOp.REFt0 || transformop == TransformOp.REFn || transformop == TransformOp.REF)
+		if (transformop == TransformOp.REF_T0 || transformop == TransformOp.REF_PREVIOUS || transformop == TransformOp.REF)
 			vSequence.setRefImageForSubtraction(this.imageref);
 		
 		IcyBufferedImage image = vSequence.loadVImage(vSequence.currentFrame);
@@ -187,7 +187,7 @@ public class AreaAnalysisThread extends Thread
 					if (t < startFrame+20)
 						continue;
 					
-					IcyBufferedImage diffImage = imgTransf.transformImageFromSequence(t,  TransformOp.REFn);
+					IcyBufferedImage diffImage = imgTransf.transformImageFromSequence(t,  TransformOp.REF_PREVIOUS);
 					IcyBufferedImage binaryMap = imgThresh.getBinaryInt_FromThreshold(diffImage, thresholdForHeatMap);
 					
 					int [] binaryArray = Array1DUtil.arrayToIntArray(binaryMap.getDataXY(0), binaryMap.isSignedDataType());

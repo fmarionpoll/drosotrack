@@ -109,7 +109,7 @@ public class Areatrack extends PluginActionable implements ActionListener, Chang
 	
 	private JComboBox<TransformOp> transformsComboBox = new JComboBox<TransformOp> (new TransformOp[] {
 					TransformOp.R_RGB, TransformOp.G_RGB, TransformOp.B_RGB, 
-					TransformOp.GBMINUS2R, TransformOp.RBMINUS2G, TransformOp.RGMINUS2B, TransformOp.NORM_BRmG, TransformOp.RGB,
+					TransformOp.GBMINUS2R, TransformOp.RBMINUS2G, TransformOp.RGMINUS2B, TransformOp.NORM_BRMINUSG, TransformOp.RGB,
 					TransformOp.H_HSB, TransformOp.S_HSB, TransformOp.B_HSB	});
 	private JSpinner 	thresholdSpinner	= new JSpinner(new SpinnerNumberModel(70, 0, 255, 5));
 	private JLabel 		videochannel 		= new JLabel("filter  ");
@@ -164,7 +164,7 @@ public class Areatrack extends PluginActionable implements ActionListener, Chang
 	private TransformOp simpletransformop 	= TransformOp.GBMINUS2R;
 	private int 		simplethreshold 	= 20;
 	// colors
-	private TransformOp colortransformop 	= TransformOp.None;
+	private TransformOp colortransformop 	= TransformOp.NONE;
 	private int 		colordistanceType 	= 0;
 	private int 		colorthreshold 		= 20;
 	private ArrayList <Color> colorarray 	= new ArrayList <Color>();
@@ -323,7 +323,7 @@ public class Areatrack extends PluginActionable implements ActionListener, Chang
 		rbFilterbyColor.setSelected(true);
 		rbL1.setSelected(true);
 		rbRGB.setSelected(true);
-		colortransformop = TransformOp.None;
+		colortransformop = TransformOp.NONE;
 		transformsComboBox.setSelectedIndex(TransformOp.RGMINUS2B.ordinal());
 		filterComboBox.setSelectedIndex(0);
 	}
@@ -347,7 +347,7 @@ public class Areatrack extends PluginActionable implements ActionListener, Chang
 			} } );
 		
 		rbRGB.addActionListener(new ActionListener () { @Override public void actionPerformed( final ActionEvent e ) { 
-				colortransformop = TransformOp.None;
+				colortransformop = TransformOp.NONE;
 				updateThresholdOverlayParameters();
 			} } );
 		
@@ -532,7 +532,7 @@ public class Areatrack extends PluginActionable implements ActionListener, Chang
 		case RGB_TO_H1H2H3:
 			rbH1H2H3.setSelected(true);
 			break;
-		case None:
+		case NONE:
 		default:
 			rbRGB.setSelected(true);
 			break;
@@ -693,7 +693,7 @@ public class Areatrack extends PluginActionable implements ActionListener, Chang
 		analyzeStep = Integer.parseInt( analyzeStepTextField.getText() );
 		vSequence.istep = analyzeStep;
 		
-		TransformOp transformop = TransformOp.None;
+		TransformOp transformop = TransformOp.NONE;
 		if (rbFilterbyFunction.isSelected())
 			transformop = (TransformOp) transformsComboBox.getSelectedItem();
 		int thresholdforsurface = Integer.parseInt(thresholdSpinner.getValue().toString());
@@ -756,7 +756,7 @@ public class Areatrack extends PluginActionable implements ActionListener, Chang
 		
 		boolean activateThreshold = true;
 		int thresholdForOverlay=0;
-		TransformOp transformOpForOverlay = TransformOp.None;
+		TransformOp transformOpForOverlay = TransformOp.NONE;
 		ThresholdType thresholdTypeForOverlay = ThresholdType.SINGLE;
 		
 		switch (tabbedPane.getSelectedIndex()) {
@@ -788,7 +788,7 @@ public class Areatrack extends PluginActionable implements ActionListener, Chang
 				thresholdmovement = Integer.parseInt(threshold2Spinner.getValue().toString());
 				thresholdForOverlay = thresholdmovement;
 				thresholdTypeForOverlay = ThresholdType.SINGLE;
-				transformOpForOverlay = TransformOp.REFn;
+				transformOpForOverlay = TransformOp.REF_PREVIOUS;
 				break;
 			
 			case 3:
