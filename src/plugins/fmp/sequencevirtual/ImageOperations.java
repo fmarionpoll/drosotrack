@@ -8,8 +8,9 @@ import plugins.fmp.sequencevirtual.ImageThresholdTools.ThresholdType;
 import plugins.fmp.sequencevirtual.ImageTransformTools.TransformOp;
 
 public class ImageOperations {
-	ImageOperationsStruct op = new ImageOperationsStruct();
-	SequenceVirtual seq = null;
+	private SequenceVirtual seq = null;
+	private ImageOperationsStruct opTransf = new ImageOperationsStruct();
+	private ImageOperationsStruct opThresh = new ImageOperationsStruct();
 	private ImageTransformTools imgTransf = new ImageTransformTools();
 	private ImageThresholdTools imgThresh = new ImageThresholdTools();
 	
@@ -23,21 +24,21 @@ public class ImageOperations {
 	}
 	
 	public void setTransform (TransformOp transformop) {
-		op.transformop = transformop;
+		opTransf.transformop = transformop;
 	}
 	
-	public void setThreshold(ThresholdType thresholdtype, int threshold) {
-		op.thresholdtype = thresholdtype;
-		op.threshold = threshold;
+	public void setThresholdSingle( int threshold) {
+		opThresh.thresholdtype = ThresholdType.SINGLE;
+		opThresh.simplethreshold = threshold;
+		imgThresh.setSingleThreshold(threshold);
 	}
 	
-	public void setThreshold (ThresholdType thresholdtype, ArrayList <Color> colorarray, int distancetype, int threshold) {
-		op.thresholdtype = thresholdtype;
-		if (op.colorarray != null)
-			op.colorarray.clear();
-		op.colorarray = colorarray;
-		op.distanceType = distancetype;
-		op.threshold = threshold;
+	public void setColorArrayThreshold (ArrayList <Color> colorarray, int distanceType, int colorthreshold) {
+		opThresh.thresholdtype = ThresholdType.COLORARRAY;
+		opThresh.colorarray = colorarray;
+		opThresh.colordistanceType = distanceType;
+		opThresh.colorthreshold = colorthreshold;
+		imgThresh.setColorArrayThreshold(distanceType, colorthreshold, colorarray);
 	}
 	
 	public IcyBufferedImage run() {
@@ -46,21 +47,24 @@ public class ImageOperations {
 	
 	public IcyBufferedImage run (int frame) {	
 		// step 1
-		op.fromFrame = frame;
-		if (!op.isTransformEqual(seq.cacheTransformOp)) {
-			seq.cacheTransformedImage = imgTransf.transformImageFromSequence(frame, op.transformop);
-			if (seq.cacheTransformedImage == null)
+		opTransf.fromFrame = frame;
+		if (!opTransf.isValidTransformCache(seq.cacheTransformOp)) {
+			seq.cacheTransformedImage = imgTransf.transformImageFromSequence(frame, opTransf.transformop);
+			if (seq.cacheTransformedImage == null) {
 				return null;
-			seq.cacheTransformOp = op;
+			}
+			opTransf.copyTransformOpTo(seq.cacheTransformOp);
+			seq.cacheThresholdOp.fromFrame = -1;
 		}
 		
 		// step 2
-		if (!op.isThresholdEqual(seq.cacheThresholdOp)) {
-			if (op.thresholdtype == ThresholdType.COLORARRAY)
-				seq.cacheThresholdedImage = imgThresh.getBinaryInt_FromColorsThreshold(seq.cacheTransformedImage); //+ distancetype, colorthreshold, colorarray
+		opThresh.fromFrame = frame;
+		if (!opThresh.isValidThresholdCache(seq.cacheThresholdOp)) {
+			if (opThresh.thresholdtype == ThresholdType.COLORARRAY) 
+				seq.cacheThresholdedImage = imgThresh.getBinaryInt_FromColorsThreshold(seq.cacheTransformedImage); 
 			else 
-				seq.cacheThresholdedImage = imgThresh.getBinaryInt_FromThreshold(seq.cacheTransformedImage, op.threshold);
-			seq.cacheThresholdOp = op;
+				seq.cacheThresholdedImage = imgThresh.getBinaryInt_FromThreshold(seq.cacheTransformedImage);
+			opThresh.copyThresholdOpTo(seq.cacheThresholdOp) ;
 		}
 		return seq.cacheThresholdedImage;
 	}
@@ -68,16 +72,16 @@ public class ImageOperations {
 	public IcyBufferedImage run_nocache() {
 		// step 1
 		int frame = seq.currentFrame;
-		IcyBufferedImage transformedImage = imgTransf.transformImageFromSequence(frame, op.transformop);
+		IcyBufferedImage transformedImage = imgTransf.transformImageFromSequence(frame, opTransf.transformop);
 		if (transformedImage == null)
 			return null;
 		
 		// step 2
 		IcyBufferedImage thresholdedImage;
-		if (op.thresholdtype == ThresholdType.COLORARRAY)
-			thresholdedImage = imgThresh.getBinaryInt_FromColorsThreshold(seq.cacheTransformedImage); //+ distancetype, colorthreshold, colorarray
+		if (opThresh.thresholdtype == ThresholdType.COLORARRAY)
+			thresholdedImage = imgThresh.getBinaryInt_FromColorsThreshold(transformedImage); 
 		else 
-			thresholdedImage = imgThresh.getBinaryInt_FromThreshold(seq.cacheTransformedImage, op.threshold);
+			thresholdedImage = imgThresh.getBinaryInt_FromThreshold(transformedImage);
 
 		return thresholdedImage;
 	}

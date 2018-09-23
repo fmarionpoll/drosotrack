@@ -8,12 +8,13 @@ import plugins.fmp.sequencevirtual.ImageTransformTools.TransformOp;
 
 public class ImageOperationsStruct {
 	
+	int 				fromFrame		= -1;
+	int 				colordistanceType 	= 0;
+	int					simplethreshold = 255;
+	int 				colorthreshold	= 0;
+	ArrayList <Color> 	colorarray 		= null;
 	TransformOp 		transformop		= TransformOp.NONE;
 	ThresholdType 		thresholdtype 	= ThresholdType.NONE;
-	int 				threshold		= 0;
-	ArrayList <Color> 	colorarray 		= null;
-	int 				distanceType 	= 0;
-	int 				fromFrame		= -1;
 		
 	// -----------------------------------
 	
@@ -21,68 +22,73 @@ public class ImageOperationsStruct {
 		this.fromFrame = -1;
 		this.transformop = TransformOp.NONE;
 		this.thresholdtype = ThresholdType.NONE;
-		this.threshold = 0;
+		this.colorthreshold = 0;
 	}
 	
 	public ImageOperationsStruct (int framenumber, TransformOp transformop, ThresholdType thresholdtype, int thresholdvalue) {
 		this.fromFrame = framenumber;
 		this.transformop = transformop;
 		this.thresholdtype = thresholdtype;
-		this.threshold = thresholdvalue;
+		this.colorthreshold = thresholdvalue;
 	}
 	
 	public ImageOperationsStruct (int framenumber, TransformOp transformop) {
 		this.fromFrame = framenumber;
 		this.transformop = transformop;
 		this.thresholdtype = ThresholdType.NONE;
-		this.threshold = 0;
-	}
-
-	public void setFrameNumber (int framenumber) {
-		this.fromFrame= framenumber;
+		this.colorthreshold = 0;
 	}
 	
-	public void setTransformOp(TransformOp transformop) {
-		this.transformop = transformop;
-	}
-	
-	public void setTresholdType (ThresholdType thresholdtype, int thresholdvalue) {
-		this.thresholdtype= thresholdtype;
-		this.threshold = thresholdvalue;
-	}
-	
-	public boolean isEqual (ImageOperationsStruct tag) {
-		if (tag.fromFrame != fromFrame)
-			return false;
-		if (tag.transformop != transformop)
-			return false;
-		if (tag.thresholdtype != thresholdtype)
-			return false;
-		if (tag.threshold != threshold)
-			return false;
-		return true;
-	}
-	
-	public boolean isTransformEqual(ImageOperationsStruct op) {
+	public boolean isValidTransformCache(ImageOperationsStruct op) {
 		if (op.fromFrame != this.fromFrame)
 			return false;
+		
 		if (op.transformop != this.transformop)
 			return false;
 		return true;
 	}
 	
-	public boolean isThresholdEqual(ImageOperationsStruct op) {
+	public void copyTransformOpTo (ImageOperationsStruct op) {
+		op.transformop = transformop;
+		op.fromFrame = fromFrame;
+	}
+	
+	public void copyThresholdOpTo (ImageOperationsStruct op) {
+		
+		op.thresholdtype = thresholdtype;
+		if (thresholdtype == ThresholdType.SINGLE) {
+			op.simplethreshold = simplethreshold;
+		}
+		else if (thresholdtype == ThresholdType.COLORARRAY) {
+			op.colorthreshold = colorthreshold;
+			if (op.colorarray == null)
+				op.colorarray = new ArrayList <Color> ();
+			else
+				op.colorarray.clear();
+			for (Color c: colorarray)
+				op.colorarray.add(c);
+			op.colordistanceType = colordistanceType;
+		}
+		op.fromFrame = fromFrame;
+	}
+	
+	public boolean isValidThresholdCache(ImageOperationsStruct op) {
 		if (op.fromFrame != this.fromFrame)
 			return false;
+		
 		if (op.thresholdtype != this.thresholdtype)
 			return false;
-		if (op.threshold != this.threshold)
-			return false;
-
-		if (this.thresholdtype == ThresholdType.COLORARRAY) {
-			if (op.distanceType != this.distanceType)
+		
+		if (op.thresholdtype == ThresholdType.COLORARRAY) {
+			if (op.colorthreshold != this.colorthreshold)
+				return false;
+			if (op.colordistanceType != this.colordistanceType)
 				return false;
 			if (op.colorarray.size() != this.colorarray.size())
+				return false;
+		}
+		else {
+			if (op.simplethreshold != this.simplethreshold)
 				return false;
 		}
 		return true;

@@ -11,36 +11,37 @@ public class ImageThresholdTools {
 
 	public enum ThresholdType { 
 		SINGLE ("simple threshold"), COLORARRAY ("Color array"), NONE("undefined");
-		
 		private String label;
 		ThresholdType (String label) { this.label = label;}
 		public String toString() { return label;}	
-		
 		public static ThresholdType findByText(String abbr){
 		    for(ThresholdType v : values()){ if( v.toString().equals(abbr)) { return v; }  }
 		    return null;
 		}
 	}
-	
+	// parameters passed by caller
 	private int colorthreshold;
-	private ArrayList <Color> colorarray = null;
-	private int distanceType;
-
+	private int colordistanceType;
+	private int simplethreshold = 255;
+	
+	// local variables
 	private final byte byteFALSE = 0;
 	private final byte byteTRUE = (byte) 0xFF;
-	ArrayList<double[]> colordoubleArray = null;
+	private ArrayList<double[]> colordoubleArray = new ArrayList<double[]>();;
 	
-	public void setThresholdOverlayParametersColors (int distanceType, int colorthreshold, ArrayList<Color> colorarray)
+	// ---------------------------------------------
+	
+	public void setSingleThreshold (int simplethreshold)
 	{
-		this.distanceType = distanceType;
-		this.colorthreshold = colorthreshold;
-		this.colorarray = new ArrayList <Color> (colorarray);
-		colordoubleArray = transformColorArrayintoDouble(colorarray);
+		this.simplethreshold = simplethreshold;
 	}
-
-	private ArrayList<double[]> transformColorArrayintoDouble (ArrayList<Color> colorarray) {
+	
+	public void setColorArrayThreshold (int colordistanceType, int colorthreshold, ArrayList<Color> colorarray)
+	{
+		this.colordistanceType = colordistanceType;
+		this.colorthreshold = colorthreshold;
 		
-		ArrayList<double[]> colordoubleArray = new ArrayList<double[]>(3);
+		colordoubleArray.clear();
 		for (int i=0; i<colorarray.size(); i++) {
 			Color color = colorarray.get(i);
 			double [] coldouble = new double [3];
@@ -49,11 +50,10 @@ public class ImageThresholdTools {
 			coldouble [2] = color.getBlue ();
 			colordoubleArray.add(coldouble);
 		}
-		return colordoubleArray;
 	}
-	
-	public IcyBufferedImage getBinaryInt_FromThreshold(IcyBufferedImage sourceImage, int thresholdvalue) 
-	{		
+
+	public IcyBufferedImage getBinaryInt_FromThreshold(IcyBufferedImage sourceImage) 
+	{	
 		IcyBufferedImage binaryMap = new IcyBufferedImage(sourceImage.getSizeX(), sourceImage.getSizeY(), 1, DataType.UBYTE);
 		byte[] binaryMapDataBuffer = binaryMap.getDataXYAsByte(0);
 
@@ -68,7 +68,7 @@ public class ImageThresholdTools {
 		
 		for (int x = 0; x < binaryMapDataBuffer.length; x++)  {
 			int val = imageSourceDataBuffer[x] & 0xFF;
-			if (val > thresholdvalue)
+			if (val > simplethreshold)
 				binaryMapDataBuffer[x] = byteFALSE;
 			else
 				binaryMapDataBuffer[x] = byteTRUE;
@@ -76,31 +76,9 @@ public class ImageThresholdTools {
 		return binaryMap;
 	}
 	
-	public boolean[] getBoolMap_FromBinaryInt(IcyBufferedImage img) {
-		boolean[]	boolMap = new boolean[ img.getSizeX() * img.getSizeY() ];
-		
-		byte [] imageSourceDataBuffer = null;
-		DataType datatype = img.getDataType_();
-		if (datatype != DataType.BYTE && datatype != DataType.UBYTE) {
-			Object sourceArray = img.getDataXY(0);
-			imageSourceDataBuffer = Array1DUtil.arrayToByteArray(sourceArray);
-		}
-		else
-			imageSourceDataBuffer = img.getDataXYAsByte(0);
-		
-		for (int x = 0; x < boolMap.length; x++)  {
-
-			if (imageSourceDataBuffer[x] == byteFALSE)
-				boolMap[x] =  false;
-			else
-				boolMap[x] =  true;
-		}
-		return boolMap;
-	}
-	
-	public IcyBufferedImage getBinaryInt_FromColorsThreshold(IcyBufferedImage sourceImage) 
+	public IcyBufferedImage getBinaryInt_FromColorsThreshold(IcyBufferedImage sourceImage)  
 	{
-		if (colorarray.size() == 0)
+		if (colordoubleArray.size() == 0)
 			return null;
 
 		if (sourceImage.getSizeC() <3 ) {
@@ -108,7 +86,7 @@ public class ImageThresholdTools {
 			return null;
 		}
 		NHColorDistance distance; 
-		if (distanceType == 1)
+		if (colordistanceType == 1)
 			distance = new NHL1ColorDistance();
 		else
 			distance = new NHL2ColorDistance();
@@ -127,7 +105,7 @@ public class ImageThresholdTools {
 			for (int i=0; i<3; i++)
 				pixel[i] = sourceBuffer[i][ipixel];
 		
-			for (int k = 0; k < colorarray.size(); k++) {
+			for (int k = 0; k < colordoubleArray.size(); k++) {
 				color = colordoubleArray.get(k);
 				if (distance.computeDistance(pixel, color) < colorthreshold) {
 					val = byteTRUE; 
@@ -137,6 +115,28 @@ public class ImageThresholdTools {
 			binaryResultBuffer[ipixel] = val;
 		}
 		return binaryByte;
+	}
+	
+	public boolean[] getBoolMap_FromBinaryInt(IcyBufferedImage img) 
+	{
+		boolean[]	boolMap = new boolean[ img.getSizeX() * img.getSizeY() ];
+		byte [] imageSourceDataBuffer = null;
+		DataType datatype = img.getDataType_();
+		
+		if (datatype != DataType.BYTE && datatype != DataType.UBYTE) {
+			Object sourceArray = img.getDataXY(0);
+			imageSourceDataBuffer = Array1DUtil.arrayToByteArray(sourceArray);
+		}
+		else
+			imageSourceDataBuffer = img.getDataXYAsByte(0);
+		
+		for (int x = 0; x < boolMap.length; x++)  {
+			if (imageSourceDataBuffer[x] == byteFALSE)
+				boolMap[x] =  false;
+			else
+				boolMap[x] =  true;
+		}
+		return boolMap;
 	}
 	
 }

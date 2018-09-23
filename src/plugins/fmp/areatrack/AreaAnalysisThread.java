@@ -8,6 +8,7 @@ import icy.canvas.Canvas2D;
 import icy.gui.frame.progress.ProgressFrame;
 import icy.gui.viewer.Viewer;
 import icy.image.IcyBufferedImage;
+import icy.image.colormap.JETColorMap;
 import icy.main.Icy;
 import icy.roi.BooleanMask2D;
 import icy.roi.ROI2D;
@@ -37,10 +38,16 @@ public class AreaAnalysisThread extends Thread
 	private boolean measureROIsMove;
 	private int thresholdForHeatMap = 230;
 	
-	public IcyBufferedImage resultImage = null;
-	public Sequence resultSequence = null;
-	public Viewer resultViewer = null;
-	public Canvas2D resultCanvas = null;
+	public IcyBufferedImage resultOFFImage = null;
+	public Sequence resultOFFSequence = null;
+	public Viewer 	resultOFFViewer = null;
+	public Canvas2D resultOFFCanvas = null;
+	
+	public IcyBufferedImage resultONImage = null;
+	public Sequence resultONSequence = null;
+	public Viewer 	resultONViewer = null;
+	public Canvas2D resultONCanvas = null;
+	
 	public ArrayList<MeasureAndName> results = null;
 	
 	private ThresholdType thresholdtype = ThresholdType.SINGLE;
@@ -72,23 +79,29 @@ public class AreaAnalysisThread extends Thread
 		imgOp1 = new ImageOperations (virtualSequence);
 		imgOp1.setTransform(transformop);
 		if (thresholdtype == ThresholdType.SINGLE) 
-			imgOp1.setThreshold(thresholdtype, thresholdForSurface);
+			imgOp1.setThresholdSingle(thresholdForSurface);
 		
 		imgOp2 = new ImageOperations (virtualSequence);
 		imgOp2.setTransform(TransformOp.REF_PREVIOUS);
-		imgOp2.setThreshold(ThresholdType.SINGLE, thresholdForHeatMap);
+		imgOp2.setThresholdSingle(thresholdForHeatMap);
 				
 		IcyBufferedImage image = vSequence.loadVImage(vSequence.currentFrame);
-		resultImage = new IcyBufferedImage(image.getSizeX(), image.getSizeY(),image.getSizeC(), DataType.DOUBLE);
-		resultSequence = new Sequence(resultImage);
-		resultSequence.setName("Heatmap thresh:"+this.thresholdForHeatMap);
-		resultViewer = new Viewer(resultSequence, false);
-		resultCanvas = new Canvas2D(resultViewer);
+		resultOFFImage = new IcyBufferedImage(image.getSizeX(), image.getSizeY(), 1, DataType.DOUBLE);
+		resultOFFSequence = new Sequence(resultOFFImage);
+		resultOFFSequence.setName("Heatmap OFF thresh:"+this.thresholdForHeatMap);
+		resultOFFViewer = new Viewer(resultOFFSequence, false);
+		resultOFFCanvas = new Canvas2D(resultOFFViewer);
+		
+		resultONImage = new IcyBufferedImage(image.getSizeX(), image.getSizeY(), 1, DataType.DOUBLE);
+		resultONSequence = new Sequence(resultONImage);
+		resultONSequence.setName("Heatmap ON thresh:"+this.thresholdForHeatMap);
+		resultONViewer = new Viewer(resultONSequence, false);
+		resultONCanvas = new Canvas2D(resultONViewer);
 	}
 	
 	public void setAnalysisThreadParametersColors (ThresholdType thresholdtype, int distanceType, int colorthreshold, ArrayList<Color> colorarray)
 	{
-		imgOp1.setThreshold(thresholdtype, colorarray, distanceType, colorthreshold);
+		imgOp1.setColorArrayThreshold(colorarray, distanceType, colorthreshold);
 		this.thresholdtype = thresholdtype;
 	}
 	
@@ -122,18 +135,16 @@ public class AreaAnalysisThread extends Thread
 			areaMaskList.add(roi.getBooleanMask2D( 0 , 0, 1, true ));
 			iroi++;
 		}
-
+		
 		try {
 			Viewer viewer = null;
 			if (measureROIsEvolution)
 				viewer = Icy.getMainInterface().getFirstViewer(vSequence);
 			else 
-				viewer = resultViewer;
-			
+				viewer = resultOFFViewer;
 			vSequence.beginUpdate();
 							
 			// ----------------- loop over all images of the stack
-
 			for (int t = startFrame ; t <= endFrame && !isInterrupted(); t  += analyzeStep ) {				
 				// update progression bar
 				updateProgressionBar (t, nbframes, chrono, progress);
@@ -165,10 +176,13 @@ public class AreaAnalysisThread extends Thread
 						continue;
 					IcyBufferedImage binaryMap = imgOp2.run_nocache();
 					int [] binaryArray = Array1DUtil.arrayToIntArray(binaryMap.getDataXY(0), binaryMap.isSignedDataType());
-					double [] resultArray = resultImage.getDataXYAsDouble(0);
+					double [] resultOFFArray = resultOFFImage.getDataXYAsDouble(0);
+					double [] resultONArray = resultONImage.getDataXYAsDouble(0);
 					for (int i= 0; i< binaryArray.length; i++) {
-						if (binaryArray[i] != 0) 
-							resultArray[i] += 1;
+						if (binaryArray[i] == 0)
+							resultOFFArray[i] += 1;
+						else
+							resultONArray[i] += 1;
 					}
 				}
 			}
@@ -182,18 +196,28 @@ public class AreaAnalysisThread extends Thread
 		System.out.println("Computation finished.");
 		
 		if (measureROIsMove) {
-			resultImage.dataChanged();
-			resultViewer.setVisible(true);
-			resultSequence.removeAllROI();
-			resultSequence.addROIs(vSequence.getROI2Ds(), false);
-			ArrayList<ROI2D> roiList2 = resultSequence.getROI2Ds();
+			
+			// update resultIlmage to make it like a regular image and add heatmap scale to it
+			resultOFFImage.dataChanged();
+			resultOFFImage.setColorMap (0, new JETColorMap (), true);
+			resultOFFViewer.setVisible(true);
+			resultOFFSequence.removeAllROI();
+			resultOFFSequence.addROIs(vSequence.getROI2Ds(), false);
+			
+			resultONImage.dataChanged();
+			resultONImage.setColorMap (0, new JETColorMap (), true);
+			resultONViewer.setVisible(true);
+			resultONSequence.removeAllROI();
+			resultONSequence.addROIs(vSequence.getROI2Ds(), false);
+			
+			ArrayList<ROI2D> roiList2 = resultOFFSequence.getROI2Ds();
 			
 			// ------ get big sum
 			double sumall = 0;
 			double countall = 0;
-			int cmax = 3;
+			int cmax = resultOFFImage.getSizeC();
 			for (int c=0; c< cmax; c++) {
-				double[] resultDoubleArray = Array1DUtil.arrayToDoubleArray(resultImage.getDataXY(c), resultImage.isSignedDataType());
+				double[] resultDoubleArray = Array1DUtil.arrayToDoubleArray(resultONImage.getDataXY(c), resultONImage.isSignedDataType());
 				for (int i=0; i< resultDoubleArray.length; i++) {
 					sumall += resultDoubleArray[i];
 				}
@@ -204,10 +228,9 @@ public class AreaAnalysisThread extends Thread
 				areaMaskList.add(roi.getBooleanMask2D( 0 , 0, 1, true ));
 
 			// ------------------------ loop over all the cages of the stack & count n pixels above threshold
-			
 			results = new ArrayList<MeasureAndName> ();
 			for (ROI2D roi: roiList2) {
-				SequenceDataIterator iterator = new SequenceDataIterator(resultSequence, roi, true, 0, 0 , -1);
+				SequenceDataIterator iterator = new SequenceDataIterator(resultOFFSequence, roi, true, 0, 0 , -1);
 				double sum = 0;
 				double sample = 0;
 				while (!iterator.done()) {

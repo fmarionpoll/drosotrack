@@ -15,7 +15,6 @@ import icy.painter.Overlay;
 import icy.sequence.Sequence;
 
 import plugins.fmp.sequencevirtual.ImageTransformTools.TransformOp;
-import plugins.fmp.sequencevirtual.ImageThresholdTools.ThresholdType;
 
 public class OverlayThreshold extends Overlay
 {
@@ -41,22 +40,21 @@ public class OverlayThreshold extends Overlay
 			return;
 		if (imgOp == null)
 			imgOp = new ImageOperations (seq);
-		else
-			imgOp.setSequence(seq);
+		imgOp.setSequence(seq);
 	}
 	
 	public void setTransform (TransformOp transf) {
 		imgOp.setTransform( transf);
 	}
 	
-	public void setThreshold (ThresholdType thresholdtype, int threshold)
+	public void setThresholdSingle (int threshold)
 	{
-		imgOp.setThreshold(thresholdtype, threshold);
+		imgOp.setThresholdSingle(threshold);
 	}
 	
-	public void setThreshold (ThresholdType thresholdtype, ArrayList <Color> colorarray, int distancetype, int threshold)
+	public void setThresholdColor (ArrayList <Color> colorarray, int distancetype, int threshold)
 	{
-		imgOp.setThreshold(thresholdtype, colorarray, distancetype, threshold);
+		imgOp.setColorArrayThreshold(colorarray, distancetype, threshold);
 	}
 	
 	@Override
