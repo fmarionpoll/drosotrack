@@ -1,8 +1,9 @@
 package plugins.fmp.sequencevirtual;
 
+import java.awt.Color;
+
 /**
  * NHClass L2ColorDistance.
- * @author Nicolas HERVE
  */
 public class NHL2ColorDistance extends NHColorDistance {
 
@@ -10,10 +11,10 @@ public class NHL2ColorDistance extends NHColorDistance {
 	 * @see plugins.nherve.toolbox.image.feature.ColorDistance#computeDistance(double[], double[])
 	 */
 	@Override
-	public double computeDistance(double[] c1, double[] c2) {
-		double dr = c1[0] - c2[0];
-		double dg = c1[1] - c2[1];
-		double db = c1[2] - c2[2];
+	public double computeDistance(Color c1, Color c2) {
+		double dr = c1.getRed() 	- c2.getRed();
+		double dg = c1.getGreen() 	- c2.getGreen();
+		double db = c1.getBlue() 	- c2.getBlue();
 
 		return Math.sqrt(dr * dr + dg * dg + db * db);
 	}

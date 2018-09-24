@@ -87,7 +87,7 @@ import plugins.fmp.sequencevirtual.OverlayTrapMouse;
 public class Areatrack extends PluginActionable implements ActionListener, ChangeListener, ViewerListener, OverlayListener
 {	
 	// -------------------------------------- interface
-	IcyFrame mainFrame = new IcyFrame("AreaTrack 20-09-2018", true, true, true, true);
+	IcyFrame mainFrame = new IcyFrame("AreaTrack 24-09-2018", true, true, true, true);
 	IcyFrame mainChartFrame = null;
 	JPanel 	mainChartPanel = null;
 	
@@ -1149,7 +1149,7 @@ public class Areatrack extends PluginActionable implements ActionListener, Chang
 				int g = (argb>>8) & 0xFF;
 				int b = (argb>>0) & 0xFF;
 				pickColorButton.setBackground(new Color(r, g, b));
-				String cs = "RGB= "+Integer.toString(r) + ":"+ Integer.toString(g) +":" + Integer.toString(b);
+				String cs = Integer.toString(r) + ":"+ Integer.toString(g) +":" + Integer.toString(b);
 				pickColorButton.setText(cs);
 			}
 
@@ -1160,7 +1160,7 @@ public class Areatrack extends PluginActionable implements ActionListener, Chang
 					boolean isnewcolor = true;
 					int isel = 0;
 					for (int i=0; i<colorPickCombo.getItemCount(); i++) {
-						if (color == colorPickCombo.getItemAt(i)) {
+						if (color.equals(colorPickCombo.getItemAt(i)) ) {
 							isnewcolor = false;
 							isel = i;
 						}

@@ -27,7 +27,7 @@ public class ImageThresholdTools {
 	// local variables
 	private final byte byteFALSE = 0;
 	private final byte byteTRUE = (byte) 0xFF;
-	private ArrayList<double[]> colordoubleArray = new ArrayList<double[]>();;
+	private ArrayList<Color> colorarray = null;
 	
 	// ---------------------------------------------
 	
@@ -40,16 +40,7 @@ public class ImageThresholdTools {
 	{
 		this.colordistanceType = colordistanceType;
 		this.colorthreshold = colorthreshold;
-		
-		colordoubleArray.clear();
-		for (int i=0; i<colorarray.size(); i++) {
-			Color color = colorarray.get(i);
-			double [] coldouble = new double [3];
-			coldouble [0] = color.getRed();
-			coldouble [1] = color.getGreen();
-			coldouble [2] = color.getBlue ();
-			colordoubleArray.add(coldouble);
-		}
+		this.colorarray = colorarray;
 	}
 
 	public IcyBufferedImage getBinaryInt_FromThreshold(IcyBufferedImage sourceImage) 
@@ -78,43 +69,42 @@ public class ImageThresholdTools {
 	
 	public IcyBufferedImage getBinaryInt_FromColorsThreshold(IcyBufferedImage sourceImage)  
 	{
-		if (colordoubleArray.size() == 0)
+		if (colorarray.size() == 0)
 			return null;
 
-		if (sourceImage.getSizeC() <3 ) {
-			System.out.print("Failed operation: attempt to threshold image with colors while image has less than 3 color channels");
+		if (sourceImage.getSizeC() < 3 ) {
+			System.out.print("Failed operation: attempt to compute threshold from image with less than 3 color channels");
 			return null;
 		}
+		
 		NHColorDistance distance; 
 		if (colordistanceType == 1)
 			distance = new NHL1ColorDistance();
 		else
 			distance = new NHL2ColorDistance();
 			
-		IcyBufferedImage binaryByte = new IcyBufferedImage(sourceImage.getSizeX(), sourceImage.getSizeY(), 1, DataType.UBYTE);	
+		IcyBufferedImage binaryResultBuffer = new IcyBufferedImage(sourceImage.getSizeX(), sourceImage.getSizeY(), 1, DataType.UBYTE);	
+		
 		byte [][] sourceBuffer = sourceImage.getDataXYCAsByte(); // [C][XY]
-		byte [] binaryResultBuffer = binaryByte.getDataXYAsByte(0);
+		byte [] binaryResultArray = binaryResultBuffer.getDataXYAsByte(0);
 		
-		int npixels = binaryResultBuffer.length;
-		double[] pixel = new double [3];
-		double[] color = new double [3];
-		
+		int npixels = binaryResultArray.length;
+		Color pixel = new Color(0,0,0);
 		for (int ipixel = 0; ipixel < npixels; ipixel++) {
 			
 			byte val = byteFALSE; 
-			for (int i=0; i<3; i++)
-				pixel[i] = sourceBuffer[i][ipixel];
-		
-			for (int k = 0; k < colordoubleArray.size(); k++) {
-				color = colordoubleArray.get(k);
-				if (distance.computeDistance(pixel, color) < colorthreshold) {
+			pixel = new Color(sourceBuffer[0][ipixel] & 0xFF, sourceBuffer[1][ipixel]  & 0xFF, sourceBuffer[2][ipixel]  & 0xFF);
+			
+			for (int k = 0; k < colorarray.size(); k++) {
+				Color color = colorarray.get(k);
+				if (distance.computeDistance(pixel, color) <= colorthreshold) {
 					val = byteTRUE; 
 					break;
 				}
 			}
-			binaryResultBuffer[ipixel] = val;
+			binaryResultArray[ipixel] = val;
 		}
-		return binaryByte;
+		return binaryResultBuffer;
 	}
 	
 	public boolean[] getBoolMap_FromBinaryInt(IcyBufferedImage img) 

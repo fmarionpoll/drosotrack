@@ -1,16 +1,17 @@
 package plugins.fmp.sequencevirtual;
 
+import java.awt.Color;
 
 /**
  * NHClass ColorDistance.
   * @author Nicolas HERVE
  */
-public abstract class NHColorDistance implements NHDistance<double[]> {
+public abstract class NHColorDistance implements NHDistance<Color> {
 	
 	/* (non-Javadoc)
 	 * @see plugins.nherve.toolbox.image.feature.Distance#computeDistance(java.lang.Object, java.lang.Object)
 	 */
-	public abstract double computeDistance(double[] c1, double[] c2);
+	public abstract double computeDistance(Color c1, Color c2);
 	
 	/**
 	 * Gets the max distance.
@@ -18,7 +19,7 @@ public abstract class NHColorDistance implements NHDistance<double[]> {
 	 * @return the max distance
 	 */
 	public double getMaxDistance() {
-		return computeDistance(new double[] { 0.0, 0.0, 0.0 }, new double[] { 255.0, 255.0, 255.0 });
+		return computeDistance(new Color( 0, 0, 0) , new Color ( 255, 255, 255 ));
 	}
 }
 

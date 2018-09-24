@@ -62,6 +62,6 @@ public class ComboBoxColorRenderer extends JPanel implements ListCellRenderer<Ob
     	int r = argb.getRed();
 		int g = argb.getGreen();
 		int b = argb.getBlue();
-		return "RGB = "+ Integer.toString(r) + " : "+ Integer.toString(g) +" : " + Integer.toString(b);
+		return Integer.toString(r) + ":"+ Integer.toString(g) +":" + Integer.toString(b);
     }
 }
