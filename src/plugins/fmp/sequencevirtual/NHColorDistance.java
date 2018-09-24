@@ -2,9 +2,8 @@ package plugins.fmp.sequencevirtual;
 
 
 /**
- * The Class ColorDistance.
- * 
- * @author Nicolas HERVE - nicolas.herve@pasteur.fr
+ * NHClass ColorDistance.
+  * @author Nicolas HERVE
  */
 public abstract class NHColorDistance implements NHDistance<double[]> {
 	

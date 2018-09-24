@@ -734,139 +734,12 @@ public class ROItoRoiArray extends EzPlug implements ViewerListener {
 		listpoints.get(i).setLocation(listpoints.get(i).getX() - xdeltatop, listpoints.get(i).getY() + ydeltaright);
 	}
 	
-	/*
-	private void expandROIsToMinima(int chan) {
-		
-		ArrayList<ROI2D> roiList = vSequence.getROI2Ds();
-		Collections.sort(roiList, new Tools.ROI2DNameComparator());
-		IcyBufferedImage virtualImage = vSequence.getImage(vSequence.currentFrame,0, chan) ;
-		if (virtualImage == null) {
-			System.out.println("An error occurred while reading image: " + vSequence.currentFrame );
-			return;
-		}
-		int widthImage = virtualImage.getSizeX();
-		int heightImage = virtualImage.getSizeY();
-
-		for (ROI2D roi:roiList) {
-			if (!roi.getName().contains("grid"))
-				continue;
-			Rectangle rectExpanded = expandROIRectangleWithinBounds(roi, widthImage, heightImage);
-			addDummyROIRectangle(rectExpanded);	
-
-			getSTD (rectExpanded);
-			Rectangle rectMinimum = getRectToMinima(roi.getBounds(), rectExpanded, chan);
-			changeROIRectangle(roi, rectMinimum);
-		}
-	}
-
-	
-	private void changeROIRectangle(ROI2D roi, Rectangle rect) {
-		if ( roi instanceof ROI2DPolygon ) {
-			int [] xpoints = new int[] {rect.x, rect.x, rect.x + rect.width-1, rect.x + rect.width-1};
-			int [] ypoints = new int[] {rect.y, rect.y + rect.height - 1, rect.y + rect.height - 1, rect.y};
-			Polygon2D newpolygon = new Polygon2D(xpoints, ypoints, 4);
-			((ROI2DPolygon) roi).setPolygon2D(newpolygon);
-			}
-	}
-	
-	private void addDummyROIRectangle (Rectangle rectExpanded) {
-		int [] xpoints = new int[] {rectExpanded.x, rectExpanded.x, rectExpanded.x + rectExpanded.width-1, rectExpanded.x + rectExpanded.width-1};
-		int [] ypoints = new int[] {rectExpanded.y, rectExpanded.y + rectExpanded.height - 1, rectExpanded.y + rectExpanded.height - 1, rectExpanded.y};
-		Polygon2D newpolygon = new Polygon2D(xpoints, ypoints, 4);
-		ROI2DPolygon roiP = new ROI2DPolygon (newpolygon);
-		roiP.setName("dummy");
-		roiP.setColor(Color.RED);
-		sequence.getValue(true).addROI(roiP);
-	}
-	
-	private Rectangle getRectToMinima(Rectangle firstRect, Rectangle rectExpanded, int chan) {
-		
-		int minXLeft 	= findMinimum(firstRect.x + firstRect.width/2 - rectExpanded.x, 0, stdXArray, chan);
-		int minXRight 	= findMinimum(firstRect.x + firstRect.width/2 - rectExpanded.x, rectExpanded.width, stdXArray, chan);
-		int minYTop 	= findMinimum(firstRect.y + firstRect.height/2 - rectExpanded.y, 0, 				stdYArray, chan);
-		int minYBottom 	= findMinimum(firstRect.y + firstRect.height/2 - rectExpanded.y, rectExpanded.height,stdYArray, chan);
-		Rectangle rect = new Rectangle (rectExpanded.x +minXLeft, rectExpanded.y + minYTop, minXRight - minXLeft+1, minYBottom - minYTop +1);
-		return rect;
-	}
-
-	private int findMinimum(int istart, int iend, double [][] array, int chan) {
-		int imin = istart;
-		double val = array [istart][chan];
-		if (istart < iend) {
-			for (int i = istart; i < iend ; i++) {
-				if (array [i][chan] < val) {
-					val = array [i][chan];
-					imin = i;
-				}
-			}
-		} else {
-			for (int i = istart; i >= iend ; i--) {
-				if (array [i][chan] < val) {
-					val = array [i][chan];
-					imin = i;
-				}
-			}
-		}
-		return imin;
-	}
-	
-	private Rectangle expandROIRectangleWithinBounds(ROI2D roi, int imgWidth, int imgHeight) {
-		Rectangle rectGrid = roi.getBounds();
-		rectGrid.width *= 2;
-		rectGrid.height *= 2;
-		
-		rectGrid.x -= rectGrid.width/4;
-		if (rectGrid.x < 0)
-			rectGrid.x = 0;
-		if ((rectGrid.x + rectGrid.width) > imgWidth)
-			rectGrid.width -= (imgWidth - rectGrid.width+1);
-		
-		rectGrid.y -= rectGrid.height/4;
-		if (rectGrid.y < 0)
-			rectGrid.y = 0;
-		if ((rectGrid.y + rectGrid.height) > imgHeight)
-			rectGrid.height -= (imgHeight - rectGrid.height+1);
-		
-		return rectGrid;
-	}
-	*/
-	/*
-	
-	private int findFirstPointOverThreshold(double [][] array, int istart, double threshold, int channel) {
-		if (istart < 0)
-			return istart;
-		int len = array.length;
-		int ifound = -1;
-		for (int i= istart; i< len; i++) {
-			if (array[i][channel] > threshold) {
-				ifound = i;
-				break;
-			}
-		}
-		return ifound;
-	}
-	*/
-	/*
-	private int findFirstPointBelowThreshold(double [][] array, int istart, double threshold, int channel) {
-		if (istart < 0)
-			return istart;
-		int len = array.length;
-		int ifound = -1;
-		for (int i= istart; i< len; i++) {
-			if (array[i][channel] < threshold) {
-				ifound = i;
-				break;
-			}
-		}
-		return ifound;
-	}
-	*/
 	
 // -----------------------------------	
 	private void findLeafDiskIntoRectangles() {
 		if (!overlayCheckBox.getValue())
 			return;
-		if (thresholdOverlay.binaryMap == null)
+		if (vSequence.cacheThresholdedImage == null)
 			return;
 		// get byte image (0, 1) that has been thresholded
 		ArrayList<ROI2D> roiList = vSequence.getROI2Ds();
@@ -877,7 +750,7 @@ public class ROItoRoiArray extends EzPlug implements ViewerListener {
 				continue;
 
 			Rectangle rectGrid = roi.getBounds();
-			IcyBufferedImage img = IcyBufferedImageUtil.getSubImage(thresholdOverlay.binaryMap, rectGrid);
+			IcyBufferedImage img = IcyBufferedImageUtil.getSubImage(vSequence.cacheThresholdedImage, rectGrid);
 			byte [] binaryData = img.getDataXYAsByte(0);
 			int sizeX = img.getSizeX();
 			int sizeY = img.getSizeY();
@@ -1063,23 +936,6 @@ public class ROItoRoiArray extends EzPlug implements ViewerListener {
 		return max;
 	}
 	
-	/*
-	private void debugDisplayArrayValues (String title, int sizeX, int sizeY, byte [] binaryData ) 
-	{
-		System.out.println(title);
-		for (int iy = 0; iy < sizeY; iy++) {
-			String cs = "line "+ iy + " : ";
-			for (int ix= 0; ix < sizeX; ix++) {
-				byte val = binaryData[ix + sizeX*iy];
-				if (val >= 0)
-					cs += " "+ val;
-				else
-					cs += " .";
-			}
-			System.out.println(cs);
-		}
-	}
-	*/
 	
 	private void displayOverlay (Boolean newValue) {
 		if (vSequence == null)
@@ -1088,7 +944,7 @@ public class ROItoRoiArray extends EzPlug implements ViewerListener {
 		if (newValue) {
 			
 			if (thresholdOverlay == null) {
-				thresholdOverlay = new OverlayThreshold();
+				thresholdOverlay = new OverlayThreshold(vSequence);
 				vSequence.addOverlay(thresholdOverlay);
 			}
 			vSequence.threshold = thresholdOv.getValue();
@@ -1116,13 +972,14 @@ public class ROItoRoiArray extends EzPlug implements ViewerListener {
 		if (vSequence == null)
 			return;
 		if (thresholdOverlay == null) {
-			thresholdOverlay = new OverlayThreshold();
+			thresholdOverlay = new OverlayThreshold(vSequence);
 			vSequence.addOverlay(thresholdOverlay);
 		}
 		TransformOp transformop = filterComboBox.getValue();
 
-		thresholdOverlay.setThresholdSequence (vSequence);
-		thresholdOverlay.setThresholdOverlayParameters( vSequence.threshold, transformop);
+		thresholdOverlay.setSequence (vSequence);
+		thresholdOverlay.setTransform(transformop);
+		thresholdOverlay.setThresholdSingle(vSequence.threshold);
 			
 		if (thresholdOverlay != null) {
 			thresholdOverlay.painterChanged();

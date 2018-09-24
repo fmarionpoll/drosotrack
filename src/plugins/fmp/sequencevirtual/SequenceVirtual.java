@@ -28,7 +28,6 @@ import icy.type.collection.array.Array1DUtil;
 import icy.util.XMLUtil;
 
 import plugins.fab.MiceProfiler.XugglerAviFile;
-
 import plugins.kernel.roi.roi2d.ROI2DLine;
 import plugins.kernel.roi.roi2d.ROI2DShape;
 
@@ -63,6 +62,11 @@ public class SequenceVirtual extends Sequence
 	public String [] 		seriesname = null;
 	public int [][] 		data_raw = null;
 	public double [][] 		data_filtered = null;
+	// image cache
+	public IcyBufferedImage cacheTransformedImage = null;
+	public ImageOperationsStruct cacheTransformOp = new ImageOperationsStruct();
+	public IcyBufferedImage cacheThresholdedImage  = null;
+	public ImageOperationsStruct cacheThresholdOp = new ImageOperationsStruct();
 	
 	// ----------------------------------------
 	public SequenceVirtual () 

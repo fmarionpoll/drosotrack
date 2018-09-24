@@ -96,7 +96,7 @@ public class Drosotrack extends PluginActionable implements ActionListener, View
 	private JTextField startFrameTextField	= new JTextField("0");
 	private JTextField endFrameTextField	= new JTextField("99999999");
 	private JComboBox<String> colorChannelComboBox = new JComboBox<String> (new String[] {"Red", "Green", "Blue"});
-	private JComboBox<TransformOp> backgroundComboBox = new JComboBox<> (new TransformOp[]  {TransformOp.None, TransformOp.REFn, TransformOp.REFt0});
+	private JComboBox<TransformOp> backgroundComboBox = new JComboBox<> (new TransformOp[]  {TransformOp.NONE, TransformOp.REF_PREVIOUS, TransformOp.REF_T0});
 	private JSpinner thresholdSpinner		= new JSpinner(new SpinnerNumberModel(100, 0, 255, 10));
 	private JTextField jitterTextField 		= new JTextField("5");
 	private JTextField analyzeStepTextField = new JTextField("1");
@@ -326,7 +326,7 @@ public class Drosotrack extends PluginActionable implements ActionListener, View
 			public void actionPerformed( final ActionEvent e ) { 
 				if (thresholdedImageCheckBox.isSelected()) {
 					if (ov == null)
-						ov = new OverlayThreshold();
+						ov = new OverlayThreshold(vSequence);
 					if (vSequence != null)
 						vSequence.addOverlay(ov);
 					updateOverlay();
@@ -770,11 +770,11 @@ public class Drosotrack extends PluginActionable implements ActionListener, View
 
 	private void updateOverlay () {
 		if (ov == null) {
-			ov = new OverlayThreshold();
+			ov = new OverlayThreshold(vSequence);
 			vSequence.addOverlay(ov);
 		}
-		ov.setThresholdSequence (vSequence);
-		ov.setThresholdOverlayParameters(threshold, (TransformOp) backgroundComboBox.getSelectedItem());
+		ov.setTransform((TransformOp) backgroundComboBox.getSelectedItem());
+		ov.setThresholdSingle(threshold);
 		if (ov != null) {
 			ov.painterChanged();
 		}
@@ -909,13 +909,13 @@ public class Drosotrack extends PluginActionable implements ActionListener, View
 			TransformOp transformop = (TransformOp) backgroundComboBox.getSelectedItem();
 			int transf = 0;
 			switch (transformop) {
-			case REFn:
+			case REF_PREVIOUS:
 				transf = 1;
 				break;
-			case REFt0:
+			case REF_T0:
 				transf = 2;
 				break;
-			case None:
+			case NONE:
 			default:
 				transf = 0;
 				break;

@@ -1,9 +1,8 @@
 package plugins.fmp.sequencevirtual;
 
 /**
- * The Class L2ColorDistance.
- * 
- * @author Nicolas HERVE - nicolas.herve@pasteur.fr
+ * NHClass L2ColorDistance.
+ * @author Nicolas HERVE
  */
 public class NHL2ColorDistance extends NHColorDistance {
 
