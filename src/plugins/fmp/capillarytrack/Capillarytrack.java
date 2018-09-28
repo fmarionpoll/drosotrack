@@ -85,15 +85,16 @@ import plugins.kernel.roi.roi2d.ROI2DShape;
 public class Capillarytrack extends PluginActionable implements ActionListener, ChangeListener, ViewerListener
 {
 	// -------------------------------------- interface
-	private IcyFrame 	mainFrame 				= new IcyFrame("CapillaryTrack 10-08-2018", true, true, true, true);
+	private IcyFrame 	mainFrame 				= new IcyFrame("CapillaryTrack 26-09-2018", true, true, true, true);
 
 	// ---------------------------------------- video
 	private JButton 	setVideoSourceButton 	= new JButton("Open...");
 	private JRadioButton selectInputFileButton 	= new JRadioButton("AVI");
 	private JRadioButton selectInputStack2Button= new JRadioButton("stack");
 	private ButtonGroup buttonGroup1 			= new ButtonGroup();
-	private JTextField 	numberOfImageForBufferTextField = new JTextField("100");
-	private JLabel 		bufferValue 			= new JLabel("0%");
+//	private JTextField 	numberOfImageForBufferTextField = new JTextField("100");
+//	private JLabel 		bufferValue 			= new JLabel("0%");
+	private JCheckBox	loadpreviousCheckBox	= new JCheckBox("load previous measures", true);
 
 	// ---------------------------------------- ROIs
 	private JButton 	createROIsFromPolygonButton = new JButton("Generate ROIs (from Polygon 2D)");
@@ -125,7 +126,11 @@ public class Capillarytrack extends PluginActionable implements ActionListener, 
 	// ---------------------------------------- measure
 	private JCheckBox	detectTopCheckBox 		= new JCheckBox ("detect top");
 	private JCheckBox	detectBottomCheckBox 	= new JCheckBox ("detect bottom");
-	private JComboBox<TransformOp> transformForLevelsComboBox = new JComboBox<TransformOp> (TransformOp.values());
+	private JComboBox<TransformOp> transformForLevelsComboBox = new JComboBox<TransformOp> (new TransformOp[] {
+			TransformOp.R_RGB, TransformOp.G_RGB, TransformOp.B_RGB, 
+			TransformOp.R2MINUS_GB, TransformOp.G2MINUS_RB, TransformOp.B2MINUS_RG, TransformOp.RGB,
+			TransformOp.GBMINUS_2R, TransformOp.RBMINUS_2G, TransformOp.RGMINUS_2B, 
+			TransformOp.H_HSB, TransformOp.S_HSB, TransformOp.B_HSB	});
 	private JComboBox<String> directionComboBox = new JComboBox<String> (new String[] {" threshold >", " threshold <" });
 	private JCheckBox	detectAllLevelCheckBox 	= new JCheckBox ("all", true);
 	private JCheckBox	detectAllGulpsCheckBox 	= new JCheckBox ("all", true);
@@ -224,11 +229,12 @@ public class Capillarytrack extends PluginActionable implements ActionListener, 
 		selectInputStack2Button.setSelected(true);
 		sourcePanel.add( GuiUtil.besidesPanel(setVideoSourceButton, k0Panel));
 		
-		JLabel useImageBufferLabel = new JLabel("pre-fetch ");
-		JLabel textfilled = new JLabel("buffer filled ");
-		useImageBufferLabel.setHorizontalAlignment(SwingConstants.RIGHT);
-		textfilled.setHorizontalAlignment(SwingConstants.RIGHT);
-		sourcePanel.add(GuiUtil.besidesPanel(useImageBufferLabel, numberOfImageForBufferTextField, textfilled, bufferValue));
+//		JLabel useImageBufferLabel = new JLabel("pre-fetch ");
+//		JLabel textfilled = new JLabel("buffer filled ");
+//		useImageBufferLabel.setHorizontalAlignment(SwingConstants.RIGHT);
+//		textfilled.setHorizontalAlignment(SwingConstants.RIGHT);
+//		sourcePanel.add(GuiUtil.besidesPanel(useImageBufferLabel, numberOfImageForBufferTextField, textfilled, bufferValue));
+		sourcePanel.add(GuiUtil.besidesPanel(loadpreviousCheckBox));
 
 		// ----------------- Capillaries
 		final JPanel roiPanel =  GuiUtil.generatePanel("CAPILLARIES");
@@ -329,7 +335,7 @@ public class Capillarytrack extends PluginActionable implements ActionListener, 
 		displayPanel.add( GuiUtil.besidesPanel( closeAllButton));
 
 		// -------------------------------------------- action listeners, etc
-		transformForLevelsComboBox.setSelectedItem(TransformOp.RBMINUS2G);
+		transformForLevelsComboBox.setSelectedItem(TransformOp.G2MINUS_RB);
 		transformForGulpsComboBox.setSelectedItem(TransformOp.XDIFFN);
 		detectTopCheckBox.setSelected(true);
 		detectBottomCheckBox.setSelected(false);
@@ -397,17 +403,17 @@ public class Capillarytrack extends PluginActionable implements ActionListener, 
 	{
 		Object o = e.getSource();
 
-		// _______________________________________________
-		if (o == checkBufferTimer && vSequence != null) 
-		{
-			if (vSequence.bufferThread != null ) {
-				int bufferPercent = vSequence.bufferThread.getCurrentBufferLoadPercent();
-				bufferValue.setText(bufferPercent + " %");
-			}
-		} 
+//		// _______________________________________________
+//		if (o == checkBufferTimer && vSequence != null) 
+//		{
+//			if (vSequence.bufferThread != null ) {
+//				int bufferPercent = vSequence.bufferThread.getCurrentBufferLoadPercent();
+//				bufferValue.setText(bufferPercent + " %");
+//			}
+//		} 
 
 		// _______________________________________________
-		else if (o == setVideoSourceButton) 
+		if (o == setVideoSourceButton) 
 		{
 			String path = null;
 			if (vSequence != null)
@@ -420,16 +426,17 @@ public class Capillarytrack extends PluginActionable implements ActionListener, 
 				guiPrefs.put("lastUsedPath", path);
 				initInputSeq();
 				buttonsVisibilityUpdate(StatusAnalysis.FILE_OK);
-
-				boolean flag = openROIs(path+"\\capillarytrack.xml");
-				if (!flag)
-						openROIs(path+"\\roislines.xml");
-				final String cs = path+"\\results";
-				
-				if (kymosOpenFromDirectory(cs)) {
-					buttonsVisibilityUpdate(StatusAnalysis.KYMOS_OK);
-					measuresFileOpen();
-					buttonsVisibilityUpdate(StatusAnalysis.MEASUREGULPS_OK );
+				if (loadpreviousCheckBox.isSelected()) {
+					boolean flag = openROIs(path+"\\capillarytrack.xml");
+					if (!flag)
+							openROIs(path+"\\roislines.xml");
+					final String cs = path+"\\results";
+					
+					if (kymosOpenFromDirectory(cs)) {
+						buttonsVisibilityUpdate(StatusAnalysis.KYMOS_OK);
+						measuresFileOpen();
+						buttonsVisibilityUpdate(StatusAnalysis.MEASUREGULPS_OK );
+					}
 				}
 
 			}
@@ -1563,8 +1570,8 @@ public class Capillarytrack extends PluginActionable implements ActionListener, 
 
 	private void parseTextFields() {	
 
-		try { numberOfImageForBuffer = Integer.parseInt( numberOfImageForBufferTextField.getText() );
-		}catch( Exception e ) { new AnnounceFrame("Can't interpret the buffer depth value."); }
+//		try { numberOfImageForBuffer = Integer.parseInt( numberOfImageForBufferTextField.getText() );
+//		}catch( Exception e ) { new AnnounceFrame("Can't interpret the buffer depth value."); }
 
 		try { analyzeStep = Integer.parseInt( analyzeStepTextField.getText() );
 		}catch( Exception e ) { new AnnounceFrame("Can't interpret the analyze step value."); }

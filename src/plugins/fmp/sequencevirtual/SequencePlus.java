@@ -33,7 +33,7 @@ public class SequencePlus extends Sequence {
 	public 	int direction = 0;
 	public 	int	detectLevelThreshold = 35;
 	public	int detectGulpsThreshold = 90;
-	public	TransformOp	transformForLevels = TransformOp.GBMINUS2R;
+	public	TransformOp	transformForLevels = TransformOp.R2MINUS_GB;
 	public	TransformOp transformForGulps = TransformOp.XDIFFN;
 	public enum ArrayListType {topLevel, bottomLevel, derivedValues, cumSum, topAndBottom}
 

@@ -109,7 +109,7 @@ public class Areatrack extends PluginActionable implements ActionListener, Chang
 	
 	private JComboBox<TransformOp> transformsComboBox = new JComboBox<TransformOp> (new TransformOp[] {
 					TransformOp.R_RGB, TransformOp.G_RGB, TransformOp.B_RGB, 
-					TransformOp.GBMINUS2R, TransformOp.RBMINUS2G, TransformOp.RGMINUS2B, TransformOp.NORM_BRMINUSG, TransformOp.RGB,
+					TransformOp.R2MINUS_GB, TransformOp.G2MINUS_RB, TransformOp.B2MINUS_RG, TransformOp.NORM_BRMINUSG, TransformOp.RGB,
 					TransformOp.H_HSB, TransformOp.S_HSB, TransformOp.B_HSB	});
 	private JSpinner 	thresholdSpinner	= new JSpinner(new SpinnerNumberModel(70, 0, 255, 5));
 	private JLabel 		videochannel 		= new JLabel("filter  ");
@@ -161,7 +161,7 @@ public class Areatrack extends PluginActionable implements ActionListener, Chang
 	// parameters saved/read in xml file
 	private ThresholdType thresholdtype 	= ThresholdType.COLORARRAY; 
 	// simple
-	private TransformOp simpletransformop 	= TransformOp.GBMINUS2R;
+	private TransformOp simpletransformop 	= TransformOp.R2MINUS_GB;
 	private int 		simplethreshold 	= 20;
 	// colors
 	private TransformOp colortransformop 	= TransformOp.NONE;
@@ -324,7 +324,7 @@ public class Areatrack extends PluginActionable implements ActionListener, Chang
 		rbL1.setSelected(true);
 		rbRGB.setSelected(true);
 		colortransformop = TransformOp.NONE;
-		transformsComboBox.setSelectedIndex(TransformOp.RGMINUS2B.ordinal());
+		transformsComboBox.setSelectedIndex(TransformOp.B2MINUS_RG.ordinal());
 		filterComboBox.setSelectedIndex(0);
 	}
 
