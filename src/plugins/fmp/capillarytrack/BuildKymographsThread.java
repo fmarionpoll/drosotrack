@@ -79,7 +79,8 @@ import plugins.nchenouard.kymographtracker.spline.CubicSmoothingSpline;
 				if (workImage == null)
 					continue;
 				ArrayList<double []> sourceValuesList = new ArrayList<double []>();
-				for (int chan = 0; chan < nchannels; chan++) {
+				for (int chan = 0; chan < nchannels; chan++) 
+				{
 					double [] sourceValues = Array1DUtil.arrayToDoubleArray(workImage.getDataXY(chan), workImage.isSignedDataType()); 
 					sourceValuesList.add(sourceValues);
 				}
@@ -92,8 +93,8 @@ import plugins.nchenouard.kymographtracker.spline.CubicSmoothingSpline;
 					final int kymographSizeX = kymographSeq.getSizeX();
 					final int t_out = t - startFrame;
 
-					for (int chan = 0; chan < nchannels; chan++) { 
-
+					for (int chan = 0; chan < nchannels; chan++) 
+					{ 
 						double [] tabValues = tabValuesList.get(chan); 
 						double [] sourceValues = sourceValuesList.get(chan);
 						int cnt = 0;
