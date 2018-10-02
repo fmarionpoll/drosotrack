@@ -2,7 +2,6 @@ package plugins.fmp.capillarytrack;
 
 import java.util.ArrayList;
 import java.util.Collections;
-
 import icy.gui.frame.progress.ProgressFrame;
 import icy.gui.viewer.Viewer;
 import icy.image.IcyBufferedImage;
@@ -14,7 +13,6 @@ import plugins.fmp.sequencevirtual.SequencePlus;
 import plugins.fmp.sequencevirtual.SequenceVirtual;
 import plugins.fmp.sequencevirtual.Tools;
 import plugins.kernel.roi.roi2d.ROI2DShape;
-
 import plugins.nchenouard.kymographtracker.Util;
 import plugins.nchenouard.kymographtracker.spline.CubicSmoothingSpline;
 
@@ -201,7 +199,5 @@ import plugins.nchenouard.kymographtracker.spline.CubicSmoothingSpline;
 			}
 			return workImage;
 		}
-		
-
 
 	}
