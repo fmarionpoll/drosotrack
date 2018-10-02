@@ -89,8 +89,6 @@ public class Capillarytrack extends PluginActionable implements ActionListener, 
 	private JRadioButton selectInputFileButton 	= new JRadioButton("AVI");
 	private JRadioButton selectInputStack2Button= new JRadioButton("stack");
 	private ButtonGroup buttonGroup1 			= new ButtonGroup();
-//	private JTextField 	numberOfImageForBufferTextField = new JTextField("100");
-//	private JLabel 		bufferValue 			= new JLabel("0%");
 	private JCheckBox	loadpreviousCheckBox	= new JCheckBox("load previous measures", true);
 
 	// ---------------------------------------- ROIs
@@ -161,8 +159,8 @@ public class Capillarytrack extends PluginActionable implements ActionListener, 
 	private JButton		closeAllButton			= new JButton("Close views");
 
 	//------------------------------------------- global variables
-	private SequenceVirtual vSequence 		= null;
-	private Timer checkBufferTimer				= new Timer(1000, this);
+	private SequenceVirtual vSequence = null;
+	private Timer checkBufferTimer = new Timer(1000, this);
 	private int	analyzeStep = 1;
 	private int startFrame = 1;
 	private int endFrame = 99999999;
@@ -198,12 +196,12 @@ public class Capillarytrack extends PluginActionable implements ActionListener, 
 	private double scaleY = 0;
 	private boolean previousZoomSet = false;
 
-	private Line2D		refLineUpper = null;
-	private Line2D  	refLineLower = null;
+	private Line2D		refLineUpper 	= null;
+	private Line2D  	refLineLower 	= null;
 	private ROI2DLine	roiRefLineUpper = new ROI2DLine ();
 	private ROI2DLine	roiRefLineLower = new ROI2DLine ();
 	private BuildKymographsThread buildKymographsThread = null;
-	private ImageTransformTools tImg = null;
+	private ImageTransformTools tImg 	= null;
 	
 	// -------------------------------------------
 	@Override
@@ -225,12 +223,6 @@ public class Capillarytrack extends PluginActionable implements ActionListener, 
 		buttonGroup1.add(selectInputStack2Button);
 		selectInputStack2Button.setSelected(true);
 		sourcePanel.add( GuiUtil.besidesPanel(setVideoSourceButton, k0Panel));
-		
-//		JLabel useImageBufferLabel = new JLabel("pre-fetch ");
-//		JLabel textfilled = new JLabel("buffer filled ");
-//		useImageBufferLabel.setHorizontalAlignment(SwingConstants.RIGHT);
-//		textfilled.setHorizontalAlignment(SwingConstants.RIGHT);
-//		sourcePanel.add(GuiUtil.besidesPanel(useImageBufferLabel, numberOfImageForBufferTextField, textfilled, bufferValue));
 		sourcePanel.add(GuiUtil.besidesPanel(loadpreviousCheckBox));
 
 		// ----------------- Capillaries
@@ -400,24 +392,13 @@ public class Capillarytrack extends PluginActionable implements ActionListener, 
 	{
 		Object o = e.getSource();
 
-//		// _______________________________________________
-//		if (o == checkBufferTimer && vSequence != null) 
-//		{
-//			if (vSequence.bufferThread != null ) {
-//				int bufferPercent = vSequence.bufferThread.getCurrentBufferLoadPercent();
-//				bufferValue.setText(bufferPercent + " %");
-//			}
-//		} 
-
 		// _______________________________________________
 		if (o == setVideoSourceButton) 
 		{
-			String path = null;
 			if (vSequence != null)
 				closeAll();
 			vSequence = new SequenceVirtual();
-			path = vSequence.loadInputVirtualStack(null);
-			
+			String path = vSequence.loadInputVirtualStack(null);
 			if (path != null) {
 				XMLPreferences guiPrefs = this.getPreferences("gui");
 				guiPrefs.put("lastUsedPath", path);
@@ -426,9 +407,8 @@ public class Capillarytrack extends PluginActionable implements ActionListener, 
 				if (loadpreviousCheckBox.isSelected()) {
 					boolean flag = openROIs(path+"\\capillarytrack.xml");
 					if (!flag)
-							openROIs(path+"\\roislines.xml");
+						openROIs(path+"\\roislines.xml");
 					final String cs = path+"\\results";
-					
 					if (kymosOpenFromDirectory(cs)) {
 						buttonsVisibilityUpdate(StatusAnalysis.KYMOS_OK);
 						measuresFileOpen();
@@ -551,7 +531,7 @@ public class Capillarytrack extends PluginActionable implements ActionListener, 
 			
 			final TransformOp transform = (TransformOp) transformForLevelsComboBox.getSelectedItem();
 			detectTopButton.setEnabled( false);
-			// build filtered image from image 9 and stores it into image 1
+			// build filtered image from image 0 and stores it into image 1
 			kymosBuildFiltered(0, 1, transform, spanDiffTop);
 			// detect level from image 1 
 			if (o == detectTopButton) {
@@ -635,7 +615,10 @@ public class Capillarytrack extends PluginActionable implements ActionListener, 
 			ThreadUtil.bgRun( new Runnable() { 	
 				@Override
 				public void run() {	
-					boolean flag = kymosOpenFromDirectory(null); 
+					String path = vSequence.loadInputVirtualStack(null);
+					if (path != null)
+						path = path + "\\results";
+					boolean flag = kymosOpenFromDirectory(path); 
 					openKymographsButton.setEnabled(true);
 					saveKymographsButton.setEnabled(true);
 					startComputationButton.setEnabled(true);
@@ -655,7 +638,8 @@ public class Capillarytrack extends PluginActionable implements ActionListener, 
 			ThreadUtil.bgRun( new Runnable() { 	
 				@Override
 				public void run() {	
-					kymosSaveToFile(); 
+					String path = vSequence.getDirectory() + "\\results";
+					kymosSaveToFile(path); 
 					openKymographsButton.setEnabled(true);
 					saveKymographsButton.setEnabled(true);
 					detectTopButton.setEnabled(true);
@@ -735,7 +719,6 @@ public class Capillarytrack extends PluginActionable implements ActionListener, 
 
 	// -------------------------------------------
 
-	
 	private void buttonsVisibilityUpdate(StatusAnalysis istate) {
 
 		int item = 0;
@@ -1448,14 +1431,19 @@ public class Capillarytrack extends PluginActionable implements ActionListener, 
 		return true;
 	}	
 
-	private void kymosSaveToFile() {
+	private void kymosSaveToFile(String outputpath) {
 
 		final String[] dummyString = new String[1];
+		String path = vSequence.getDirectory();
+		if (outputpath != null)
+			path = outputpath;
+		// TODO: check here if outputpath exists - if not, create it
+		final String cspath = path;
 		ThreadUtil.invoke(new Runnable() {
 
 			@Override
 			public void run() {
-				JFileChooser f = new JFileChooser(vSequence.getDirectory());
+				JFileChooser f = new JFileChooser(cspath);
 				f.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY); 
 				f.showSaveDialog(null);
 				dummyString[0] = f.getSelectedFile().getAbsolutePath();

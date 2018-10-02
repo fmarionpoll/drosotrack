@@ -4,7 +4,9 @@ import java.util.ArrayList;
 import java.util.Collections;
 
 import icy.gui.frame.progress.ProgressFrame;
+import icy.gui.viewer.Viewer;
 import icy.image.IcyBufferedImage;
+import icy.main.Icy;
 import icy.system.profile.Chronometer;
 import icy.type.DataType;
 import icy.type.collection.array.Array1DUtil;
@@ -28,7 +30,7 @@ import plugins.nchenouard.kymographtracker.spline.CubicSmoothingSpline;
 		
 		private ArrayList<ArrayList<ArrayList<int[]>>> masksArrayList 	= new ArrayList<ArrayList<ArrayList<int[]>>>();
 		private ArrayList<ArrayList <double []>> rois_tabValuesList = new ArrayList<ArrayList <double []>>();
-
+		private Viewer sequenceViewer = null;
 		
 		@Override
 		public void run () 
@@ -53,6 +55,7 @@ import plugins.nchenouard.kymographtracker.spline.CubicSmoothingSpline;
 
 			int vinputSizeX = vSequence.getSizeX();
 			vSequence.beginUpdate();
+			sequenceViewer = Icy.getMainInterface().getFirstViewer(vSequence);
 
 			for (int t = startFrame ; t <= endFrame && !isInterrupted(); t  += analyzeStep )
 			{
@@ -64,7 +67,10 @@ import plugins.nchenouard.kymographtracker.spline.CubicSmoothingSpline;
 				progress.setMessage( "Processing: " + pos + "% - Estimated time left: " + (int) timeleft + " s");
 
 				// get image to be processed and transfer it into sourceValues array (1 per color chan)
-				IcyBufferedImage workImage = vSequence.getImage(t, 0, -1); //getImageFromSeq(t);
+				IcyBufferedImage workImage = getImageFromSequence(t); 
+				sequenceViewer.setPositionT(t);
+				sequenceViewer.setTitle(vSequence.getVImageName(t)); 
+				
 				if (workImage == null)
 					continue;
 				ArrayList<double []> sourceValuesList = new ArrayList<double []>();
@@ -174,5 +180,28 @@ import plugins.nchenouard.kymographtracker.spline.CubicSmoothingSpline;
 			}
 			return length;
 		}
+		
+		private IcyBufferedImage getImageFromSequence(int t) {
+			IcyBufferedImage workImage = vSequence.loadVImage(t);
+			vSequence.currentFrame = t;
+			if (workImage == null) {
+				// try another time
+				System.out.println("Error reading image: " + t + " ... trying again"  );
+				vSequence.removeImage(t, 0);
+				workImage = vSequence.loadVImage(t);
+				if (workImage == null) {
+					System.out.println("Fatal error occurred while reading file "+ vSequence.getFileName(t) + " -image: " + t);
+					return null;
+				}
+			}
+			else
+			{
+				sequenceViewer.setPositionT(t);
+				sequenceViewer.setTitle(vSequence.getVImageName(t)); 
+			}
+			return workImage;
+		}
+		
+
 
 	}
