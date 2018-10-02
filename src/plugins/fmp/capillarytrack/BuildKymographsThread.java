@@ -1,14 +1,10 @@
 package plugins.fmp.capillarytrack;
 
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.util.ArrayList;
 import java.util.Collections;
 
 import icy.gui.frame.progress.ProgressFrame;
-import icy.gui.viewer.Viewer;
 import icy.image.IcyBufferedImage;
-import icy.main.Icy;
 import icy.system.profile.Chronometer;
 import icy.type.DataType;
 import icy.type.collection.array.Array1DUtil;
@@ -21,49 +17,42 @@ import plugins.nchenouard.kymographtracker.Util;
 import plugins.nchenouard.kymographtracker.spline.CubicSmoothingSpline;
 
 //-------------------------------------------
-	public class BuildKymographsThread extends Thread implements ActionListener 
+	public class BuildKymographsThread extends Thread  
 	{
-		public SequenceVirtual vinputSequence = null;
+		public SequenceVirtual vSequence = null;
 		public int analyzeStep = 1;
 		public int startFrame = 1;
 		public int endFrame = 99999999;
 		public int diskRadius = 5;
-		public ArrayList <SequencePlus> kymographArrayList 		= null; //new ArrayList <SequencePlus> ();		// list of kymograph sequences
-		private Viewer sequenceViewer = null;
-		public ProgressFrame progress = null;
+		public ArrayList <SequencePlus> kymographArrayList 	= null;		// list of kymograph sequences
 		
 		private ArrayList<ArrayList<ArrayList<int[]>>> masksArrayList 	= new ArrayList<ArrayList<ArrayList<int[]>>>();
 		private ArrayList<ArrayList <double []>> rois_tabValuesList = new ArrayList<ArrayList <double []>>();
-		private double nbframes = 0;
-		private int nchannels = 0;
+
 		
 		@Override
 		public void run () 
 		{
-			if (vinputSequence == null)
+			if (vSequence == null)
 				return;
-			sequenceViewer = Icy.getMainInterface().getFirstViewer(vinputSequence);
 
 			// loop over Rois attached to the current sequence
 			if (startFrame < 0) 
 				startFrame = 0;
-			if (endFrame >= (int) vinputSequence.nTotalFrames || endFrame < 0) 
-				endFrame = (int) vinputSequence.nTotalFrames-1;
-			nbframes = endFrame - startFrame +1;
-			
-			// send some info
-			progress = new ProgressFrame("Processing started");
-			progress.setLength(nbframes);
-
-			nchannels =  vinputSequence.getSizeC();
+			if (endFrame >= (int) vSequence.nTotalFrames || endFrame < 0) 
+				endFrame = (int) vSequence.nTotalFrames-1;
 			initKymographs();
-			
+
+			// send some info
+			int nbframes = endFrame - startFrame +1;
+			ProgressFrame progress = new ProgressFrame("Processing started");
+			progress.setLength(nbframes);
 			progress.setPosition(startFrame);
 			Chronometer chrono = new Chronometer("Tracking computation" );
 			int  nbSeconds = 0;
 
-			int vinputSizeX = vinputSequence.getSizeX();
-			vinputSequence.beginUpdate();
+			int vinputSizeX = vSequence.getSizeX();
+			vSequence.beginUpdate();
 
 			for (int t = startFrame ; t <= endFrame && !isInterrupted(); t  += analyzeStep )
 			{
@@ -75,17 +64,18 @@ import plugins.nchenouard.kymographtracker.spline.CubicSmoothingSpline;
 				progress.setMessage( "Processing: " + pos + "% - Estimated time left: " + (int) timeleft + " s");
 
 				// get image to be processed and transfer it into sourceValues array (1 per color chan)
-				IcyBufferedImage workImage = getImageFromSeq(t);
+				IcyBufferedImage workImage = vSequence.getImage(t, 0, -1); //getImageFromSeq(t);
 				if (workImage == null)
 					continue;
 				ArrayList<double []> sourceValuesList = new ArrayList<double []>();
-				for (int chan = 0; chan < nchannels; chan++) 
+				
+				for (int chan = 0; chan < vSequence.getSizeC(); chan++) 
 				{
 					double [] sourceValues = Array1DUtil.arrayToDoubleArray(workImage.getDataXY(chan), workImage.isSignedDataType()); 
 					sourceValuesList.add(sourceValues);
 				}
 
-				for (int iroi=0; iroi < vinputSequence.capillariesArrayList.size(); iroi++)
+				for (int iroi=0; iroi < vSequence.capillariesArrayList.size(); iroi++)
 				{
 					SequencePlus kymographSeq = kymographArrayList.get(iroi);
 					ArrayList<ArrayList<int[]>> masks = masksArrayList.get(iroi);	
@@ -93,7 +83,7 @@ import plugins.nchenouard.kymographtracker.spline.CubicSmoothingSpline;
 					final int kymographSizeX = kymographSeq.getSizeX();
 					final int t_out = t - startFrame;
 
-					for (int chan = 0; chan < nchannels; chan++) 
+					for (int chan = 0; chan < vSequence.getSizeC(); chan++) 
 					{ 
 						double [] tabValues = tabValuesList.get(chan); 
 						double [] sourceValues = sourceValuesList.get(chan);
@@ -112,9 +102,9 @@ import plugins.nchenouard.kymographtracker.spline.CubicSmoothingSpline;
 					}
 				}
 			}
-			vinputSequence.endUpdate();
-			/**/
-			for (int iroi=0; iroi < vinputSequence.capillariesArrayList.size(); iroi++)
+			vSequence.endUpdate();
+
+			for (int iroi=0; iroi < vSequence.capillariesArrayList.size(); iroi++)
 			{
 				SequencePlus kymographSeq = kymographArrayList.get(iroi);
 				kymographSeq.dataChanged();
@@ -124,54 +114,28 @@ import plugins.nchenouard.kymographtracker.spline.CubicSmoothingSpline;
 			System.out.println("Elapsed time (s):" + nbSeconds);
 		}
 		
-		private IcyBufferedImage getImageFromSeq(int t) {
-			IcyBufferedImage workImage = vinputSequence.loadVImage(t);
-			vinputSequence.currentFrame = t;
-			if (workImage == null) {
-				// try another time
-				System.out.println("Error reading image: " + t + " ... trying again"  );
-				vinputSequence.removeImage(t, 0);
-				workImage = vinputSequence.loadVImage(t);
-				if (workImage == null) {
-					System.out.println("Fatal error occurred while reading file "+ vinputSequence.getFileName(t) + " -image: " + t);
-					return null;
-				}
-			}
-			else
-			{
-				sequenceViewer.setPositionT(t);
-				sequenceViewer.setTitle(vinputSequence.getVImageName(t)); 
-			}
-			return workImage;
-		}
-		
 		// -------------------------------------------
 		private void initKymographs() {
 			
-			int sizex = vinputSequence.getSizeX();
-			int sizey = vinputSequence.getSizeY();
+			int sizex = vSequence.getSizeX();
+			int sizey = vSequence.getSizeY();
 			kymographArrayList.clear();
 			
 			// build image kymographs which will be filled then
-			vinputSequence.getCapillariesArrayList();
-			int numC = vinputSequence.getSizeC();
-			if (numC <1)
-				numC = 3;
+			vSequence.getCapillariesArrayList();
+			int numC = vSequence.getSizeC();
 						
-			for (ROI2DShape roi:vinputSequence.capillariesArrayList)
+			for (ROI2DShape roi:vSequence.capillariesArrayList)
 			{
-				ArrayList<ArrayList<int[]>> masks = new ArrayList<ArrayList<int[]>>();
-				masksArrayList.add(masks);
-				initExtractionParametersfromROI(roi, masks, diskRadius, sizex, sizey);
-				IcyBufferedImage bufImage = new IcyBufferedImage((int) nbframes, masks.size(), numC, DataType.DOUBLE);
+				ArrayList<ArrayList<int[]>> mask = new ArrayList<ArrayList<int[]>>();
+				masksArrayList.add(mask);
+				initExtractionParametersfromROI(roi, mask, diskRadius, sizex, sizey);
+				IcyBufferedImage bufImage = new IcyBufferedImage((int) (endFrame - startFrame +1), mask.size(), numC, DataType.DOUBLE);
 				
 				SequencePlus kymographSeq = new SequencePlus(roi.getName(), bufImage);
-//				SequencePlus kymographSeq = new SequencePlus();
-//				kymographSeq.setName(roi.getName());
-//				kymographSeq.setImage(0, 0, bufImage);
 				kymographArrayList.add(kymographSeq);
 				ArrayList <double []> tabValuesList = new ArrayList <double []>();
-				for (int chan = 0; chan < nchannels; chan++) 
+				for (int chan = 0; chan < numC; chan++) 
 				{
 					double[] tabValues = kymographSeq.getImage(0, 0).getDataXYAsDouble(chan); 
 					tabValuesList.add(tabValues);
@@ -210,10 +174,5 @@ import plugins.nchenouard.kymographtracker.spline.CubicSmoothingSpline;
 			}
 			return length;
 		}
-		
-		@Override
-		public void actionPerformed(ActionEvent arg0) {
-			// TODO Auto-generated method stub
-			
-		}
+
 	}

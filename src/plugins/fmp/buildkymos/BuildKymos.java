@@ -265,7 +265,7 @@ public class BuildKymos extends PluginActionable implements ActionListener, Chan
 		
 		// build kymograph
 		buildKymographsThread 						= new BuildKymographsThread();
-		buildKymographsThread.vinputSequence  		= vinputSequence;
+		buildKymographsThread.vSequence  			= vinputSequence;
 		buildKymographsThread.analyzeStep 			= analyzeStep;
 		buildKymographsThread.startFrame 			= (int) vinputSequence.analysisStart;
 		buildKymographsThread.endFrame 				= (int) vinputSequence.nTotalFrames-1;
@@ -313,7 +313,6 @@ public class BuildKymos extends PluginActionable implements ActionListener, Chan
 				} catch (InterruptedException e1) {
 					e1.printStackTrace();
 				}
-				buildKymographsThread.progress.close();
 			}
 		}
 		sComputation = StatusComputation.START_COMPUTATION;

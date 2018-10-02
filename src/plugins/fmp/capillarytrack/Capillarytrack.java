@@ -456,7 +456,7 @@ public class Capillarytrack extends PluginActionable implements ActionListener, 
 			startComputationButton.setEnabled(false);
 			
 			buildKymographsThread = new BuildKymographsThread();
-			buildKymographsThread.vinputSequence  		= vSequence;
+			buildKymographsThread.vSequence  		= vSequence;
 			buildKymographsThread.analyzeStep 			= analyzeStep;
 			buildKymographsThread.startFrame 			= startFrame;
 			buildKymographsThread.endFrame 				= endFrame;
@@ -485,7 +485,6 @@ public class Capillarytrack extends PluginActionable implements ActionListener, 
 					} catch (InterruptedException e1) {
 						e1.printStackTrace();
 					}
-					buildKymographsThread.progress.close();
 				}
 			}
 			sComputation = StatusComputation.START_COMPUTATION;
@@ -734,6 +733,9 @@ public class Capillarytrack extends PluginActionable implements ActionListener, 
 		}
 	}
 
+	// -------------------------------------------
+
+	
 	private void buttonsVisibilityUpdate(StatusAnalysis istate) {
 
 		int item = 0;
