@@ -39,8 +39,8 @@ import icy.canvas.Canvas2D;
 import icy.canvas.IcyCanvas;
 import icy.canvas.Layer;
 import icy.common.exception.UnsupportedFormatException;
-import icy.common.listener.ProgressListener;
 import icy.file.Loader;
+import icy.file.Saver;
 import icy.gui.frame.IcyFrame;
 import icy.gui.frame.progress.AnnounceFrame;
 import icy.gui.frame.progress.ProgressFrame;
@@ -52,7 +52,6 @@ import icy.gui.viewer.ViewerEvent;
 import icy.gui.viewer.ViewerEvent.ViewerEventType;
 import icy.gui.viewer.ViewerListener;
 import icy.image.IcyBufferedImage;
-import icy.imagej.ImageJUtil;
 import icy.painter.Anchor2D;
 import icy.plugin.abstract_.PluginActionable;
 import icy.preferences.XMLPreferences;
@@ -63,12 +62,10 @@ import icy.system.profile.Chronometer;
 import icy.system.thread.ThreadUtil;
 import icy.type.collection.array.Array1DUtil;
 import icy.util.XLSUtil;
-import ij.IJ;
-import ij.ImagePlus;
 import jxl.write.WritableSheet;
 import jxl.write.WritableWorkbook;
 import jxl.write.WriteException;
-
+import loci.formats.FormatException;
 import plugins.fmp.capillarytrack.KymoOverlay;
 import plugins.fmp.sequencevirtual.ImageTransformTools;
 import plugins.fmp.sequencevirtual.Line2DPlus;
@@ -85,7 +82,7 @@ import plugins.kernel.roi.roi2d.ROI2DShape;
 public class Capillarytrack extends PluginActionable implements ActionListener, ChangeListener, ViewerListener
 {
 	// -------------------------------------- interface
-	private IcyFrame 	mainFrame 				= new IcyFrame("CapillaryTrack 26-09-2018", true, true, true, true);
+	private IcyFrame 	mainFrame 				= new IcyFrame("CapillaryTrack 02-10-2018", true, true, true, true);
 
 	// ---------------------------------------- video
 	private JButton 	setVideoSourceButton 	= new JButton("Open...");
@@ -1355,6 +1352,10 @@ public class Capillarytrack extends PluginActionable implements ActionListener, 
 		
 		kymosDisplayON();
 		int itemupfront = kymographNamesComboBox.getSelectedIndex();
+		if (itemupfront < 0) {
+			itemupfront = 0;
+			kymographNamesComboBox.setSelectedIndex(0);
+		}
 		Viewer v = kymographArrayList.get(itemupfront).getFirstViewer();
 		v.toFront();
 	}
@@ -1474,24 +1475,24 @@ public class Capillarytrack extends PluginActionable implements ActionListener, 
 			progress.setMessage( "Save kymograph file : " + seq.getName());
 			nbSecondsStart =  (int) (chrono.getNanos() / 1000000000f);
 
-//			String filename = directory + "\\" + seq.getName() + ".tiff";
-//			File file = new File (filename);
-//			IcyBufferedImage image = seq.getFirstImage();
-//			try {
-//				Saver.saveImage(image, file, true);
-//			} catch (FormatException e) {
-//				e.printStackTrace();
-//			} catch (IOException e) {
-//				e.printStackTrace();
-//			}
-			String filename = directory + "\\" + seq.getName() + ".tif";
-			ImagePlus tmpimp = ImageJUtil.convertToImageJImage(seq, new ProgressListener() {
-				@Override public boolean notifyProgress(double position, double length) {
-					// TODO Auto-generated method stub
-					return false;
-				}});
-			IJ.saveAsTiff(tmpimp, filename);
-			seq.saveXMLData();
+			String filename = directory + "\\" + seq.getName() + ".tiff";
+			File file = new File (filename);
+			IcyBufferedImage image = seq.getFirstImage();
+			try {
+				Saver.saveImage(image, file, true);
+			} catch (FormatException e) {
+				e.printStackTrace();
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+//			String filename = directory + "\\" + seq.getName() + ".tif";
+//			ImagePlus tmpimp = ImageJUtil.convertToImageJImage(seq, new ProgressListener() {
+//				@Override public boolean notifyProgress(double position, double length) {
+//					// TODO Auto-generated method stub
+//					return false;
+//				}});
+//			IJ.saveAsTiff(tmpimp, filename);
+//			seq.saveXMLData();
 			
 			nbSecondsEnd =  (int) (chrono.getNanos() / 1000000000f);
 			System.out.println("File "+ seq.getName() + " saved in: " + (nbSecondsEnd-nbSecondsStart) + " s");
@@ -1517,7 +1518,7 @@ public class Capillarytrack extends PluginActionable implements ActionListener, 
 				System.out.println(" -> failed");
 			seq.endUpdate();
 		}
-		if (flag) {
+		if (flag && kymographArrayList.size() > 0) {
 			SequencePlus seq = kymographArrayList.get(kymographArrayList.size() -1);
 			measureSetStatusFromSequence (seq);
 		}

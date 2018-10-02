@@ -12,6 +12,7 @@ import java.util.List;
 
 import org.w3c.dom.Node;
 
+import icy.image.IcyBufferedImage;
 import icy.roi.ROI2D;
 import icy.roi.ROIEvent;
 import icy.sequence.Sequence;
@@ -38,6 +39,18 @@ public class SequencePlus extends Sequence {
 	public enum ArrayListType {topLevel, bottomLevel, derivedValues, cumSum, topAndBottom}
 
 	// -----------------------------------------------------
+	
+	public SequencePlus() {
+		super ();
+	}
+	
+	public SequencePlus(String name) {
+		super (name);
+	}
+	
+	public SequencePlus(String name, IcyBufferedImage image) {
+		super (name, image);
+	}
 	
 	public ArrayList<Integer> getArrayListFromRois (ArrayListType option) {
 		

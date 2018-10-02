@@ -163,14 +163,13 @@ import plugins.nchenouard.kymographtracker.spline.CubicSmoothingSpline;
 				ArrayList<ArrayList<int[]>> masks = new ArrayList<ArrayList<int[]>>();
 				masksArrayList.add(masks);
 				initExtractionParametersfromROI(roi, masks, diskRadius, sizex, sizey);
-
-				SequencePlus kymographSeq = new SequencePlus();
-				kymographSeq.setName(roi.getName());
-				kymographArrayList.add(kymographSeq);
-
-				// load first image of each kymograph
 				IcyBufferedImage bufImage = new IcyBufferedImage((int) nbframes, masks.size(), numC, DataType.DOUBLE);
-				kymographSeq.setImage(0, 0, bufImage);
+				
+				SequencePlus kymographSeq = new SequencePlus(roi.getName(), bufImage);
+//				SequencePlus kymographSeq = new SequencePlus();
+//				kymographSeq.setName(roi.getName());
+//				kymographSeq.setImage(0, 0, bufImage);
+				kymographArrayList.add(kymographSeq);
 				ArrayList <double []> tabValuesList = new ArrayList <double []>();
 				for (int chan = 0; chan < nchannels; chan++) 
 				{
