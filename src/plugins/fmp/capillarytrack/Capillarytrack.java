@@ -823,6 +823,10 @@ public class Capillarytrack extends PluginActionable implements ActionListener, 
 			
 			endFrame = vSequence.getSizeT()-1;
 			endFrameTextField.setText( Integer.toString(endFrame));
+			if (kymographArrayList.size() > 0) {
+				for (SequencePlus seq:kymographArrayList)
+					seq.close();
+			}
 			kymographArrayList.clear();
 			vSequence.capillariesArrayList.clear();
 			
@@ -862,6 +866,10 @@ public class Capillarytrack extends PluginActionable implements ActionListener, 
 		buildKymographsThread.startFrame 			= startFrame;
 		buildKymographsThread.endFrame 				= endFrame;
 		buildKymographsThread.diskRadius 			= diskRadius;
+		if (kymographArrayList.size() > 0) {
+			for (SequencePlus seq:kymographArrayList)
+				seq.close();
+		}
 		kymographArrayList.clear();
 		for (ROI2DShape roi:vSequence.capillariesArrayList) {
 			SequencePlus kymographSeq = new SequencePlus(roi.getName());	
