@@ -123,21 +123,21 @@ import plugins.nchenouard.kymographtracker.spline.CubicSmoothingSpline;
 			
 			int sizex = vSequence.getSizeX();
 			int sizey = vSequence.getSizeY();
-			kymographArrayList.clear();
-			
-			// build image kymographs which will be filled then
 			vSequence.getCapillariesArrayList();
 			int numC = vSequence.getSizeC();
-						
-			for (ROI2DShape roi:vSequence.capillariesArrayList)
+		
+			for (int iroi=0; iroi < vSequence.capillariesArrayList.size(); iroi++)
 			{
+				ROI2DShape roi = vSequence.capillariesArrayList.get(iroi);
 				ArrayList<ArrayList<int[]>> mask = new ArrayList<ArrayList<int[]>>();
 				masksArrayList.add(mask);
 				initExtractionParametersfromROI(roi, mask, diskRadius, sizex, sizey);
 				IcyBufferedImage bufImage = new IcyBufferedImage((int) (endFrame - startFrame +1), mask.size(), numC, DataType.DOUBLE);
-				
-				SequencePlus kymographSeq = new SequencePlus(roi.getName(), bufImage);
-				kymographArrayList.add(kymographSeq);
+				SequencePlus kymographSeq = kymographArrayList.get(iroi);
+				kymographSeq.addImage(bufImage);
+				String cs = kymographSeq.getName();
+				if (!cs.contentEquals(roi.getName()))
+					kymographSeq.setName(roi.getName());
 				ArrayList <double []> tabValuesList = new ArrayList <double []>();
 				for (int chan = 0; chan < numC; chan++) 
 				{

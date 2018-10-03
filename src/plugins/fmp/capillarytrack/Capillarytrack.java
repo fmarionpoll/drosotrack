@@ -126,6 +126,7 @@ public class Capillarytrack extends PluginActionable implements ActionListener, 
 			TransformOp.R2MINUS_GB, TransformOp.G2MINUS_RB, TransformOp.B2MINUS_RG, TransformOp.RGB,
 			TransformOp.GBMINUS_2R, TransformOp.RBMINUS_2G, TransformOp.RGMINUS_2B, 
 			TransformOp.H_HSB, TransformOp.S_HSB, TransformOp.B_HSB	});
+	
 	private JComboBox<String> directionComboBox = new JComboBox<String> (new String[] {" threshold >", " threshold <" });
 	private JCheckBox	detectAllLevelCheckBox 	= new JCheckBox ("all", true);
 	private JCheckBox	detectAllGulpsCheckBox 	= new JCheckBox ("all", true);
@@ -138,7 +139,9 @@ public class Capillarytrack extends PluginActionable implements ActionListener, 
 	private JTextField	spanTransf2TextField	= new JTextField("3");
 	private JTextField 	detectGulpsThresholdTextField 	= new JTextField("90");
 	private JButton 	detectGulpsButton 		= new JButton("Detect gulps");
-	private JComboBox<TransformOp> transformForGulpsComboBox = new JComboBox<TransformOp> (TransformOp.values());
+	private JComboBox<TransformOp> transformForGulpsComboBox = new JComboBox<TransformOp> (new TransformOp[] {
+			TransformOp.XYDIFFN	});
+	
 	private JButton		displayTransform2Button	= new JButton("Display");
 	private JButton		openMeasuresButton		= new JButton("Load");
 	private JButton		saveMeasuresButton		= new JButton("Save");
@@ -174,7 +177,7 @@ public class Capillarytrack extends PluginActionable implements ActionListener, 
 	private	int	spanDiffTransf2 = 3;
 	
 	// results arrays
-	private ArrayList <SequencePlus> 	kymographArrayList 		= new ArrayList <SequencePlus> ();		// list of kymograph sequences
+	private ArrayList <SequencePlus> 	kymographArrayList 		= new ArrayList <SequencePlus> ();	// list of kymograph sequences
 	private XYMultiChart 				firstChart 				= null;
 	private XYMultiChart 				secondChart 			= null;
 	private XYMultiChart 				thirdChart 				= null;
@@ -329,54 +332,8 @@ public class Capillarytrack extends PluginActionable implements ActionListener, 
 		detectTopCheckBox.setSelected(true);
 		detectBottomCheckBox.setSelected(false);
 
-		setVideoSourceButton.addActionListener(this);
-		adjustButton.addActionListener(this);
-		refBarCheckBox.addActionListener(this);
-		analyzeStepTextField.addActionListener(this);
+		defineActionListeners();
 		
-		startComputationButton.addActionListener(this);
-		stopComputationButton.addActionListener(this);
-		createROIsFromPolygonButton.addActionListener(this);
-		exportToXLSButton.addActionListener (this);
-		selectGroupedby2Button.addActionListener (this);
-		selectRegularButton.addActionListener (this);
-		detectTopButton.addActionListener(this);
-		detectGulpsButton.addActionListener(this);
-
-		openKymographsButton.addActionListener (this);
-		saveKymographsButton.addActionListener (this); 
-		closeAllButton.addActionListener (this);
-		displayResultsButton.addActionListener (this);
-		openROIsButton.addActionListener(this);
-		saveROIsButton.addActionListener(this);
-		displayTopButton.addActionListener(this);
-		displayTransform2Button.addActionListener(this);
-		editGulpsCheckbox.addActionListener(this);
-		editLevelsCheckbox.addActionListener(this);
-		openMeasuresButton.addActionListener(this);
-		saveMeasuresButton.addActionListener(this);
-		zoomTopLevelButton.addActionListener(this);
-		
-		displayKymosCheckBox.addActionListener(this);
-		displayKymosONButton.addActionListener(this);
-		kymographNamesComboBox.addActionListener(this);
-		previousButton.addActionListener(this);
-		nextButton.addActionListener(this);
-		
-		transformForLevelsComboBox.addActionListener(new ActionListener() {			
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				displayFilteredKymo(1);
-			}
-		});
-		
-		transformForGulpsComboBox.addActionListener(new ActionListener() {			
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				displayFilteredKymo(2);
-			}
-		});
-
 		buttonsVisibilityUpdate(StatusAnalysis.NODATA);
 
 		mainFrame.pack();
@@ -387,75 +344,165 @@ public class Capillarytrack extends PluginActionable implements ActionListener, 
 		checkBufferTimer.start();
 	}
 
+	private void defineActionListeners() {
+		transformForLevelsComboBox.addActionListener(new ActionListener() {	@Override public void actionPerformed(ActionEvent e) {
+				displayFilteredKymo(1);
+			}});
+		
+		transformForGulpsComboBox.addActionListener(new ActionListener() { @Override public void actionPerformed(ActionEvent e) {
+				displayFilteredKymo(2);
+			}});
+		
+		setVideoSourceButton.addActionListener(new ActionListener() { @Override public void actionPerformed(ActionEvent e) {
+				setVideoSource();
+			}});
+		
+		startComputationButton.addActionListener(new ActionListener() {	@Override public void actionPerformed(ActionEvent e) {
+				kymosStartComputation();
+			}});
+		
+		createROIsFromPolygonButton.addActionListener(new ActionListener() { @Override public void actionPerformed(ActionEvent e) {
+				roisGenerateFromPolygon();
+				vSequence.getCapillariesArrayList();
+				roisUpdateCombo(vSequence.capillariesArrayList);
+				buttonsVisibilityUpdate(StatusAnalysis.ROIS_OK);
+			}});
+		
+		openROIsButton.addActionListener(new ActionListener() { @Override public void actionPerformed(ActionEvent e) {
+				openROIs(null);
+			}});
+		
+		closeAllButton.addActionListener(new ActionListener() {	@Override public void actionPerformed(ActionEvent e) {
+				closeAll();
+				buttonsVisibilityUpdate(StatusAnalysis.NODATA);
+			}});
+		
+		saveROIsButton.addActionListener(new ActionListener() {	@Override public void actionPerformed(ActionEvent e) {
+				parseTextFields();
+				vSequence.analysisStart = startFrame;
+				vSequence.analysisEnd = endFrame;
+				if (selectGroupedby2Button.isSelected())
+					vSequence.capillariesGrouping = 2;
+				else
+					vSequence.capillariesGrouping = 1;
+				vSequence.xmlWriteROIsAndData("capillarytrack.xml");
+			}});
+		
+		displayKymosONButton.addActionListener(new ActionListener() { @Override public void actionPerformed(ActionEvent e) {
+				kymosDisplayUpdate();
+			}});
+		
+		kymographNamesComboBox.addActionListener(new ActionListener() {	@Override public void actionPerformed(ActionEvent e) {
+				kymosDisplayUpdate();
+			}});
+		
+		displayResultsButton.addActionListener(new ActionListener() { @Override public void actionPerformed(ActionEvent e) {
+				displayResultsButton.setEnabled(false);
+				roisSaveEdits();
+				displayGraphs();
+				displayResultsButton.setEnabled(true);
+			}});
+				
+		editGulpsCheckbox.addActionListener(new ActionListener() { @Override public void actionPerformed(ActionEvent e) {
+				roisDisplay();
+			}});
+		
+		editLevelsCheckbox.addActionListener(new ActionListener() {	@Override public void actionPerformed(ActionEvent e) {
+				roisDisplay();
+			}});
+				
+		openMeasuresButton.addActionListener(new ActionListener() { @Override public void actionPerformed(ActionEvent e) {
+				openMeasuresButton.setEnabled(false);
+				measuresFileOpen();
+				openMeasuresButton.setEnabled(true);
+				buttonsVisibilityUpdate(StatusAnalysis.MEASUREGULPS_OK );
+			}});		
+		
+		saveMeasuresButton.addActionListener(new ActionListener() {	@Override public void actionPerformed(ActionEvent e) {
+				saveMeasuresButton.setEnabled(false);
+				measuresFileSave();
+				saveMeasuresButton.setEnabled(true);
+			}});
+		
+		zoomTopLevelButton.addActionListener(new ActionListener() { @Override public void actionPerformed(ActionEvent e) {
+				Viewer v = vSequence.getFirstViewer();
+				Canvas2D cv = (Canvas2D) v.getCanvas();
+				if (cv != null) {
+					if (!previousZoomSet) {	
+						offsetX = 0;
+						offsetY = 0;
+						scaleX = 10;
+						scaleY = 10;
+					}
+					cv.setOffsetX(offsetX);
+					cv.setOffsetY(offsetY);
+					cv.setScaleX(scaleX);
+					cv.setScaleY(scaleY);
+				}
+			}});
+				
+		adjustButton.addActionListener(new ActionListener() {@Override public void actionPerformed(ActionEvent e) {
+				roisCenterLinestoCapillaries();
+			}});		
+				
+		refBarCheckBox.addActionListener(new ActionListener() {	@Override public void actionPerformed(ActionEvent e) {
+				roisDisplayrefBar();
+			}});			
+				
+		analyzeStepTextField.addActionListener(new ActionListener() {	@Override public void actionPerformed(ActionEvent e) {
+				parseTextFields();
+				if (vSequence != null) {
+					vSequence.istep = analyzeStep;
+				}
+			}});
+		
+		nextButton.addActionListener(new ActionListener() {	@Override public void actionPerformed(ActionEvent e) {
+			int isel = kymographNamesComboBox.getSelectedIndex()+1;
+			if (isel < kymographNamesComboBox.getItemCount()) 
+				kymographNamesComboBox.setSelectedIndex(isel);
+		}});
+		
+		previousButton.addActionListener(new ActionListener() {	@Override public void actionPerformed(ActionEvent e) {
+			int isel = kymographNamesComboBox.getSelectedIndex()-1;
+			if (isel >= 0) 
+				kymographNamesComboBox.setSelectedIndex(isel);
+		}});
+		
+		
+		displayKymosCheckBox.addActionListener(new ActionListener() {	@Override public void actionPerformed(ActionEvent e) {
+			boolean benabled = displayKymosCheckBox.isSelected();
+			displayKymosONButton.setEnabled(benabled);
+			previousButton.setEnabled(benabled);
+			nextButton.setEnabled(benabled);
+			kymographNamesComboBox.setEnabled(benabled);
+			if (benabled)
+				kymosDisplayUpdate(); 
+			else
+				kymosDisplayOFF();
+		}});
+		
+		
+		// if series (action performed)
+		stopComputationButton.addActionListener(this);	// if series
+		exportToXLSButton.addActionListener (this);	// if series
+		selectGroupedby2Button.addActionListener (this); 	// if series
+		selectRegularButton.addActionListener (this);	// if series
+		detectTopButton.addActionListener(this);	// if series
+		detectGulpsButton.addActionListener(this);	// if series
+
+		openKymographsButton.addActionListener (this);	// if series
+		saveKymographsButton.addActionListener (this); 	// if series
+		displayTopButton.addActionListener(this);	// if series
+		displayTransform2Button.addActionListener(this);	// if series
+		
+	}
+	
 	@Override
 	public void actionPerformed(ActionEvent e ) 
 	{
 		Object o = e.getSource();
 
-		// _______________________________________________
-		if (o == setVideoSourceButton) 
-		{
-			if (vSequence != null)
-				closeAll();
-			vSequence = new SequenceVirtual();
-			String path = vSequence.loadInputVirtualStack(null);
-			if (path != null) {
-				XMLPreferences guiPrefs = this.getPreferences("gui");
-				guiPrefs.put("lastUsedPath", path);
-				initInputSeq();
-				buttonsVisibilityUpdate(StatusAnalysis.FILE_OK);
-				if (loadpreviousCheckBox.isSelected()) {
-					boolean flag = openROIs(path+"\\capillarytrack.xml");
-					if (!flag)
-						openROIs(path+"\\roislines.xml");
-					final String cs = path+"\\results";
-					if (kymosOpenFromDirectory(cs)) {
-						buttonsVisibilityUpdate(StatusAnalysis.KYMOS_OK);
-						measuresFileOpen();
-						buttonsVisibilityUpdate(StatusAnalysis.MEASUREGULPS_OK );
-					}
-				}
-
-			}
-		}
-
-		// _______________________________________________
-		else if (o == startComputationButton) 
-		{
-			parseTextFields();
-			sComputation = StatusComputation.STOP_COMPUTATION;
-			openKymographsButton.setEnabled(false);
-			saveKymographsButton.setEnabled(false);
-			startFrame 	= Integer.parseInt( startFrameTextField.getText() );
-			endFrame 	= Integer.parseInt( endFrameTextField.getText() );
-			if ( vSequence.nTotalFrames < endFrame ) {
-				endFrame = (int) vSequence.nTotalFrames-1;
-				endFrameTextField.setText( Integer.toString(endFrame));
-			}
-			stopComputationButton.setEnabled(true);
-			startComputationButton.setEnabled(false);
-			
-			buildKymographsThread = new BuildKymographsThread();
-			buildKymographsThread.vSequence  		= vSequence;
-			buildKymographsThread.analyzeStep 			= analyzeStep;
-			buildKymographsThread.startFrame 			= startFrame;
-			buildKymographsThread.endFrame 				= endFrame;
-			buildKymographsThread.diskRadius 			= diskRadius;
-			buildKymographsThread.kymographArrayList 	= kymographArrayList;
-			buildKymographsThread.start();
-			
-			//observer thread for notifications
-			Thread waitcompletionThread = new Thread(new Runnable(){public void run()
-			{
-				try{buildKymographsThread.join();}
-				catch(Exception e){;} 
-				finally{ stopComputationButton.doClick();}
-			}});
-			waitcompletionThread.start();
-		}
-
-		// _______________________________________________
-		else if ( o == stopComputationButton ) {
+		if ( o == stopComputationButton ) {
 
 			if (sComputation == StatusComputation.STOP_COMPUTATION) {
 				if (buildKymographsThread.isAlive()) {
@@ -474,15 +521,6 @@ public class Capillarytrack extends PluginActionable implements ActionListener, 
 		}
 
 		// _______________________________________________
-		else if (o == createROIsFromPolygonButton) 
-		{
-			roisGenerateFromPolygon();
-			vSequence.getCapillariesArrayList();
-			roisUpdateCombo(vSequence.capillariesArrayList);
-			buttonsVisibilityUpdate(StatusAnalysis.ROIS_OK); 
-		}
-
-		// _______________________________________________
 		else if (o == selectGroupedby2Button || o == selectRegularButton) 
 		{
 			boolean status = false;
@@ -490,36 +528,6 @@ public class Capillarytrack extends PluginActionable implements ActionListener, 
 				status = true;
 			width_between_capillariesTextField.setEnabled(status);
 			width_intervalTextField.setEnabled(status);
-		}
-
-		// _______________________________________________
-		else if (o == displayKymosCheckBox) {
-			
-			boolean benabled = displayKymosCheckBox.isSelected();
-			displayKymosONButton.setEnabled(benabled);
-			previousButton.setEnabled(benabled);
-			nextButton.setEnabled(benabled);
-			kymographNamesComboBox.setEnabled(benabled);
-			if (benabled)
-				kymosDisplayUpdate(); 
-			else
-				kymosDisplayOFF();
-		}
-		else if (o == displayKymosONButton || o == kymographNamesComboBox  ) 
-		{
-			kymosDisplayUpdate(); 
-		}
-		
-		else if (o == previousButton) {
-			int isel = kymographNamesComboBox.getSelectedIndex()-1;
-			if (isel >= 0) 
-				kymographNamesComboBox.setSelectedIndex(isel);
-		}
-			
-		else if (o == nextButton) {
-			int isel = kymographNamesComboBox.getSelectedIndex()+1;
-			if (isel < kymographNamesComboBox.getItemCount()) 
-				kymographNamesComboBox.setSelectedIndex(isel);	
 		}
 
 		// _______________________________________________
@@ -531,14 +539,11 @@ public class Capillarytrack extends PluginActionable implements ActionListener, 
 			
 			final TransformOp transform = (TransformOp) transformForLevelsComboBox.getSelectedItem();
 			detectTopButton.setEnabled( false);
-			// build filtered image from image 0 and stores it into image 1
 			kymosBuildFiltered(0, 1, transform, spanDiffTop);
-			// detect level from image 1 
 			if (o == detectTopButton) {
 				kymosDetectCapillaryLevels();
 				buttonsVisibilityUpdate(StatusAnalysis.MEASURETOP_OK); 
 			}
-			// or display image1
 			else  {
 				kymosDisplayUpdate();
 				displayKymosCheckBox.setSelected(true);
@@ -566,9 +571,7 @@ public class Capillarytrack extends PluginActionable implements ActionListener, 
 
 		// _______________________________________________
 		else if (o == exportToXLSButton ) {
-			// save ROIS if they had been edited
 			roisSaveEdits();
-			// define file name
 			Path directory = Paths.get(vSequence.getFileName(0)).getParent();
 			Path subpath = directory.getName(directory.getNameCount()-1);
 			String tentativeName = subpath.toString()+".xls";
@@ -586,24 +589,6 @@ public class Capillarytrack extends PluginActionable implements ActionListener, 
 					}
 				});
 			}
-		}
-
-		// _______________________________________________
-		else if (o == openROIsButton) {
-
-			openROIs(null);
-		}
-
-		// _______________________________________________
-		else if (o == saveROIsButton) {
-			parseTextFields();
-			vSequence.analysisStart = startFrame;
-			vSequence.analysisEnd = endFrame;
-			if (selectGroupedby2Button.isSelected())
-				vSequence.capillariesGrouping = 2;
-			else
-				vSequence.capillariesGrouping = 1;
-			vSequence.xmlWriteROIsAndData("capillarytrack.xml");
 		}
 
 		// _______________________________________________
@@ -648,73 +633,6 @@ public class Capillarytrack extends PluginActionable implements ActionListener, 
 			});
 		}
 
-		//_______________________________________________
-		else if (o == closeAllButton) {
-			closeAll();
-			buttonsVisibilityUpdate(StatusAnalysis.NODATA);
-		}
-
-		//_______________________________________________
-		else if (o == displayResultsButton) {
-			displayResultsButton.setEnabled(false);
-			roisSaveEdits();
-			displayGraphs();
-			displayResultsButton.setEnabled(true);
-		}
-		
-		//______________________________________________
-		else if (o == editGulpsCheckbox || o ==  editLevelsCheckbox) {
-			roisDisplay();
-		}
-		
-		//______________________________________________
-		else if (o == openMeasuresButton) {
-			openMeasuresButton.setEnabled(false);
-			measuresFileOpen();
-			openMeasuresButton.setEnabled(true);
-			buttonsVisibilityUpdate(StatusAnalysis.MEASUREGULPS_OK ); 
-		}
-		else if (o == saveMeasuresButton) {
-			saveMeasuresButton.setEnabled(false);
-			measuresFileSave();
-			saveMeasuresButton.setEnabled(true);
-		}
-		
-		//_______________________________________________
-		else if (o == zoomTopLevelButton) {
-			Viewer v = vSequence.getFirstViewer();
-			Canvas2D cv = (Canvas2D) v.getCanvas();
-			if (cv != null) {
-				if (!previousZoomSet) {	
-					offsetX = 0;
-					offsetY = 0;
-					scaleX = 10;
-					scaleY = 10;
-				}
-				cv.setOffsetX(offsetX);
-				cv.setOffsetY(offsetY);
-				cv.setScaleX(scaleX);
-				cv.setScaleY(scaleY);
-			}
-		}
-		
-		// ---------------------------------------------
-		else if (o == adjustButton) {
-			roisCenterLinestoCapillaries();
-		}
-		
-		// ---------------------------------------------
-		else if (o == refBarCheckBox) {
-			roisDisplayrefBar();
-		}
-		
-		// _______________________________________________
-		else if (o == analyzeStepTextField) {
-			parseTextFields();
-			if (vSequence != null) {
-				vSequence.istep = analyzeStep;
-			}
-		}
 	}
 
 	// -------------------------------------------
@@ -881,6 +799,85 @@ public class Capillarytrack extends PluginActionable implements ActionListener, 
 		vSequence.capillariesArrayList.clear();
 
 		progress.close();
+	}
+	
+	private void setVideoSource() {
+		if (vSequence != null)
+			closeAll();
+		vSequence = new SequenceVirtual();
+		String path = vSequence.loadInputVirtualStack(null);
+		if (path != null) {
+			XMLPreferences guiPrefs = this.getPreferences("gui");
+			guiPrefs.put("lastUsedPath", path);
+			addSequence(vSequence);
+			Viewer v = vSequence.getFirstViewer();
+			v.addListener(Capillarytrack.this);
+		
+			Rectangle rectv = v.getBoundsInternal();
+			Rectangle rect0 = mainFrame.getBoundsInternal();
+			rectv.setLocation(rect0.x+ rect0.width, rect0.y);
+			v.setBounds(rectv);
+
+			vSequence.removeAllImages();
+			startstopBufferingThread();		
+			
+			endFrame = vSequence.getSizeT()-1;
+			endFrameTextField.setText( Integer.toString(endFrame));
+			kymographArrayList.clear();
+			vSequence.capillariesArrayList.clear();
+			
+			buttonsVisibilityUpdate(StatusAnalysis.FILE_OK);
+			if (loadpreviousCheckBox.isSelected()) {
+				boolean flag = openROIs(path+"\\capillarytrack.xml");
+				if (!flag)
+					openROIs(path+"\\roislines.xml");
+				final String cs = path+"\\results";
+				if (kymosOpenFromDirectory(cs)) {
+					buttonsVisibilityUpdate(StatusAnalysis.KYMOS_OK);
+					measuresFileOpen();
+					buttonsVisibilityUpdate(StatusAnalysis.MEASUREGULPS_OK );
+				}
+			}
+
+		}
+	}
+	
+	private void kymosStartComputation() {
+		parseTextFields();
+		sComputation = StatusComputation.STOP_COMPUTATION;
+		openKymographsButton.setEnabled(false);
+		saveKymographsButton.setEnabled(false);
+		startFrame 	= Integer.parseInt( startFrameTextField.getText() );
+		endFrame 	= Integer.parseInt( endFrameTextField.getText() );
+		if ( vSequence.nTotalFrames < endFrame ) {
+			endFrame = (int) vSequence.nTotalFrames-1;
+			endFrameTextField.setText( Integer.toString(endFrame));
+		}
+		stopComputationButton.setEnabled(true);
+		startComputationButton.setEnabled(false);
+		
+		buildKymographsThread = new BuildKymographsThread();
+		buildKymographsThread.vSequence  		= vSequence;
+		buildKymographsThread.analyzeStep 			= analyzeStep;
+		buildKymographsThread.startFrame 			= startFrame;
+		buildKymographsThread.endFrame 				= endFrame;
+		buildKymographsThread.diskRadius 			= diskRadius;
+		kymographArrayList.clear();
+		for (ROI2DShape roi:vSequence.capillariesArrayList) {
+			SequencePlus kymographSeq = new SequencePlus(roi.getName());	
+			kymographArrayList.add(kymographSeq);
+		}
+		buildKymographsThread.kymographArrayList = kymographArrayList;
+		buildKymographsThread.start();
+		
+		//observer thread for notifications
+		Thread waitcompletionThread = new Thread(new Runnable(){public void run()
+		{
+			try{buildKymographsThread.join();}
+			catch(Exception e){;} 
+			finally{ stopComputationButton.doClick();}
+		}});
+		waitcompletionThread.start();
 	}
 	
 	private void displayFilteredKymo(int zChannel) {
@@ -1239,27 +1236,6 @@ public class Capillarytrack extends PluginActionable implements ActionListener, 
 		return iChart;
 	}
 
-	private void initInputSeq () {
-
-		// transfer 1 image to the viewer
-		addSequence(vSequence);
-		Viewer v = vSequence.getFirstViewer();
-		v.addListener(Capillarytrack.this);
-	
-		Rectangle rectv = v.getBoundsInternal();
-		Rectangle rect0 = mainFrame.getBoundsInternal();
-		rectv.setLocation(rect0.x+ rect0.width, rect0.y);
-		v.setBounds(rectv);
-
-		vSequence.removeAllImages();
-		startstopBufferingThread();		
-		
-		endFrame = vSequence.getSizeT()-1;
-		endFrameTextField.setText( Integer.toString(endFrame));
-		kymographArrayList.clear();
-		vSequence.capillariesArrayList.clear();
-	}
-
 	private void kymosBuildFiltered(int zSource, int zTransform, TransformOp transformop, int spanDiff) {
 
 		if (tImg == null) 
@@ -1323,8 +1299,6 @@ public class Capillarytrack extends PluginActionable implements ActionListener, 
 				Rectangle rectDataView = v.getBounds();
 				rectDataView.translate(rectMaster.x + deltax - rectDataView.x, rectMaster.y + deltay - rectDataView.y);
 				v.setBounds(rectDataView);
-				deltax += 5;
-				deltay += 5;
 			}
 		}
 	}
