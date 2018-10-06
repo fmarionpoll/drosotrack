@@ -121,7 +121,7 @@ public class SequencePlus extends Sequence {
 		
 		if (roiLine_npoints == roiLine_nintervals)
 			return true;
-		else if (roiLine_npoints <= roiLine_nintervals)
+		else if (roiLine_npoints > roiLine_nintervals)
 			return false;
 		
 		List<Point2D> pts = new ArrayList <Point2D>(roiLine_npoints);
@@ -167,11 +167,13 @@ public class SequencePlus extends Sequence {
 	public void validateRois() {
 
 		ArrayList<ROI2D> listRois = getROI2Ds();
-		
 		for (ROI2D roi: listRois) {
 
-			if (roi.getName().contains("level") || roi.getName().contains("gulp")) 
+			// interpolate missing points if necessary
+			if (roi.getName().contains("level") || roi.getName().contains("gulp")) {
+				interpolateMissingPointsAlongXAxis ((ROI2DPolyLine) roi);
 				continue;
+			}
 
 			// if gulp not found - add an index to it
 			if (roi instanceof ROI2DPolyLine) {

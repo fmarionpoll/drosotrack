@@ -205,6 +205,8 @@ public class XYMultiChart extends IcyFrame  {
 
 	private void appendDataToXYSeries(XYSeries seriesXY, ArrayList<Integer> data, int startFrame ) {
 		
+		if (data == null)
+			return;
 		int npoints = data.size();
 		if (npoints != 0) {
 			seriesXY.add(Double.NaN, Double.NaN);

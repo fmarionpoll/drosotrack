@@ -15,7 +15,7 @@ public class ImageTransformTools {
 		GBMINUS_2R ("(G+B)-2R"), RBMINUS_2G("(R+B)-2G"), RGMINUS_2B("(R+G)-2B"),
 		RGB ("(R+G+B)/3"),
 		H_HSB ("H(HSB)"), S_HSB ("S(HSB)"), B_HSB("B(HSB)"),  
-		XDIFFN("XDiffn"),  XYDIFFN( "XYDiffn"), 
+		XDIFFN("XDiffn"), YDIFFN("YDiffn"), XYDIFFN( "XYDiffn"), 
 		REF_T0("subtract t0"), REF_PREVIOUS("subtract n-1"), REF("subtract ref"),
 		NORM_BRMINUSG("F. Rebaudo"),
 		COLORARRAY1("color array"), RGB_TO_HSV("HSV"), RGB_TO_H1H2H3("H1H2H3"), 
@@ -92,6 +92,7 @@ public class ImageTransformTools {
 			break;
 			
 		case XDIFFN: 	transformedImage= computeXDiffn (inputImage); break;
+		case YDIFFN: 	transformedImage= computeYDiffn (inputImage); break;		
 		case XYDIFFN: 	transformedImage= computeXYDiffn (inputImage); break;
 
 		case RGB_TO_HSV: transformedImage= functionRGBtoHSV(inputImage); break;
@@ -167,7 +168,6 @@ public class ImageTransformTools {
 	
 	private IcyBufferedImage computeXDiffn(IcyBufferedImage sourceImage) {
 
-		
 		int chan0 = 0;
 		int chan1 =  sourceImage.getSizeC();
 		int imageSizeX = sourceImage.getSizeX();
@@ -209,6 +209,46 @@ public class ImageTransformTools {
 		return img2;
 	}
 	
+	private IcyBufferedImage computeYDiffn(IcyBufferedImage sourceImage) {
+
+		int chan0 = 0;
+		int chan1 =  sourceImage.getSizeC();
+		int imageSizeX = sourceImage.getSizeX();
+		int imageSizeY = sourceImage.getSizeY();
+		IcyBufferedImage img2 = new IcyBufferedImage(imageSizeX, imageSizeY, sourceImage.getSizeC(), DataType.DOUBLE);
+		
+		for (int c=chan0; c < chan1; c++) {
+
+			double[] tabValues = Array1DUtil.arrayToDoubleArray(sourceImage.getDataXY(c), sourceImage.isSignedDataType());
+			double[] outValues = Array1DUtil.arrayToDoubleArray(img2.getDataXY(c), img2.isSignedDataType());			
+
+			for (int ix = spanDiff; ix < imageSizeX - spanDiff; ix++) {	
+//				// erase border values
+//				for (int iy = 0; iy < spanDiff; iy++) {
+//					outValues[ix + iy* imageSizeX] = 0;
+//				}
+				// compute values
+				for (int iy =spanDiff; iy < imageSizeY -spanDiff; iy++) {
+
+					int kx = ix +  iy* imageSizeX;
+					int deltax =  0;
+					double outVal = 0;
+					for (int ispan = 1; ispan < spanDiff; ispan++) {
+						deltax += imageSizeX; 
+						outVal += tabValues [kx+deltax] - tabValues[kx-deltax];
+					}
+					outValues [kx] = (int) Math.abs(outVal);
+				}
+//				// erase border values
+//				for (int iy = imageSizeY-spanDiff; iy < imageSizeY; iy++) {
+//					outValues[ix + iy* imageSizeX] = 0;
+//				}
+			}
+			Array1DUtil.doubleArrayToSafeArray(outValues, img2.getDataXY(c),  true);
+		}
+		return img2;
+	}
+
 	private IcyBufferedImage computeXYDiffn(IcyBufferedImage sourceImage) {
 
 		int chan0 = 0;

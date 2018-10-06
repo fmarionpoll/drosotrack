@@ -38,7 +38,7 @@ import icy.main.Icy;
 import icy.plugin.abstract_.PluginActionable;
 import icy.preferences.XMLPreferences;
 import icy.sequence.DimensionId;
-import icy.system.profile.Chronometer;
+//import icy.system.profile.Chronometer;
 import icy.system.thread.ThreadUtil;
 import loci.formats.FormatException;
 import plugins.fmp.capillarytrack.BuildKymographsThread;
@@ -377,14 +377,14 @@ public class BuildKymos extends PluginActionable implements ActionListener, Chan
 
 		// send some info
 		ProgressFrame progress = new ProgressFrame("Save kymographs");
-		Chronometer chrono = new Chronometer("Tracking computation" );
-		int nbSecondsStart =  0;
-		int nbSecondsEnd = 0;
+//		Chronometer chrono = new Chronometer("Tracking computation" );
+//		int nbSecondsStart =  0;
+//		int nbSecondsEnd = 0;
 
 		for (SequencePlus seq: kymographArrayList) {
 
 			progress.setMessage( "Save kymograph file : " + seq.getName());
-			nbSecondsStart =  (int) (chrono.getNanos() / 1000000000f);
+//			nbSecondsStart =  (int) (chrono.getNanos() / 1000000000f);
 			String filename = directory + "\\" + seq.getName() + ".tiff";
 			File file = new File (filename);
 			IcyBufferedImage image = seq.getFirstImage();
@@ -395,8 +395,8 @@ public class BuildKymos extends PluginActionable implements ActionListener, Chan
 			} catch (IOException e) {
 				e.printStackTrace();
 			}
-			nbSecondsEnd =  (int) (chrono.getNanos() / 1000000000f);
-			System.out.println("File "+ seq.getName() + " saved in: " + (nbSecondsEnd-nbSecondsStart) + " s");
+//			nbSecondsEnd =  (int) (chrono.getNanos() / 1000000000f);
+			//System.out.println("File "+ seq.getName() + " saved in: " + (nbSecondsEnd-nbSecondsStart) + " s");
 		}
 		System.out.println("End of Kymograph saving process");
 		progress.close();
