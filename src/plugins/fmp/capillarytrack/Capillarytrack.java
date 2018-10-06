@@ -82,7 +82,7 @@ import plugins.kernel.roi.roi2d.ROI2DShape;
 public class Capillarytrack extends PluginActionable implements ActionListener, ChangeListener, ViewerListener
 {
 	// -------------------------------------- interface
-	private IcyFrame 	mainFrame 				= new IcyFrame("CapillaryTrack 02-10-2018", true, true, true, true);
+	private IcyFrame 	mainFrame 				= new IcyFrame("CapillaryTrack 06-10-2018", true, true, true, true);
 
 	// ---------------------------------------- video
 	private JButton 	setVideoSourceButton 	= new JButton("Open...");
@@ -140,7 +140,7 @@ public class Capillarytrack extends PluginActionable implements ActionListener, 
 	private JTextField 	detectGulpsThresholdTextField 	= new JTextField("90");
 	private JButton 	detectGulpsButton 		= new JButton("Detect gulps");
 	private JComboBox<TransformOp> transformForGulpsComboBox = new JComboBox<TransformOp> (new TransformOp[] {
-			TransformOp.XDIFFN, TransformOp.YDIFFN, TransformOp.XYDIFFN	});
+			TransformOp.XDIFFN /*, TransformOp.YDIFFN, TransformOp.XYDIFFN	*/});
 	
 	private JButton		displayTransform2Button	= new JButton("Display");
 	private JButton		openMeasuresButton		= new JButton("Load");
@@ -155,7 +155,6 @@ public class Capillarytrack extends PluginActionable implements ActionListener, 
 	
 	private JCheckBox 	editLevelsCheckbox 		= new JCheckBox("edit capill. level", true);
 	private JCheckBox 	editGulpsCheckbox 		= new JCheckBox("edit gulps", true);
-	private JButton		zoomTopLevelButton		= new JButton("Previous zoom");
 	
 	private JButton 	displayResultsButton 	= new JButton("Display results");
 	private JButton 	exportToXLSButton 		= new JButton("Export to XLS file...");
@@ -173,15 +172,15 @@ public class Capillarytrack extends PluginActionable implements ActionListener, 
 	private int numberOfImageForBuffer = 100;
 	private double capillaryVolume = 1.;
 	private double capillaryPixels = 1.;
-	private int spanDiffTop = 3;	// adjust this parameter eventually through user's interface
+	private int spanDiffTop = 3;
 	private	int	spanDiffTransf2 = 3;
 	private int previousupfront = -1;
 	
 	// results arrays
-	private ArrayList <SequencePlus> 	kymographArrayList 		= new ArrayList <SequencePlus> ();	// list of kymograph sequences
-	private XYMultiChart 				firstChart 				= null;
-	private XYMultiChart 				secondChart 			= null;
-	private XYMultiChart 				thirdChart 				= null;
+	private ArrayList <SequencePlus> kymographArrayList	= new ArrayList <SequencePlus> ();	// list of kymograph sequences
+	private XYMultiChart 			firstChart 			= null;
+	private XYMultiChart 			secondChart 		= null;
+	private XYMultiChart 			thirdChart 			= null;
 
 	enum StatusAnalysis { NODATA, FILE_OK, ROIS_OK, KYMOS_OK, MEASURETOP_OK, MEASUREGULPS_OK};
 	enum StatusComputation {START_COMPUTATION, STOP_COMPUTATION};
@@ -194,12 +193,6 @@ public class Capillarytrack extends PluginActionable implements ActionListener, 
 		{true, true, true, true, true}
 	};
 	private StatusComputation sComputation = StatusComputation.START_COMPUTATION; 
-	private int offsetX = 0;
-	private double scaleX = 0;
-	private int offsetY = 0;
-	private double scaleY = 0;
-	private boolean previousZoomSet = false;
-
 	private Line2D		refLineUpper 	= null;
 	private Line2D  	refLineLower 	= null;
 	private ROI2DLine	roiRefLineUpper = new ROI2DLine ();
@@ -323,7 +316,7 @@ public class Capillarytrack extends PluginActionable implements ActionListener, 
 		k3Panel.add(GuiUtil.besidesPanel(displayKymosCheckBox, displayKymosONButton));
 		displayPanel.add(GuiUtil.besidesPanel(k3Panel, k2Panel));
 		
-		displayPanel.add( GuiUtil.besidesPanel( editLevelsCheckbox, editGulpsCheckbox, zoomTopLevelButton)); 
+		displayPanel.add( GuiUtil.besidesPanel( editLevelsCheckbox, editGulpsCheckbox, new JLabel("  "))); 
 		displayPanel.add( GuiUtil.besidesPanel( displayResultsButton, exportToXLSButton));
 		displayPanel.add( GuiUtil.besidesPanel( closeAllButton));
 
@@ -422,24 +415,7 @@ public class Capillarytrack extends PluginActionable implements ActionListener, 
 				measuresFileSave();
 				saveMeasuresButton.setEnabled(true);
 			}});
-		
-		zoomTopLevelButton.addActionListener(new ActionListener() { @Override public void actionPerformed(ActionEvent e) {
-				Viewer v = vSequence.getFirstViewer();
-				Canvas2D cv = (Canvas2D) v.getCanvas();
-				if (cv != null) {
-					if (!previousZoomSet) {	
-						offsetX = 0;
-						offsetY = 0;
-						scaleX = 10;
-						scaleY = 10;
-					}
-					cv.setOffsetX(offsetX);
-					cv.setOffsetY(offsetY);
-					cv.setScaleX(scaleX);
-					cv.setScaleY(scaleY);
-				}
-			}});
-				
+			
 		adjustButton.addActionListener(new ActionListener() {@Override public void actionPerformed(ActionEvent e) {
 				roisCenterLinestoCapillaries();
 			}});		
@@ -467,7 +443,6 @@ public class Capillarytrack extends PluginActionable implements ActionListener, 
 				kymographNamesComboBox.setSelectedIndex(isel);
 		}});
 		
-		
 		displayKymosCheckBox.addActionListener(new ActionListener() {	@Override public void actionPerformed(ActionEvent e) {
 			boolean benabled = displayKymosCheckBox.isSelected();
 			displayKymosONButton.setEnabled(benabled);
@@ -486,16 +461,18 @@ public class Capillarytrack extends PluginActionable implements ActionListener, 
 			final TransformOp transform = (TransformOp) transformForLevelsComboBox.getSelectedItem();
 			detectTopButton.setEnabled( false);
 			kymosBuildFiltered(0, 1, transform, spanDiffTop);
+			
 			kymosDetectCapillaryLevels();
 			buttonsVisibilityUpdate(StatusAnalysis.MEASURETOP_OK); 
 		}});
 		
-		previousButton.addActionListener(new ActionListener() {	@Override public void actionPerformed(ActionEvent e) {
+		displayTopButton.addActionListener(new ActionListener() {	@Override public void actionPerformed(ActionEvent e) {
 			parseTextFields();
 			Collections.sort(kymographArrayList, new Tools.SequenceNameComparator()); 
 			final TransformOp transform = (TransformOp) transformForLevelsComboBox.getSelectedItem();
 			detectTopButton.setEnabled( false);
 			kymosBuildFiltered(0, 1, transform, spanDiffTop);
+			
 			kymosDisplayUpdate();
 			displayKymosCheckBox.setSelected(true);
 			detectTopButton.setEnabled( true);
@@ -535,8 +512,7 @@ public class Capillarytrack extends PluginActionable implements ActionListener, 
 		// _______________________________________________
 		// if series (action performed)
 		stopComputationButton.addActionListener(this);	// if series
-		exportToXLSButton.addActionListener (this);	// if series
-		
+		exportToXLSButton.addActionListener (this);		// if series
 		openKymographsButton.addActionListener (this);	// if series
 		saveKymographsButton.addActionListener (this); 	// if series
 	}
@@ -727,7 +703,6 @@ public class Capillarytrack extends PluginActionable implements ActionListener, 
 		i++;
 		enabled = flagsTable[item][i] ;
 		editGulpsCheckbox.setEnabled(enabled);
-		zoomTopLevelButton.setEnabled(enabled);
 	}
 
 	private boolean openROIs(String csFileName) {
@@ -1310,6 +1285,7 @@ public class Capillarytrack extends PluginActionable implements ActionListener, 
 			return;
 		
 		kymosDisplayON();
+		
 		int itemupfront = kymographNamesComboBox.getSelectedIndex();
 		if (itemupfront < 0) {
 			itemupfront = 0;
@@ -1317,17 +1293,38 @@ public class Capillarytrack extends PluginActionable implements ActionListener, 
 		}
 		
 		Viewer v = kymographArrayList.get(itemupfront).getFirstViewer();
-		if (previousupfront >= 0 && previousupfront != itemupfront) {
+		if (previousupfront != itemupfront && previousupfront >= 0 && previousupfront < kymographArrayList.size()) {
+			SequencePlus seq0 =  kymographArrayList.get(previousupfront);
+			// save changes and interpolate points if necessary
+			if (seq0.hasChanged) {
+				seq0.validateRois();
+				seq0.hasChanged = false;
+			}
+			// update canvas size of all kymograph windows if size of window has changed
 			Viewer v0 = kymographArrayList.get(previousupfront).getFirstViewer();
-			Rectangle rectDataView = v0.getBounds();
-			Canvas2D cv0 = (Canvas2D) v0.getCanvas();
+			Rectangle rect0 = v0.getBounds();
+			Rectangle rect = v.getBounds();
 			
-			v.setBounds(rectDataView);
+			if (rect != rect0) {
+				v.setBounds(rect0);
+				int i= 0;
+				int imax = 500;
+				while (!v.isInitialized() && i < imax) { i ++; }
+				if (!v.isInitialized())
+					System.out.println("Viewer still not initialized after " + imax +" iterations");
+				
+				for (SequencePlus seq: kymographArrayList) {
+					Viewer vi = seq.getFirstViewer();
+					Rectangle recti = vi.getBounds();
+					if (recti != rect0)
+						vi.setBounds(rect0);
+				}
+			}
+			// copy zoom and position of image from previous canvas to the one selected
+			Canvas2D cv0 = (Canvas2D) v0.getCanvas();
 			Canvas2D cv = (Canvas2D) v.getCanvas();
-			cv.setScaleX(cv0.getScaleX());
-			cv.setScaleY(cv0.getScaleY());
-			cv.setOffsetX(cv0.getOffsetX());
-			cv.setOffsetY(cv0.getOffsetY());
+			cv.setScale(cv0.getScaleX(), cv0.getScaleY(), false);
+			cv.setOffset(cv0.getOffsetX(), cv0.getOffsetY(), false);
 		}
 		v.toFront();
 		previousupfront = itemupfront;
@@ -1364,12 +1361,12 @@ public class Capillarytrack extends PluginActionable implements ActionListener, 
 		int itotal = kymographArrayList.size();
 		progress.setLength(itotal);
 
-		// loop over the list to open tif files as kymographs
+		// loop over the list to open tiff files as kymographs
 		kymographArrayList.clear();
 		kymographNamesComboBox.removeAllItems();
-		Chronometer chrono = new Chronometer("Tracking computation" );
-		int nbSecondsStart =  0;
-		int nbSecondsEnd = 0;
+//		Chronometer chrono = new Chronometer("Tracking computation" );
+//		int nbSecondsStart =  0;
+//		int nbSecondsEnd = 0;
 
 		for (String filename: list) {
 
@@ -1382,7 +1379,7 @@ public class Capillarytrack extends PluginActionable implements ActionListener, 
 			iprogress++;
 			progress.setPosition( iprogress );
 			progress.setMessage( "Open file : " + filename);
-			nbSecondsStart =  (int) (chrono.getNanos() / 1000000000f);
+//			nbSecondsStart =  (int) (chrono.getNanos() / 1000000000f);
 
 			IcyBufferedImage ibufImage = null;
 			try {
@@ -1394,8 +1391,8 @@ public class Capillarytrack extends PluginActionable implements ActionListener, 
 				e.printStackTrace();
 			}
 			kymographSeq.addImage(ibufImage);
-			nbSecondsEnd =  (int) (chrono.getNanos() / 1000000000f);
-			System.out.println("File "+ filename + " loaded in :" + (nbSecondsEnd-nbSecondsStart)+ " s");
+//			nbSecondsEnd =  (int) (chrono.getNanos() / 1000000000f);
+//			System.out.println("File "+ filename + " loaded in :" + (nbSecondsEnd-nbSecondsStart)+ " s");
 
 			int index1 = filename.indexOf(".tiff");
 			int index0 = filename.lastIndexOf("\\")+1;
@@ -1425,7 +1422,7 @@ public class Capillarytrack extends PluginActionable implements ActionListener, 
 		String path = vSequence.getDirectory();
 		if (outputpath != null)
 			path = outputpath;
-		// TODO: check here if outputpath exists - if not, create it
+		// TODO: check here if output path exists - if not, create it
 		final String cspath = path;
 		ThreadUtil.invoke(new Runnable() {
 
@@ -1478,7 +1475,6 @@ public class Capillarytrack extends PluginActionable implements ActionListener, 
 		for (int kymo=0; kymo < kymographArrayList.size(); kymo++) {
 			
 			SequencePlus seq = kymographArrayList.get(kymo);
-			System.out.println("Load "+seq.getName());
 			seq.beginUpdate();
 			if (flag = seq.loadXMLResults(directory, startFrame, endFrame)) {
 				seq.validateRois();
@@ -1540,9 +1536,6 @@ public class Capillarytrack extends PluginActionable implements ActionListener, 
 	}
 
 	private void parseTextFields() {	
-
-//		try { numberOfImageForBuffer = Integer.parseInt( numberOfImageForBufferTextField.getText() );
-//		}catch( Exception e ) { new AnnounceFrame("Can't interpret the buffer depth value."); }
 
 		try { analyzeStep = Integer.parseInt( analyzeStepTextField.getText() );
 		}catch( Exception e ) { new AnnounceFrame("Can't interpret the analyze step value."); }
@@ -1610,7 +1603,7 @@ public class Capillarytrack extends PluginActionable implements ActionListener, 
 				continue;
 			
 			Line2D line = roisCenterLinetoCapillary(sourceValues, xwidth, (ROI2DLine) roi, jitter);
-//			((ROI2DLine) roi).setLine(line);
+//			((ROI2DLine) roi).setLine(line); // replace with the 5 following lines 
 			List <Anchor2D> pts = ((ROI2DLine) roi).getControlPoints();
 			Anchor2D p1 = pts.get(0);
 			Anchor2D p2 = pts.get(1);
@@ -1919,7 +1912,7 @@ public class Capillarytrack extends PluginActionable implements ActionListener, 
 	@Override
 	public void stateChanged(ChangeEvent e) {
 		// ignore
-		System.out.println("state change detected");
+//		System.out.println("state change detected");
 	}
 
 	@Override	
@@ -1927,6 +1920,8 @@ public class Capillarytrack extends PluginActionable implements ActionListener, 
 	{
 		if ((event.getType() == ViewerEventType.POSITION_CHANGED) && (event.getDim() == DimensionId.T))        
             vSequence.currentFrame = event.getSource().getPositionT() ;  
+//		else 
+//			System.out.println("viewer change detected");
 	}
 
 	@Override
