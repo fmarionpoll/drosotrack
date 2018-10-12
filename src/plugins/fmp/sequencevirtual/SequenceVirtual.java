@@ -73,6 +73,10 @@ public class SequenceVirtual extends Sequence
 	{
 		status = Status.REGULAR;
 	}
+	
+	public SequenceVirtual(String name, IcyBufferedImage image) {
+		super (name, image);
+	}
 
 	public SequenceVirtual (String csFile)
 	{

@@ -22,7 +22,7 @@ import icy.util.XMLUtil;
 import plugins.fmp.sequencevirtual.ImageTransformTools.TransformOp;
 import plugins.kernel.roi.roi2d.ROI2DPolyLine;
 
-public class SequencePlus extends Sequence {
+public class SequencePlus extends SequenceVirtual {
 	
 	public ArrayList<Integer> derivedValuesArrayList= new ArrayList<Integer>(); // (derivative) result of the detection of the capillary level
 	public boolean hasChanged = false;
@@ -38,6 +38,9 @@ public class SequencePlus extends Sequence {
 	public	TransformOp transformForGulps = TransformOp.XDIFFN;
 	public enum ArrayListType {topLevel, bottomLevel, derivedValues, cumSum, topAndBottom}
 
+	public OverlayThreshold thresholdOverlay = null;
+	public OverlayTrapMouse trapOverlay 	= null;
+	
 	// -----------------------------------------------------
 	
 	public SequencePlus() {
@@ -271,4 +274,29 @@ public class SequencePlus extends Sequence {
 		return saveXMLData();
 	}
 
+	public void setThresholdOverlay() {
+		if (thresholdOverlay == null) 
+			thresholdOverlay = new OverlayThreshold(this);
+		if (!this.contains(thresholdOverlay)) 
+			this.addOverlay(thresholdOverlay);
+		thresholdOverlay.setSequence (this);
+	}
+	
+	public void removeThresholdOverlay() {
+		if (thresholdOverlay != null && this.contains(thresholdOverlay) )
+			this.removeOverlay(thresholdOverlay);
+		thresholdOverlay = null;
+	}
+	
+	public void addTrapOverlay ( ) {
+		if (trapOverlay == null)
+			trapOverlay = new OverlayTrapMouse ();
+		if (!this.contains(trapOverlay))
+			this.addOverlay(trapOverlay);
+	}
+	public void removeTrapOverlay( ) {
+		if (trapOverlay != null && this.contains(trapOverlay))
+			this.removeOverlay(trapOverlay);
+		trapOverlay = null;
+	}
 }

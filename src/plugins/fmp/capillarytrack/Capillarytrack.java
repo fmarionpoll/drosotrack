@@ -242,9 +242,9 @@ public class Capillarytrack extends PluginActionable implements ActionListener, 
 	private int 		colordistanceType 	= 0;
 	private int 		colorthreshold 		= 20;
 	private ArrayList <Color> colorarray 	= new ArrayList <Color>();
-	private OverlayThreshold thresholdOverlay = null;
 	private boolean 	thresholdOverlayON	= false;
 	private OverlayTrapMouse trapOverlay 	= null;
+	private OverlayThreshold thresholdOverlay = null;
 	private ThresholdType thresholdtype 	= ThresholdType.COLORARRAY; 
 	// TODO
 	private TransformOp simpletransformop 	= TransformOp.R2MINUS_GB;
@@ -330,19 +330,21 @@ public class Capillarytrack extends PluginActionable implements ActionListener, 
 		// ----------------- Measure
 		final JPanel analysisPanel = GuiUtil.generatePanel("MEASURE");
 		mainPanel.add(GuiUtil.besidesPanel(analysisPanel));
-		
+		// ----------------- detect using functions
 		JComponent panel2 = new JPanel(false);
 		panel2.setLayout(new GridLayout(4, 2));
 		panel2.add( GuiUtil.besidesPanel( detectTopCheckBox, detectBottomCheckBox));
 		JLabel topthresholdLabel = new JLabel("threshold ");
 		topthresholdLabel.setHorizontalAlignment(SwingConstants.RIGHT);
 		((JLabel) directionComboBox.getRenderer()).setHorizontalAlignment(JLabel.RIGHT);
-		panel2.add( GuiUtil.besidesPanel(  detectTopButton, detectAllLevelCheckBox, transformForLevelsComboBox, displayTopButton )); 
+		panel2.add( GuiUtil.besidesPanel(  new JLabel("  "), detectAllLevelCheckBox, transformForLevelsComboBox, displayTopButton )); 
 		JLabel spanLabel = new JLabel("span ");
 		spanLabel.setHorizontalAlignment(SwingConstants.RIGHT);
 		panel2.add( GuiUtil.besidesPanel( directionComboBox, detectTopTextField, spanLabel, spanTopTextField));
+		panel2.add( GuiUtil.besidesPanel(  detectTopButton));
 		tabbedPane.addTab("Filters", null, panel2, "thresholding a transformed image with different filters");
 		
+		// ----------------- detect colors
 		JComponent panel1 = new JPanel(false);
 		panel1.setLayout(new GridLayout(4, 2));
 		colorPickCombo.setRenderer(colorPickComboRenderer);
@@ -363,7 +365,7 @@ public class Capillarytrack extends PluginActionable implements ActionListener, 
 		
 		tabbedPane.setTabLayoutPolicy(JTabbedPane.SCROLL_TAB_LAYOUT);
 		analysisPanel.add(GuiUtil.besidesPanel(tabbedPane));
-		
+		// --------------- detect gulps & save parms
 		analysisPanel.add( GuiUtil.besidesPanel( detectGulpsButton, detectAllGulpsCheckBox, transformForGulpsComboBox, displayTransform2Button));
 		JLabel spanLabel2 = new JLabel("span ");
 		analysisPanel.add( GuiUtil.besidesPanel( topthresholdLabel, detectGulpsThresholdTextField, spanLabel2, spanTransf2TextField));
@@ -372,7 +374,6 @@ public class Capillarytrack extends PluginActionable implements ActionListener, 
 		loadsaveText3.setHorizontalAlignment(SwingConstants.RIGHT); 
 		loadsaveText3.setFont(FontUtil.setStyle(loadsaveText3.getFont(), Font.ITALIC));
 		analysisPanel.add(GuiUtil.besidesPanel(new JLabel (" "), loadsaveText3,  openMeasuresButton, saveMeasuresButton));
-		
 		
 		// ----------------- Display /edit
 		final JPanel displayPanel = GuiUtil.generatePanel("DISPLAY/EDIT/EXPORT RESULTS");
@@ -798,7 +799,7 @@ public class Capillarytrack extends PluginActionable implements ActionListener, 
 		activateSequenceThresholdOverlay(activateThreshold);
 		
 		if (activateThreshold && vSequence != null) {
-			thresholdOverlay.setSequence (vSequence);
+			thresholdOverlay.setSequence (kSequence);
 			thresholdOverlay.setTransform(transformOpForOverlay);
 			if (thresholdTypeForOverlay == ThresholdType.SINGLE)
 				thresholdOverlay.setThresholdSingle(thresholdForOverlay);
@@ -846,7 +847,7 @@ public class Capillarytrack extends PluginActionable implements ActionListener, 
 				}
 				pickColorButton.setBackground(Color.LIGHT_GRAY);
 				pickColorButton.setText(textPickAPixel);
-				vSequence.removeOverlay(trapOverlay);
+				kSequence.removeOverlay(trapOverlay);
 				trapOverlay = null;
 				updateThresholdOverlayParameters();
 			}
@@ -868,31 +869,29 @@ public class Capillarytrack extends PluginActionable implements ActionListener, 
 			pickColorButton.setBackground(Color.DARK_GRAY);
 			if (trapOverlay == null)
 				trapOverlay = new OverlayTrapMouse(this);
-			vSequence.addOverlay(trapOverlay);
+			kSequence.addOverlay(trapOverlay);
 		}
 	}
 
 	private void activateSequenceThresholdOverlay(boolean activate) {
-//		System.out.println("activateSequenceThresholdOverlay "+activate);
 		if (vSequence == null)
 			return;
 		
 		if (activate) {
 			if (!thresholdOverlayON) {
 				if (thresholdOverlay == null) {
-					System.out.println("create overlay");
 					thresholdOverlay = new OverlayThreshold(vSequence);
 				}
-				if (!vSequence.contains(thresholdOverlay)) 
-					vSequence.addOverlay(thresholdOverlay);
+				if (!kSequence.contains(thresholdOverlay)) 
+					kSequence.addOverlay(thresholdOverlay);
 				thresholdOverlayON = true;
 			}			
 		}
 		else {
 			if (thresholdOverlayON && thresholdOverlay != null) {
-				if (vSequence.contains(thresholdOverlay) ) {
-					vSequence.removeOverlay(thresholdOverlay);
-					System.out.println("remove overlay");
+				if (kSequence.contains(thresholdOverlay) ) {
+					kSequence.removeOverlay(thresholdOverlay);
+//					System.out.println("remove overlay");
 				}
 			}
 			thresholdOverlayON = false;
