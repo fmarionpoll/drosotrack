@@ -49,6 +49,7 @@ import icy.file.Saver;
 import icy.gui.frame.IcyFrame;
 import icy.gui.frame.progress.AnnounceFrame;
 import icy.gui.frame.progress.ProgressFrame;
+import icy.gui.main.ActiveSequenceListener;
 
 import icy.gui.util.FontUtil;
 import icy.gui.util.GuiUtil;
@@ -58,14 +59,15 @@ import icy.gui.viewer.ViewerEvent.ViewerEventType;
 import icy.gui.viewer.ViewerListener;
 import icy.image.IcyBufferedImage;
 import icy.painter.Anchor2D;
-import icy.painter.OverlayEvent;
-import icy.painter.OverlayListener;
-import icy.painter.OverlayEvent.OverlayEventType;
+
 import icy.plugin.abstract_.PluginActionable;
 import icy.preferences.XMLPreferences;
 import icy.roi.ROI;
 import icy.roi.ROI2D;
 import icy.sequence.DimensionId;
+import icy.sequence.Sequence;
+import icy.sequence.SequenceEvent;
+import icy.sequence.SequenceEvent.SequenceEventSourceType;
 import icy.system.profile.Chronometer;
 import icy.system.thread.ThreadUtil;
 import icy.type.collection.array.Array1DUtil;
@@ -78,8 +80,7 @@ import plugins.fmp.capillarytrack.KymoOverlay;
 import plugins.fmp.sequencevirtual.ComboBoxColorRenderer;
 import plugins.fmp.sequencevirtual.ImageTransformTools;
 import plugins.fmp.sequencevirtual.Line2DPlus;
-import plugins.fmp.sequencevirtual.OverlayThreshold;
-import plugins.fmp.sequencevirtual.OverlayTrapMouse;
+
 import plugins.fmp.sequencevirtual.SequencePlus;
 import plugins.fmp.sequencevirtual.SequencePlus.ArrayListType;
 import plugins.fmp.sequencevirtual.SequenceVirtual;
@@ -91,7 +92,7 @@ import plugins.kernel.roi.roi2d.ROI2DPolyLine;
 import plugins.kernel.roi.roi2d.ROI2DPolygon;
 import plugins.kernel.roi.roi2d.ROI2DShape;
 
-public class Capillarytrack extends PluginActionable implements ActionListener, ChangeListener, ViewerListener, OverlayListener
+public class Capillarytrack extends PluginActionable implements ActionListener, ChangeListener, ViewerListener, ActiveSequenceListener
 {
 	// -------------------------------------- interface
 	private IcyFrame 	mainFrame 				= new IcyFrame("CapillaryTrack 11-10-2018", true, true, true, true);
@@ -243,8 +244,8 @@ public class Capillarytrack extends PluginActionable implements ActionListener, 
 	private int 		colorthreshold 		= 20;
 	private ArrayList <Color> colorarray 	= new ArrayList <Color>();
 	private boolean 	thresholdOverlayON	= false;
-	private OverlayTrapMouse trapOverlay 	= null;
-	private OverlayThreshold thresholdOverlay = null;
+//	private OverlayTrapMouse trapOverlay 	= null;
+//	private OverlayThreshold thresholdOverlay = null;
 	private ThresholdType thresholdtype 	= ThresholdType.COLORARRAY; 
 	// TODO
 	private TransformOp simpletransformop 	= TransformOp.R2MINUS_GB;
@@ -602,7 +603,7 @@ public class Capillarytrack extends PluginActionable implements ActionListener, 
 		} } );
 
 		pickColorButton.addActionListener(new ActionListener () { @Override public void actionPerformed( final ActionEvent e ) { 
-			pickColor(); 
+			pickColorUpdateButton(); 
 		} } );
 		
 		rbRGB.addActionListener(new ActionListener () { @Override public void actionPerformed( final ActionEvent e ) { 
@@ -757,21 +758,13 @@ public class Capillarytrack extends PluginActionable implements ActionListener, 
 	
 	private void updateThresholdOverlayParameters() {
 		
-		if (vSequence == null)
-			return;
-		
 		boolean activateThreshold = true;
-		int thresholdForOverlay=0;
-		TransformOp transformOpForOverlay = TransformOp.NONE;
-		ThresholdType thresholdTypeForOverlay = ThresholdType.SINGLE;
+
 		
 		switch (tabbedPane.getSelectedIndex()) {
 			case 1:  // color array
 				colorthreshold = Integer.parseInt(distanceSpinner.getValue().toString());
-				thresholdForOverlay = colorthreshold;
 				thresholdtype = ThresholdType.COLORARRAY;
-				thresholdTypeForOverlay = thresholdtype;
-				transformOpForOverlay = colortransformop;
 				colorarray.clear();
 				for (int i=0; i<colorPickCombo.getItemCount(); i++) {
 					colorarray.add(colorPickCombo.getItemAt(i));
@@ -783,11 +776,8 @@ public class Capillarytrack extends PluginActionable implements ActionListener, 
 				
 			case 0:	// simple filter & single threshold
 				simpletransformop = (TransformOp) transformsComboBox.getSelectedItem();
-				transformOpForOverlay = simpletransformop;
 				simplethreshold = Integer.parseInt(thresholdSpinner.getValue().toString());
-				thresholdForOverlay = simplethreshold; 
 				thresholdtype = ThresholdType.SINGLE;
-				thresholdTypeForOverlay = thresholdtype;	
 				break;
 
 			default:
@@ -797,105 +787,51 @@ public class Capillarytrack extends PluginActionable implements ActionListener, 
 		
 		//--------------------------------
 		activateSequenceThresholdOverlay(activateThreshold);
+	}
+	
+	
+	private void pickColorUpdateButton() {
 		
-		if (activateThreshold && vSequence != null) {
-			thresholdOverlay.setSequence (kSequence);
-			thresholdOverlay.setTransform(transformOpForOverlay);
-			if (thresholdTypeForOverlay == ThresholdType.SINGLE)
-				thresholdOverlay.setThresholdSingle(thresholdForOverlay);
-			else
-				thresholdOverlay.setThresholdColor(colorarray, colordistanceType, colorthreshold);
-			thresholdOverlay.painterChanged();
-		}
-	}
-	
-	@Override
-	public void overlayChanged(OverlayEvent event) {
-		if (event.getType() == OverlayEventType.PROPERTY_CHANGED) {
-			
-			int x = (int) trapOverlay.getClickPoint().getX();
-			int y = (int) trapOverlay.getClickPoint().getY();
-			IcyBufferedImage image = vSequence.getImage(vSequence.getT(), 0, -1);
-			boolean isInside = image.isInside(new Point(x, y)); 
-			if (isInside) {
-				int argb = image.getRGB(x, y);
-				int r = (argb>>16) & 0xFF;
-				int g = (argb>>8) & 0xFF;
-				int b = (argb>>0) & 0xFF;
-				pickColorButton.setBackground(new Color(r, g, b));
-				String cs = Integer.toString(r) + ":"+ Integer.toString(g) +":" + Integer.toString(b);
-				pickColorButton.setText(cs);
-			}
-
-			if (event.getPropertyName() == "click") {
-
-				if (isInside) {
-					Color color = pickColorButton.getBackground();
-					boolean isnewcolor = true;
-					int isel = 0;
-					for (int i=0; i<colorPickCombo.getItemCount(); i++) {
-						if (color.equals(colorPickCombo.getItemAt(i)) ) {
-							isnewcolor = false;
-							isel = i;
-						}
-					}
-					if (isnewcolor) {
-						colorPickCombo.addItem(color);
-						isel = colorPickCombo.getItemCount()-1;
-					}
-					colorPickCombo.setSelectedIndex(isel);
-				}
-				pickColorButton.setBackground(Color.LIGHT_GRAY);
-				pickColorButton.setText(textPickAPixel);
-				kSequence.removeOverlay(trapOverlay);
-				trapOverlay = null;
-				updateThresholdOverlayParameters();
-			}
-		} 
-	}
-	
-	private void pickColor() {
+		boolean bActiveTrapOverlay = false;
+		
 		if (pickColorButton.getText().contains("*") || pickColorButton.getText().contains(":")) {
 			pickColorButton.setBackground(Color.LIGHT_GRAY);
 			pickColorButton.setText(textPickAPixel);
-			if (trapOverlay != null) {
-				trapOverlay.remove();
-				trapOverlay = null;
-			}
+			bActiveTrapOverlay = false;
 		}
 		else
 		{
 			pickColorButton.setText("*"+textPickAPixel+"*");
 			pickColorButton.setBackground(Color.DARK_GRAY);
-			if (trapOverlay == null)
-				trapOverlay = new OverlayTrapMouse(this);
-			kSequence.addOverlay(trapOverlay);
+			bActiveTrapOverlay = true;
 		}
+		
+		for (SequencePlus kSeq: kymographArrayList)
+			kSeq.setMouseTrapOverlay(bActiveTrapOverlay);
 	}
 
 	private void activateSequenceThresholdOverlay(boolean activate) {
-		if (vSequence == null)
+		if (kymographArrayList.size() == 0)
 			return;
 		
-		if (activate) {
-			if (!thresholdOverlayON) {
-				if (thresholdOverlay == null) {
-					thresholdOverlay = new OverlayThreshold(vSequence);
-				}
-				if (!kSequence.contains(thresholdOverlay)) 
-					kSequence.addOverlay(thresholdOverlay);
-				thresholdOverlayON = true;
-			}			
+		int thresholdForOverlay=0;
+		TransformOp transformOpForOverlay = TransformOp.NONE;
+		ThresholdType thresholdTypeForOverlay = ThresholdType.SINGLE;
+		if (tabbedPane.getSelectedIndex() == 1) {
+			thresholdTypeForOverlay = ThresholdType.COLORARRAY;
+			thresholdForOverlay = colorthreshold;
 		}
-		else {
-			if (thresholdOverlayON && thresholdOverlay != null) {
-				if (kSequence.contains(thresholdOverlay) ) {
-					kSequence.removeOverlay(thresholdOverlay);
-//					System.out.println("remove overlay");
-				}
+			
+		for (SequencePlus kSeq: kymographArrayList) {
+			kSeq.setThresholdOverlay(activate);
+			if (activate) {
+				if (thresholdTypeForOverlay == ThresholdType.SINGLE)
+					kSeq.setThresholdOverlayParametersSingle(transformOpForOverlay, thresholdForOverlay);
+				else
+					kSeq.setThresholdOverlayParametersColors(transformOpForOverlay, colorarray, colordistanceType, colorthreshold);
 			}
-			thresholdOverlayON = false;
 		}
+		thresholdOverlayON = activate;
 	}
 	
 	// ----------------------------------------------
@@ -1121,11 +1057,11 @@ public class Capillarytrack extends PluginActionable implements ActionListener, 
 		startComputationButton.setEnabled(false);
 		
 		buildKymographsThread = new BuildKymographsThread();
-		buildKymographsThread.vSequence  		= vSequence;
-		buildKymographsThread.analyzeStep 			= analyzeStep;
-		buildKymographsThread.startFrame 			= startFrame;
-		buildKymographsThread.endFrame 				= endFrame;
-		buildKymographsThread.diskRadius 			= diskRadius;
+		buildKymographsThread.vSequence  	= vSequence;
+		buildKymographsThread.analyzeStep 	= analyzeStep;
+		buildKymographsThread.startFrame 	= startFrame;
+		buildKymographsThread.endFrame 		= endFrame;
+		buildKymographsThread.diskRadius 	= diskRadius;
 		if (kymographArrayList.size() > 0) {
 			for (SequencePlus seq:kymographArrayList)
 				seq.close();
@@ -2350,6 +2286,72 @@ public class Capillarytrack extends PluginActionable implements ActionListener, 
 			irow++;
 		}
 	}
+
+	@Override
+	public void sequenceActivated(Sequence sequence) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void sequenceDeactivated(Sequence sequence) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void activeSequenceChanged(SequenceEvent event) {
+		if (event.getSourceType() == SequenceEventSourceType.SEQUENCE_OVERLAY) {
+			int i=0;
+		}
+		
+	}
+
+//	@Override
+//	public void overlayChanged(OverlayEvent event) {
+//		
+//		if (event.getType() == OverlayEventType.PROPERTY_CHANGED) {
+//			
+//			int x = (int) trapOverlay.getClickPoint().getX();
+//			int y = (int) trapOverlay.getClickPoint().getY();
+//			IcyBufferedImage image = kSeq.getImage(kSeq.getT(), 0, -1);
+//			boolean isInside = image.isInside(new Point(x, y)); 
+//			if (isInside) {
+//				int argb = image.getRGB(x, y);
+//				int r = (argb>>16) & 0xFF;
+//				int g = (argb>>8) & 0xFF;
+//				int b = (argb>>0) & 0xFF;
+//				pickColorButton.setBackground(new Color(r, g, b));
+//				String cs = Integer.toString(r) + ":"+ Integer.toString(g) +":" + Integer.toString(b);
+//				pickColorButton.setText(cs);
+//			}
+//
+//			if (event.getPropertyName() == "click") {
+//
+//				if (isInside) {
+//					Color color = pickColorButton.getBackground();
+//					boolean isnewcolor = true;
+//					int isel = 0;
+//					for (int i=0; i < colorPickCombo.getItemCount(); i++) {
+//						if (color.equals(colorPickCombo.getItemAt(i)) ) {
+//							isnewcolor = false;
+//							isel = i;
+//						}
+//					}
+//					if (isnewcolor) {
+//						colorPickCombo.addItem(color);
+//						isel = colorPickCombo.getItemCount()-1;
+//					}
+//					colorPickCombo.setSelectedIndex(isel);
+//				}
+//				pickColorButton.setBackground(Color.LIGHT_GRAY);
+//				pickColorButton.setText(textPickAPixel);
+//				kSeq.removeOverlay(trapOverlay);
+//				trapOverlay = null;
+//				updateThresholdOverlayParameters();
+//			}
+//		} 
+//	}
 
 
 

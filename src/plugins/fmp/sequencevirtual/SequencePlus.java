@@ -15,7 +15,6 @@ import org.w3c.dom.Node;
 import icy.image.IcyBufferedImage;
 import icy.roi.ROI2D;
 import icy.roi.ROIEvent;
-import icy.sequence.Sequence;
 import icy.sequence.SequenceEvent.SequenceEventType;
 import icy.type.geom.Polyline2D;
 import icy.util.XMLUtil;
@@ -274,29 +273,46 @@ public class SequencePlus extends SequenceVirtual {
 		return saveXMLData();
 	}
 
-	public void setThresholdOverlay() {
-		if (thresholdOverlay == null) 
-			thresholdOverlay = new OverlayThreshold(this);
-		if (!this.contains(thresholdOverlay)) 
-			this.addOverlay(thresholdOverlay);
-		thresholdOverlay.setSequence (this);
+	// ----------------------------
+	public void setThresholdOverlay(boolean bActive) {
+		if (bActive) {
+			if (thresholdOverlay == null) 
+				thresholdOverlay = new OverlayThreshold(this);
+			if (!this.contains(thresholdOverlay)) 
+				this.addOverlay(thresholdOverlay);
+			thresholdOverlay.setSequence (this);
+		}
+		else {
+			if (thresholdOverlay != null && this.contains(thresholdOverlay) )
+				this.removeOverlay(thresholdOverlay);
+			thresholdOverlay = null;
+		}
 	}
 	
-	public void removeThresholdOverlay() {
-		if (thresholdOverlay != null && this.contains(thresholdOverlay) )
-			this.removeOverlay(thresholdOverlay);
-		thresholdOverlay = null;
+	public void setThresholdOverlayParametersSingle(TransformOp transf, int threshold) {
+		thresholdOverlay.setTransform(transf);
+		thresholdOverlay.setThresholdSingle(threshold);
+		thresholdOverlay.painterChanged();
 	}
 	
-	public void addTrapOverlay ( ) {
-		if (trapOverlay == null)
-			trapOverlay = new OverlayTrapMouse ();
-		if (!this.contains(trapOverlay))
-			this.addOverlay(trapOverlay);
+	public void setThresholdOverlayParametersColors(TransformOp transf, ArrayList <Color> colorarray, int colordistancetype, int colorthreshold) {
+		thresholdOverlay.setTransform(transf);
+		thresholdOverlay.setThresholdColor(colorarray, colordistancetype, colorthreshold);
+		thresholdOverlay.painterChanged();
 	}
-	public void removeTrapOverlay( ) {
-		if (trapOverlay != null && this.contains(trapOverlay))
-			this.removeOverlay(trapOverlay);
-		trapOverlay = null;
+
+	// ----------------------------------
+	public void setMouseTrapOverlay ( boolean bActive) {
+		if (bActive) {
+			if (trapOverlay == null)
+				trapOverlay = new OverlayTrapMouse ();
+			if (!this.contains(trapOverlay))
+				this.addOverlay(trapOverlay);
+		}
+		else {
+			if (trapOverlay != null && this.contains(trapOverlay))
+				this.removeOverlay(trapOverlay);
+			trapOverlay = null;
+		}
 	}
 }
