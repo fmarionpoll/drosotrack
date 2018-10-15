@@ -179,6 +179,7 @@ import plugins.nchenouard.kymographtracker.spline.CubicSmoothingSpline;
 			return length;
 		}
 		
+		// TODO
 		private IcyBufferedImage getImageFromSequence(int t) {
 			IcyBufferedImage workImage = vSequence.loadVImage(t);
 			vSequence.currentFrame = t;

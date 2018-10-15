@@ -6,6 +6,8 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import javax.swing.JFileChooser;
+
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 import org.w3c.dom.Element;
@@ -263,11 +265,8 @@ public class SequenceVirtual extends Sequence
 	public String loadInputVirtualStack(String path) {
 
 		LoaderDialog dialog = new LoaderDialog(false);
-		if (path != null)
-		{
-			File dir = new File(path);
-			dialog.setCurrentDirectory(dir);
-		}
+		if (path != null) 
+			dialog.setCurrentDirectory(new File(path));
 	    File[] selectedFiles = dialog.getSelectedFiles();
 	    if (selectedFiles.length == 0)
 	    	return null;
@@ -276,9 +275,9 @@ public class SequenceVirtual extends Sequence
 	    	directory = selectedFiles[0].getAbsolutePath();
 	    else
 	    	directory = selectedFiles[0].getParentFile().getAbsolutePath();
-		if (directory == null)
+		if (directory == null )
 			return null;
-		
+
 		String [] list;
 		if (selectedFiles.length == 1) {
 			list = (new File(directory)).list();

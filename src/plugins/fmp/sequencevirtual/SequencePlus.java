@@ -10,6 +10,9 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import javax.swing.JButton;
+import javax.swing.JComboBox;
+
 import org.w3c.dom.Node;
 
 import icy.image.IcyBufferedImage;
@@ -21,7 +24,7 @@ import icy.util.XMLUtil;
 import plugins.fmp.sequencevirtual.ImageTransformTools.TransformOp;
 import plugins.kernel.roi.roi2d.ROI2DPolyLine;
 
-public class SequencePlus extends SequenceVirtual {
+public class SequencePlus extends SequenceVirtual  {
 	
 	public ArrayList<Integer> derivedValuesArrayList= new ArrayList<Integer>(); // (derivative) result of the detection of the capillary level
 	public boolean hasChanged = false;
@@ -46,9 +49,6 @@ public class SequencePlus extends SequenceVirtual {
 		super ();
 	}
 	
-	public SequencePlus(String name) {
-		super (name);
-	}
 	
 	public SequencePlus(String name, IcyBufferedImage image) {
 		super (name, image);
@@ -301,11 +301,12 @@ public class SequencePlus extends SequenceVirtual {
 		thresholdOverlay.painterChanged();
 	}
 
+
 	// ----------------------------------
-	public void setMouseTrapOverlay ( boolean bActive) {
+	public void setMouseTrapOverlay (boolean bActive, JButton pickColorButton, JComboBox<Color> colorPickCombo) {
 		if (bActive) {
 			if (trapOverlay == null)
-				trapOverlay = new OverlayTrapMouse ();
+				trapOverlay = new OverlayTrapMouse (pickColorButton, colorPickCombo);
 			if (!this.contains(trapOverlay))
 				this.addOverlay(trapOverlay);
 		}
@@ -315,4 +316,6 @@ public class SequencePlus extends SequenceVirtual {
 			trapOverlay = null;
 		}
 	}
+	
+
 }

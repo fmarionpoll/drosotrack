@@ -1139,8 +1139,8 @@ public class Areatrack extends PluginActionable implements ActionListener, Chang
 	public void overlayChanged(OverlayEvent event) {
 		if (event.getType() == OverlayEventType.PROPERTY_CHANGED) {
 			
-			int x = (int) trapOverlay.getClickPoint().getX();
-			int y = (int) trapOverlay.getClickPoint().getY();
+			int x = (int) trapOverlay.getPt().getX();
+			int y = (int) trapOverlay.getPt().getY();
 			IcyBufferedImage image = vSequence.getImage(vSequence.getT(), 0, -1);
 			boolean isInside = image.isInside(new Point(x, y)); 
 			if (isInside) {

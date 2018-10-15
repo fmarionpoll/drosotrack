@@ -14,6 +14,7 @@ import java.awt.geom.Line2D;
 import java.awt.geom.Point2D;
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
@@ -49,7 +50,6 @@ import icy.file.Saver;
 import icy.gui.frame.IcyFrame;
 import icy.gui.frame.progress.AnnounceFrame;
 import icy.gui.frame.progress.ProgressFrame;
-import icy.gui.main.ActiveSequenceListener;
 
 import icy.gui.util.FontUtil;
 import icy.gui.util.GuiUtil;
@@ -65,9 +65,6 @@ import icy.preferences.XMLPreferences;
 import icy.roi.ROI;
 import icy.roi.ROI2D;
 import icy.sequence.DimensionId;
-import icy.sequence.Sequence;
-import icy.sequence.SequenceEvent;
-import icy.sequence.SequenceEvent.SequenceEventSourceType;
 import icy.system.profile.Chronometer;
 import icy.system.thread.ThreadUtil;
 import icy.type.collection.array.Array1DUtil;
@@ -76,11 +73,10 @@ import jxl.write.WritableSheet;
 import jxl.write.WritableWorkbook;
 import jxl.write.WriteException;
 import loci.formats.FormatException;
-import plugins.fmp.capillarytrack.KymoOverlay;
+
 import plugins.fmp.sequencevirtual.ComboBoxColorRenderer;
 import plugins.fmp.sequencevirtual.ImageTransformTools;
 import plugins.fmp.sequencevirtual.Line2DPlus;
-
 import plugins.fmp.sequencevirtual.SequencePlus;
 import plugins.fmp.sequencevirtual.SequencePlus.ArrayListType;
 import plugins.fmp.sequencevirtual.SequenceVirtual;
@@ -92,10 +88,10 @@ import plugins.kernel.roi.roi2d.ROI2DPolyLine;
 import plugins.kernel.roi.roi2d.ROI2DPolygon;
 import plugins.kernel.roi.roi2d.ROI2DShape;
 
-public class Capillarytrack extends PluginActionable implements ActionListener, ChangeListener, ViewerListener, ActiveSequenceListener
+public class Capillarytrack extends PluginActionable implements ActionListener, ChangeListener, ViewerListener
 {
 	// -------------------------------------- interface
-	private IcyFrame 	mainFrame 				= new IcyFrame("CapillaryTrack 11-10-2018", true, true, true, true);
+	private IcyFrame 	mainFrame 				= new IcyFrame("CapillaryTrack 15-10-2018", true, true, true, true);
 
 	// ---------------------------------------- video
 	private JButton 	setVideoSourceButton 	= new JButton("Open...");
@@ -215,7 +211,6 @@ public class Capillarytrack extends PluginActionable implements ActionListener, 
 	private int previousupfront = -1;
 	
 	// results arrays
-	private ArrayList <SequencePlus> kymographArrayList	= new ArrayList <SequencePlus> ();	// list of kymograph sequences
 	private XYMultiChart 			firstChart 			= null;
 	private XYMultiChart 			secondChart 		= null;
 	private XYMultiChart 			thirdChart 			= null;
@@ -237,7 +232,8 @@ public class Capillarytrack extends PluginActionable implements ActionListener, 
 	private ROI2DLine	roiRefLineLower = new ROI2DLine ();
 	private BuildKymographsThread buildKymographsThread = null;
 	private ImageTransformTools tImg 	= null;
-	
+	private ArrayList <SequencePlus> kymographArrayList	= new ArrayList <SequencePlus> ();	// list of kymograph sequences
+		
 	// colors
 	private TransformOp colortransformop 	= TransformOp.NONE;
 	private int 		colordistanceType 	= 0;
@@ -332,37 +328,37 @@ public class Capillarytrack extends PluginActionable implements ActionListener, 
 		final JPanel analysisPanel = GuiUtil.generatePanel("MEASURE");
 		mainPanel.add(GuiUtil.besidesPanel(analysisPanel));
 		// ----------------- detect using functions
-		JComponent panel2 = new JPanel(false);
-		panel2.setLayout(new GridLayout(4, 2));
-		panel2.add( GuiUtil.besidesPanel( detectTopCheckBox, detectBottomCheckBox));
+		JComponent panel1 = new JPanel(false);
+		panel1.setLayout(new GridLayout(4, 2));
+		panel1.add( GuiUtil.besidesPanel( detectTopCheckBox, detectBottomCheckBox));
 		JLabel topthresholdLabel = new JLabel("threshold ");
 		topthresholdLabel.setHorizontalAlignment(SwingConstants.RIGHT);
 		((JLabel) directionComboBox.getRenderer()).setHorizontalAlignment(JLabel.RIGHT);
-		panel2.add( GuiUtil.besidesPanel(  new JLabel("  "), detectAllLevelCheckBox, transformForLevelsComboBox, displayTopButton )); 
+		panel1.add( GuiUtil.besidesPanel(  new JLabel("  "), detectAllLevelCheckBox, transformForLevelsComboBox, displayTopButton )); 
 		JLabel spanLabel = new JLabel("span ");
 		spanLabel.setHorizontalAlignment(SwingConstants.RIGHT);
-		panel2.add( GuiUtil.besidesPanel( directionComboBox, detectTopTextField, spanLabel, spanTopTextField));
-		panel2.add( GuiUtil.besidesPanel(  detectTopButton));
-		tabbedPane.addTab("Filters", null, panel2, "thresholding a transformed image with different filters");
+		panel1.add( GuiUtil.besidesPanel( directionComboBox, detectTopTextField, spanLabel, spanTopTextField));
+		panel1.add( GuiUtil.besidesPanel(  detectTopButton));
+		tabbedPane.addTab("Filters", null, panel1, "thresholding a transformed image with different filters");
 		
 		// ----------------- detect colors
-		JComponent panel1 = new JPanel(false);
-		panel1.setLayout(new GridLayout(4, 2));
+		JComponent panel2 = new JPanel(false);
+		panel2.setLayout(new GridLayout(4, 2));
 		colorPickCombo.setRenderer(colorPickComboRenderer);
-		panel1.add( GuiUtil.besidesPanel(pickColorButton, colorPickCombo, deleteColorButton));
+		panel2.add( GuiUtil.besidesPanel(pickColorButton, colorPickCombo, deleteColorButton));
 		distanceLabel.setHorizontalAlignment(SwingConstants.RIGHT);
 		ButtonGroup bgd = new ButtonGroup();
 		bgd.add(rbL1);
 		bgd.add(rbL2);
-		panel1.add( GuiUtil.besidesPanel(distanceLabel, rbL1, rbL2, distanceSpinner));
+		panel2.add( GuiUtil.besidesPanel(distanceLabel, rbL1, rbL2, distanceSpinner));
 		colorspaceLabel.setHorizontalAlignment(SwingConstants.RIGHT);
 		ButtonGroup bgcs = new ButtonGroup();
 		bgcs.add(rbRGB);
 		bgcs.add(rbHSV);
 		bgcs.add(rbH1H2H3);
-		panel1.add( GuiUtil.besidesPanel(colorspaceLabel, rbRGB, rbHSV, rbH1H2H3));
-		panel1.add(GuiUtil.besidesPanel(detectColorButton)); 
-		tabbedPane.addTab("Colors", null, panel1, "thresholding an image with different colors and a distance");
+		panel2.add( GuiUtil.besidesPanel(colorspaceLabel, rbRGB, rbHSV, rbH1H2H3));
+		panel2.add(GuiUtil.besidesPanel(detectColorButton)); 
+		tabbedPane.addTab("Colors", null, panel2, "thresholding an image with different colors and a distance");
 		
 		tabbedPane.setTabLayoutPolicy(JTabbedPane.SCROLL_TAB_LAYOUT);
 		analysisPanel.add(GuiUtil.besidesPanel(tabbedPane));
@@ -807,9 +803,10 @@ public class Capillarytrack extends PluginActionable implements ActionListener, 
 		}
 		
 		for (SequencePlus kSeq: kymographArrayList)
-			kSeq.setMouseTrapOverlay(bActiveTrapOverlay);
+			kSeq.setMouseTrapOverlay(bActiveTrapOverlay, pickColorButton, colorPickCombo);
 	}
 
+	
 	private void activateSequenceThresholdOverlay(boolean activate) {
 		if (kymographArrayList.size() == 0)
 			return;
@@ -1068,7 +1065,8 @@ public class Capillarytrack extends PluginActionable implements ActionListener, 
 		}
 		kymographArrayList.clear();
 		for (ROI2DShape roi:vSequence.capillariesArrayList) {
-			SequencePlus kymographSeq = new SequencePlus(roi.getName());	
+			SequencePlus kymographSeq = new SequencePlus();	
+			kymographSeq.setName(roi.getName());
 			kymographArrayList.add(kymographSeq);
 		}
 		buildKymographsThread.kymographArrayList = kymographArrayList;
@@ -1626,8 +1624,6 @@ public class Capillarytrack extends PluginActionable implements ActionListener, 
 			int index0 = filename.lastIndexOf("\\")+1;
 			String title = filename.substring(index0, index1);
 			kymographSeq.setName(title);
-			KymoOverlay koverlay = new KymoOverlay();
-			kymographSeq.addOverlay(koverlay);
 			
 			kymographArrayList.add(kymographSeq);
 			String kName = kymographSeq.getName();
@@ -1647,25 +1643,35 @@ public class Capillarytrack extends PluginActionable implements ActionListener, 
 	private void kymosSaveToFile(String outputpath) {
 
 		final String[] dummyString = new String[1];
-		String path = vSequence.getDirectory();
-		if (outputpath != null)
-			path = outputpath;
-		// TODO: check here if output path exists - if not, create it
-		final String cspath = path;
+		if (outputpath == null) {
+			outputpath = vSequence.getDirectory()+ "\\results";
+			}
+		
+		try {
+			Files.createDirectories(Paths.get(outputpath));
+		} catch (IOException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}
+
+		final String cspath = outputpath;
 		ThreadUtil.invoke(new Runnable() {
 
 			@Override
 			public void run() {
 				JFileChooser f = new JFileChooser(cspath);
 				f.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY); 
-				f.showSaveDialog(null);
-				dummyString[0] = f.getSelectedFile().getAbsolutePath();
+				int returnedval = f.showSaveDialog(null);
+				if (returnedval == JFileChooser.APPROVE_OPTION) 
+					dummyString[0] = f.getSelectedFile().getAbsolutePath();
 			}
 		}, true);
 
-		String directory = dummyString[0];
-		if (directory == null)
+		String directory = null; 
+		if (dummyString.length <2)
 			return;
+		else
+			directory = dummyString[0];
 
 		// send some info
 		ProgressFrame progress = new ProgressFrame("Save kymographs");
@@ -1709,7 +1715,7 @@ public class Capillarytrack extends PluginActionable implements ActionListener, 
 				seq.getArrayListFromRois(ArrayListType.cumSum);
 			}
 			else 
-				System.out.println(" -> failed");
+				System.out.println(" load measures -> failed or not found in directory: " + directory);
 			seq.endUpdate();
 		}
 		if (flag && kymographArrayList.size() > 0) {
@@ -1725,7 +1731,7 @@ public class Capillarytrack extends PluginActionable implements ActionListener, 
 			SequencePlus seq = kymographArrayList.get(kymo);
 			System.out.println("saving "+seq.getName());
 			if (!seq.saveXMLResults(directory, startFrame, endFrame))
-				System.out.println(" -> failed");
+				System.out.println(" Save measures -> failed in directory: " + directory);
 		}
 	}
 	
@@ -2286,72 +2292,6 @@ public class Capillarytrack extends PluginActionable implements ActionListener, 
 			irow++;
 		}
 	}
-
-	@Override
-	public void sequenceActivated(Sequence sequence) {
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
-	public void sequenceDeactivated(Sequence sequence) {
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
-	public void activeSequenceChanged(SequenceEvent event) {
-		if (event.getSourceType() == SequenceEventSourceType.SEQUENCE_OVERLAY) {
-			int i=0;
-		}
-		
-	}
-
-//	@Override
-//	public void overlayChanged(OverlayEvent event) {
-//		
-//		if (event.getType() == OverlayEventType.PROPERTY_CHANGED) {
-//			
-//			int x = (int) trapOverlay.getClickPoint().getX();
-//			int y = (int) trapOverlay.getClickPoint().getY();
-//			IcyBufferedImage image = kSeq.getImage(kSeq.getT(), 0, -1);
-//			boolean isInside = image.isInside(new Point(x, y)); 
-//			if (isInside) {
-//				int argb = image.getRGB(x, y);
-//				int r = (argb>>16) & 0xFF;
-//				int g = (argb>>8) & 0xFF;
-//				int b = (argb>>0) & 0xFF;
-//				pickColorButton.setBackground(new Color(r, g, b));
-//				String cs = Integer.toString(r) + ":"+ Integer.toString(g) +":" + Integer.toString(b);
-//				pickColorButton.setText(cs);
-//			}
-//
-//			if (event.getPropertyName() == "click") {
-//
-//				if (isInside) {
-//					Color color = pickColorButton.getBackground();
-//					boolean isnewcolor = true;
-//					int isel = 0;
-//					for (int i=0; i < colorPickCombo.getItemCount(); i++) {
-//						if (color.equals(colorPickCombo.getItemAt(i)) ) {
-//							isnewcolor = false;
-//							isel = i;
-//						}
-//					}
-//					if (isnewcolor) {
-//						colorPickCombo.addItem(color);
-//						isel = colorPickCombo.getItemCount()-1;
-//					}
-//					colorPickCombo.setSelectedIndex(isel);
-//				}
-//				pickColorButton.setBackground(Color.LIGHT_GRAY);
-//				pickColorButton.setText(textPickAPixel);
-//				kSeq.removeOverlay(trapOverlay);
-//				trapOverlay = null;
-//				updateThresholdOverlayParameters();
-//			}
-//		} 
-//	}
 
 
 
