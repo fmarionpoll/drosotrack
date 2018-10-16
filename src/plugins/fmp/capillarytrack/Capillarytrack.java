@@ -101,6 +101,8 @@ public class Capillarytrack extends PluginActionable implements ActionListener, 
 	private JCheckBox	loadpreviousCheckBox	= new JCheckBox("load previous measures", true);
 
 	// ---------------------------------------- ROIs
+	private JTabbedPane tabbedKymosPane 			= new JTabbedPane();
+	
 	private JButton 	createROIsFromPolygonButton = new JButton("Generate ROIs (from Polygon 2D)");
 	private JButton		openROIsButton			= new JButton("Load...");
 	private JButton		saveROIsButton			= new JButton("Save...");
@@ -128,21 +130,21 @@ public class Capillarytrack extends PluginActionable implements ActionListener, 
 	private JButton		saveKymographsButton	= new JButton("Save...");
 	
 	//---------------------------------------------------------------------------
-	private JTabbedPane tabbedPane 			= new JTabbedPane();
+	private JTabbedPane tabbedDetectionPane 	= new JTabbedPane();
 
-	private JComboBox<Color> colorPickCombo = new JComboBox<Color>();
+	private JComboBox<Color> colorPickCombo 	= new JComboBox<Color>();
 	private ComboBoxColorRenderer colorPickComboRenderer = new ComboBoxColorRenderer(colorPickCombo);
-	private String 		textPickAPixel 		= "Pick a pixel";
-	private JButton		pickColorButton		= new JButton (textPickAPixel);
-	private JButton		deleteColorButton	= new JButton ("Delete color");
-	private JRadioButton		rbL1		= new JRadioButton ("L1");
-	private JRadioButton		rbL2		= new JRadioButton ("L2");
-	private JSpinner    distanceSpinner 	= new JSpinner (new SpinnerNumberModel(10, 0, 800, 5));
-	private JRadioButton		rbRGB		= new JRadioButton ("RGB");
-	private JRadioButton		rbHSV		= new JRadioButton ("HSV");
-	private JRadioButton		rbH1H2H3	= new JRadioButton ("H1H2H3");
-	private JLabel 		distanceLabel 		= new JLabel("Distance  ");
-	private JLabel 		colorspaceLabel 	= new JLabel("Color space ");
+	private String 		textPickAPixel 			= "Pick a pixel";
+	private JButton		pickColorButton			= new JButton (textPickAPixel);
+	private JButton		deleteColorButton		= new JButton ("Delete color");
+	private JRadioButton		rbL1			= new JRadioButton ("L1");
+	private JRadioButton		rbL2			= new JRadioButton ("L2");
+	private JSpinner    distanceSpinner 		= new JSpinner (new SpinnerNumberModel(10, 0, 800, 5));
+	private JRadioButton		rbRGB			= new JRadioButton ("RGB");
+	private JRadioButton		rbHSV			= new JRadioButton ("HSV");
+	private JRadioButton		rbH1H2H3		= new JRadioButton ("H1H2H3");
+	private JLabel 		distanceLabel 			= new JLabel("Distance  ");
+	private JLabel 		colorspaceLabel 		= new JLabel("Color space ");
 //	private JButton		openFiltersButton	= new JButton("Load...");
 //	private JButton		saveFiltersButton	= new JButton("Save...");
 	private JButton 	detectColorButton 		= new JButton("Detect limits");
@@ -150,7 +152,7 @@ public class Capillarytrack extends PluginActionable implements ActionListener, 
 			TransformOp.R_RGB, TransformOp.G_RGB, TransformOp.B_RGB, 
 			TransformOp.R2MINUS_GB, TransformOp.G2MINUS_RB, TransformOp.B2MINUS_RG, TransformOp.NORM_BRMINUSG, TransformOp.RGB,
 			TransformOp.H_HSB, TransformOp.S_HSB, TransformOp.B_HSB	});
-	private JSpinner 	thresholdSpinner	= new JSpinner(new SpinnerNumberModel(70, 0, 255, 5));
+	private JSpinner 	thresholdSpinner		= new JSpinner(new SpinnerNumberModel(70, 0, 255, 5));
 	
 	// ---------------------------------------- measure
 	private JCheckBox	detectTopCheckBox 		= new JCheckBox ("detect top");
@@ -167,7 +169,7 @@ public class Capillarytrack extends PluginActionable implements ActionListener, 
 
 	private JTextField 	detectTopTextField 		= new JTextField("35");
 	private JButton 	detectTopButton 		= new JButton("Detect level");
-	private JButton		displayTopButton		= new JButton("Display");
+	private JButton		displayTransform1Button		= new JButton("Display");
 	private JTextField	spanTopTextField		= new JTextField("3");
 
 	private JTextField	spanTransf2TextField	= new JTextField("3");
@@ -195,29 +197,29 @@ public class Capillarytrack extends PluginActionable implements ActionListener, 
 	private JButton		closeAllButton			= new JButton("Close views");
 
 	//------------------------------------------- global variables
-	private SequenceVirtual vSequence = null;
-	private Timer checkBufferTimer = new Timer(1000, this);
-	private int	analyzeStep = 1;
-	private int startFrame = 1;
-	private int endFrame = 99999999;
-	private int diskRadius = 5;
-	private double detectLevelThreshold = 100.;
-	private double detectGulpsThreshold = 5.;
-	private int numberOfImageForBuffer = 100;
-	private double capillaryVolume = 1.;
-	private double capillaryPixels = 1.;
-	private int spanDiffTop = 3;
-	private	int	spanDiffTransf2 = 3;
-	private int previousupfront = -1;
+	private SequenceVirtual vSequence 		= null;
+	private Timer checkBufferTimer 			= new Timer(1000, this);
+	private int	analyzeStep 				= 1;
+	private int startFrame 					= 1;
+	private int endFrame 					= 99999999;
+	private int diskRadius 					= 5;
+	private double detectLevelThreshold 	= 100.;
+	private double detectGulpsThreshold 	= 5.;
+	private int numberOfImageForBuffer 		= 100;
+	private double capillaryVolume 			= 1.;
+	private double capillaryPixels 			= 1.;
+	private int spanDiffTop 				= 3;
+	private	int	spanDiffTransf2 			= 3;
+	private int previousupfront 			= -1;
 	
 	// results arrays
-	private XYMultiChart 			firstChart 			= null;
-	private XYMultiChart 			secondChart 		= null;
-	private XYMultiChart 			thirdChart 			= null;
+	private XYMultiChart firstChart 		= null;
+	private XYMultiChart secondChart 		= null;
+	private XYMultiChart thirdChart 		= null;
 
 	enum StatusAnalysis { NODATA, FILE_OK, ROIS_OK, KYMOS_OK, MEASURETOP_OK, MEASUREGULPS_OK};
 	enum StatusComputation {START_COMPUTATION, STOP_COMPUTATION};
-	private boolean[] [] flagsTable = new boolean [][] {
+	private boolean[] [] flagsTable 		= new boolean [][] {
 		{false, false, false, false, false},
 		{true, false, false, false, false},
 		{true, true, false, false, false},
@@ -226,12 +228,12 @@ public class Capillarytrack extends PluginActionable implements ActionListener, 
 		{true, true, true, true, true}
 	};
 	private StatusComputation sComputation = StatusComputation.START_COMPUTATION; 
-	private Line2D		refLineUpper 	= null;
-	private Line2D  	refLineLower 	= null;
-	private ROI2DLine	roiRefLineUpper = new ROI2DLine ();
-	private ROI2DLine	roiRefLineLower = new ROI2DLine ();
+	private Line2D		refLineUpper 		= null;
+	private Line2D  	refLineLower 		= null;
+	private ROI2DLine	roiRefLineUpper 	= new ROI2DLine ();
+	private ROI2DLine	roiRefLineLower 	= new ROI2DLine ();
 	private BuildKymographsThread buildKymographsThread = null;
-	private ImageTransformTools tImg 	= null;
+	private ImageTransformTools tImg 		= null;
 	private ArrayList <SequencePlus> kymographArrayList	= new ArrayList <SequencePlus> ();	// list of kymograph sequences
 		
 	// colors
@@ -269,9 +271,12 @@ public class Capillarytrack extends PluginActionable implements ActionListener, 
 		sourcePanel.add( GuiUtil.besidesPanel(setVideoSourceButton, k0Panel));
 		sourcePanel.add(GuiUtil.besidesPanel(loadpreviousCheckBox));
 
+		final JPanel kymosPanel = GuiUtil.generatePanel("KYMOGRAPHS");
+		mainPanel.add(GuiUtil.besidesPanel(kymosPanel));
+		
 		// ----------------- Capillaries
-		final JPanel roiPanel =  GuiUtil.generatePanel("CAPILLARIES");
-		mainPanel.add(GuiUtil.besidesPanel(roiPanel));
+		JComponent roiPanel = new JPanel(false);
+		roiPanel.setLayout(new GridLayout(6, 2));
 		
 		roiPanel.add( GuiUtil.besidesPanel( createROIsFromPolygonButton));
 		buttonGroup2.add(selectGroupedby2Button);
@@ -301,10 +306,13 @@ public class Capillarytrack extends PluginActionable implements ActionListener, 
 		loadsaveText1.setFont(FontUtil.setStyle(loadsaveText1.getFont(), Font.ITALIC));
 		JLabel emptyText1	= new JLabel (" ");
 		roiPanel.add(GuiUtil.besidesPanel( emptyText1, loadsaveText1, openROIsButton, saveROIsButton));
+		
+		tabbedKymosPane.addTab("Capillaries", null, roiPanel, "Place a ROI line over each capillary to generate a kymograph");
 
 		// ----------------- Kymographs
-		final JPanel kymographsPanel = GuiUtil.generatePanel("KYMOGRAPHS");
-		mainPanel.add(GuiUtil.besidesPanel(kymographsPanel));
+		JComponent kymographsPanel = new JPanel(false);
+		kymographsPanel.setLayout(new GridLayout(6, 2));
+		
 		kymographsPanel.add(GuiUtil.besidesPanel(startComputationButton, stopComputationButton));
 		JLabel startLabel = new JLabel("start "); 
 		startLabel.setHorizontalAlignment(SwingConstants.RIGHT);
@@ -314,32 +322,40 @@ public class Capillarytrack extends PluginActionable implements ActionListener, 
 		stepLabel.setHorizontalAlignment(SwingConstants.RIGHT);
 		JLabel areaLabel = new JLabel("area "); 
 		areaLabel.setHorizontalAlignment(SwingConstants.RIGHT);
-		kymographsPanel.add( GuiUtil.besidesPanel( startLabel, startFrameTextField, stepLabel, analyzeStepTextField) );
+		kymographsPanel.add( GuiUtil.besidesPanel( startLabel, startFrameTextField, stepLabel, analyzeStepTextField) );	
 		kymographsPanel.add( GuiUtil.besidesPanel( endLabel, endFrameTextField, areaLabel, diskRadiusTextField));
+		kymographsPanel.add( GuiUtil.besidesPanel( new JLabel(" ")));
+		kymographsPanel.add( GuiUtil.besidesPanel( new JLabel(" ")));
 		JLabel displayLabel = new JLabel("Display ");
 		displayLabel.setHorizontalAlignment(SwingConstants.RIGHT);
-		
 		JLabel loadsaveText2 = new JLabel ("-> File (tiff) "); 
 		loadsaveText2.setHorizontalAlignment(SwingConstants.RIGHT); 
 		loadsaveText2.setFont(FontUtil.setStyle(loadsaveText2.getFont(), Font.ITALIC));
 		kymographsPanel.add(GuiUtil.besidesPanel(new JLabel (" "), loadsaveText2,  openKymographsButton, saveKymographsButton));
 
+		tabbedKymosPane.addTab("Kymographs", null, kymographsPanel, "Build kymographs from ROI lines placed over capillaries");
+		
+		tabbedKymosPane.setTabLayoutPolicy(JTabbedPane.SCROLL_TAB_LAYOUT);
+		kymosPanel.add(GuiUtil.besidesPanel(tabbedKymosPane));
+		
 		// ----------------- Measure
 		final JPanel analysisPanel = GuiUtil.generatePanel("MEASURE");
 		mainPanel.add(GuiUtil.besidesPanel(analysisPanel));
+		
 		// ----------------- detect using functions
 		JComponent panel1 = new JPanel(false);
 		panel1.setLayout(new GridLayout(4, 2));
-		panel1.add( GuiUtil.besidesPanel( detectTopCheckBox, detectBottomCheckBox));
+		
 		JLabel topthresholdLabel = new JLabel("threshold ");
 		topthresholdLabel.setHorizontalAlignment(SwingConstants.RIGHT);
 		((JLabel) directionComboBox.getRenderer()).setHorizontalAlignment(JLabel.RIGHT);
-		panel1.add( GuiUtil.besidesPanel(  new JLabel("  "), detectAllLevelCheckBox, transformForLevelsComboBox, displayTopButton )); 
+		panel1.add( GuiUtil.besidesPanel(directionComboBox, detectTopTextField, transformForLevelsComboBox, displayTransform1Button )); 
 		JLabel spanLabel = new JLabel("span ");
 		spanLabel.setHorizontalAlignment(SwingConstants.RIGHT);
-		panel1.add( GuiUtil.besidesPanel( directionComboBox, detectTopTextField, spanLabel, spanTopTextField));
-		panel1.add( GuiUtil.besidesPanel(  detectTopButton));
-		tabbedPane.addTab("Filters", null, panel1, "thresholding a transformed image with different filters");
+		panel1.add( GuiUtil.besidesPanel(detectTopCheckBox, detectBottomCheckBox,  spanLabel, spanTopTextField));
+		
+		panel1.add( GuiUtil.besidesPanel( detectTopButton, detectAllLevelCheckBox));
+		tabbedDetectionPane.addTab("Filters", null, panel1, "thresholding a transformed image with different filters");
 		
 		// ----------------- detect colors
 		JComponent panel2 = new JPanel(false);
@@ -357,15 +373,18 @@ public class Capillarytrack extends PluginActionable implements ActionListener, 
 		bgcs.add(rbHSV);
 		bgcs.add(rbH1H2H3);
 		panel2.add( GuiUtil.besidesPanel(colorspaceLabel, rbRGB, rbHSV, rbH1H2H3));
-		panel2.add(GuiUtil.besidesPanel(detectColorButton)); 
-		tabbedPane.addTab("Colors", null, panel2, "thresholding an image with different colors and a distance");
+		panel2.add(GuiUtil.besidesPanel(detectColorButton, new JLabel("  "))); 
+		tabbedDetectionPane.addTab("Colors", null, panel2, "thresholding an image with different colors and a distance");
 		
-		tabbedPane.setTabLayoutPolicy(JTabbedPane.SCROLL_TAB_LAYOUT);
-		analysisPanel.add(GuiUtil.besidesPanel(tabbedPane));
-		// --------------- detect gulps & save parms
-		analysisPanel.add( GuiUtil.besidesPanel( detectGulpsButton, detectAllGulpsCheckBox, transformForGulpsComboBox, displayTransform2Button));
+		tabbedDetectionPane.setTabLayoutPolicy(JTabbedPane.SCROLL_TAB_LAYOUT);
+		analysisPanel.add(GuiUtil.besidesPanel(tabbedDetectionPane));
+		
+		// --------------- detect gulps
+		analysisPanel.add( GuiUtil.besidesPanel( topthresholdLabel, detectGulpsThresholdTextField, transformForGulpsComboBox, displayTransform2Button));
 		JLabel spanLabel2 = new JLabel("span ");
-		analysisPanel.add( GuiUtil.besidesPanel( topthresholdLabel, detectGulpsThresholdTextField, spanLabel2, spanTransf2TextField));
+		analysisPanel.add( GuiUtil.besidesPanel(  new JLabel(" "), new JLabel (" "), spanLabel2, spanTransf2TextField));
+		// --------------- save parms
+		analysisPanel.add( GuiUtil.besidesPanel( detectGulpsButton, detectAllGulpsCheckBox));
 		JLabel loadsaveText3 = new JLabel ("-> File (xml) "); 
 		spanLabel2.setHorizontalAlignment(SwingConstants.RIGHT);
 		loadsaveText3.setHorizontalAlignment(SwingConstants.RIGHT); 
@@ -415,17 +434,17 @@ public class Capillarytrack extends PluginActionable implements ActionListener, 
 
 	void declareChangeListeners() {
 		thresholdSpinner.addChangeListener(this);
-		tabbedPane.addChangeListener(this);
+		tabbedDetectionPane.addChangeListener(this);
 		distanceSpinner.addChangeListener(this);
 	}
 	
 	private void defineActionListeners() {
 		transformForLevelsComboBox.addActionListener(new ActionListener() {	@Override public void actionPerformed(ActionEvent e) {
-				displayFilteredKymo(1);
+				kymosDisplayFiltered(1);
 			}});
 		
 		transformForGulpsComboBox.addActionListener(new ActionListener() { @Override public void actionPerformed(ActionEvent e) {
-				displayFilteredKymo(2);
+				kymosDisplayFiltered(2);
 			}});
 		
 		setVideoSourceButton.addActionListener(new ActionListener() { @Override public void actionPerformed(ActionEvent e) {
@@ -474,7 +493,7 @@ public class Capillarytrack extends PluginActionable implements ActionListener, 
 		displayResultsButton.addActionListener(new ActionListener() { @Override public void actionPerformed(ActionEvent e) {
 				displayResultsButton.setEnabled(false);
 				roisSaveEdits();
-				displayGraphs();
+				xyDisplayGraphs();
 				displayResultsButton.setEnabled(true);
 			}});
 				
@@ -549,13 +568,12 @@ public class Capillarytrack extends PluginActionable implements ActionListener, 
 			buttonsVisibilityUpdate(StatusAnalysis.MEASURETOP_OK); 
 		}});
 		
-		displayTopButton.addActionListener(new ActionListener() {	@Override public void actionPerformed(ActionEvent e) {
+		displayTransform1Button.addActionListener(new ActionListener() {	@Override public void actionPerformed(ActionEvent e) {
 			parseTextFields();
 			Collections.sort(kymographArrayList, new Tools.SequenceNameComparator()); 
 			final TransformOp transform = (TransformOp) transformForLevelsComboBox.getSelectedItem();
 			detectTopButton.setEnabled( false);
 			kymosBuildFiltered(0, 1, transform, spanDiffTop);
-			
 			kymosDisplayUpdate();
 			displayKymosCheckBox.setSelected(true);
 			detectTopButton.setEnabled( true);
@@ -723,12 +741,12 @@ public class Capillarytrack extends PluginActionable implements ActionListener, 
 
 	// -------------------------------------------
 	private void selectTab(int index) {
-		tabbedPane.setSelectedIndex(index);
+		tabbedDetectionPane.setSelectedIndex(index);
 	}
 	
 	private void transferParametersToDialog() {
 		distanceSpinner.setValue(colorthreshold);
-		tabbedPane.setSelectedIndex(3);
+		tabbedDetectionPane.setSelectedIndex(3);
 		switch (colortransformop) {
 		case RGB_TO_HSV:
 			rbHSV.setSelected(true);
@@ -757,7 +775,7 @@ public class Capillarytrack extends PluginActionable implements ActionListener, 
 		boolean activateThreshold = true;
 
 		
-		switch (tabbedPane.getSelectedIndex()) {
+		switch (tabbedDetectionPane.getSelectedIndex()) {
 			case 1:  // color array
 				colorthreshold = Integer.parseInt(distanceSpinner.getValue().toString());
 				thresholdtype = ThresholdType.COLORARRAY;
@@ -814,7 +832,7 @@ public class Capillarytrack extends PluginActionable implements ActionListener, 
 		int thresholdForOverlay=0;
 		TransformOp transformOpForOverlay = TransformOp.NONE;
 		ThresholdType thresholdTypeForOverlay = ThresholdType.SINGLE;
-		if (tabbedPane.getSelectedIndex() == 1) {
+		if (tabbedDetectionPane.getSelectedIndex() == 1) {
 			thresholdTypeForOverlay = ThresholdType.COLORARRAY;
 			thresholdForOverlay = colorthreshold;
 		}
@@ -904,7 +922,7 @@ public class Capillarytrack extends PluginActionable implements ActionListener, 
 
 		detectTopButton.setEnabled(enabled);
 		transformForLevelsComboBox.setEnabled(enabled);
-		displayTopButton.setEnabled(enabled);
+		displayTransform1Button.setEnabled(enabled);
 		directionComboBox.setEnabled(enabled);
 		detectTopTextField.setEnabled(enabled);
 		spanTopTextField.setEnabled(enabled);
@@ -1082,7 +1100,7 @@ public class Capillarytrack extends PluginActionable implements ActionListener, 
 		waitcompletionThread.start();
 	}
 	
-	private void displayFilteredKymo(int zChannel) {
+	private void kymosDisplayFiltered(int zChannel) {
 		
 		if (kymographArrayList == null)
 			return;
@@ -1387,58 +1405,8 @@ public class Capillarytrack extends PluginActionable implements ActionListener, 
 		System.out.println("Elapsed time (s):" + nbSeconds);
 	}
 
-	private void displayGraphs() {
 
-		final ArrayList <String> names = new ArrayList <String> ();
-		for (int iKymo=0; iKymo < kymographArrayList.size(); iKymo++) {
-			SequencePlus seq = kymographArrayList.get(iKymo);
-			names.add(seq.getName());
-		}
-
-		int kmax = 1;
-		if (selectGroupedby2Button.isSelected())
-			kmax = 2;
-		final Rectangle rectv = vSequence.getFirstViewer().getBounds();
-		Point ptRelative = new Point(0,30);
-		final int deltay = 230;
-
-		if (detectTopCheckBox.isSelected() && detectBottomCheckBox.isSelected()) {
-			firstChart = displayGraphsItem("top + bottom levels", ArrayListType.topAndBottom, firstChart, rectv, ptRelative, kmax);
-			ptRelative.y += deltay;
-		}
-		else if (detectBottomCheckBox.isSelected()) {
-			firstChart = displayGraphsItem("bottom level", ArrayListType.bottomLevel, firstChart, rectv, ptRelative, kmax);
-			ptRelative.y += deltay;
-		}
-		else if (detectTopCheckBox.isSelected()) {
-			firstChart = displayGraphsItem("top level", ArrayListType.topLevel, firstChart, rectv, ptRelative, kmax);
-			ptRelative.y += deltay;
-		}
-
-		secondChart = displayGraphsItem("Derivative", ArrayListType.derivedValues, secondChart, rectv, ptRelative, kmax);
-		ptRelative.y += deltay; 
-		
-		thirdChart = displayGraphsItem("Cumulated gulps", ArrayListType.cumSum, thirdChart, rectv, ptRelative, kmax);
-
-	}
-
-	private XYMultiChart displayGraphsItem(String title, ArrayListType option, XYMultiChart iChart, Rectangle rectv, Point ptRelative, int kmax) {
-		
-		if (iChart != null && iChart.mainChartPanel.isValid()) {
-			iChart.fetchNewData(kymographArrayList, option, kmax, startFrame);
-
-		}
-		else {
-			iChart = new XYMultiChart();
-			iChart.createPanel(title);
-			iChart.setLocationRelativeToRectangle(rectv, ptRelative);
-			iChart.displayData(kymographArrayList, option, kmax, startFrame);
-		}
-		iChart.mainChartFrame.toFront();
-		return iChart;
-	}
-
-	private void kymosBuildFiltered(int zSource, int zTransform, TransformOp transformop, int spanDiff) {
+	private void kymosBuildFiltered(int zChannelSource, int zChannelDestination, TransformOp transformop, int spanDiff) {
 
 		if (tImg == null) 
 			tImg = new ImageTransformTools();
@@ -1446,22 +1414,26 @@ public class Capillarytrack extends PluginActionable implements ActionListener, 
 		
 		for (int i=0; i < kymographArrayList.size(); i++) {
 
-			SequencePlus kymographSeq = kymographArrayList.get(i); 
-			kymographSeq.beginUpdate();
-			IcyBufferedImage img = kymographSeq.getImage(zSource, 0);
+			SequencePlus kSeq = kymographArrayList.get(i); 
+			kSeq.beginUpdate();
+			tImg.setSequence(kSeq);
+			IcyBufferedImage img = kSeq.getImage(0, zChannelSource);
 			IcyBufferedImage img2 = tImg.transformImage (img, transformop);
 			img2 = tImg.transformImage(img2, TransformOp.RTOGB);
-			if (kymographSeq.getSizeZ() < (zTransform+1))
-				kymographSeq.addImage(img2);
+			int sizeZ = kSeq.getSizeZ();
+			if (kSeq.getSizeZ() < (zChannelDestination+1)) 
+				kSeq.addImage(img2);
 			else
-				kymographSeq.setImage(0, zTransform, img2);
+				kSeq.setImage(0, zChannelDestination, img2);
 			
-			if (zTransform == 1)
-				kymographSeq.transformForLevels = transformop;
+			if (zChannelDestination == 1)
+				kSeq.transformForLevels = transformop;
 			else
-				kymographSeq.transformForGulps = transformop;
-			kymographSeq.dataChanged();
-			kymographSeq.endUpdate();
+				kSeq.transformForGulps = transformop;
+			
+			System.out.println("file :"+ i + " before " + sizeZ + " - after " + kSeq.getSizeZ() + " sizeT =" + kSeq.getSizeT());
+			kSeq.dataChanged();
+			kSeq.endUpdate();
 		}
 	}
 
@@ -2148,7 +2120,7 @@ public class Capillarytrack extends PluginActionable implements ActionListener, 
 		if (e.getSource() == thresholdSpinner)  {
 			updateThresholdOverlayParameters();
 		}
-		else if (e.getSource() == tabbedPane) {
+		else if (e.getSource() == tabbedDetectionPane) {
 			updateThresholdOverlayParameters(); 
 		}
 		else if (e.getSource() == distanceSpinner) 
@@ -2293,6 +2265,56 @@ public class Capillarytrack extends PluginActionable implements ActionListener, 
 		}
 	}
 
+	private void xyDisplayGraphs() {
+
+		final ArrayList <String> names = new ArrayList <String> ();
+		for (int iKymo=0; iKymo < kymographArrayList.size(); iKymo++) {
+			SequencePlus seq = kymographArrayList.get(iKymo);
+			names.add(seq.getName());
+		}
+
+		int kmax = 1;
+		if (selectGroupedby2Button.isSelected())
+			kmax = 2;
+		final Rectangle rectv = vSequence.getFirstViewer().getBounds();
+		Point ptRelative = new Point(0,30);
+		final int deltay = 230;
+
+		if (detectTopCheckBox.isSelected() && detectBottomCheckBox.isSelected()) {
+			firstChart = xyDisplayGraphsItem("top + bottom levels", ArrayListType.topAndBottom, firstChart, rectv, ptRelative, kmax);
+			ptRelative.y += deltay;
+		}
+		else if (detectBottomCheckBox.isSelected()) {
+			firstChart = xyDisplayGraphsItem("bottom level", ArrayListType.bottomLevel, firstChart, rectv, ptRelative, kmax);
+			ptRelative.y += deltay;
+		}
+		else if (detectTopCheckBox.isSelected()) {
+			firstChart = xyDisplayGraphsItem("top level", ArrayListType.topLevel, firstChart, rectv, ptRelative, kmax);
+			ptRelative.y += deltay;
+		}
+
+		secondChart = xyDisplayGraphsItem("Derivative", ArrayListType.derivedValues, secondChart, rectv, ptRelative, kmax);
+		ptRelative.y += deltay; 
+		
+		thirdChart = xyDisplayGraphsItem("Cumulated gulps", ArrayListType.cumSum, thirdChart, rectv, ptRelative, kmax);
+
+	}
+
+	private XYMultiChart xyDisplayGraphsItem(String title, ArrayListType option, XYMultiChart iChart, Rectangle rectv, Point ptRelative, int kmax) {
+		
+		if (iChart != null && iChart.mainChartPanel.isValid()) {
+			iChart.fetchNewData(kymographArrayList, option, kmax, startFrame);
+
+		}
+		else {
+			iChart = new XYMultiChart();
+			iChart.createPanel(title);
+			iChart.setLocationRelativeToRectangle(rectv, ptRelative);
+			iChart.displayData(kymographArrayList, option, kmax, startFrame);
+		}
+		iChart.mainChartFrame.toFront();
+		return iChart;
+	}
 
 
 }

@@ -6,8 +6,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import javax.swing.JFileChooser;
-
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 import org.w3c.dom.Element;
@@ -351,22 +349,22 @@ public class SequenceVirtual extends Sequence
 		return true;
 	}
 
-	@Override
-	public void setImage(int t, int z, BufferedImage bimage) throws IllegalArgumentException 
-	{
-		/* setImage overloaded
-		 * caveats: 
-		 * (1) this routine deals only with 2D images i.e. z is not used (z= 0), 
-		 * (2) the virtual stack is left untouched - no mechanism is provided to "save" modified images to the disk - so actually
-		 * 	   setImage here is equivalent to "load image" from disk - the buffered image parameter is not used if the stack is virtual
-		 * @see icy.sequence.Sequence#setImage(int, int, java.awt.image.BufferedImage)
-		 */
-		
-		if ((status == Status.FILESTACK) || (status == Status.AVIFILE) )
-			setCurrentVImage(t);
-		else 
-			super.setImage(t, 0, bimage);
-	}
+//	@Override
+//	public void setImage(int t, int z, BufferedImage bimage) throws IllegalArgumentException 
+//	{
+//		/* setImage overloaded
+//		 * caveats: 
+//		 * (1) this routine deals only with 2D images i.e. z is not used (z= 0), 
+//		 * (2) the virtual stack is left untouched - no mechanism is provided to "save" modified images to the disk - so actually
+//		 * 	   setImage here is equivalent to "load image" from disk - the buffered image parameter is not used if the stack is virtual
+//		 * @see icy.sequence.Sequence#setImage(int, int, java.awt.image.BufferedImage)
+//		 */
+//		
+//		if ((status == Status.FILESTACK) || (status == Status.AVIFILE) )
+//			setCurrentVImage(t);
+//		else 
+//			super.setImage(t, 0, bimage);
+//	}
 
 	public void setVImage(int t)
 	{
