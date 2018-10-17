@@ -91,7 +91,7 @@ import plugins.kernel.roi.roi2d.ROI2DShape;
 public class Capillarytrack extends PluginActionable implements ActionListener, ChangeListener, ViewerListener
 {
 	// -------------------------------------- interface
-	private IcyFrame 	mainFrame 				= new IcyFrame("CapillaryTrack 15-10-2018", true, true, true, true);
+	private IcyFrame 	mainFrame 				= new IcyFrame("CapillaryTrack 17-10-2018", true, true, true, true);
 
 	// ---------------------------------------- video
 	private JButton 	setVideoSourceButton 	= new JButton("Open...");

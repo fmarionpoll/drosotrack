@@ -148,29 +148,27 @@ public class SequenceVirtual extends Sequence
 	public IcyBufferedImage getImage(int t, int z, int c) 
 	{
 		setVImageName(t);
-		IcyBufferedImage image =  loadVImage(t);
+		IcyBufferedImage image =  loadVImage(t, z);
 		if (image != null && c != -1)
 			image = IcyBufferedImageUtil.extractChannel(image, c);
 		return image;
 	}
 
-	/*
 	@Override
 	public IcyBufferedImage getImage(int t, int z)
 	{
 		IcyBufferedImage image;
 		if (t == currentFrame) {
-			image = super.getImage(t, 0);
+			image = super.getImage(t, z);
 		}
 		else
 		{
-		  	image =  loadVImage(t);
+		  	image =  loadVImage(t, z);
 		}
 		setVImageName(t);
 		return image;
 	}
-	*/
-
+	
 	public IcyBufferedImage getImageTransf(int t, int z, int c, int transform) 
 	{
 		//setVImageName(t);
@@ -315,26 +313,37 @@ public class SequenceVirtual extends Sequence
 			loadSequenceVirtualFromName(name);
 	}
 	
+	public IcyBufferedImage loadVImage(int t, int z)
+	{
+		IcyBufferedImage ibufImage = super.getImage(t, z);
+		// not found : load from file
+		if (ibufImage == null)
+			return loadVImageFromFile (t);	
+		return ibufImage;
+	}
+	
 	public IcyBufferedImage loadVImage(int t)
 	{
 		IcyBufferedImage ibufImage = super.getImage(t, 0);
 		// not found : load from file
 		if (ibufImage == null)
-		{
-			BufferedImage buf =null;
-			if (status == Status.FILESTACK) {
-				buf = ImageUtil.load(listFiles[t]);
-				ImageUtil.waitImageReady(buf);
-				if (buf == null)
-					return null;
-								
-			}
-			else if (status == Status.AVIFILE) {
-				buf = aviFile.getImage(t);
-			}
-			ibufImage=  IcyBufferedImage.createFrom(buf);
-		}	
+			return loadVImageFromFile (t);
 		return ibufImage;
+	}
+	
+	private IcyBufferedImage loadVImageFromFile(int t) {
+		BufferedImage buf =null;
+		if (status == Status.FILESTACK) {
+			buf = ImageUtil.load(listFiles[t]);
+			ImageUtil.waitImageReady(buf);
+			if (buf == null)
+				return null;
+							
+		}
+		else if (status == Status.AVIFILE) {
+			buf = aviFile.getImage(t);
+		}
+		return IcyBufferedImage.createFrom(buf);
 	}
 	
 	public boolean setCurrentVImage(int t)
@@ -349,22 +358,22 @@ public class SequenceVirtual extends Sequence
 		return true;
 	}
 
-//	@Override
-//	public void setImage(int t, int z, BufferedImage bimage) throws IllegalArgumentException 
-//	{
-//		/* setImage overloaded
-//		 * caveats: 
-//		 * (1) this routine deals only with 2D images i.e. z is not used (z= 0), 
-//		 * (2) the virtual stack is left untouched - no mechanism is provided to "save" modified images to the disk - so actually
-//		 * 	   setImage here is equivalent to "load image" from disk - the buffered image parameter is not used if the stack is virtual
-//		 * @see icy.sequence.Sequence#setImage(int, int, java.awt.image.BufferedImage)
-//		 */
-//		
-//		if ((status == Status.FILESTACK) || (status == Status.AVIFILE) )
-//			setCurrentVImage(t);
-//		else 
-//			super.setImage(t, 0, bimage);
-//	}
+	@Override
+	public void setImage(int t, int z, BufferedImage bimage) throws IllegalArgumentException 
+	{
+		/* setImage overloaded
+		 * caveats: 
+		 * (1) this routine deals only with 2D images i.e. z is not used (z= 0), 
+		 * (2) the virtual stack is left untouched - no mechanism is provided to "save" modified images to the disk - so actually
+		 * 	   setImage here is equivalent to "load image" from disk - the buffered image parameter is not used if the stack is virtual
+		 * @see icy.sequence.Sequence#setImage(int, int, java.awt.image.BufferedImage)
+		 */
+		
+		if ((status == Status.FILESTACK) || (status == Status.AVIFILE) )
+			setCurrentVImage(t);
+		else 
+			super.setImage(t, z, bimage);
+	}
 
 	public void setVImage(int t)
 	{
@@ -694,7 +703,7 @@ public class SequenceVirtual extends Sequence
 
 	private void setVImageName(int t)
 	{
-		if (status != Status.REGULAR)
+		if (status != Status.REGULAR && status != Status.AVIFILE)
 			setName(getVImageName(t));
 	}
 
