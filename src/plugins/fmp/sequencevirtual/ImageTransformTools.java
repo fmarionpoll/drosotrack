@@ -52,7 +52,7 @@ public class ImageTransformTools {
 		vinputSequence = vinputSeq;
 		referenceImage = vinputSequence.loadVImage(0);
 	}
-	
+		
 	public IcyBufferedImage transformImage (IcyBufferedImage inputImage, TransformOp transformop) {
 		
 		IcyBufferedImage transformedImage = null;
@@ -102,7 +102,7 @@ public class ImageTransformTools {
 		return transformedImage;
 	}
 	
-	public IcyBufferedImage transformImageFromSequence (int t, TransformOp transformop) {
+	public IcyBufferedImage transformImageFromVirtualSequence (int t, TransformOp transformop) {
 		return transformImage(vinputSequence.loadVImage(t), transformop);
 	}
 		

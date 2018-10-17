@@ -8,6 +8,7 @@ import plugins.fmp.sequencevirtual.ImageThresholdTools.ThresholdType;
 import plugins.fmp.sequencevirtual.ImageTransformTools.TransformOp;
 
 public class ImageOperations {
+	
 	private SequenceVirtual seq = null;
 	private ImageOperationsStruct opTransf = new ImageOperationsStruct();
 	private ImageOperationsStruct opThresh = new ImageOperationsStruct();
@@ -49,7 +50,7 @@ public class ImageOperations {
 		// step 1
 		opTransf.fromFrame = frame;
 		if (!opTransf.isValidTransformCache(seq.cacheTransformOp)) {
-			seq.cacheTransformedImage = imgTransf.transformImageFromSequence(frame, opTransf.transformop);
+			seq.cacheTransformedImage = imgTransf.transformImageFromVirtualSequence(frame, opTransf.transformop);
 			if (seq.cacheTransformedImage == null) {
 				return null;
 			}
@@ -72,7 +73,7 @@ public class ImageOperations {
 	public IcyBufferedImage run_nocache() {
 		// step 1
 		int frame = seq.currentFrame;
-		IcyBufferedImage transformedImage = imgTransf.transformImageFromSequence(frame, opTransf.transformop);
+		IcyBufferedImage transformedImage = imgTransf.transformImageFromVirtualSequence(frame, opTransf.transformop);
 		if (transformedImage == null)
 			return null;
 		

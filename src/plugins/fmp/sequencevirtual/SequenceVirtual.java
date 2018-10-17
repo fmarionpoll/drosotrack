@@ -62,6 +62,7 @@ public class SequenceVirtual extends Sequence
 	public String [] 		seriesname = null;
 	public int [][] 		data_raw = null;
 	public double [][] 		data_filtered = null;
+	
 	// image cache
 	public IcyBufferedImage cacheTransformedImage = null;
 	public ImageOperationsStruct cacheTransformOp = new ImageOperationsStruct();
