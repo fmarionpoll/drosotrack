@@ -160,10 +160,12 @@ public class SequenceVirtual extends Sequence
 	{
 		IcyBufferedImage image;
 		if (t == currentFrame) {
+//			System.out.println("getimage: super getImage (t, z)");
 			image = super.getImage(t, z);
 		}
 		else
 		{
+//			System.out.println("getimage: loadVImage (t, z)");
 		  	image =  loadVImage(t, z);
 		}
 		setVImageName(t);
@@ -219,9 +221,20 @@ public class SequenceVirtual extends Sequence
 		return listFiles;
 	}
 
+	/*
+	 * getSizeT (non-Javadoc)
+	 * @see icy.sequence.Sequence#getSizeT()
+	 * getSizeT is used to evaluate if volumetric images are stored in the sequence
+	 * the "current" virtual version of SequenceVirtual (as of 18-oct-2018) does not support volumetric images 
+	 */
 	@Override
 	public int getSizeT() {
-		return (int) nTotalFrames;
+		int nframes = 0;
+		if (status == Status.REGULAR)
+			nframes = super.getSizeT();
+		else 
+			nframes = (int) nTotalFrames;
+		return nframes;
 	}
 
 	public int getT() {
@@ -318,8 +331,9 @@ public class SequenceVirtual extends Sequence
 	{
 		IcyBufferedImage ibufImage = super.getImage(t, z);
 		// not found : load from file
-		if (ibufImage == null)
-			return loadVImageFromFile (t);	
+		if (ibufImage == null) 
+			ibufImage = loadVImageFromFile (t);
+
 		return ibufImage;
 	}
 	
@@ -335,6 +349,7 @@ public class SequenceVirtual extends Sequence
 	private IcyBufferedImage loadVImageFromFile(int t) {
 		BufferedImage buf =null;
 		if (status == Status.FILESTACK) {
+//			System.out.println("loadVImageFromFile ImageUtil.load(listfiles[t])");
 			buf = ImageUtil.load(listFiles[t]);
 			ImageUtil.waitImageReady(buf);
 			if (buf == null)
@@ -344,6 +359,8 @@ public class SequenceVirtual extends Sequence
 		else if (status == Status.AVIFILE) {
 			buf = aviFile.getImage(t);
 		}
+		// --------------------------------
+//		setImage(t, 0, buf);
 		return IcyBufferedImage.createFrom(buf);
 	}
 	
@@ -669,12 +686,8 @@ public class SequenceVirtual extends Sequence
 	private void loadSequenceVirtualAVI(String csFile) {
 		try
 		{
-//			aviFile = new VideoImporter();
-//			aviFile.open(csFile, 0);
 			aviFile = new XugglerAviFile(csFile, true);
 			status = Status.AVIFILE;
-//            OMEXMLMetadata meta = aviFile.getOMEXMLMetaData();
-//            nTotalFrames = MetaDataUtil.getSizeT(meta, 0);
 			nTotalFrames = (int) aviFile.getTotalNumberOfFrame();
 			csFileName = csFile;
 		}
@@ -704,7 +717,7 @@ public class SequenceVirtual extends Sequence
 
 	private void setVImageName(int t)
 	{
-		if (status != Status.REGULAR && status != Status.AVIFILE)
+		if (status == Status.FILESTACK)
 			setName(getVImageName(t));
 	}
 
