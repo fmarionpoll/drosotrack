@@ -529,8 +529,8 @@ public class SequenceVirtual extends Sequence
 		 * pre-fetch files / companion to SequenceVirtual
 		 */
 
-		private int fenetre = 100;
-		private int span = 50;
+		private int fenetre = 10;
+		private int span = 5;
 
 		public VImageBufferThread() {
 			bBufferON = true;
