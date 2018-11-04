@@ -91,7 +91,7 @@ import plugins.kernel.roi.roi2d.ROI2DShape;
 public class Capillarytrack extends PluginActionable implements ActionListener, ChangeListener, ViewerListener
 {
 	// -------------------------------------- interface
-	private IcyFrame 	mainFrame 				= new IcyFrame("CapillaryTrack 18-10-2018", true, true, true, true);
+	private IcyFrame 	mainFrame 				= new IcyFrame("CapillaryTrack 01-11-2018", true, true, true, true);
 
 	// ---------------------------------------- video
 	private JButton 	setVideoSourceButton 	= new JButton("Open...");
@@ -163,8 +163,8 @@ public class Capillarytrack extends PluginActionable implements ActionListener, 
 	private JSpinner 	thresholdSpinner		= new JSpinner(new SpinnerNumberModel(70, 0, 255, 5));
 	
 	// ---------------------------------------- measure
-	private JCheckBox	detectTopCheckBox 		= new JCheckBox ("top");
-	private JCheckBox	detectBottomCheckBox 	= new JCheckBox ("bottom");
+//	private JCheckBox	detectTopCheckBox 		= new JCheckBox ("top");
+//	private JCheckBox	detectBottomCheckBox 	= new JCheckBox ("bottom");
 	private JComboBox<TransformOp> transformForLevelsComboBox = new JComboBox<TransformOp> (new TransformOp[] {
 			TransformOp.R_RGB, TransformOp.G_RGB, TransformOp.B_RGB, 
 			TransformOp.R2MINUS_GB, TransformOp.G2MINUS_RB, TransformOp.B2MINUS_RG, TransformOp.RGB,
@@ -206,7 +206,7 @@ public class Capillarytrack extends PluginActionable implements ActionListener, 
 	private int diskRadius 					= 5;
 	private double detectLevelThreshold 	= 100.;
 	private double detectGulpsThreshold 	= 5.;
-	private int numberOfImageForBuffer 		= 100;
+	final private int numberOfImageForBuffer= 100;
 	private double capillaryVolume 			= 1.;
 	private double capillaryPixels 			= 1.;
 	private int spanDiffTop 				= 3;
@@ -295,8 +295,8 @@ public class Capillarytrack extends PluginActionable implements ActionListener, 
 		kymographsPanel.setLayout(new GridLayout(6, 2));
 		
 		kymographsPanel.add(GuiUtil.besidesPanel(kymoStartComputationButton, kymosStopComputationButton));
-		kymographsPanel.add( GuiUtil.besidesPanel(  new JLabel("start ", SwingConstants.RIGHT), startFrameTextField, new JLabel("step ", SwingConstants.RIGHT) , analyzeStepTextField) );	
-		kymographsPanel.add( GuiUtil.besidesPanel( new JLabel("end ", SwingConstants.RIGHT), endFrameTextField, new JLabel("area ", SwingConstants.RIGHT), diskRadiusTextField));
+		kymographsPanel.add( GuiUtil.besidesPanel(  new JLabel("start ", SwingConstants.RIGHT), startFrameTextField, new JLabel("end ", SwingConstants.RIGHT), endFrameTextField) );	
+		kymographsPanel.add( GuiUtil.besidesPanel( new JLabel("step ", SwingConstants.RIGHT) , analyzeStepTextField, new JLabel("area ", SwingConstants.RIGHT), diskRadiusTextField));
 		
 		JPanel k2Panel = new JPanel();
 		k2Panel.setLayout(new BorderLayout());
@@ -330,9 +330,9 @@ public class Capillarytrack extends PluginActionable implements ActionListener, 
 		
 		((JLabel) directionComboBox.getRenderer()).setHorizontalAlignment(JLabel.RIGHT);
 		panel1.add( GuiUtil.besidesPanel(directionComboBox, detectTopTextField, transformForLevelsComboBox, displayTransform1Button )); 
-		panel1.add( GuiUtil.besidesPanel(detectTopCheckBox, detectBottomCheckBox,  new JLabel("span ", SwingConstants.RIGHT), spanTopTextField));
-		
-		panel1.add( GuiUtil.besidesPanel( detectTopButton, detectAllLevelCheckBox));
+		//panel1.add( GuiUtil.besidesPanel(detectTopCheckBox, detectBottomCheckBox,  new JLabel("span ", SwingConstants.RIGHT), spanTopTextField));
+		panel1.add( GuiUtil.besidesPanel(new JLabel(" "), detectAllLevelCheckBox,  new JLabel("span ", SwingConstants.RIGHT), spanTopTextField));
+		panel1.add( GuiUtil.besidesPanel( detectTopButton, new JLabel(" ")));
 		tabbedDetectionPane.addTab("Filters", null, panel1, "thresholding a transformed image with different filters");
 		
 		// ----------------- detect colors
@@ -358,9 +358,9 @@ public class Capillarytrack extends PluginActionable implements ActionListener, 
 		
 		// --------------- detect gulps
 		analysisPanel.add( GuiUtil.besidesPanel( new JLabel("threshold ", SwingConstants.RIGHT), detectGulpsThresholdTextField, transformForGulpsComboBox, displayTransform2Button));
-		analysisPanel.add( GuiUtil.besidesPanel(  new JLabel(" "), new JLabel (" "), new JLabel("span ", SwingConstants.RIGHT), spanTransf2TextField));
+		analysisPanel.add( GuiUtil.besidesPanel(  new JLabel(" "), detectAllGulpsCheckBox, new JLabel("span ", SwingConstants.RIGHT), spanTransf2TextField));
 		// --------------- save parms
-		analysisPanel.add( GuiUtil.besidesPanel( detectGulpsButton, detectAllGulpsCheckBox));
+		analysisPanel.add( GuiUtil.besidesPanel( detectGulpsButton,new JLabel(" ") ));
 		JLabel loadsaveText3 = new JLabel ("-> File (xml) ", SwingConstants.RIGHT); 
 		loadsaveText3.setFont(FontUtil.setStyle(loadsaveText3.getFont(), Font.ITALIC));
 		analysisPanel.add(GuiUtil.besidesPanel(new JLabel (" "), loadsaveText3,  openMeasuresButton, saveMeasuresButton));
@@ -375,8 +375,8 @@ public class Capillarytrack extends PluginActionable implements ActionListener, 
 		// -------------------------------------------- action listeners, etc
 		transformForLevelsComboBox.setSelectedItem(TransformOp.G2MINUS_RB);
 		transformForGulpsComboBox.setSelectedItem(TransformOp.XDIFFN);
-		detectTopCheckBox.setSelected(true);
-		detectBottomCheckBox.setSelected(false);
+//		detectTopCheckBox.setSelected(true);
+//		detectBottomCheckBox.setSelected(false);
 		rbL1.setSelected(true);
 		rbRGB.setSelected(true);
 		colortransformop = TransformOp.NONE;
@@ -638,7 +638,7 @@ public class Capillarytrack extends PluginActionable implements ActionListener, 
 			roisSaveEdits();
 			Path directory = Paths.get(vSequence.getFileName(0)).getParent();
 			Path subpath = directory.getName(directory.getNameCount()-1);
-			String tentativeName = subpath.toString()+".xls";
+			String tentativeName = subpath.toString()+"_feeding.xls";
 			String file = Tools.saveFileAs(tentativeName, directory.getParent().toString(), "xls");
 			if (file != null) {
 				final String filename = file;
@@ -857,8 +857,8 @@ public class Capillarytrack extends PluginActionable implements ActionListener, 
 		nextButton.setEnabled(benabled);
 		kymographNamesComboBox.setEnabled(benabled);
 		detectAllLevelCheckBox.setEnabled(benabled);
-		detectTopCheckBox.setEnabled(enabled);
-		detectBottomCheckBox.setEnabled(enabled);
+//		detectTopCheckBox.setEnabled(enabled);
+//		detectBottomCheckBox.setEnabled(enabled);
 
 		detectTopButton.setEnabled(enabled);
 		transformForLevelsComboBox.setEnabled(enabled);
@@ -955,7 +955,6 @@ public class Capillarytrack extends PluginActionable implements ActionListener, 
 		// clear old data
 		if (vSequence != null)
 			closeAll();
-		
 		vSequence = new SequenceVirtual();
 		String path = vSequence.loadInputVirtualStack(null);
 		
@@ -966,11 +965,11 @@ public class Capillarytrack extends PluginActionable implements ActionListener, 
 			addSequence(vSequence);
 			
 			Viewer v = vSequence.getFirstViewer();
-			v.addListener(Capillarytrack.this);		
 			Rectangle rectv = v.getBoundsInternal();
 			Rectangle rect0 = mainFrame.getBoundsInternal();
 			rectv.setLocation(rect0.x+ rect0.width, rect0.y);
 			v.setBounds(rectv);
+			v.addListener(Capillarytrack.this);		
 
 			endFrame = vSequence.getSizeT()-1;
 			endFrameTextField.setText( Integer.toString(endFrame));
@@ -1292,8 +1291,8 @@ public class Capillarytrack extends PluginActionable implements ActionListener, 
 			int oldiytop = 0;		// assume that curve goes from left to right with jitter 
 			int oldiybottom = yheight-1;
 			
-			boolean flagtop = detectTopCheckBox.isSelected();
-			boolean flagbottom = detectBottomCheckBox.isSelected();
+			boolean flagtop = true; //detectTopCheckBox.isSelected();
+			boolean flagbottom = true; //detectBottomCheckBox.isSelected();
 
 			// scan each image row
 			for (ix = 0; ix < xwidth; ix++) 
@@ -1505,6 +1504,7 @@ public class Capillarytrack extends PluginActionable implements ActionListener, 
 			cv.setPositionZ(positionZ0);
 		}
 		v.toFront();
+		v.requestFocus();
 		previousupfront = itemupfront;
 	}
 
@@ -1624,14 +1624,13 @@ public class Capillarytrack extends PluginActionable implements ActionListener, 
 		for (int kymo=0; kymo < kymographArrayList.size(); kymo++) {
 			
 			SequencePlus seq = kymographArrayList.get(kymo);
-			
 			seq.beginUpdate();
-			if (flag = seq.loadXMLResults(directory, startFrame, endFrame)) {
+			if (flag = seq.loadXMLCapillaryTrackResults(directory, startFrame, endFrame)) {
 				seq.validateRois();
 				seq.getArrayListFromRois(ArrayListType.cumSum);
 			}
 			else 
-				System.out.println(" load measures -> failed or not found in directory: " + directory);
+				System.out.println("load measures -> failed or not found in directory: " + directory);
 			seq.endUpdate();
 		}
 		if (flag && kymographArrayList.size() > 0) {
@@ -1646,15 +1645,15 @@ public class Capillarytrack extends PluginActionable implements ActionListener, 
 		for (int kymo=0; kymo < kymographArrayList.size(); kymo++) {
 			SequencePlus seq = kymographArrayList.get(kymo);
 			System.out.println("saving "+seq.getName());
-			if (!seq.saveXMLResults(directory, startFrame, endFrame))
-				System.out.println(" Save measures -> failed in directory: " + directory);
+			if (!seq.saveXMLCapillaryTrackResults(directory, startFrame, endFrame))
+				System.out.println(" -> failed - in directory: " + directory);
 		}
 	}
 	
 	private void measureSetStatusFromSequence(SequencePlus seq) {
 		
-		detectTopCheckBox.setSelected(seq.detectTop);
-		detectBottomCheckBox.setSelected(seq.detectBottom);
+//		detectTopCheckBox.setSelected(seq.detectTop);
+//		detectBottomCheckBox.setSelected(seq.detectBottom);
 		transformForLevelsComboBox.setSelectedItem(seq.transformForLevels);
 		directionComboBox.setSelectedIndex(seq.direction);
 		detectLevelThreshold = seq.detectLevelThreshold;
@@ -1669,8 +1668,8 @@ public class Capillarytrack extends PluginActionable implements ActionListener, 
 
 	private void getDialogBoxParametersForDetection(SequencePlus seq, boolean blevel, boolean bgulps) {
 		if (blevel) {
-			seq.detectTop 				= detectTopCheckBox.isSelected();
-			seq.detectBottom 			= detectBottomCheckBox.isSelected();
+			seq.detectTop 				= true; //detectTopCheckBox.isSelected();
+			seq.detectBottom 			= true; //detectBottomCheckBox.isSelected();
 			seq.transformForLevels 		= (TransformOp) transformForLevelsComboBox.getSelectedItem();
 			seq.direction 				= directionComboBox.getSelectedIndex();
 			seq.detectLevelThreshold 	= (int) detectLevelThreshold;
@@ -2104,10 +2103,10 @@ public class Capillarytrack extends PluginActionable implements ActionListener, 
 
 		try {
 			WritableWorkbook xlsWorkBook = XLSUtil.createWorkbook( filename);
-			if (detectTopCheckBox.isSelected())
-				xlsExportToWorkbook(xlsWorkBook, "toplevel", 0, ratio, blistofFiles);
-			if (detectBottomCheckBox.isSelected())
-				xlsExportToWorkbook(xlsWorkBook, "bottomlevel", 3, ratio, blistofFiles);
+			//if (detectTopCheckBox.isSelected())
+			xlsExportToWorkbook(xlsWorkBook, "toplevel", 0, ratio, blistofFiles);
+			//if (detectBottomCheckBox.isSelected())
+			xlsExportToWorkbook(xlsWorkBook, "bottomlevel", 3, ratio, blistofFiles);
 			xlsExportToWorkbook(xlsWorkBook, "derivative", 1, ratio, blistofFiles);
 			xlsExportToWorkbook(xlsWorkBook, "consumption", 2, ratio, blistofFiles);
 			XLSUtil.saveAndClose( xlsWorkBook );
@@ -2232,18 +2231,18 @@ public class Capillarytrack extends PluginActionable implements ActionListener, 
 		Point ptRelative = new Point(0,30);
 		final int deltay = 230;
 
-		if (detectTopCheckBox.isSelected() && detectBottomCheckBox.isSelected()) {
+		//if (detectTopCheckBox.isSelected() && detectBottomCheckBox.isSelected()) {
 			firstChart = xyDisplayGraphsItem("top + bottom levels", ArrayListType.topAndBottom, firstChart, rectv, ptRelative, kmax);
 			ptRelative.y += deltay;
-		}
-		else if (detectBottomCheckBox.isSelected()) {
-			firstChart = xyDisplayGraphsItem("bottom level", ArrayListType.bottomLevel, firstChart, rectv, ptRelative, kmax);
-			ptRelative.y += deltay;
-		}
-		else if (detectTopCheckBox.isSelected()) {
-			firstChart = xyDisplayGraphsItem("top level", ArrayListType.topLevel, firstChart, rectv, ptRelative, kmax);
-			ptRelative.y += deltay;
-		}
+		//}
+//		else if (detectBottomCheckBox.isSelected()) {
+//			firstChart = xyDisplayGraphsItem("bottom level", ArrayListType.bottomLevel, firstChart, rectv, ptRelative, kmax);
+//			ptRelative.y += deltay;
+//		}
+//		else if (detectTopCheckBox.isSelected()) {
+//			firstChart = xyDisplayGraphsItem("top level", ArrayListType.topLevel, firstChart, rectv, ptRelative, kmax);
+//			ptRelative.y += deltay;
+//		}
 
 		secondChart = xyDisplayGraphsItem("Derivative", ArrayListType.derivedValues, secondChart, rectv, ptRelative, kmax);
 		ptRelative.y += deltay; 

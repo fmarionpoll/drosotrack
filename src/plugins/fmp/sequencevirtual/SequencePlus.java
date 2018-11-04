@@ -195,7 +195,7 @@ public class SequencePlus extends SequenceVirtual  {
         super.roiChanged(event.getSource(), SequenceEventType.CHANGED);
     }
 
-	public boolean loadXMLResults (String directory, int start, int end) {
+	public boolean loadXMLCapillaryTrackResults (String directory, int start, int end) {
 	
 		// check if directory is present. If not, create it
 		String resultsDirectory = directory+"\\results\\";
@@ -237,7 +237,7 @@ public class SequencePlus extends SequenceVirtual  {
 		return flag;
 	}
 
-	public boolean saveXMLResults(String directory, int start, int end) {
+	public boolean saveXMLCapillaryTrackResults(String directory, int start, int end) {
 
 		// check if directory is present. If not, create it
 		String resultsDirectory = directory+"\\results\\";

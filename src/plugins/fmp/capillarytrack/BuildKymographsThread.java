@@ -54,8 +54,9 @@ import plugins.nchenouard.kymographtracker.spline.CubicSmoothingSpline;
 			int vinputSizeX = vSequence.getSizeX();
 			vSequence.beginUpdate();
 			sequenceViewer = Icy.getMainInterface().getFirstViewer(vSequence);
+			int ipixelcolumn = 0;
 
-			for (int t = startFrame ; t <= endFrame && !isInterrupted(); t  += analyzeStep )
+			for (int t = startFrame ; t <= endFrame && !isInterrupted(); t  += analyzeStep, ipixelcolumn++ )
 			{
 				// update progression bar
 				int pos = (int)(100d * (double)t / nbframes);
@@ -85,7 +86,7 @@ import plugins.nchenouard.kymographtracker.spline.CubicSmoothingSpline;
 					ArrayList<ArrayList<int[]>> masks = masksArrayList.get(iroi);	
 					ArrayList <double []> tabValuesList = rois_tabValuesList.get(iroi);
 					final int kymographSizeX = kymographSeq.getSizeX();
-					final int t_out = t - startFrame;
+					final int t_out = ipixelcolumn;
 
 					for (int chan = 0; chan < vSequence.getSizeC(); chan++) 
 					{ 
@@ -125,6 +126,7 @@ import plugins.nchenouard.kymographtracker.spline.CubicSmoothingSpline;
 			int sizey = vSequence.getSizeY();
 			vSequence.getCapillariesArrayList();
 			int numC = vSequence.getSizeC();
+			int imagewidth = (int) (endFrame - startFrame +1)/analyzeStep +1;
 		
 			for (int iroi=0; iroi < vSequence.capillariesArrayList.size(); iroi++)
 			{
@@ -132,7 +134,8 @@ import plugins.nchenouard.kymographtracker.spline.CubicSmoothingSpline;
 				ArrayList<ArrayList<int[]>> mask = new ArrayList<ArrayList<int[]>>();
 				masksArrayList.add(mask);
 				initExtractionParametersfromROI(roi, mask, diskRadius, sizex, sizey);
-				IcyBufferedImage bufImage = new IcyBufferedImage((int) (endFrame - startFrame +1), mask.size(), numC, DataType.DOUBLE);
+				
+				IcyBufferedImage bufImage = new IcyBufferedImage(imagewidth, mask.size(), numC, DataType.DOUBLE);
 				SequencePlus kymographSeq = kymographArrayList.get(iroi);
 				kymographSeq.addImage(bufImage);
 				String cs = kymographSeq.getName();
@@ -184,9 +187,7 @@ import plugins.nchenouard.kymographtracker.spline.CubicSmoothingSpline;
 			IcyBufferedImage workImage = vSequence.loadVImage(t);
 			vSequence.currentFrame = t;
 			if (workImage == null) {
-				// try another time
 				System.out.println("Error reading image: " + t + " ... trying again"  );
-				vSequence.removeImage(t, 0);
 				workImage = vSequence.loadVImage(t);
 				if (workImage == null) {
 					System.out.println("Fatal error occurred while reading file "+ vSequence.getFileName(t) + " -image: " + t);

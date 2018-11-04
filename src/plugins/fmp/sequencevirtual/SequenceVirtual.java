@@ -349,7 +349,6 @@ public class SequenceVirtual extends Sequence
 	private IcyBufferedImage loadVImageFromFile(int t) {
 		BufferedImage buf =null;
 		if (status == Status.FILESTACK) {
-//			System.out.println("loadVImageFromFile ImageUtil.load(listfiles[t])");
 			buf = ImageUtil.load(listFiles[t]);
 			ImageUtil.waitImageReady(buf);
 			if (buf == null)
@@ -529,8 +528,8 @@ public class SequenceVirtual extends Sequence
 		 * pre-fetch files / companion to SequenceVirtual
 		 */
 
-		private int fenetre = 10;
-		private int span = 5;
+		private int fenetre = 100;
+		private int span = fenetre/2;
 
 		public VImageBufferThread() {
 			bBufferON = true;
@@ -592,13 +591,11 @@ public class SequenceVirtual extends Sequence
 						frameEnd = nTotalFrames;
 					
 					ThreadUtil.sleep(100);
-
-					// clean all images except those within the buffer 
-					for (int t = 0; t < nTotalFrames-1 ; t++) {
-						if (t < frameStart || t > frameEnd)
-							removeImage(t, 0);
-						
-						if (isInterrupted())
+					
+					for (int t = frameStart; t < frameEnd ; t+= istep)
+					{					
+						setVImage(t);
+						if(isInterrupted())
 							return;
 						if (cachedCurrentFrame != currentFrame)
 							break;
@@ -606,11 +603,12 @@ public class SequenceVirtual extends Sequence
 					if (cachedCurrentFrame != currentFrame)
 						continue;
 
-					
-					for (int t = frameStart; t < frameEnd ; t+= istep)
-					{					
-						setVImage(t);
-						if(isInterrupted())
+					// clean all images except those within the buffer 
+					for (int t = 0; t < nTotalFrames-1 ; t++) {
+						if (t < frameStart || t > frameEnd)
+							removeImage(t, 0);
+						
+						if (isInterrupted())
 							return;
 						if (cachedCurrentFrame != currentFrame)
 							break;
@@ -661,11 +659,9 @@ public class SequenceVirtual extends Sequence
 	private void loadSequenceVirtualFromName(String name) 
 	{
 		File filename = new File (name);
-//		String ext = ".";
 		if (filename.isDirectory())
 	    	directory = filename.getAbsolutePath();
 	    else {
-	    	//directory = FilenameUtils.getFullPathNoEndSeparator(filename.getAbsolutePath());
 	    	directory = filename.getParentFile().getAbsolutePath();
 	    }
 		if (directory == null) {
