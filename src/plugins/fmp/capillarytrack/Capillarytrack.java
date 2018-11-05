@@ -103,9 +103,9 @@ public class Capillarytrack extends PluginActionable implements ActionListener, 
 	// ---------------------------------------- ROIs
 	private JTabbedPane tabbedCapillariesAndKymosPane = new JTabbedPane();
 	
-	private JButton 	createROIsFromPolygonButton = new JButton("Generate ROIs (from Polygon 2D)");
-	private JButton		openROIsButton			= new JButton("Load...");
-	private JButton		saveROIsButton			= new JButton("Save...");
+	private JButton 	createROIsFromPolygonButton2 = new JButton("Generate ROIs (from Polygon 2D)");
+	private JButton		openROIsButton2			= new JButton("Load...");
+	private JButton		saveROIsButton2			= new JButton("Save...");
 	private JRadioButton selectGroupedby2Button = new JRadioButton("grouped by 2");
 	private JRadioButton selectRegularButton 	= new JRadioButton("evenly spaced");
 	private ButtonGroup buttonGroup2 			= new ButtonGroup();
@@ -115,7 +115,7 @@ public class Capillarytrack extends PluginActionable implements ActionListener, 
 	private JTextField 	width_intervalTextField = new JTextField("53");
 	private JTextField 	capillaryVolumeTextField= new JTextField("5");
 	private JTextField 	capillaryPixelsTextField= new JTextField("5");
-	private JTextField	jitterTextField			= new JTextField("10");
+	private JTextField	jitterTextField2			= new JTextField("10");
 	private JButton 	adjustButton 			= new JButton("Center lines");
 	private JCheckBox	refBarCheckBox			= new JCheckBox("display bars", false);
 	
@@ -178,7 +178,7 @@ public class Capillarytrack extends PluginActionable implements ActionListener, 
 
 	private JTextField 	detectTopTextField 		= new JTextField("35");
 	private JButton 	detectTopButton 		= new JButton("Detect level");
-	private JButton		displayTransform1Button		= new JButton("Display");
+	private JButton		displayTransform1Button	= new JButton("Display");
 	private JTextField	spanTopTextField		= new JTextField("3");
 
 	private JTextField	spanTransf2TextField	= new JTextField("3");
@@ -277,17 +277,17 @@ public class Capillarytrack extends PluginActionable implements ActionListener, 
 		JComponent roiPanel = new JPanel(false);
 		roiPanel.setLayout(new GridLayout(6, 2));
 		
-		roiPanel.add( GuiUtil.besidesPanel( createROIsFromPolygonButton));
+		roiPanel.add( GuiUtil.besidesPanel( createROIsFromPolygonButton2));
 		buttonGroup2.add(selectGroupedby2Button);
 		buttonGroup2.add(selectRegularButton);
 		selectGroupedby2Button.setSelected(true);
 		roiPanel.add( GuiUtil.besidesPanel( new JLabel ("N capillaries ", SwingConstants.RIGHT),  nbcapillariesTextField, selectRegularButton, selectGroupedby2Button)); 
 		roiPanel.add( GuiUtil.besidesPanel( new JLabel("Pixels btw. caps ", SwingConstants.RIGHT), width_between_capillariesTextField, new JLabel("btw. groups ", SwingConstants.RIGHT), width_intervalTextField ) );
-		roiPanel.add( GuiUtil.besidesPanel(adjustButton, refBarCheckBox,  new JLabel("jitter ", SwingConstants.RIGHT), jitterTextField));
+		roiPanel.add( GuiUtil.besidesPanel(adjustButton, refBarCheckBox,  new JLabel("jitter ", SwingConstants.RIGHT), jitterTextField2));
 		roiPanel.add( GuiUtil.besidesPanel(new JLabel("volume (µl) ", SwingConstants.RIGHT), capillaryVolumeTextField,  new JLabel("length (pixels) ", SwingConstants.RIGHT), capillaryPixelsTextField));
 		JLabel loadsaveText1 = new JLabel ("-> File (xml) ", SwingConstants.RIGHT);
 		loadsaveText1.setFont(FontUtil.setStyle(loadsaveText1.getFont(), Font.ITALIC));
-		roiPanel.add(GuiUtil.besidesPanel( new JLabel (" "), loadsaveText1, openROIsButton, saveROIsButton));		
+		roiPanel.add(GuiUtil.besidesPanel( new JLabel (" "), loadsaveText1, openROIsButton2, saveROIsButton2));		
 		tabbedCapillariesAndKymosPane.addTab("Capillaries", null, roiPanel, "Place a ROI line over each capillary to generate a kymograph");
 
 		// ----------------- Kymographs
@@ -315,6 +315,7 @@ public class Capillarytrack extends PluginActionable implements ActionListener, 
 		JLabel loadsaveText2 = new JLabel ("-> File (tiff) ", SwingConstants.RIGHT); 
 		loadsaveText2.setFont(FontUtil.setStyle(loadsaveText2.getFont(), Font.ITALIC));
 		kymographsPanel.add(GuiUtil.besidesPanel(new JLabel (" "), loadsaveText2,  openKymographsButton, saveKymographsButton));
+		
 		tabbedCapillariesAndKymosPane.addTab("Kymographs", null, kymographsPanel, "Build kymographs from ROI lines placed over capillaries");
 		
 		tabbedCapillariesAndKymosPane.setTabLayoutPolicy(JTabbedPane.SCROLL_TAB_LAYOUT);
@@ -330,7 +331,6 @@ public class Capillarytrack extends PluginActionable implements ActionListener, 
 		
 		((JLabel) directionComboBox.getRenderer()).setHorizontalAlignment(JLabel.RIGHT);
 		panel1.add( GuiUtil.besidesPanel(directionComboBox, detectTopTextField, transformForLevelsComboBox, displayTransform1Button )); 
-		//panel1.add( GuiUtil.besidesPanel(detectTopCheckBox, detectBottomCheckBox,  new JLabel("span ", SwingConstants.RIGHT), spanTopTextField));
 		panel1.add( GuiUtil.besidesPanel(new JLabel(" "), detectAllLevelCheckBox,  new JLabel("span ", SwingConstants.RIGHT), spanTopTextField));
 		panel1.add( GuiUtil.besidesPanel( detectTopButton, new JLabel(" ")));
 		tabbedDetectionPane.addTab("Filters", null, panel1, "thresholding a transformed image with different filters");
@@ -375,8 +375,6 @@ public class Capillarytrack extends PluginActionable implements ActionListener, 
 		// -------------------------------------------- action listeners, etc
 		transformForLevelsComboBox.setSelectedItem(TransformOp.G2MINUS_RB);
 		transformForGulpsComboBox.setSelectedItem(TransformOp.XDIFFN);
-//		detectTopCheckBox.setSelected(true);
-//		detectBottomCheckBox.setSelected(false);
 		rbL1.setSelected(true);
 		rbRGB.setSelected(true);
 		colortransformop = TransformOp.NONE;
@@ -417,14 +415,14 @@ public class Capillarytrack extends PluginActionable implements ActionListener, 
 				kymosBuildKymographs();
 			}});
 		
-		createROIsFromPolygonButton.addActionListener(new ActionListener() { @Override public void actionPerformed(ActionEvent e) {
+		createROIsFromPolygonButton2.addActionListener(new ActionListener() { @Override public void actionPerformed(ActionEvent e) {
 				roisGenerateFromPolygon();
 				vSequence.getCapillariesArrayList();
 				roisUpdateCombo(vSequence.capillariesArrayList);
 				buttonsVisibilityUpdate(StatusAnalysis.ROIS_OK);
 			}});
 		
-		openROIsButton.addActionListener(new ActionListener() { @Override public void actionPerformed(ActionEvent e) {
+		openROIsButton2.addActionListener(new ActionListener() { @Override public void actionPerformed(ActionEvent e) {
 				capillaryRoisOpen(null);
 			}});
 		
@@ -433,7 +431,7 @@ public class Capillarytrack extends PluginActionable implements ActionListener, 
 				buttonsVisibilityUpdate(StatusAnalysis.NODATA);
 			}});
 		
-		saveROIsButton.addActionListener(new ActionListener() {	@Override public void actionPerformed(ActionEvent e) {
+		saveROIsButton2.addActionListener(new ActionListener() {	@Override public void actionPerformed(ActionEvent e) {
 				parseTextFields();
 				vSequence.analysisStart = startFrame;
 				vSequence.analysisEnd = endFrame;
@@ -818,7 +816,7 @@ public class Capillarytrack extends PluginActionable implements ActionListener, 
 		// 1-------------capillaries
 		int i = 0;
 		boolean enabled = flagsTable[item][i] ;
-		createROIsFromPolygonButton.setEnabled(enabled);
+		createROIsFromPolygonButton2.setEnabled(enabled);
 		selectGroupedby2Button.setEnabled(enabled);
 		selectRegularButton.setEnabled(enabled);
 		nbcapillariesTextField.setEnabled(enabled);
@@ -828,9 +826,9 @@ public class Capillarytrack extends PluginActionable implements ActionListener, 
 		width_intervalTextField.setEnabled(enabled);
 		capillaryVolumeTextField.setEnabled(enabled);
 		capillaryPixelsTextField.setEnabled(enabled);
-		openROIsButton.setEnabled(enabled);
-		saveROIsButton.setEnabled(enabled);
-		jitterTextField.setEnabled(enabled);
+		openROIsButton2.setEnabled(enabled);
+		saveROIsButton2.setEnabled(enabled);
+		jitterTextField2.setEnabled(enabled);
 		adjustButton.setEnabled(enabled);
 		refBarCheckBox.setEnabled(enabled);
 		
@@ -1731,7 +1729,7 @@ public class Capillarytrack extends PluginActionable implements ActionListener, 
 		
 		// parameters
 		int chan = 0;	// parameter - right now: red
-		int jitter = Integer.parseInt( jitterTextField.getText() );
+		int jitter = Integer.parseInt( jitterTextField2.getText() );
 		
 		// load image into a linear buffer
 		int t = vSequence.currentFrame;

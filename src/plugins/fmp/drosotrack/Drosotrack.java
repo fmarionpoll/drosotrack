@@ -82,8 +82,6 @@ public class Drosotrack extends PluginActionable implements ActionListener, View
 	private JRadioButton selectInputFileButton 	= new JRadioButton("AVI");
 	private JRadioButton selectInputStack2Button = new JRadioButton("stack");
 	private ButtonGroup buttonGroup1 		= new ButtonGroup();
-	private JTextField numberOfImageForBufferTextField 	= new JTextField("100");
-	private JLabel bufferValue 				= new JLabel("0%");
 
 	// ---------------------------------------- ROIs
 	private JButton createROIsFromPolygonButton = new JButton("Create/add cage limits (from Polygon 2D)");
@@ -166,12 +164,6 @@ public class Drosotrack extends PluginActionable implements ActionListener, View
 		buttonGroup1.add(selectInputStack2Button);
 		selectInputStack2Button.setSelected(true);
 		sourcePanel.add( GuiUtil.besidesPanel(setVideoSourceButton, k0Panel));
-
-		JLabel useImageBufferLabel = new JLabel("pre-fetch N= ");
-		JLabel textfilled = new JLabel("buffer filled ");
-		useImageBufferLabel.setHorizontalAlignment(SwingConstants.RIGHT);
-		textfilled.setHorizontalAlignment(SwingConstants.RIGHT);
-		sourcePanel.add(GuiUtil.besidesPanel(useImageBufferLabel, numberOfImageForBufferTextField, textfilled, bufferValue));
 		
 		final JPanel roiPanel =  GuiUtil.generatePanel("ROIs");
 		roiPanel.add( GuiUtil.besidesPanel( createROIsFromPolygonButton));
@@ -382,12 +374,6 @@ public class Drosotrack extends PluginActionable implements ActionListener, View
 	{
 		Object o = e.getSource();
 		// _______________________________________________
-		if (o == checkBufferTimer && vSequence != null) {
-			if (vSequence.bufferThread != null ) {
-				int bufferPercent = vSequence.bufferThread.getCurrentBufferLoadPercent();
-				bufferValue.setText(bufferPercent + " %");
-			}
-		}
 	}
 	
 	private void closeAll() {
@@ -825,9 +811,6 @@ public class Drosotrack extends PluginActionable implements ActionListener, View
 
 		try { jitter = Integer.parseInt( jitterTextField.getText() );
 		}catch( Exception e ) { new AnnounceFrame("Can't interpret the jitter value."); }
-
-		try { numberOfImageForBuffer = Integer.parseInt( numberOfImageForBufferTextField.getText() );
-		}catch( Exception e ) { new AnnounceFrame("Can't interpret the buffer depth value."); }
 
 		try { analyzeStep = Integer.parseInt( analyzeStepTextField.getText() );
 		}catch( Exception e ) { new AnnounceFrame("Can't interpret the analyze step value."); }
