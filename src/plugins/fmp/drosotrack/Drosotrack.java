@@ -155,6 +155,28 @@ public class Drosotrack extends PluginActionable implements ActionListener, View
 		mainFrame.setLayout(new BorderLayout());
 		mainFrame.add(mainPanel, BorderLayout.CENTER);
 
+		panelSourceInterface(mainPanel);
+		panelROIsInterface(mainPanel);
+		panelDetectInterface(mainPanel);		
+		panelExportInterface(mainPanel);
+
+		defineActionListeners();
+		openROIsButton.setEnabled(false);
+		saveROIsButton.setEnabled(false);
+		
+		thresholdSpinner.addChangeListener(this);
+		updateButtonsVisibility(StateD.NO_FILE);
+
+		mainFrame.pack();
+		mainFrame.center();
+		mainFrame.setVisible(true);
+		mainFrame.addToDesktopPane();
+
+		checkBufferTimer.start();
+	}
+
+	private void panelSourceInterface (JPanel mainPanel) {
+		// load data
 		final JPanel sourcePanel = GuiUtil.generatePanel("SOURCE");
 		mainPanel.add(GuiUtil.besidesPanel(sourcePanel));
 		JPanel k0Panel = new JPanel();
@@ -164,7 +186,9 @@ public class Drosotrack extends PluginActionable implements ActionListener, View
 		buttonGroup1.add(selectInputStack2Button);
 		selectInputStack2Button.setSelected(true);
 		sourcePanel.add( GuiUtil.besidesPanel(setVideoSourceButton, k0Panel));
-		
+	}
+	
+	private void panelROIsInterface(JPanel mainPanel) {
 		final JPanel roiPanel =  GuiUtil.generatePanel("ROIs");
 		roiPanel.add( GuiUtil.besidesPanel( createROIsFromPolygonButton));
 		JLabel ncagesLabel = new JLabel("N cages ");
@@ -181,7 +205,9 @@ public class Drosotrack extends PluginActionable implements ActionListener, View
 		JLabel emptyText1	= new JLabel (" ");
 		roiPanel.add(GuiUtil.besidesPanel( emptyText1, loadsaveText1, openROIsButton, saveROIsButton));
 		mainPanel.add(GuiUtil.besidesPanel(roiPanel));
-
+	}
+	
+	private void panelDetectInterface(JPanel mainPanel) {
 		final JPanel detectPanel = GuiUtil.generatePanel("DETECTION");
 		detectPanel.add( GuiUtil.besidesPanel( startComputationButton, stopComputationButton ) );
 		JLabel startLabel 	= new JLabel("start ");
@@ -212,12 +238,16 @@ public class Drosotrack extends PluginActionable implements ActionListener, View
 		jitterlabel.setHorizontalAlignment(SwingConstants.RIGHT);
 		detectPanel.add( GuiUtil.besidesPanel( jitterlabel, jitterTextField ) );
 		mainPanel.add(GuiUtil.besidesPanel(detectPanel));
-
+	}
+	
+	private void panelExportInterface(JPanel mainPanel) {
 		final JPanel exportPanel = GuiUtil.generatePanel("DISPLAY/EXPORT RESULTS");
 		exportPanel.add( GuiUtil.besidesPanel( displayChartsButton, exportToXLSButton));
 		exportPanel.add( GuiUtil.besidesPanel(closeAllButton));
 		mainPanel.add(GuiUtil.besidesPanel(exportPanel));
-
+	}
+	
+	private void defineActionListeners() {
 		setVideoSourceButton.addActionListener(new ActionListener () {
 			@Override
 			public void actionPerformed( final ActionEvent e ) { 
@@ -305,10 +335,6 @@ public class Drosotrack extends PluginActionable implements ActionListener, View
 				vSequence.removeAllROI();
 				vSequence.addROIs(roisList, false);
 			}});
-		
-		openROIsButton.setEnabled(false);
-		saveROIsButton.setEnabled(false);
-		
 		thresholdedImageCheckBox.addActionListener(new ActionListener () {
 			@Override
 			public void actionPerformed( final ActionEvent e ) { 
@@ -357,18 +383,8 @@ public class Drosotrack extends PluginActionable implements ActionListener, View
 			public void actionPerformed( final ActionEvent e ) { 
 				updateOverlay(); 
 			} } );
-		
-		thresholdSpinner.addChangeListener(this);
-		updateButtonsVisibility(StateD.NO_FILE);
-
-		mainFrame.pack();
-		mainFrame.center();
-		mainFrame.setVisible(true);
-		mainFrame.addToDesktopPane();
-
-		checkBufferTimer.start();
 	}
-
+	
 	@Override
 	public void actionPerformed(ActionEvent e ) 
 	{
@@ -710,6 +726,8 @@ public class Drosotrack extends PluginActionable implements ActionListener, View
 		}
 		irow=2;
 		nrois = cageLimitROIList.size();
+		irow++;
+		
 		// table header
 		icol0 = 0;
 		if (blistofFiles) {
@@ -724,33 +742,27 @@ public class Drosotrack extends PluginActionable implements ActionListener, View
 		irow++;
 
 		// data
-		it = 1;
-
+		it = 0;
 		for ( int t = startFrame+1 ; t < endFrame;  t  += analyzeStep, it++ )
 		{
-			try
-			{
-				icol0 = 0;
-				if (blistofFiles) {
-					XLSUtil.setCellString( distancePage , icol0,   irow, listofFiles[t] );
-					icol0++;
-				}
-				XLSUtil.setCellNumber( distancePage, icol0 , irow , t ); // frame number
+
+			icol0 = 0;
+			if (blistofFiles) {
+				XLSUtil.setCellString( distancePage , icol0,   irow, listofFiles[t] );
 				icol0++;
-				
-				for (int iroi=0; iroi < nrois; iroi++) {
-
-					Point2D mousePosition = points2D_rois_then_t_ListArray.get(iroi).get(it);
-					double distance = mousePosition.distance(points2D_rois_then_t_ListArray.get(iroi).get(it-1)); 
-					XLSUtil.setCellNumber( distancePage, icol0 , irow , distance ); 
-					icol0++;
-
-				}
-				irow++;
-			}catch( IndexOutOfBoundsException e)
-			{
-				// no mouse Position
 			}
+			XLSUtil.setCellNumber( distancePage, icol0 , irow , t ); // frame number
+			icol0++;
+			
+			for (int iroi=0; iroi < nrois; iroi++) {
+
+				Point2D mousePosition = points2D_rois_then_t_ListArray.get(iroi).get(it);
+				double distance = mousePosition.distance(points2D_rois_then_t_ListArray.get(iroi).get(it-1)); 
+				XLSUtil.setCellNumber( distancePage, icol0 , irow , distance ); 
+				icol0++;
+
+			}
+			irow++;
 		}
 	}
 		

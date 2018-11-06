@@ -224,15 +224,11 @@ public class multiCAFE extends PluginActionable implements ActionListener, Chang
 		mainFrame.setLayout(new BorderLayout());
 		mainFrame.add(mainPanel, BorderLayout.CENTER);
 
-		buildSourceInterface(mainPanel);
-		
-		buildDrosoTrackInterface(mainPanel);
-		
-		buildCapillaryTrackInterface(mainPanel);
-		
-		buildMeasureInterface (mainPanel);
-		
-		buildExportInterface (mainPanel);
+		panelSourceInterface(mainPanel);
+		panelDrosoTrackInterface(mainPanel);
+		panelCapillaryTrackInterface(mainPanel);
+		panelMeasureInterface (mainPanel);
+		panelExportInterface (mainPanel);
 
 		openROIsButton.setEnabled(false);
 		saveROIsButton.setEnabled(false);
@@ -250,7 +246,7 @@ public class multiCAFE extends PluginActionable implements ActionListener, Chang
 		checkBufferTimer.start();
 	}
 
-	void buildSourceInterface (JPanel mainPanel) {
+	private void panelSourceInterface (JPanel mainPanel) {
 		// load data
 		final JPanel sourcePanel = GuiUtil.generatePanel("SOURCE");
 		mainPanel.add(GuiUtil.besidesPanel(sourcePanel));
@@ -263,20 +259,20 @@ public class multiCAFE extends PluginActionable implements ActionListener, Chang
 		sourcePanel.add( GuiUtil.besidesPanel(setVideoSourceButton, k0Panel));
 	}
 	
-	void buildDrosoTrackInterface(JPanel mainPanel) {
+	private void panelDrosoTrackInterface(JPanel mainPanel) {
 		// detect drosos
 		final JPanel drososPanel = GuiUtil.generatePanel("FLIES");
 		mainPanel.add(GuiUtil.besidesPanel(drososPanel));
 		GridLayout drosoLayout = new GridLayout(4, 2);
 		
-		buildDrosoTrackInterfaceTab1(drososPanel, drosoLayout);
-		buildDrosoTrackInterfaceTab2(drososPanel, drosoLayout);
+		buildDrosoTrackInterfaceTab1(tabbedDrososPane, drosoLayout);
+		buildDrosoTrackInterfaceTab2(tabbedDrososPane, drosoLayout);
 		
 		tabbedDrososPane.setTabLayoutPolicy(JTabbedPane.SCROLL_TAB_LAYOUT);
 		drososPanel.add(GuiUtil.besidesPanel(tabbedDrososPane));
 	}
 	
-	void buildDrosoTrackInterfaceTab1(JPanel drososPanel, GridLayout drosoLayout) {
+	private void buildDrosoTrackInterfaceTab1(JTabbedPane tab, GridLayout drosoLayout) {
 		// rois
 		JComponent drososRois = new JPanel(false);
 		drososRois.setLayout(drosoLayout);
@@ -294,13 +290,10 @@ public class multiCAFE extends PluginActionable implements ActionListener, Chang
 		loadsaveText1.setFont(FontUtil.setStyle(loadsaveText1.getFont(), Font.ITALIC));
 		JLabel emptyText1	= new JLabel (" ");
 		drososRois.add(GuiUtil.besidesPanel( emptyText1, loadsaveText1, openROIsButton, saveROIsButton));
-		tabbedDrososPane.addTab("Rois", null, drososRois, "define flies cages limits");
-		
-		tabbedDrososPane.setTabLayoutPolicy(JTabbedPane.SCROLL_TAB_LAYOUT);
-		drososPanel.add(GuiUtil.besidesPanel(tabbedDrososPane));
+		tab.addTab("Rois", null, drososRois, "define flies cages limits");
 	}
 	
-	void buildDrosoTrackInterfaceTab2(JPanel drososPanel, GridLayout drosoLayout) {
+	private void buildDrosoTrackInterfaceTab2(JTabbedPane tab, GridLayout drosoLayout) {
 		// detection
 		JComponent drososDetectPanel = new JPanel(false);
 		drososDetectPanel.setLayout(drosoLayout);
@@ -322,25 +315,25 @@ public class multiCAFE extends PluginActionable implements ActionListener, Chang
 		drososDetectPanel.add( GuiUtil.besidesPanel( thresholdLabel, thresholdSpinner, jitterlabel, jitterTextField ) );
 		drososDetectPanel.add( GuiUtil.besidesPanel( objectLowsizeCheckBox, objectLowsizeSpinner, objectUpsizeCheckBox, objectUpsizeSpinner));
 
-		tabbedDrososPane.addTab("Detection", null, drososDetectPanel, "detect flies");
+		tab.addTab("Detection", null, drososDetectPanel, "detect flies");
 	}
 		
-	void buildCapillaryTrackInterface(JPanel mainPanel) {
+	private void panelCapillaryTrackInterface(JPanel mainPanel) {
 		
 		final JPanel capPanel = GuiUtil.generatePanel("CAPILLARIES");
 		mainPanel.add(GuiUtil.besidesPanel(capPanel));
 		GridLayout capLayout = new GridLayout(6, 2);
 		
-		buildCapillaryTrackInterfaceTab1(capPanel, capLayout);
-		buildCapillaryTrackInterfaceTab2(capPanel, capLayout);
-		buildCapillaryTrackInterfaceTab3(capPanel, capLayout);
-		buildCapillaryTrackInterfaceTab4(capPanel, capLayout);
+		buildCapillaryTrackInterfaceTab1(tabbedCapillariessPane, capLayout);
+		buildCapillaryTrackInterfaceTab2(tabbedCapillariessPane, capLayout);
+		buildCapillaryTrackInterfaceTab3(tabbedCapillariessPane, capLayout);
+		buildCapillaryTrackInterfaceTab4(tabbedCapillariessPane, capLayout);
 		
 		tabbedCapillariessPane.setTabLayoutPolicy(JTabbedPane.SCROLL_TAB_LAYOUT);
 		capPanel.add(GuiUtil.besidesPanel(tabbedCapillariessPane));
 	}
 	
-	void buildCapillaryTrackInterfaceTab1(JPanel capPanel, GridLayout capLayout) {
+	private void buildCapillaryTrackInterfaceTab1(JTabbedPane tab, GridLayout capLayout) {
 		JComponent roiPanel = new JPanel(false);
 		roiPanel.setLayout(capLayout);
 		
@@ -355,10 +348,10 @@ public class multiCAFE extends PluginActionable implements ActionListener, Chang
 		JLabel loadsaveText1 = new JLabel ("-> File (xml) ", SwingConstants.RIGHT);
 		loadsaveText1.setFont(FontUtil.setStyle(loadsaveText1.getFont(), Font.ITALIC));
 		roiPanel.add(GuiUtil.besidesPanel( new JLabel (" "), loadsaveText1, openROIsButton2, saveROIsButton2));		
-		tabbedCapillariessPane.addTab("Rois", null, roiPanel, "Place a ROI line over each capillary to generate a kymograph");
+		tab.addTab("Rois", null, roiPanel, "Place a ROI line over each capillary to generate a kymograph");
 	}
 	
-	void buildCapillaryTrackInterfaceTab2(JPanel capPanel, GridLayout capLayout) {
+	private void buildCapillaryTrackInterfaceTab2(JTabbedPane tab, GridLayout capLayout) {
 		JComponent kymographsPanel = new JPanel(false);
 		kymographsPanel.setLayout(capLayout);
 		
@@ -383,10 +376,10 @@ public class multiCAFE extends PluginActionable implements ActionListener, Chang
 		loadsaveText2.setFont(FontUtil.setStyle(loadsaveText2.getFont(), Font.ITALIC));
 		kymographsPanel.add(GuiUtil.besidesPanel(new JLabel (" "), loadsaveText2,  openKymographsButton, saveKymographsButton));
 		
-		tabbedCapillariessPane.addTab("Kymographs", null, kymographsPanel, "Build kymographs from ROI lines placed over capillaries");
+		tab.addTab("Kymographs", null, kymographsPanel, "Build kymographs from ROI lines placed over capillaries");
 	}
 	
-	void buildCapillaryTrackInterfaceTab3(JPanel capPanel, GridLayout capLayout) {
+	private void buildCapillaryTrackInterfaceTab3(JTabbedPane tab, GridLayout capLayout) {
 		
 		JComponent panel1 = new JPanel(false);
 		panel1.setLayout(capLayout);
@@ -396,10 +389,10 @@ public class multiCAFE extends PluginActionable implements ActionListener, Chang
 		panel1.add( GuiUtil.besidesPanel(new JLabel(" "), detectAllLevelCheckBox,  new JLabel("span ", SwingConstants.RIGHT), spanTopTextField));
 		panel1.add( GuiUtil.besidesPanel( detectTopButton, new JLabel(" ")));
 
-		tabbedCapillariessPane.addTab("levels", null, panel1, "detect top and bottom levels");
+		tab.addTab("levels", null, panel1, "detect top and bottom levels");
 	}
 	
-	void buildCapillaryTrackInterfaceTab4(JPanel capPanel, GridLayout capLayout) {
+	private void buildCapillaryTrackInterfaceTab4(JTabbedPane tab, GridLayout capLayout) {
 		
 		JComponent panel1 = new JPanel(false);
 		panel1.setLayout(capLayout);
@@ -407,10 +400,10 @@ public class multiCAFE extends PluginActionable implements ActionListener, Chang
 		panel1.add( GuiUtil.besidesPanel(  new JLabel(" "), detectAllGulpsCheckBox, new JLabel("span ", SwingConstants.RIGHT), spanTransf2TextField));
 		panel1.add( GuiUtil.besidesPanel( detectGulpsButton, new JLabel(" ") ));
 
-		tabbedCapillariessPane.addTab("gulps", null, panel1, "detect / edit fast downward-going changes of the levels");
+		tab.addTab("gulps", null, panel1, "detect / edit fast downward-going changes of the levels");
 	}
 	
-	void buildMeasureInterface(JPanel mainPanel) {
+	private void panelMeasureInterface(JPanel mainPanel) {
 		// ----------------- Measure
 		final JPanel analysisPanel = GuiUtil.generatePanel("MEASURE");
 		mainPanel.add(GuiUtil.besidesPanel(analysisPanel));
@@ -425,7 +418,7 @@ public class multiCAFE extends PluginActionable implements ActionListener, Chang
 		analysisPanel.add( GuiUtil.besidesPanel( stepLabel, analyzeStepTextField, new JLabel (" "), new JLabel (" ")));
 	}
 	
-	void buildExportInterface (JPanel mainPanel) {
+	private void panelExportInterface (JPanel mainPanel) {
 		final JPanel exportPanel = GuiUtil.generatePanel("DISPLAY/EXPORT RESULTS");
 		exportPanel.add( GuiUtil.besidesPanel( displayChartsButton, exportToXLSButton));
 		exportPanel.add( GuiUtil.besidesPanel(closeAllButton));

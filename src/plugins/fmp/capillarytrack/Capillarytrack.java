@@ -249,15 +249,7 @@ public class Capillarytrack extends PluginActionable implements ActionListener, 
 	private int 		simplethreshold 	= 20;
 
 	// -------------------------------------------
-	@Override
-	public void run() {
-
-		// build and display the GUI
-		JPanel mainPanel = GuiUtil.generatePanelWithoutBorder();
-		mainFrame.setLayout(new BorderLayout());
-		mainFrame.add(mainPanel, BorderLayout.CENTER);
-
-		// ----------------- Source
+	private void panelSourceInterface (JPanel mainPanel) {
 		final JPanel sourcePanel = GuiUtil.generatePanel("SOURCE");
 		mainPanel.add(GuiUtil.besidesPanel(sourcePanel));
 		
@@ -269,13 +261,24 @@ public class Capillarytrack extends PluginActionable implements ActionListener, 
 		selectInputStack2Button.setSelected(true);
 		sourcePanel.add( GuiUtil.besidesPanel(setVideoSourceButton, k0Panel));
 		sourcePanel.add(GuiUtil.besidesPanel(loadpreviousCheckBox));
-
+	}
+	
+	private void panelKymosInterface(JPanel mainPanel) {
 		final JPanel kymosPanel = GuiUtil.generatePanel("KYMOGRAPHS");
 		mainPanel.add(GuiUtil.besidesPanel(kymosPanel));
+		GridLayout capLayout = new GridLayout(6, 2);
 		
-		// ----------------- Capillaries
+		panelKymosInterfaceTab1(tabbedCapillariesAndKymosPane, capLayout);
+		panelKymosInterfaceTab2(tabbedCapillariesAndKymosPane, capLayout);
+		
+		tabbedCapillariesAndKymosPane.setTabLayoutPolicy(JTabbedPane.SCROLL_TAB_LAYOUT);
+		kymosPanel.add(GuiUtil.besidesPanel(tabbedCapillariesAndKymosPane));
+	}
+	
+	private void panelKymosInterfaceTab1(JTabbedPane tab, GridLayout capLayout) {
+
 		JComponent roiPanel = new JPanel(false);
-		roiPanel.setLayout(new GridLayout(6, 2));
+		roiPanel.setLayout(capLayout);
 		
 		roiPanel.add( GuiUtil.besidesPanel( createROIsFromPolygonButton2));
 		buttonGroup2.add(selectGroupedby2Button);
@@ -288,9 +291,11 @@ public class Capillarytrack extends PluginActionable implements ActionListener, 
 		JLabel loadsaveText1 = new JLabel ("-> File (xml) ", SwingConstants.RIGHT);
 		loadsaveText1.setFont(FontUtil.setStyle(loadsaveText1.getFont(), Font.ITALIC));
 		roiPanel.add(GuiUtil.besidesPanel( new JLabel (" "), loadsaveText1, openROIsButton2, saveROIsButton2));		
-		tabbedCapillariesAndKymosPane.addTab("Capillaries", null, roiPanel, "Place a ROI line over each capillary to generate a kymograph");
-
-		// ----------------- Kymographs
+		tab.addTab("Capillaries", null, roiPanel, "Place a ROI line over each capillary to generate a kymograph");
+	}
+	
+	private void panelKymosInterfaceTab2(JTabbedPane tab, GridLayout capLayout) {
+		
 		JComponent kymographsPanel = new JPanel(false);
 		kymographsPanel.setLayout(new GridLayout(6, 2));
 		
@@ -316,28 +321,37 @@ public class Capillarytrack extends PluginActionable implements ActionListener, 
 		loadsaveText2.setFont(FontUtil.setStyle(loadsaveText2.getFont(), Font.ITALIC));
 		kymographsPanel.add(GuiUtil.besidesPanel(new JLabel (" "), loadsaveText2,  openKymographsButton, saveKymographsButton));
 		
-		tabbedCapillariesAndKymosPane.addTab("Kymographs", null, kymographsPanel, "Build kymographs from ROI lines placed over capillaries");
-		
-		tabbedCapillariesAndKymosPane.setTabLayoutPolicy(JTabbedPane.SCROLL_TAB_LAYOUT);
-		kymosPanel.add(GuiUtil.besidesPanel(tabbedCapillariesAndKymosPane));
-		
-		// ----------------- Measure
+		tab.addTab("Kymographs", null, kymographsPanel, "Build kymographs from ROI lines placed over capillaries");
+	}
+	
+	private void panelMeasureInterface(JPanel mainPanel) {
 		final JPanel analysisPanel = GuiUtil.generatePanel("MEASURE");
 		mainPanel.add(GuiUtil.besidesPanel(analysisPanel));
+		GridLayout capLayout = new GridLayout(4, 2);
 		
-		// ----------------- detect using functions
+		panelMeasureInterfaceTab1(tabbedDetectionPane, capLayout);
+		panelMeasureInterfaceTab2(tabbedDetectionPane, capLayout);
+		panelMeasureInterfaceTab3(tabbedDetectionPane, capLayout);
+		panelMeasureInterfaceTab4(tabbedDetectionPane, capLayout);
+		
+		tabbedDetectionPane.setTabLayoutPolicy(JTabbedPane.SCROLL_TAB_LAYOUT);
+		analysisPanel.add(GuiUtil.besidesPanel(tabbedDetectionPane));
+	}
+	
+	private void panelMeasureInterfaceTab1(JTabbedPane tab,GridLayout capLayout) {
 		JComponent panel1 = new JPanel(false);
-		panel1.setLayout(new GridLayout(4, 2));
+		panel1.setLayout(capLayout);
 		
 		((JLabel) directionComboBox.getRenderer()).setHorizontalAlignment(JLabel.RIGHT);
 		panel1.add( GuiUtil.besidesPanel(directionComboBox, detectTopTextField, transformForLevelsComboBox, displayTransform1Button )); 
 		panel1.add( GuiUtil.besidesPanel(new JLabel(" "), detectAllLevelCheckBox,  new JLabel("span ", SwingConstants.RIGHT), spanTopTextField));
 		panel1.add( GuiUtil.besidesPanel( detectTopButton, new JLabel(" ")));
-		tabbedDetectionPane.addTab("Filters", null, panel1, "thresholding a transformed image with different filters");
-		
-		// ----------------- detect colors
+		tab.addTab("Filters", null, panel1, "thresholding a transformed image with different filters");
+	}
+	
+	private void panelMeasureInterfaceTab2(JTabbedPane tab, GridLayout capLayout) {
 		JComponent panel2 = new JPanel(false);
-		panel2.setLayout(new GridLayout(4, 2));
+		panel2.setLayout(capLayout);
 		colorPickCombo.setRenderer(colorPickComboRenderer);
 		panel2.add( GuiUtil.besidesPanel(pickColorButton, colorPickCombo, deleteColorButton));
 		distanceLabel.setHorizontalAlignment(SwingConstants.RIGHT);
@@ -351,27 +365,52 @@ public class Capillarytrack extends PluginActionable implements ActionListener, 
 		bgcs.add(rbH1H2H3);
 		panel2.add( GuiUtil.besidesPanel(colorspaceLabel, rbRGB, rbHSV, rbH1H2H3));
 		panel2.add(GuiUtil.besidesPanel(detectColorButton, detectAllColorsCheckBox)); 
-		tabbedDetectionPane.addTab("Colors", null, panel2, "thresholding an image with different colors and a distance");
+		tab.addTab("Colors", null, panel2, "thresholding an image with different colors and a distance");
+	}
+	
+	private void panelMeasureInterfaceTab3(JTabbedPane tab, GridLayout capLayout) {
+		JComponent panel = new JPanel(false);
+		panel.setLayout(capLayout);
 		
-		tabbedDetectionPane.setTabLayoutPolicy(JTabbedPane.SCROLL_TAB_LAYOUT);
-		analysisPanel.add(GuiUtil.besidesPanel(tabbedDetectionPane));
+		panel.add( GuiUtil.besidesPanel( new JLabel("threshold ", SwingConstants.RIGHT), detectGulpsThresholdTextField, transformForGulpsComboBox, displayTransform2Button));
+		panel.add( GuiUtil.besidesPanel(  new JLabel(" "), detectAllGulpsCheckBox, new JLabel("span ", SwingConstants.RIGHT), spanTransf2TextField));
+		panel.add( GuiUtil.besidesPanel( detectGulpsButton,new JLabel(" ") ));
 		
-		// --------------- detect gulps
-		analysisPanel.add( GuiUtil.besidesPanel( new JLabel("threshold ", SwingConstants.RIGHT), detectGulpsThresholdTextField, transformForGulpsComboBox, displayTransform2Button));
-		analysisPanel.add( GuiUtil.besidesPanel(  new JLabel(" "), detectAllGulpsCheckBox, new JLabel("span ", SwingConstants.RIGHT), spanTransf2TextField));
-		// --------------- save parms
-		analysisPanel.add( GuiUtil.besidesPanel( detectGulpsButton,new JLabel(" ") ));
+		tab.addTab("Gulps", null, panel, "detect gulps");
+	}
+	
+	private void panelMeasureInterfaceTab4(JTabbedPane tab, GridLayout capLayout) {
+		JComponent panel = new JPanel(false);
+		panel.setLayout(capLayout);
+		
 		JLabel loadsaveText3 = new JLabel ("-> File (xml) ", SwingConstants.RIGHT); 
 		loadsaveText3.setFont(FontUtil.setStyle(loadsaveText3.getFont(), Font.ITALIC));
-		analysisPanel.add(GuiUtil.besidesPanel(new JLabel (" "), loadsaveText3,  openMeasuresButton, saveMeasuresButton));
+		panel.add(GuiUtil.besidesPanel(new JLabel (" "), loadsaveText3,  openMeasuresButton, saveMeasuresButton));
 		
-		// ----------------- Display /edit
+		tab.addTab("Load/Save", null, panel, "load / save parameters");
+	}
+
+	private void panelDisplaySaveInterface(JPanel mainPanel) {
 		final JPanel displayPanel = GuiUtil.generatePanel("DISPLAY/EDIT/EXPORT RESULTS");
 		mainPanel.add(GuiUtil.besidesPanel(displayPanel));
-		
 		displayPanel.add( GuiUtil.besidesPanel( displayResultsButton, exportToXLSButton));
 		displayPanel.add( GuiUtil.besidesPanel( closeAllButton));
+	}
+	
+	@Override
+	public void run() {
 
+		// build and display the GUI
+		JPanel mainPanel = GuiUtil.generatePanelWithoutBorder();
+		mainFrame.setLayout(new BorderLayout());
+		mainFrame.add(mainPanel, BorderLayout.CENTER);
+
+		// ----------------- Source
+		panelSourceInterface(mainPanel);
+		panelKymosInterface(mainPanel);
+		panelMeasureInterface(mainPanel);
+		panelDisplaySaveInterface(mainPanel);
+		
 		// -------------------------------------------- action listeners, etc
 		transformForLevelsComboBox.setSelectedItem(TransformOp.G2MINUS_RB);
 		transformForGulpsComboBox.setSelectedItem(TransformOp.XDIFFN);
@@ -2101,9 +2140,7 @@ public class Capillarytrack extends PluginActionable implements ActionListener, 
 
 		try {
 			WritableWorkbook xlsWorkBook = XLSUtil.createWorkbook( filename);
-			//if (detectTopCheckBox.isSelected())
 			xlsExportToWorkbook(xlsWorkBook, "toplevel", 0, ratio, blistofFiles);
-			//if (detectBottomCheckBox.isSelected())
 			xlsExportToWorkbook(xlsWorkBook, "bottomlevel", 3, ratio, blistofFiles);
 			xlsExportToWorkbook(xlsWorkBook, "derivative", 1, ratio, blistofFiles);
 			xlsExportToWorkbook(xlsWorkBook, "consumption", 2, ratio, blistofFiles);
@@ -2193,6 +2230,7 @@ public class Capillarytrack extends PluginActionable implements ActionListener, 
 		irow++;
 
 		// output data
+		int t = startFrame;
 		for (int j=0; j<nrows; j++) {
 			icol0 = 0;
 			if (blistofFiles) {
@@ -2203,7 +2241,9 @@ public class Capillarytrack extends PluginActionable implements ActionListener, 
 				icol0++;
 			}
 
-			XLSUtil.setCellNumber( excelSheet , icol0, irow, j +startFrame);
+			XLSUtil.setCellNumber( excelSheet , icol0, irow, t);
+			t  += analyzeStep;
+			
 			icol0++;
 			for (int i=0; i< ncols; i++, icol0++) {
 				ArrayList<Integer> data = arrayList.get(i);
@@ -2229,18 +2269,8 @@ public class Capillarytrack extends PluginActionable implements ActionListener, 
 		Point ptRelative = new Point(0,30);
 		final int deltay = 230;
 
-		//if (detectTopCheckBox.isSelected() && detectBottomCheckBox.isSelected()) {
-			firstChart = xyDisplayGraphsItem("top + bottom levels", ArrayListType.topAndBottom, firstChart, rectv, ptRelative, kmax);
-			ptRelative.y += deltay;
-		//}
-//		else if (detectBottomCheckBox.isSelected()) {
-//			firstChart = xyDisplayGraphsItem("bottom level", ArrayListType.bottomLevel, firstChart, rectv, ptRelative, kmax);
-//			ptRelative.y += deltay;
-//		}
-//		else if (detectTopCheckBox.isSelected()) {
-//			firstChart = xyDisplayGraphsItem("top level", ArrayListType.topLevel, firstChart, rectv, ptRelative, kmax);
-//			ptRelative.y += deltay;
-//		}
+		firstChart = xyDisplayGraphsItem("top + bottom levels", ArrayListType.topAndBottom, firstChart, rectv, ptRelative, kmax);
+		ptRelative.y += deltay;
 
 		secondChart = xyDisplayGraphsItem("Derivative", ArrayListType.derivedValues, secondChart, rectv, ptRelative, kmax);
 		ptRelative.y += deltay; 
