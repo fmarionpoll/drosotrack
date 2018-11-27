@@ -704,7 +704,7 @@ public class SequenceVirtual extends Sequence
 		int j = 0;
 		for (int i=0; i<list.length; i++) {
 			if (list[i]!=null)
-				listFiles [j++] = directory + '\\'+ list[i];
+				listFiles [j++] = directory + '/'+ list[i];
 		}
 		listFiles = StringSorter.sortNumerically(listFiles);
 		nTotalFrames = listFiles.length;
@@ -781,4 +781,6 @@ public class SequenceVirtual extends Sequence
 
 		return true;
 	}
+	
+	
 }

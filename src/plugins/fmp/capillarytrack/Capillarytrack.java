@@ -327,6 +327,7 @@ public class Capillarytrack extends PluginActionable implements ActionListener, 
 	private void panelMeasureInterface(JPanel mainPanel) {
 		final JPanel analysisPanel = GuiUtil.generatePanel("MEASURE");
 		mainPanel.add(GuiUtil.besidesPanel(analysisPanel));
+		
 		GridLayout capLayout = new GridLayout(4, 2);
 		
 		panelMeasureInterfaceTab1(tabbedDetectionPane, capLayout);
@@ -609,7 +610,7 @@ public class Capillarytrack extends PluginActionable implements ActionListener, 
 		} } );
 
 		pickColorButton.addActionListener(new ActionListener () { @Override public void actionPerformed( final ActionEvent e ) { 
-			colorsPickColorUpdateButton(); 
+			pickColor(); 
 		} } );
 		
 		rbRGB.addActionListener(new ActionListener () { @Override public void actionPerformed( final ActionEvent e ) { 
@@ -782,7 +783,7 @@ public class Capillarytrack extends PluginActionable implements ActionListener, 
 		colorsActivateSequenceThresholdOverlay(activateThreshold);
 	}
 	
-	private void colorsPickColorUpdateButton() {
+	private void pickColor() {
 		
 		boolean bActiveTrapOverlay = false;
 		

@@ -317,5 +317,4 @@ public class SequencePlus extends SequenceVirtual  {
 		}
 	}
 	
-
 }

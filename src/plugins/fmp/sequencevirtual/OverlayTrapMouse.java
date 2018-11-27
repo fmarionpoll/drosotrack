@@ -66,8 +66,7 @@ public class OverlayTrapMouse extends Overlay
     private void onMouseClicked(Sequence sequence, int posT, Point5D.Double imagePoint)
     {
         Color c = getRGB(sequence, posT, imagePoint);
-        if (c != null)
-        {
+        if (c != null && pickColorButton != null) {
             pickColorButton.setBackground(c);
 			boolean isnewcolor = true;
 			int isel = 0;
@@ -76,17 +75,15 @@ public class OverlayTrapMouse extends Overlay
 					isnewcolor = false;
 					isel = i;
 				}
-		
+			}
+			
 			if (isnewcolor) {
 				colorPickCombo.addItem(c);
 				isel = colorPickCombo.getItemCount()-1;
 			}
 			colorPickCombo.setSelectedIndex(isel);
-			}
-		pickColorButton.setBackground(Color.LIGHT_GRAY);
-		pickColorButton.setText(textPickAPixel);
-//            // done, we can remove the overlay now
-//            sequence.removeOverlay(this);
+			pickColorButton.setBackground(Color.LIGHT_GRAY);
+			pickColorButton.setText(textPickAPixel);
         }     
     }
 
@@ -94,7 +91,7 @@ public class OverlayTrapMouse extends Overlay
     private void onMouseMoved(Sequence sequence, int posT, Point5D.Double imagePoint)
     {
         Color c = getRGB(sequence, posT, imagePoint);
-        if (c != null) {
+        if (c != null && pickColorButton != null) {
         	pickColorButton.setBackground(c);
 			String cs = Integer.toString(c.getRed()) + ":"+ Integer.toString(c.getGreen()) +":" + Integer.toString(c.getBlue());
 			pickColorButton.setText(cs);
