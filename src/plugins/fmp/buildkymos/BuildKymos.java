@@ -64,7 +64,6 @@ public class BuildKymos extends PluginActionable implements ActionListener, Chan
 	private SequenceVirtual vinputSequence 		= null;
 	private int	analyzeStep = 1;
 	private int diskRadius = 5;
-	private int numberOfImageForBuffer = 100;
 	
 	// results arrays
 	private ArrayList <SequencePlus> 	kymographArrayList 		= new ArrayList <SequencePlus> ();		// list of kymograph sequences
@@ -173,7 +172,7 @@ public class BuildKymos extends PluginActionable implements ActionListener, Chan
 
 		vinputSequence.vImageBufferThread_STOP();
 		vinputSequence.istep = analyzeStep;
-		vinputSequence.vImageBufferThread_START(numberOfImageForBuffer);
+		vinputSequence.vImageBufferThread_START(100); //numberOfImageForBuffer);
 	}
 	
 	// ------------------------------------------

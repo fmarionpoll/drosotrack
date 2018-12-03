@@ -87,7 +87,6 @@ public class ROItoRoiArray extends EzPlug implements ViewerListener {
 	
 	private OverlayThreshold thresholdOverlay = null;
 	private SequenceVirtual vSequence = null;
-	//private int numberOfImageForBuffer	= 100;
 	private IcyFrame mainChartFrame = null;
 	private double [][] stdXArray = null;
 	private double [][] stdYArray = null;
@@ -1168,7 +1167,7 @@ public class ROItoRoiArray extends EzPlug implements ViewerListener {
 
 		vSequence.vImageBufferThread_STOP();
 		vSequence.istep = 1;
-		vSequence.vImageBufferThread_START(20); //numberOfImageForBuffer);
+		vSequence.vImageBufferThread_START(100); //numberOfImageForBuffer);
 	}
 	
 	@Override

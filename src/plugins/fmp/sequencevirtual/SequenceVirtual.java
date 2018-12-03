@@ -530,21 +530,15 @@ public class SequenceVirtual extends Sequence
 
 		private int fenetre = 20; // 100;
 		private int span = fenetre/2;
-//		private boolean [] loaded = null;
 
 		public VImageBufferThread() {
-			System.out.println("init thread");
 			bBufferON = true;
 		}
 
 		public VImageBufferThread(SequenceVirtual vseq, int depth) {
-			System.out.println("init thread with depth =" + depth);
 			fenetre = depth;
 			span = fenetre/2;
 			bBufferON = true;
-//			loaded = new boolean [vseq.nTotalFrames];
-//			for (int i=0; i< vseq.nTotalFrames; i++)
-//				loaded[i] = false;
 		}
 		
 		public void setFenetre (int depth) {
@@ -573,7 +567,6 @@ public class SequenceVirtual extends Sequence
 			{
 				nbImage++;
 				if (getImage(t, 0) != null)
-//				if (loaded[t] )
 					nbImageLoaded++;
 			}
 			currentBufferPercent = (int) (nbImageLoaded * 100f / nbImage);
@@ -598,21 +591,15 @@ public class SequenceVirtual extends Sequence
 			
 					// clean all images except those within the buffer 
 					for (int t = 0; t < nTotalFrames-1 ; t++) {
-						if (t < frameStart-1 || t > frameEnd)
-//							if (loaded[t]) {
-								removeImage(t, 0);
-//								loaded[t] = false;
-//							}
+						if (t < frameStart || t > frameEnd)
+							removeImage(t, 0);
 						
 						if (isInterrupted())
 							return;
 					}
 					
 					for (int t = frameStart; t < frameEnd ; t+= istep) {	
-//						if (!loaded[t]) {
-							setVImage(t);
-//							loaded[t] = true;
-//						}
+						setVImage(t);
 						if (isInterrupted())
 							return;
 					}

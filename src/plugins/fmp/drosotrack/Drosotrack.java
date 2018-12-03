@@ -127,7 +127,6 @@ public class Drosotrack extends PluginActionable implements ActionListener, View
 	private int 	nbcages 				= 8;
 	private int 	width_cage 				= 10;
 	private int 	width_interval 			= 2;
-	//private int 	numberOfImageForBuffer 	= 100;
 	private IcyFrame mainChartFrame 		= null;
 
 	OverlayThreshold ov = null;
@@ -848,7 +847,7 @@ public class Drosotrack extends PluginActionable implements ActionListener, View
 		vSequence.vImageBufferThread_STOP();
 		parseTextFields() ;
 		vSequence.istep = analyzeStep;
-		vSequence.vImageBufferThread_START(100); //numberOfImageForBuffer);
+		vSequence.vImageBufferThread_START(100); 
 		checkBufferTimer.start();
 	}
 

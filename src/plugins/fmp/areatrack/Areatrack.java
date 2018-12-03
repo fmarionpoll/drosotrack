@@ -956,7 +956,7 @@ public class Areatrack extends PluginActionable implements ActionListener, Chang
 
 		vSequence.vImageBufferThread_STOP();
 		vSequence.istep = analyzeStep;
-		vSequence.vImageBufferThread_START(20); //numberOfImageForBuffer);
+		vSequence.vImageBufferThread_START(100); //numberOfImageForBuffer);
 		checkBufferTimer.start();
 	}
 	
