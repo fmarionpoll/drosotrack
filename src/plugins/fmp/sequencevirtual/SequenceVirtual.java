@@ -41,7 +41,7 @@ public class SequenceVirtual extends Sequence
 	private String			directory = null;
 	private static final String XML_KEY_ID = "ID";
 	private IcyBufferedImage refImage = null;
-	
+		
 	public String			sourceFile = null;
 	public enum 			Status { AVIFILE, FILESTACK, REGULAR, FAILURE };
 	public boolean			bBufferON = false;
@@ -528,17 +528,23 @@ public class SequenceVirtual extends Sequence
 		 * pre-fetch files / companion to SequenceVirtual
 		 */
 
-		private int fenetre = 100;
+		private int fenetre = 20; // 100;
 		private int span = fenetre/2;
+//		private boolean [] loaded = null;
 
 		public VImageBufferThread() {
+			System.out.println("init thread");
 			bBufferON = true;
 		}
 
 		public VImageBufferThread(SequenceVirtual vseq, int depth) {
+			System.out.println("init thread with depth =" + depth);
 			fenetre = depth;
 			span = fenetre/2;
 			bBufferON = true;
+//			loaded = new boolean [vseq.nTotalFrames];
+//			for (int i=0; i< vseq.nTotalFrames; i++)
+//				loaded[i] = false;
 		}
 		
 		public void setFenetre (int depth) {
@@ -567,8 +573,8 @@ public class SequenceVirtual extends Sequence
 			{
 				nbImage++;
 				if (getImage(t, 0) != null)
+//				if (loaded[t] )
 					nbImageLoaded++;
-
 			}
 			currentBufferPercent = (int) (nbImageLoaded * 100f / nbImage);
 			return currentBufferPercent;
@@ -581,7 +587,7 @@ public class SequenceVirtual extends Sequence
 			{
 				while (!isInterrupted())
 				{
-					final int cachedCurrentFrame = currentFrame;
+					ThreadUtil.sleep(100);
 
 					int frameStart 	= currentFrame - span;
 					int frameEnd 	= currentFrame + span;
@@ -589,29 +595,26 @@ public class SequenceVirtual extends Sequence
 						frameStart = 0;
 					if (frameEnd > nTotalFrames) 
 						frameEnd = nTotalFrames;
-					
-					ThreadUtil.sleep(100);
-					
-					for (int t = frameStart; t < frameEnd ; t+= istep)
-					{					
-						setVImage(t);
-						if(isInterrupted())
-							return;
-						if (cachedCurrentFrame != currentFrame)
-							break;
-					}
-					if (cachedCurrentFrame != currentFrame)
-						continue;
-
+			
 					// clean all images except those within the buffer 
 					for (int t = 0; t < nTotalFrames-1 ; t++) {
-						if (t < frameStart || t > frameEnd)
-							removeImage(t, 0);
+						if (t < frameStart-1 || t > frameEnd)
+//							if (loaded[t]) {
+								removeImage(t, 0);
+//								loaded[t] = false;
+//							}
 						
 						if (isInterrupted())
 							return;
-						if (cachedCurrentFrame != currentFrame)
-							break;
+					}
+					
+					for (int t = frameStart; t < frameEnd ; t+= istep) {	
+//						if (!loaded[t]) {
+							setVImage(t);
+//							loaded[t] = true;
+//						}
+						if (isInterrupted())
+							return;
 					}
 				}			
 			}

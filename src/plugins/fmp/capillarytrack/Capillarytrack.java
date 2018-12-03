@@ -206,7 +206,7 @@ public class Capillarytrack extends PluginActionable implements ActionListener, 
 	private int diskRadius 					= 5;
 	private double detectLevelThreshold 	= 100.;
 	private double detectGulpsThreshold 	= 5.;
-	final private int numberOfImageForBuffer= 100;
+	//final private int numberOfImageForBuffer= 100;
 	private double capillaryVolume 			= 1.;
 	private double capillaryPixels 			= 1.;
 	private int spanDiffTop 				= 3;
@@ -2092,7 +2092,7 @@ public class Capillarytrack extends PluginActionable implements ActionListener, 
 		vSequence.vImageBufferThread_STOP();
 		parseTextFields() ;
 		vSequence.istep = analyzeStep;
-		vSequence.vImageBufferThread_START(numberOfImageForBuffer);
+		vSequence.vImageBufferThread_START(100); //numberOfImageForBuffer);
 		checkBufferTimer.start();
 	}
 

@@ -84,7 +84,7 @@ import plugins.fmp.sequencevirtual.SequencePlus;
 public class Areatrack extends PluginActionable implements ActionListener, ChangeListener, ViewerListener
 {	
 	// -------------------------------------- interface
-	IcyFrame mainFrame = new IcyFrame("AreaTrack 27-11-2018", true, true, true, true);
+	IcyFrame mainFrame = new IcyFrame("AreaTrack 03-12-2018", true, true, true, true);
 	IcyFrame mainChartFrame = null;
 	JPanel 	mainChartPanel = null;
 	
@@ -148,7 +148,7 @@ public class Areatrack extends PluginActionable implements ActionListener, Chang
 	private int			analyzeStep 		= 1;
 	private int 		startFrame 			= 1;
 	private int 		endFrame 			= 99999999;
-	private int 		numberOfImageForBuffer = 100;
+	//private int 		numberOfImageForBuffer = 100;
 	private AreaAnalysisThread analysisThread = null;
 	private OverlayThreshold thresholdOverlay = null;
 	private boolean 	thresholdOverlayON	= false;
@@ -956,7 +956,7 @@ public class Areatrack extends PluginActionable implements ActionListener, Chang
 
 		vSequence.vImageBufferThread_STOP();
 		vSequence.istep = analyzeStep;
-		vSequence.vImageBufferThread_START(numberOfImageForBuffer);
+		vSequence.vImageBufferThread_START(20); //numberOfImageForBuffer);
 		checkBufferTimer.start();
 	}
 	
