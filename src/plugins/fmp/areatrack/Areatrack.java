@@ -355,14 +355,14 @@ public class Areatrack extends PluginActionable implements ActionListener, Chang
 		filterComboBox.setSelectedIndex(0);
 	}
 
-	void declareChangeListeners() {
+	private void declareChangeListeners() {
 		thresholdSpinner.addChangeListener(this);
 		tabbedPane.addChangeListener(this);
 		distanceSpinner.addChangeListener(this);
 		threshold2Spinner.addChangeListener(this);
 	}
 	
-	void declareActionListeners() {
+	private void declareActionListeners() {
 		closeAllButton.addActionListener(new ActionListener () { @Override public void actionPerformed( final ActionEvent e ) { 
 				if (mainChartFrame != null) {
 					mainChartFrame.removeAll();
@@ -466,7 +466,6 @@ public class Areatrack extends PluginActionable implements ActionListener, Chang
 				selectTab(1);
 		} } );
 		
-		
 		class ItemChangeListener implements ItemListener{
 		    @Override
 		    public void itemStateChanged(ItemEvent event) {
@@ -475,7 +474,6 @@ public class Areatrack extends PluginActionable implements ActionListener, Chang
 		       }
 		    }       
 		}
-		
 		colorPickCombo.addItemListener(new ItemChangeListener());
 	}
 	

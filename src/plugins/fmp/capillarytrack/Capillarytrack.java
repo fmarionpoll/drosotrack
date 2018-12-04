@@ -10,6 +10,8 @@ import java.awt.Polygon;
 import java.awt.Rectangle;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.ItemEvent;
+import java.awt.event.ItemListener;
 import java.awt.geom.Line2D;
 import java.awt.geom.Point2D;
 import java.io.File;
@@ -329,16 +331,16 @@ public class Capillarytrack extends PluginActionable implements ActionListener, 
 		
 		GridLayout capLayout = new GridLayout(4, 2);
 		
-		panelMeasureInterfaceTab1(tabbedDetectionPane, capLayout);
-		panelMeasureInterfaceTab2(tabbedDetectionPane, capLayout);
-		panelMeasureInterfaceTab3(tabbedDetectionPane, capLayout);
-		panelMeasureInterfaceTab4(tabbedDetectionPane, capLayout);
+		panelMeasureInterfaceTab1Filters(tabbedDetectionPane, capLayout);
+		panelMeasureInterfaceTab2Colors(tabbedDetectionPane, capLayout);
+		panelMeasureInterfaceTab3Gulps(tabbedDetectionPane, capLayout);
+		panelMeasureInterfaceTab4LoadSave(tabbedDetectionPane, capLayout);
 		
 		tabbedDetectionPane.setTabLayoutPolicy(JTabbedPane.SCROLL_TAB_LAYOUT);
 		analysisPanel.add(GuiUtil.besidesPanel(tabbedDetectionPane));
 	}
 	
-	private void panelMeasureInterfaceTab1(JTabbedPane tab,GridLayout capLayout) {
+	private void panelMeasureInterfaceTab1Filters(JTabbedPane tab,GridLayout capLayout) {
 		JComponent panel1 = new JPanel(false);
 		panel1.setLayout(capLayout);
 		
@@ -349,7 +351,7 @@ public class Capillarytrack extends PluginActionable implements ActionListener, 
 		tab.addTab("Filters", null, panel1, "thresholding a transformed image with different filters");
 	}
 	
-	private void panelMeasureInterfaceTab2(JTabbedPane tab, GridLayout capLayout) {
+	private void panelMeasureInterfaceTab2Colors(JTabbedPane tab, GridLayout capLayout) {
 		JComponent panel2 = new JPanel(false);
 		panel2.setLayout(capLayout);
 		colorPickCombo.setRenderer(colorPickComboRenderer);
@@ -368,7 +370,7 @@ public class Capillarytrack extends PluginActionable implements ActionListener, 
 		tab.addTab("Colors", null, panel2, "thresholding an image with different colors and a distance");
 	}
 	
-	private void panelMeasureInterfaceTab3(JTabbedPane tab, GridLayout capLayout) {
+	private void panelMeasureInterfaceTab3Gulps(JTabbedPane tab, GridLayout capLayout) {
 		JComponent panel = new JPanel(false);
 		panel.setLayout(capLayout);
 		
@@ -379,7 +381,7 @@ public class Capillarytrack extends PluginActionable implements ActionListener, 
 		tab.addTab("Gulps", null, panel, "detect gulps");
 	}
 	
-	private void panelMeasureInterfaceTab4(JTabbedPane tab, GridLayout capLayout) {
+	private void panelMeasureInterfaceTab4LoadSave(JTabbedPane tab, GridLayout capLayout) {
 		JComponent panel = new JPanel(false);
 		panel.setLayout(capLayout);
 		
@@ -420,6 +422,10 @@ public class Capillarytrack extends PluginActionable implements ActionListener, 
 
 		defineActionListeners();
 		declareChangeListeners();
+		// if series (action performed)
+		kymosStopComputationButton.addActionListener(this);	
+		exportToXLSButton.addActionListener (this);
+		saveKymographsButton.addActionListener (this);
 		
 		buttonsVisibilityUpdate(StatusAnalysis.NODATA);
 		mainFrame.pack();
@@ -429,7 +435,7 @@ public class Capillarytrack extends PluginActionable implements ActionListener, 
 		checkBufferTimer.start();
 	}
 
-	void declareChangeListeners() {
+	private void declareChangeListeners() {
 		thresholdSpinner.addChangeListener(this);
 		tabbedDetectionPane.addChangeListener(this);
 		tabbedCapillariesAndKymosPane.addChangeListener(this);
@@ -640,11 +646,16 @@ public class Capillarytrack extends PluginActionable implements ActionListener, 
 			} } );
 	
 		
-		// _______________________________________________
-		// if series (action performed)
-		kymosStopComputationButton.addActionListener(this);	// if series
-		exportToXLSButton.addActionListener (this);		// if series
-		saveKymographsButton.addActionListener (this); 	// if series
+		class ItemChangeListener implements ItemListener{
+		    @Override
+		    public void itemStateChanged(ItemEvent event) {
+		       if (event.getStateChange() == ItemEvent.SELECTED) {
+		    	   updateThresholdOverlayParameters();
+		       }
+		    }       
+		}
+		colorPickCombo.addItemListener(new ItemChangeListener());
+
 	}
 	
 	@Override
@@ -755,6 +766,13 @@ public class Capillarytrack extends PluginActionable implements ActionListener, 
 		boolean activateThreshold = true;
 
 		switch (tabbedDetectionPane.getSelectedIndex()) {
+		
+			case 0:	// simple filter & single threshold
+				simpletransformop = (TransformOp) transformsComboBox.getSelectedItem();
+				simplethreshold = Integer.parseInt(thresholdSpinner.getValue().toString());
+				thresholdtype = ThresholdType.SINGLE;
+				break;
+				
 			case 1:  // color array
 				colorthreshold = Integer.parseInt(distanceSpinner.getValue().toString());
 				thresholdtype = ThresholdType.COLORARRAY;
@@ -765,12 +783,6 @@ public class Capillarytrack extends PluginActionable implements ActionListener, 
 				colordistanceType = 1;
 				if (rbL2.isSelected()) 
 					colordistanceType = 2;
-				break;
-				
-			case 0:	// simple filter & single threshold
-				simpletransformop = (TransformOp) transformsComboBox.getSelectedItem();
-				simplethreshold = Integer.parseInt(thresholdSpinner.getValue().toString());
-				thresholdtype = ThresholdType.SINGLE;
 				break;
 
 			default:
@@ -824,6 +836,42 @@ public class Capillarytrack extends PluginActionable implements ActionListener, 
 			}
 		}
 		thresholdOverlayON = activate;
+	}
+	
+	private void updateThresholdOverlayParameters() {
+		
+		if (vSequence == null)
+			return;
+		
+		boolean activateThreshold = true;
+		
+		switch (tabbedDetectionPane.getSelectedIndex()) {
+				
+			case 0:	// simple filter & single threshold
+				simpletransformop = (TransformOp) transformsComboBox.getSelectedItem();
+				simplethreshold = Integer.parseInt(thresholdSpinner.getValue().toString());
+				thresholdtype = ThresholdType.SINGLE;
+				break;
+
+			case 1:  // color array
+				colorthreshold = Integer.parseInt(distanceSpinner.getValue().toString());
+				thresholdtype = ThresholdType.COLORARRAY;
+				colorarray.clear();
+				for (int i=0; i<colorPickCombo.getItemCount(); i++) {
+					colorarray.add(colorPickCombo.getItemAt(i));
+				}
+				colordistanceType = 1;
+				if (rbL2.isSelected()) 
+					colordistanceType = 2;
+				break;
+				
+			default:
+				activateThreshold = false;
+				break;
+		}
+		
+		//--------------------------------
+		colorsActivateSequenceThresholdOverlay(activateThreshold);
 	}
 	
 	// ----------------------------------------------
