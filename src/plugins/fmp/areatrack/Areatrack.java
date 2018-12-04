@@ -150,8 +150,8 @@ public class Areatrack extends PluginActionable implements ActionListener, Chang
 	private int 		endFrame 			= 99999999;
 	//private int 		numberOfImageForBuffer = 100;
 	private AreaAnalysisThread analysisThread = null;
-	private OverlayThreshold thresholdOverlay = null;
-	private boolean 	thresholdOverlayON	= false;
+//	private OverlayThreshold thresholdOverlay = null;
+//	private boolean 	thresholdOverlayON	= false;
 	
 	// parameters saved/read in xml file
 	private ThresholdType thresholdtype 	= ThresholdType.COLORARRAY; 
@@ -341,7 +341,7 @@ public class Areatrack extends PluginActionable implements ActionListener, Chang
 		declareChangeListeners();
 		
 		// -------------------------------------------- default selection
-		thresholdOverlay = new OverlayThreshold();
+//		thresholdOverlay = new OverlayThreshold();
 		filterComboBox.setSelectedIndex(2);
 		measureSurfacesCheckBox.setSelected(true);
 		measureHeatmapCheckBox.setSelected(true);
@@ -758,26 +758,28 @@ public class Areatrack extends PluginActionable implements ActionListener, Chang
 		if (vSequence == null)
 			return;
 		
-		if (activate) {
-			if (!thresholdOverlayON) {
-				if (thresholdOverlay == null) {
-					System.out.println("create overlay");
-					thresholdOverlay = new OverlayThreshold(vSequence);
-				}
-				if (!vSequence.contains(thresholdOverlay)) 
-					vSequence.addOverlay(thresholdOverlay);
-				thresholdOverlayON = true;
-			}			
-		}
-		else {
-			if (thresholdOverlayON && thresholdOverlay != null) {
-				if (vSequence.contains(thresholdOverlay) ) {
-					vSequence.removeOverlay(thresholdOverlay);
-					System.out.println("remove overlay");
-				}
-			}
-			thresholdOverlayON = false;
-		}
+		vSequence.setThresholdOverlay(activate);
+//		thresholdOverlayON = activate;
+//		if (activate) {
+//			if (!thresholdOverlayON) {
+//				if (thresholdOverlay == null) {
+//					//System.out.println("create overlay");
+//					thresholdOverlay = new OverlayThreshold(vSequence);
+//				}
+//				if (!vSequence.contains(thresholdOverlay)) 
+//					vSequence.addOverlay(thresholdOverlay);
+//				thresholdOverlayON = true;
+//			}			
+//		}
+//		else {
+//			if (thresholdOverlayON && thresholdOverlay != null) {
+//				if (vSequence.contains(thresholdOverlay) ) {
+//					vSequence.removeOverlay(thresholdOverlay);
+//					//System.out.println("remove overlay");
+//				}
+//			}
+//			thresholdOverlayON = false;
+//		}
 	}
 	
 	private void updateThresholdOverlayParameters() {
@@ -832,13 +834,11 @@ public class Areatrack extends PluginActionable implements ActionListener, Chang
 		activateSequenceThresholdOverlay(activateThreshold);
 		
 		if (activateThreshold && vSequence != null) {
-			thresholdOverlay.setSequence (vSequence);
-			thresholdOverlay.setTransform(transformOpForOverlay);
+			vSequence.setThresholdOverlay(activateThreshold);
 			if (thresholdTypeForOverlay == ThresholdType.SINGLE)
-				thresholdOverlay.setThresholdSingle(thresholdForOverlay);
+				vSequence.setThresholdOverlayParametersSingle(transformOpForOverlay, thresholdForOverlay);
 			else
-				thresholdOverlay.setThresholdColor(colorarray, colordistanceType, colorthreshold);
-			thresholdOverlay.painterChanged();
+				vSequence.setThresholdOverlayParametersColors(transformOpForOverlay, colorarray, colordistanceType, colorthreshold);
 		}
 	}
 	
@@ -1167,7 +1167,6 @@ public class Areatrack extends PluginActionable implements ActionListener, Chang
 		}
 		System.out.println("XLS output done");
 	}
-
 
 	@Override
 	public void actionPerformed(ActionEvent e) {

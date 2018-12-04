@@ -3,6 +3,7 @@ package plugins.fmp.sequencevirtual;
 import java.awt.Color;
 import java.util.ArrayList;
 import icy.image.IcyBufferedImage;
+import icy.image.IcyBufferedImageUtil;
 import icy.type.DataType;
 import icy.type.collection.array.Array1DUtil;
 
@@ -85,7 +86,11 @@ public class ImageThresholdTools {
 			
 		IcyBufferedImage binaryResultBuffer = new IcyBufferedImage(sourceImage.getSizeX(), sourceImage.getSizeY(), 1, DataType.UBYTE);	
 		
-		byte [][] sourceBuffer = sourceImage.getDataXYCAsByte(); // [C][XY]
+		IcyBufferedImage dummy = sourceImage;
+		if (sourceImage.getDataType_() == DataType.DOUBLE) {
+			dummy = IcyBufferedImageUtil.convertToType(sourceImage, DataType.BYTE, false);
+		}
+		byte [][] sourceBuffer = dummy.getDataXYCAsByte(); // [C][XY]
 		byte [] binaryResultArray = binaryResultBuffer.getDataXYAsByte(0);
 		
 		int npixels = binaryResultArray.length;
