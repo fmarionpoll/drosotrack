@@ -93,7 +93,7 @@ import plugins.kernel.roi.roi2d.ROI2DShape;
 public class Capillarytrack extends PluginActionable implements ActionListener, ChangeListener, ViewerListener
 {
 	// -------------------------------------- interface
-	private IcyFrame 	mainFrame 				= new IcyFrame("CapillaryTrack 01-11-2018", true, true, true, true);
+	private IcyFrame 	mainFrame 				= new IcyFrame("CapillaryTrack 01-02-2019", true, true, true, true);
 
 	// ---------------------------------------- video
 	private JButton 	setVideoSourceButton 	= new JButton("Open...");
@@ -167,8 +167,7 @@ public class Capillarytrack extends PluginActionable implements ActionListener, 
 	private JSpinner 	thresholdSpinner		= new JSpinner(new SpinnerNumberModel(70, 0, 255, 5));
 	
 	// ---------------------------------------- measure
-//	private JCheckBox	detectTopCheckBox 		= new JCheckBox ("top");
-//	private JCheckBox	detectBottomCheckBox 	= new JCheckBox ("bottom");
+
 	private JComboBox<TransformOp> transformForLevelsComboBox = new JComboBox<TransformOp> (new TransformOp[] {
 			TransformOp.R_RGB, TransformOp.G_RGB, TransformOp.B_RGB, 
 			TransformOp.R2MINUS_GB, TransformOp.G2MINUS_RB, TransformOp.B2MINUS_RG, TransformOp.RGB,
@@ -273,6 +272,7 @@ public class Capillarytrack extends PluginActionable implements ActionListener, 
 		
 		panelKymosInterfaceTab1(tabbedCapillariesAndKymosPane, capLayout);
 		panelKymosInterfaceTab2(tabbedCapillariesAndKymosPane, capLayout);
+		panelKymosInterfaceTab3(tabbedCapillariesAndKymosPane, capLayout);
 		
 		tabbedCapillariesAndKymosPane.setTabLayoutPolicy(JTabbedPane.SCROLL_TAB_LAYOUT);
 		kymosPanel.add(GuiUtil.besidesPanel(tabbedCapillariesAndKymosPane));
@@ -325,6 +325,19 @@ public class Capillarytrack extends PluginActionable implements ActionListener, 
 		kymographsPanel.add(GuiUtil.besidesPanel(new JLabel (" "), loadsaveText2,  openKymographsButton, saveKymographsButton));
 		
 		tab.addTab("Kymographs", null, kymographsPanel, "Build kymographs from ROI lines placed over capillaries");
+	}
+	
+	private void panelKymosInterfaceTab3(JTabbedPane tab, GridLayout capLayout) {
+
+		JComponent roiPanel = new JPanel(false);
+		roiPanel.setLayout(capLayout);
+		
+		roiPanel.add( GuiUtil.besidesPanel(adjustButton, refBarCheckBox,  new JLabel("jitter ", SwingConstants.RIGHT), jitterTextField2));
+		roiPanel.add( GuiUtil.besidesPanel(new JLabel("volume (µl) ", SwingConstants.RIGHT), capillaryVolumeTextField,  new JLabel("length (pixels) ", SwingConstants.RIGHT), capillaryPixelsTextField));
+		JLabel loadsaveText1 = new JLabel ("-> File (xml) ", SwingConstants.RIGHT);
+		loadsaveText1.setFont(FontUtil.setStyle(loadsaveText1.getFont(), Font.ITALIC));
+		roiPanel.add(GuiUtil.besidesPanel( new JLabel (" "), loadsaveText1, openROIsButton2, saveROIsButton2));		
+		tab.addTab("Registration", null, roiPanel, "Compute x y shift of the frame during the experiment");
 	}
 	
 	private void panelMeasureInterface(JPanel mainPanel) {
@@ -788,7 +801,6 @@ public class Capillarytrack extends PluginActionable implements ActionListener, 
 		colorsActivateSequenceThresholdOverlay(activateThreshold);
 	}
 	
-	
 	private void pickColor() {
 		
 		boolean bActiveTrapOverlay = false;
@@ -809,7 +821,6 @@ public class Capillarytrack extends PluginActionable implements ActionListener, 
 			kSeq.setMouseTrapOverlay(bActiveTrapOverlay, pickColorButton, colorPickCombo);
 	}
 
-	
 	private void colorsActivateSequenceThresholdOverlay(boolean activate) {
 		if (kymographArrayList.size() == 0)
 			return;
@@ -825,7 +836,6 @@ public class Capillarytrack extends PluginActionable implements ActionListener, 
 		}
 		thresholdOverlayON = activate;
 	}
-	
 	
 	private void updateThresholdOverlayParameters() {
 		
@@ -963,7 +973,6 @@ public class Capillarytrack extends PluginActionable implements ActionListener, 
 		editGulpsCheckbox.setEnabled(enabled);
 	}
 
-	
 	private boolean capillaryRoisOpen(String csFileName) {
 		
 		vSequence.removeAllROI();
@@ -1000,7 +1009,6 @@ public class Capillarytrack extends PluginActionable implements ActionListener, 
 		return true;
 	}
 	
-	
 	private void closeAll() {
 
 		for (SequencePlus seq:kymographArrayList)
@@ -1026,7 +1034,6 @@ public class Capillarytrack extends PluginActionable implements ActionListener, 
 		// clear combobox
 		kymographNamesComboBox.removeAllItems();
 	}
-	
 	
 	private void sequenceOpenFileAndMeasures() {
 		
@@ -1076,7 +1083,6 @@ public class Capillarytrack extends PluginActionable implements ActionListener, 
 		}
 	}
 	
-	
 	private void kymosOpenFiles() {
 		openKymographsButton.setEnabled(false);
 		saveKymographsButton.setEnabled(false);
@@ -1093,7 +1099,6 @@ public class Capillarytrack extends PluginActionable implements ActionListener, 
 			buttonsVisibilityUpdate(StatusAnalysis.KYMOS_OK);
 	}
 	
-	
 	private void kymosActivateViews (boolean bEnable) {
 		displayKymosONButton.setEnabled(bEnable);
 		previousButton.setEnabled(bEnable);
@@ -1104,7 +1109,6 @@ public class Capillarytrack extends PluginActionable implements ActionListener, 
 		else
 			kymosDisplayOFF();
 	}
-	
 	
 	private void kymosBuildKymographs() {
 		parseTextFields();
@@ -1157,7 +1161,6 @@ public class Capillarytrack extends PluginActionable implements ActionListener, 
 		waitcompletionThread.start();	
 	}
 	
-	
 	private void kymosDisplayFiltered(int zChannel) {
 		
 		if (kymographArrayList == null)
@@ -1179,7 +1182,6 @@ public class Capillarytrack extends PluginActionable implements ActionListener, 
 		displayKymosCheckBox.setSelected(true);
 	}
 	
-	
 	private void kymosInitForGulpsDetection(SequencePlus kymographSeq) {
 		
 		getDialogBoxParametersForDetection(kymographSeq, false, true);
@@ -1189,7 +1191,6 @@ public class Capillarytrack extends PluginActionable implements ActionListener, 
 		}
 		kymographSeq.derivedValuesArrayList.clear();
 	}
-	
 	
 	private void kymosDetectGulps() {
 		
@@ -1465,7 +1466,6 @@ public class Capillarytrack extends PluginActionable implements ActionListener, 
 		System.out.println("Elapsed time (s):" + nbSeconds);
 	}
 
-	
 	private void kymosBuildFiltered(int zChannelSource, int zChannelDestination, TransformOp transformop, int spanDiff) {
 
 		if (tImg == null) 
@@ -1498,7 +1498,6 @@ public class Capillarytrack extends PluginActionable implements ActionListener, 
 		}
 	}
 
-	
 	private void kymosDisplayOFF() {
 		int nseq = kymographArrayList.size();
 		if (nseq < 1) return;
@@ -1516,7 +1515,6 @@ public class Capillarytrack extends PluginActionable implements ActionListener, 
 		}
 		previousupfront =-1;
 	}
-	
 	
 	private void kymosDisplayON() {
 		if (kymographArrayList.size() < 1) return;
@@ -1540,7 +1538,6 @@ public class Capillarytrack extends PluginActionable implements ActionListener, 
 		}
 	}
 
-	
 	private void kymosDisplayUpdate() {
 		
 		if (kymographArrayList.size() < 1 || kymographNamesComboBox.getItemCount() < 1)
@@ -1596,14 +1593,12 @@ public class Capillarytrack extends PluginActionable implements ActionListener, 
 		previousupfront = itemupfront;
 	}
 
-	
 	private void kymosTransferNamesToComboBox() {
 		kymographNamesComboBox.removeAllItems();
 		for (SequencePlus kymographSeq: kymographArrayList) {
 			kymographNamesComboBox.addItem(kymographSeq.getName());
 		}
 	}
-	
 	
 	private boolean kymosOpenFromDirectory(String directory) {
 		
@@ -1707,7 +1702,6 @@ public class Capillarytrack extends PluginActionable implements ActionListener, 
 		progress.close();
 	}
 
-	
 	private void measuresFileOpen() {
 	
 		String directory = vSequence.getDirectory();
@@ -1730,7 +1724,6 @@ public class Capillarytrack extends PluginActionable implements ActionListener, 
 		}
 	}
  
-	
 	private void measuresFileSave() {
 		
 		String directory = vSequence.getDirectory();
@@ -1741,7 +1734,6 @@ public class Capillarytrack extends PluginActionable implements ActionListener, 
 				System.out.println(" -> failed - in directory: " + directory);
 		}
 	}
-	
 	
 	private void measureSetStatusFromSequence(SequencePlus seq) {
 		
@@ -1759,7 +1751,6 @@ public class Capillarytrack extends PluginActionable implements ActionListener, 
 		detectAllGulpsCheckBox.setSelected(seq.detectAllGulps);
 	}
 
-	
 	private void getDialogBoxParametersForDetection(SequencePlus seq, boolean blevel, boolean bgulps) {
 		if (blevel) {
 			seq.detectTop 				= true; //detectTopCheckBox.isSelected();
@@ -1778,7 +1769,6 @@ public class Capillarytrack extends PluginActionable implements ActionListener, 
 		seq.bStatusChanged = true;
 	}
 
-	
 	private void parseTextFields() {	
 
 		try { analyzeStep = Integer.parseInt( analyzeStepTextField.getText() );
@@ -1814,7 +1804,6 @@ public class Capillarytrack extends PluginActionable implements ActionListener, 
 		}catch( Exception e ) { new AnnounceFrame("Can't interpret the analyze step value."); }
 	}
 
-	
 	private void roisCenterLinestoCapillaries() {
 		
 		if (vSequence.capillariesArrayList == null || vSequence.capillariesArrayList.size() == 0)
@@ -1860,7 +1849,6 @@ public class Capillarytrack extends PluginActionable implements ActionListener, 
 		vSequence.removeROI(roiRefLineUpper);
 		vSequence.removeROI(roiRefLineLower);
 	}
-	
 	
 	private Line2D roisCenterLinetoCapillary(double [] sourceValues, int xwidth, ROI2DLine roi, int jitter) {
 		
@@ -1970,7 +1958,6 @@ public class Capillarytrack extends PluginActionable implements ActionListener, 
 		return line_out;
 	}
 
-	
 	private void roisGenerateFromPolygon() {
 
 		boolean statusGroup2Mode = false;
@@ -2056,7 +2043,6 @@ public class Capillarytrack extends PluginActionable implements ActionListener, 
 		}
 	}
 
-	
 	private void roisDisplay() {
 		boolean displayTop = editLevelsCheckbox.isSelected();
 		boolean displayGulps = editGulpsCheckbox.isSelected();
@@ -2082,7 +2068,6 @@ public class Capillarytrack extends PluginActionable implements ActionListener, 
 			}
 		}
 	}
-	
 	
 	public void roisDisplayrefBar() {
 		if (vSequence == null)
@@ -2127,7 +2112,6 @@ public class Capillarytrack extends PluginActionable implements ActionListener, 
 		}
 	}
 		
-	
 	private void roisSaveEdits() {
 
 		for (SequencePlus seq: kymographArrayList) {
@@ -2139,7 +2123,6 @@ public class Capillarytrack extends PluginActionable implements ActionListener, 
 		}
 	}
 
-	
 	private void roisUpdateCombo(ArrayList <ROI2DShape> roi2DArrayList) {
 
 		kymographNamesComboBox.removeAllItems();
@@ -2147,7 +2130,6 @@ public class Capillarytrack extends PluginActionable implements ActionListener, 
 			kymographNamesComboBox.addItem(roi.getName());	
 	}
 
-	
 	private void startstopBufferingThread() {
 
 		checkBufferTimer.stop();
@@ -2161,7 +2143,6 @@ public class Capillarytrack extends PluginActionable implements ActionListener, 
 		checkBufferTimer.start();
 	}
 
-	
 	@Override
 	public void stateChanged(ChangeEvent e) {
 		
@@ -2176,7 +2157,6 @@ public class Capillarytrack extends PluginActionable implements ActionListener, 
 //			System.out.println("other state change detected");
 	}
 
-	
 	@Override	
 	public void viewerChanged(ViewerEvent event)
 	{
@@ -2188,14 +2168,12 @@ public class Capillarytrack extends PluginActionable implements ActionListener, 
 //			System.out.println("viewer change detected");
 	}
 
-	
 	@Override
 	public void viewerClosed(Viewer viewer)
 	{
 		viewer.removeListener(this);
 	}
 
-	
 	private void xlsExportResultsToFile(String filename) {
 
 		// xls output - successive positions
@@ -2219,7 +2197,6 @@ public class Capillarytrack extends PluginActionable implements ActionListener, 
 		System.out.println("XLS output finished");
 	}
 
-	
 	private void xlsExportToWorkbook(WritableWorkbook xlsWorkBook, String title, int ioption, double ratio, boolean blistofFiles) {
 		
 		System.out.println("export worksheet "+title);
@@ -2321,7 +2298,6 @@ public class Capillarytrack extends PluginActionable implements ActionListener, 
 		}
 	}
 
-	
 	private void xyDisplayGraphs() {
 
 		final ArrayList <String> names = new ArrayList <String> ();
@@ -2347,7 +2323,6 @@ public class Capillarytrack extends PluginActionable implements ActionListener, 
 
 	}
 
-	
 	private XYMultiChart xyDisplayGraphsItem(String title, ArrayListType option, XYMultiChart iChart, Rectangle rectv, Point ptRelative, int kmax) {
 		
 		if (iChart != null && iChart.mainChartPanel.isValid()) {
