@@ -20,13 +20,11 @@ public class capOpenInterface extends JPanel implements ActionListener {
 	private static final long serialVersionUID = 6565346204580890307L;
 	private JButton 	setVideoSourceButton 	= new JButton("Open...");
 	private JCheckBox	loadpreviousCheckBox	= new JCheckBox("load previous measures", true);
-	private SequenceVirtual vSequence 			= null;
 	
-	public void init(String string, SequenceVirtual vSequence) {
+	public void init(String string) {
 		this.setLayout(new BoxLayout(this, BoxLayout.PAGE_AXIS));
 		this.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
 		this.setBorder(new TitledBorder(string));
-		this.vSequence = vSequence;
  
 		add( GuiUtil.besidesPanel(setVideoSourceButton, loadpreviousCheckBox));
 		setVideoSourceButton.addActionListener(this);
@@ -36,28 +34,11 @@ public class capOpenInterface extends JPanel implements ActionListener {
 	public void actionPerformed(ActionEvent arg0) {
 		Object o = arg0.getSource();
 		if ( o == setVideoSourceButton) {
-			boolean previousStatus = (vSequence != null);
-//			if (vSequence != null)
-//				closeAll();
-			vSequence = new SequenceVirtual();
-			String path = vSequence.loadInputVirtualStack(null);
-			if (path != null) {
-//				XMLPreferences guiPrefs = this.getPreferences("gui");
-//				guiPrefs.put("lastUsedPath", path);
-//				addSequence(vSequence);
-				previousStatus = false;
-			}
-			else
-			{
-				vSequence = null;
-			}
-			firePropertyChange("FILE_OPEN", previousStatus, (vSequence != null));	
+			firePropertyChange("FILE_OPEN", false, true);	
 		}
 	}
 
-	public SequenceVirtual getSequenceVirtual() {
-		return vSequence;
-	}
+
 	
 	public boolean getLoadPreviousMeasures() {
 		return loadpreviousCheckBox.isSelected();

@@ -97,8 +97,7 @@ public class Capillarytrack extends PluginActionable implements ActionListener, 
 	private IcyFrame 	mainFrame 				= new IcyFrame("CapillaryTrack 01-02-2019", true, true, true, true);
 
 	// ---------------------------------------- video
-	private JButton 	setVideoSourceButton 	= new JButton("Open...");
-	private JCheckBox	loadpreviousCheckBox	= new JCheckBox("load previous measures", true);
+	private capOpenInterface sourcePanel = null;
 
 	// ---------------------------------------- ROIs
 	private JTabbedPane tabbedCapillariesAndKymosPane = new JTabbedPane();
@@ -247,15 +246,13 @@ public class Capillarytrack extends PluginActionable implements ActionListener, 
 	// TODO
 	private TransformOp simpletransformop 	= TransformOp.R2MINUS_GB;
 	private int 		simplethreshold 	= 20;
-	
-	private capOpenInterface sourcePanel = null;;
+
 
 	// -------------------------------------------
 	private void panelSourceInterface (JPanel mainPanel) {
-//		final JPanel sourcePanel = GuiUtil.generatePanel("SOURCE");
-//		sourcePanel.add( GuiUtil.besidesPanel(setVideoSourceButton, loadpreviousCheckBox));
+
 		sourcePanel = new capOpenInterface(); 
-		sourcePanel.init("SOURCE", vSequence);
+		sourcePanel.init("SOURCE");
 		mainPanel.add(GuiUtil.besidesPanel(sourcePanel));
 		sourcePanel.addPropertyChangeListener(this);
 	}
@@ -470,10 +467,10 @@ public class Capillarytrack extends PluginActionable implements ActionListener, 
 				kymosDisplayFiltered(2);
 			}});
 		
-		setVideoSourceButton.addActionListener(new ActionListener() { @Override public void actionPerformed(ActionEvent e) {
-				sequenceOpenFileAndMeasures();
-			}});
-		
+//		setVideoSourceButton.addActionListener(new ActionListener() { @Override public void actionPerformed(ActionEvent e) {
+//				sequenceOpenFileAndMeasures();
+//			}});
+//		
 		kymoStartComputationButton.addActionListener(new ActionListener() {	@Override public void actionPerformed(ActionEvent e) {
 				kymosBuildKymographs();
 			}});
@@ -1028,54 +1025,7 @@ public class Capillarytrack extends PluginActionable implements ActionListener, 
 		kymographArrayList.clear();
 		kymographNamesComboBox.removeAllItems();
 	}
-	
-	private void sequenceOpenFileAndMeasures() {
-		
-		// clear old data
-		if (vSequence != null)
-			closeAll();
-		vSequence = new SequenceVirtual();
-		String path = vSequence.loadInputVirtualStack(null);
-		
-		if (path != null) {
-			
-			XMLPreferences guiPrefs = this.getPreferences("gui");
-			guiPrefs.put("lastUsedPath", path);
-			addSequence(vSequence);
-			
-			Viewer v = vSequence.getFirstViewer();
-			Rectangle rectv = v.getBoundsInternal();
-			Rectangle rect0 = mainFrame.getBoundsInternal();
-			rectv.setLocation(rect0.x+ rect0.width, rect0.y);
-			v.setBounds(rectv);
-			v.addListener(Capillarytrack.this);		
 
-			endFrame = vSequence.getSizeT()-1;
-			endFrameTextField.setText( Integer.toString(endFrame));
-			buttonsVisibilityUpdate(StatusAnalysis.FILE_OK);
-			
-			if (loadpreviousCheckBox.isSelected()) {
-				
-				boolean flag = capillaryRoisOpen(path+"\\capillarytrack.xml");
-				if (!flag)
-					flag = capillaryRoisOpen(path+"\\roislines.xml");
-				if (flag) {
-					tabbedCapillariesAndKymosPane.setSelectedIndex(1);
-					final String cs = path+"\\results";
-					if (kymosOpenFromDirectory(cs)) {
-						kymosTransferNamesToComboBox();
-						displayKymosCheckBox.setSelected(true);
-						buttonsVisibilityUpdate(StatusAnalysis.KYMOS_OK);
-						
-						measuresFileOpen();
-						buttonsVisibilityUpdate(StatusAnalysis.MEASUREGULPS_OK );
-					}
-				}
-			}
-//			progress.close();
-			startstopBufferingThread();
-		}
-	}
 	
 	private void kymosOpenFiles() {
 		openKymographsButton.setEnabled(false);
@@ -2333,17 +2283,59 @@ public class Capillarytrack extends PluginActionable implements ActionListener, 
 	@Override
 	public void propertyChange(PropertyChangeEvent evt) {
 		  if (evt.getPropertyName().equals("FILE_OPEN")) {
-			  boolean result = (boolean) evt.getNewValue();
-			  if (result == true) {
-				  vSequence = sourcePanel.getSequenceVirtual();
-				  boolean loadMeasures = sourcePanel.getLoadPreviousMeasures();
-			  }
-			  else
-				  closeAll();
+			  boolean loadMeasures = sourcePanel.getLoadPreviousMeasures();
+			  sequenceOpenFileAndMeasures(loadMeasures);
 	        }
 		
 	}
+	
+	private void sequenceOpenFileAndMeasures(boolean loadMeasures) {
+		
+		// clear old data
+		if (vSequence != null)
+			closeAll();
+		vSequence = new SequenceVirtual();
+		String path = vSequence.loadInputVirtualStack(null);
+		
+		if (path != null) {
+			
+			XMLPreferences guiPrefs = this.getPreferences("gui");
+			guiPrefs.put("lastUsedPath", path);
+			addSequence(vSequence);
+			
+			Viewer v = vSequence.getFirstViewer();
+			Rectangle rectv = v.getBoundsInternal();
+			Rectangle rect0 = mainFrame.getBoundsInternal();
+			rectv.setLocation(rect0.x+ rect0.width, rect0.y);
+			v.setBounds(rectv);
+			v.addListener(Capillarytrack.this);		
 
+			endFrame = vSequence.getSizeT()-1;
+			endFrameTextField.setText( Integer.toString(endFrame));
+			buttonsVisibilityUpdate(StatusAnalysis.FILE_OK);
+			
+			if (loadMeasures) {
+				
+				boolean flag = capillaryRoisOpen(path+"\\capillarytrack.xml");
+				if (!flag)
+					flag = capillaryRoisOpen(path+"\\roislines.xml");
+				if (flag) {
+					tabbedCapillariesAndKymosPane.setSelectedIndex(1);
+					final String cs = path+"\\results";
+					if (kymosOpenFromDirectory(cs)) {
+						kymosTransferNamesToComboBox();
+						displayKymosCheckBox.setSelected(true);
+						buttonsVisibilityUpdate(StatusAnalysis.KYMOS_OK);
+						
+						measuresFileOpen();
+						buttonsVisibilityUpdate(StatusAnalysis.MEASUREGULPS_OK );
+					}
+				}
+			}
+//			progress.close();
+			startstopBufferingThread();
+		}
+	}
 
 }
 
