@@ -126,7 +126,7 @@ import plugins.nchenouard.kymographtracker.spline.CubicSmoothingSpline;
 			int sizey = vSequence.getSizeY();
 			vSequence.getCapillariesArrayList();
 			int numC = vSequence.getSizeC();
-			int imagewidth = (int) (endFrame - startFrame +1)/analyzeStep +1;
+			int imagewidth = (int) (endFrame - startFrame +1)/analyzeStep;
 		
 			for (int iroi=0; iroi < vSequence.capillariesArrayList.size(); iroi++)
 			{

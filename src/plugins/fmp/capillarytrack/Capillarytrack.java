@@ -14,6 +14,8 @@ import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
 import java.awt.geom.Line2D;
 import java.awt.geom.Point2D;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -39,7 +41,6 @@ import javax.swing.JTabbedPane;
 import javax.swing.JTextField;
 import javax.swing.SpinnerNumberModel;
 import javax.swing.SwingConstants;
-import javax.swing.Timer;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
@@ -90,16 +91,13 @@ import plugins.kernel.roi.roi2d.ROI2DPolyLine;
 import plugins.kernel.roi.roi2d.ROI2DPolygon;
 import plugins.kernel.roi.roi2d.ROI2DShape;
 
-public class Capillarytrack extends PluginActionable implements ActionListener, ChangeListener, ViewerListener
+public class Capillarytrack extends PluginActionable implements ActionListener, ChangeListener, ViewerListener, PropertyChangeListener
 {
 	// -------------------------------------- interface
 	private IcyFrame 	mainFrame 				= new IcyFrame("CapillaryTrack 01-02-2019", true, true, true, true);
 
 	// ---------------------------------------- video
 	private JButton 	setVideoSourceButton 	= new JButton("Open...");
-	private JRadioButton selectInputFileButton 	= new JRadioButton("AVI");
-	private JRadioButton selectInputStack2Button= new JRadioButton("stack");
-	private ButtonGroup buttonGroup1 			= new ButtonGroup();
 	private JCheckBox	loadpreviousCheckBox	= new JCheckBox("load previous measures", true);
 
 	// ---------------------------------------- ROIs
@@ -117,7 +115,7 @@ public class Capillarytrack extends PluginActionable implements ActionListener, 
 	private JTextField 	width_intervalTextField = new JTextField("53");
 	private JTextField 	capillaryVolumeTextField= new JTextField("5");
 	private JTextField 	capillaryPixelsTextField= new JTextField("5");
-	private JTextField	jitterTextField2			= new JTextField("10");
+	private JTextField	jitterTextField2		= new JTextField("10");
 	private JButton 	adjustButton 			= new JButton("Center lines");
 	private JCheckBox	refBarCheckBox			= new JCheckBox("display bars", false);
 	
@@ -202,7 +200,7 @@ public class Capillarytrack extends PluginActionable implements ActionListener, 
 
 	//------------------------------------------- global variables
 	private SequenceVirtual vSequence 		= null;
-	private Timer checkBufferTimer 			= new Timer(1000, this);
+
 	private int	analyzeStep 				= 1;
 	private int startFrame 					= 1;
 	private int endFrame 					= 99999999;
@@ -244,25 +242,22 @@ public class Capillarytrack extends PluginActionable implements ActionListener, 
 	private int 		colordistanceType 	= 0;
 	private int 		colorthreshold 		= 20;
 	private ArrayList <Color> colorarray 	= new ArrayList <Color>();
-	private boolean 	thresholdOverlayON	= false;
+	//private boolean 	thresholdOverlayON	= false;
 	private ThresholdType thresholdtype 	= ThresholdType.COLORARRAY; 
 	// TODO
 	private TransformOp simpletransformop 	= TransformOp.R2MINUS_GB;
 	private int 		simplethreshold 	= 20;
+	
+	private capOpenInterface sourcePanel = null;;
 
 	// -------------------------------------------
 	private void panelSourceInterface (JPanel mainPanel) {
-		final JPanel sourcePanel = GuiUtil.generatePanel("SOURCE");
+//		final JPanel sourcePanel = GuiUtil.generatePanel("SOURCE");
+//		sourcePanel.add( GuiUtil.besidesPanel(setVideoSourceButton, loadpreviousCheckBox));
+		sourcePanel = new capOpenInterface(); 
+		sourcePanel.init("SOURCE", vSequence);
 		mainPanel.add(GuiUtil.besidesPanel(sourcePanel));
-		
-		JPanel k0Panel = new JPanel();
-		k0Panel.add(selectInputFileButton); 
-		k0Panel.add(selectInputStack2Button);
-		buttonGroup1.add(selectInputFileButton);
-		buttonGroup1.add(selectInputStack2Button);
-		selectInputStack2Button.setSelected(true);
-		sourcePanel.add( GuiUtil.besidesPanel(setVideoSourceButton, k0Panel));
-		sourcePanel.add(GuiUtil.besidesPanel(loadpreviousCheckBox));
+		sourcePanel.addPropertyChangeListener(this);
 	}
 	
 	private void panelKymosInterface(JPanel mainPanel) {
@@ -332,11 +327,11 @@ public class Capillarytrack extends PluginActionable implements ActionListener, 
 		JComponent roiPanel = new JPanel(false);
 		roiPanel.setLayout(capLayout);
 		
-		roiPanel.add( GuiUtil.besidesPanel(adjustButton, refBarCheckBox,  new JLabel("jitter ", SwingConstants.RIGHT), jitterTextField2));
-		roiPanel.add( GuiUtil.besidesPanel(new JLabel("volume (µl) ", SwingConstants.RIGHT), capillaryVolumeTextField,  new JLabel("length (pixels) ", SwingConstants.RIGHT), capillaryPixelsTextField));
-		JLabel loadsaveText1 = new JLabel ("-> File (xml) ", SwingConstants.RIGHT);
-		loadsaveText1.setFont(FontUtil.setStyle(loadsaveText1.getFont(), Font.ITALIC));
-		roiPanel.add(GuiUtil.besidesPanel( new JLabel (" "), loadsaveText1, openROIsButton2, saveROIsButton2));		
+//		roiPanel.add( GuiUtil.besidesPanel(adjustButton, refBarCheckBox,  new JLabel("jitter ", SwingConstants.RIGHT), jitterTextField2));
+//		roiPanel.add( GuiUtil.besidesPanel(new JLabel("volume (µl) ", SwingConstants.RIGHT), capillaryVolumeTextField,  new JLabel("length (pixels) ", SwingConstants.RIGHT), capillaryPixelsTextField));
+//		JLabel loadsaveText1 = new JLabel ("-> File (xml) ", SwingConstants.RIGHT);
+//		loadsaveText1.setFont(FontUtil.setStyle(loadsaveText1.getFont(), Font.ITALIC));
+//		roiPanel.add(GuiUtil.besidesPanel( new JLabel (" "), loadsaveText1, openROIsButton2, saveROIsButton2));		
 		tab.addTab("Registration", null, roiPanel, "Compute x y shift of the frame during the experiment");
 	}
 	
@@ -456,7 +451,6 @@ public class Capillarytrack extends PluginActionable implements ActionListener, 
 		mainFrame.center();
 		mainFrame.setVisible(true);
 		mainFrame.addToDesktopPane();
-		checkBufferTimer.start();
 	}
 
 	private void declareChangeListeners() {
@@ -834,7 +828,7 @@ public class Capillarytrack extends PluginActionable implements ActionListener, 
 					kSeq.setThresholdOverlayParametersColors(colortransformop, colorarray, colordistanceType, colorthreshold);
 			}
 		}
-		thresholdOverlayON = activate;
+		//thresholdOverlayON = activate;
 	}
 	
 	private void updateThresholdOverlayParameters() {
@@ -1025,13 +1019,13 @@ public class Capillarytrack extends PluginActionable implements ActionListener, 
 		secondChart = null;
 		thirdChart = null;
 
-		vSequence.close();
-		checkBufferTimer.stop();
+		if (vSequence != null) {
+			vSequence.close();
+			vSequence.capillariesArrayList.clear();
+		}
 
 		// clean kymographs & results
 		kymographArrayList.clear();
-		vSequence.capillariesArrayList.clear();
-		// clear combobox
 		kymographNamesComboBox.removeAllItems();
 	}
 	
@@ -2132,7 +2126,6 @@ public class Capillarytrack extends PluginActionable implements ActionListener, 
 
 	private void startstopBufferingThread() {
 
-		checkBufferTimer.stop();
 		if (vSequence == null)
 			return;
 
@@ -2140,7 +2133,6 @@ public class Capillarytrack extends PluginActionable implements ActionListener, 
 		parseTextFields() ;
 		vSequence.istep = analyzeStep;
 		vSequence.vImageBufferThread_START(100); //numberOfImageForBuffer);
-		checkBufferTimer.start();
 	}
 
 	@Override
@@ -2178,16 +2170,15 @@ public class Capillarytrack extends PluginActionable implements ActionListener, 
 
 		// xls output - successive positions
 		System.out.println("XLS output");
-		boolean blistofFiles = selectInputStack2Button.isSelected() ;
 		parseTextFields();
 		double ratio = capillaryVolume/capillaryPixels;
 
 		try {
 			WritableWorkbook xlsWorkBook = XLSUtil.createWorkbook( filename);
-			xlsExportToWorkbook(xlsWorkBook, "toplevel", 0, ratio, blistofFiles);
-			xlsExportToWorkbook(xlsWorkBook, "bottomlevel", 3, ratio, blistofFiles);
-			xlsExportToWorkbook(xlsWorkBook, "derivative", 1, ratio, blistofFiles);
-			xlsExportToWorkbook(xlsWorkBook, "consumption", 2, ratio, blistofFiles);
+			xlsExportToWorkbook(xlsWorkBook, "toplevel", 0, ratio);
+			xlsExportToWorkbook(xlsWorkBook, "bottomlevel", 3, ratio);
+			xlsExportToWorkbook(xlsWorkBook, "derivative", 1, ratio);
+			xlsExportToWorkbook(xlsWorkBook, "consumption", 2, ratio);
 			XLSUtil.saveAndClose( xlsWorkBook );
 		} catch (IOException e) {
 			e.printStackTrace();
@@ -2197,7 +2188,7 @@ public class Capillarytrack extends PluginActionable implements ActionListener, 
 		System.out.println("XLS output finished");
 	}
 
-	private void xlsExportToWorkbook(WritableWorkbook xlsWorkBook, String title, int ioption, double ratio, boolean blistofFiles) {
+	private void xlsExportToWorkbook(WritableWorkbook xlsWorkBook, String title, int ioption, double ratio ) {
 		
 		System.out.println("export worksheet "+title);
 		int ncols = kymographArrayList.size();
@@ -2257,7 +2248,7 @@ public class Capillarytrack extends PluginActionable implements ActionListener, 
 		// output column headers
 		int icol0 = 0;
 
-		if (blistofFiles) {
+		if (vSequence.isFileStack()) {
 			XLSUtil.setCellString( excelSheet , icol0, irow, "filename" );
 			icol0++;
 		}
@@ -2277,7 +2268,7 @@ public class Capillarytrack extends PluginActionable implements ActionListener, 
 		int t = startFrame;
 		for (int j=0; j<nrows; j++) {
 			icol0 = 0;
-			if (blistofFiles) {
+			if (vSequence.isFileStack()) {
 				String cs = vSequence.getFileName(j+startFrame);
 				int index = cs.lastIndexOf("\\");
 				String fileName = cs.substring(index + 1);
@@ -2337,6 +2328,20 @@ public class Capillarytrack extends PluginActionable implements ActionListener, 
 		}
 		iChart.mainChartFrame.toFront();
 		return iChart;
+	}
+
+	@Override
+	public void propertyChange(PropertyChangeEvent evt) {
+		  if (evt.getPropertyName().equals("FILE_OPEN")) {
+			  boolean result = (boolean) evt.getNewValue();
+			  if (result == true) {
+				  vSequence = sourcePanel.getSequenceVirtual();
+				  boolean loadMeasures = sourcePanel.getLoadPreviousMeasures();
+			  }
+			  else
+				  closeAll();
+	        }
+		
 	}
 
 
