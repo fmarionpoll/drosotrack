@@ -11,7 +11,6 @@ import javax.swing.JPanel;
 import javax.swing.border.TitledBorder;
 
 import icy.gui.util.GuiUtil;
-import plugins.fmp.sequencevirtual.SequenceVirtual;
 
 public class capOpenInterface extends JPanel implements ActionListener {
 	/**
@@ -38,8 +37,6 @@ public class capOpenInterface extends JPanel implements ActionListener {
 		}
 	}
 
-
-	
 	public boolean getLoadPreviousMeasures() {
 		return loadpreviousCheckBox.isSelected();
 	}

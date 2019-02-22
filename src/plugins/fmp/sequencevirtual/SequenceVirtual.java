@@ -29,6 +29,7 @@ import icy.util.XMLUtil;
 
 import plugins.fab.MiceProfiler.XugglerAviFile;
 import plugins.kernel.roi.roi2d.ROI2DLine;
+import plugins.kernel.roi.roi2d.ROI2DPolyLine;
 import plugins.kernel.roi.roi2d.ROI2DShape;
 
 public class SequenceVirtual extends Sequence 
@@ -610,7 +611,7 @@ public class SequenceVirtual extends Sequence
 		}
 	}
 
-	public void getCapillariesArrayList() {
+	public void keepOnly2DLines_CapillariesArrayList() {
 
 		capillariesArrayList.clear();
 		ArrayList<ROI2D> list = getROI2Ds();
@@ -619,7 +620,9 @@ public class SequenceVirtual extends Sequence
 		{
 			if ((roi instanceof ROI2DShape) == false)
 				continue;
-			if (roi instanceof ROI2DLine && roi.getName().contains("line"))
+			if (!roi.getName().contains("line"))
+				continue;
+			if (roi instanceof ROI2DLine || roi instanceof ROI2DPolyLine)
 				capillariesArrayList.add((ROI2DShape)roi);
 		}
 		Collections.sort(capillariesArrayList, new Tools.ROI2DNameComparator()); 

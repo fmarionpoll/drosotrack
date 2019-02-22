@@ -124,7 +124,7 @@ import plugins.nchenouard.kymographtracker.spline.CubicSmoothingSpline;
 			
 			int sizex = vSequence.getSizeX();
 			int sizey = vSequence.getSizeY();
-			vSequence.getCapillariesArrayList();
+			vSequence.keepOnly2DLines_CapillariesArrayList();
 			int numC = vSequence.getSizeC();
 			int imagewidth = (int) (endFrame - startFrame +1)/analyzeStep;
 		

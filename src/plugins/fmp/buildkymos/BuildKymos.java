@@ -238,7 +238,7 @@ public class BuildKymos extends PluginActionable implements ActionListener, Chan
 		System.out.println("add rois: "+ oo);
 		vinputSequence.removeAllROI();
 		vinputSequence.xmlReadROIsAndData(oo);
-		vinputSequence.getCapillariesArrayList();
+		vinputSequence.keepOnly2DLines_CapillariesArrayList();
 	}
 	
 	private void startComputation() {
