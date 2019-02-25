@@ -12,7 +12,7 @@ import javax.swing.border.TitledBorder;
 
 import icy.gui.util.GuiUtil;
 
-public class capOpenInterface extends JPanel implements ActionListener {
+public class Dlg_OpenSequence extends JPanel implements ActionListener {
 	/**
 	 * 
 	 */
