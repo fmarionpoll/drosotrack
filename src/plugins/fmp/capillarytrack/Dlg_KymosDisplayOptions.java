@@ -3,7 +3,6 @@ package plugins.fmp.capillarytrack;
 import java.awt.BorderLayout;
 import java.awt.Dimension;
 import java.awt.GridLayout;
-import java.awt.Rectangle;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
@@ -17,7 +16,7 @@ import javax.swing.SwingConstants;
 import icy.gui.util.GuiUtil;
 
 
-public class capDisplayOptionsInterface  extends JPanel implements ActionListener {
+public class Dlg_KymosDisplayOptions  extends JPanel implements ActionListener {
 	/**
 	 * 
 	 */
@@ -47,7 +46,7 @@ public class capDisplayOptionsInterface  extends JPanel implements ActionListene
 		k3Panel.add(GuiUtil.besidesPanel(displayKymosCheckBox, displayKymosONButton));
 		
 		add(GuiUtil.besidesPanel(k3Panel, k2Panel));
-		add( GuiUtil.besidesPanel(new JLabel ("display/edit : ", SwingConstants.RIGHT), editLevelsCheckbox, editGulpsCheckbox)); 
+		add(GuiUtil.besidesPanel(new JLabel ("display/edit : ", SwingConstants.RIGHT), editLevelsCheckbox, editGulpsCheckbox)); 
 
 		setLayout(capLayout);
 		
@@ -59,14 +58,18 @@ public class capDisplayOptionsInterface  extends JPanel implements ActionListene
 		
 		nextButton.addActionListener(new ActionListener() {	@Override public void actionPerformed(ActionEvent e) {
 			int isel = kymographNamesComboBox.getSelectedIndex()+1;
-			if (isel < kymographNamesComboBox.getItemCount()) 
+			if (isel < kymographNamesComboBox.getItemCount()) {
 				kymographNamesComboBox.setSelectedIndex(isel);
+
+		}
 		}});
 		
 		previousButton.addActionListener(new ActionListener() {	@Override public void actionPerformed(ActionEvent e) {
 			int isel = kymographNamesComboBox.getSelectedIndex()-1;
-			if (isel >= 0) 
+			if (isel >= 0) {
 				kymographNamesComboBox.setSelectedIndex(isel);
+				firePropertyChange("KYMOS_DISPLAY_UPDATE", false, true);
+			}
 		}});
 
 	}
