@@ -96,27 +96,10 @@ public class Capillarytrack extends PluginActionable implements ActionListener, 
 	private IcyFrame 	mainFrame 				= new IcyFrame("CapillaryTrack 25-02-2019", true, true, true, true);
 
 	//---------------------------------------------------------------------------
-	
-	
+
 	private JRadioButton rbFilterbyColor		= new JRadioButton("filter by color array");
 	private JRadioButton rbFilterbyFunction		= new JRadioButton("filter by function");
 	
-	private JComboBox<Color> colorPickCombo 	= new JComboBox<Color>();
-	private ComboBoxColorRenderer colorPickComboRenderer = new ComboBoxColorRenderer(colorPickCombo);
-	private String 		textPickAPixel 			= "Pick a pixel";
-	private JButton		pickColorButton			= new JButton (textPickAPixel);
-	private JButton		deleteColorButton		= new JButton ("Delete color");
-	private JRadioButton		rbL1			= new JRadioButton ("L1");
-	private JRadioButton		rbL2			= new JRadioButton ("L2");
-	private JSpinner    distanceSpinner 		= new JSpinner (new SpinnerNumberModel(10, 0, 800, 5));
-	private JRadioButton		rbRGB			= new JRadioButton ("RGB");
-	private JRadioButton		rbHSV			= new JRadioButton ("HSV");
-	private JRadioButton		rbH1H2H3		= new JRadioButton ("H1H2H3");
-	private JLabel 		distanceLabel 			= new JLabel("Distance  ");
-	private JLabel 		colorspaceLabel 		= new JLabel("Color space ", SwingConstants.RIGHT);
-//	private JButton		openFiltersButton	= new JButton("Load...");
-//	private JButton		saveFiltersButton	= new JButton("Save...");
-	private JButton 	detectColorButton 		= new JButton("Detect limits");
 	private JComboBox<TransformOp> transformsComboBox = new JComboBox<TransformOp> (new TransformOp[] {
 			TransformOp.R_RGB, TransformOp.G_RGB, TransformOp.B_RGB, 
 			TransformOp.R2MINUS_GB, TransformOp.G2MINUS_RB, TransformOp.B2MINUS_RG, TransformOp.NORM_BRMINUSG, TransformOp.RGB,
@@ -125,10 +108,8 @@ public class Capillarytrack extends PluginActionable implements ActionListener, 
 	
 	// ---------------------------------------- measure
 
-	private JCheckBox	detectAllColorsCheckBox = new JCheckBox ("all", true);
 	private JCheckBox	detectAllGulpsCheckBox 	= new JCheckBox ("all", true);
 
-	
 	private JTextField	spanTransf2TextField	= new JTextField("3");
 	private JTextField 	detectGulpsThresholdTextField 	= new JTextField("90");
 	private JButton 	detectGulpsButton 		= new JButton("Detect gulps");
@@ -206,6 +187,7 @@ public class Capillarytrack extends PluginActionable implements ActionListener, 
 	
 	private JTabbedPane tabbedDetectionPane	= new JTabbedPane();
 	private Dlg_DetectTopBottom detectTopBottomTab = null;
+	private Dlg_DetectColors detectColorsTab = null;
 	
 	private void panelSourceInterface (JPanel mainPanel) {
 
@@ -281,14 +263,12 @@ public class Capillarytrack extends PluginActionable implements ActionListener, 
 	}
 	
 	private void panelKymosInterfaceTab2(JTabbedPane tab, GridLayout capLayout) {
-
 		optionsKymoTab = new Dlg_KymosDisplayOptions ();
 		optionsKymoTab.init(capLayout);
 		tab.addTab("Display", null, optionsKymoTab, "Display options of data & kymographs");
 	}
 	
 	private void panelKymosInterfaceTab3(JTabbedPane tab, GridLayout capLayout) {
-
 		fileKymoTab = new Dlg_KymosLoadSave ();
 		fileKymoTab.init(capLayout);
 		tab.addTab("Load/Save", null, fileKymoTab, "Load/Save kymographs");
@@ -311,6 +291,8 @@ public class Capillarytrack extends PluginActionable implements ActionListener, 
 		
 		tabbedDetectionPane.setTabLayoutPolicy(JTabbedPane.SCROLL_TAB_LAYOUT);
 		panel.add(GuiUtil.besidesPanel(tabbedDetectionPane));
+		
+		detectTopBottomTab.addPropertyChangeListener(this);
 	}
 	
 	private void panelMeasureInterfaceTab1Filters(JTabbedPane tab,GridLayout capLayout) {
@@ -320,22 +302,9 @@ public class Capillarytrack extends PluginActionable implements ActionListener, 
 	}
 	
 	private void panelMeasureInterfaceTab2Colors(JTabbedPane tab, GridLayout capLayout) {
-		JComponent panel2 = new JPanel(false);
-		panel2.setLayout(capLayout);
-		colorPickCombo.setRenderer(colorPickComboRenderer);
-		panel2.add( GuiUtil.besidesPanel(pickColorButton, colorPickCombo, deleteColorButton));
-		distanceLabel.setHorizontalAlignment(SwingConstants.RIGHT);
-		ButtonGroup bgd = new ButtonGroup();
-		bgd.add(rbL1);
-		bgd.add(rbL2);
-		panel2.add( GuiUtil.besidesPanel(distanceLabel, rbL1, rbL2, distanceSpinner));
-		ButtonGroup bgcs = new ButtonGroup();
-		bgcs.add(rbRGB);
-		bgcs.add(rbHSV);
-		bgcs.add(rbH1H2H3);
-		panel2.add( GuiUtil.besidesPanel(colorspaceLabel, rbRGB, rbHSV, rbH1H2H3));
-		panel2.add(GuiUtil.besidesPanel(detectColorButton, detectAllColorsCheckBox)); 
-		tab.addTab("Colors", null, panel2, "thresholding an image with different colors and a distance");
+		detectColorsTab = new Dlg_DetectColors ();
+		detectColorsTab.init(capLayout);
+		tab.addTab("Colors", null, detectColorsTab, "thresholding an image with different colors and a distance");
 	}
 	
 	private void panelMeasureInterfaceTab3Gulps(JTabbedPane tab, GridLayout capLayout) {
@@ -386,8 +355,7 @@ public class Capillarytrack extends PluginActionable implements ActionListener, 
 		// -------------------------------------------- action listeners, etc
 		detectTopBottomTab.transformForLevelsComboBox.setSelectedItem(TransformOp.G2MINUS_RB);
 		transformForGulpsComboBox.setSelectedItem(TransformOp.XDIFFN);
-		rbL1.setSelected(true);
-		rbRGB.setSelected(true);
+
 		colortransformop = TransformOp.NONE;
 
 		defineActionListeners();
@@ -398,8 +366,7 @@ public class Capillarytrack extends PluginActionable implements ActionListener, 
 		buttonsVisibilityUpdate(StatusAnalysis.NODATA);
 		tabbedDetectionPane.setSelectedIndex(0);
 		rbFilterbyFunction.setSelected(true);
-		rbL1.setSelected(true);
-		rbRGB.setSelected(true);
+
 		
 		mainFrame.pack();
 		mainFrame.center();
@@ -413,7 +380,7 @@ public class Capillarytrack extends PluginActionable implements ActionListener, 
 		tabbedCapillariesPane.addChangeListener(this);
 		
 		thresholdSpinner.addChangeListener(this);
-		distanceSpinner.addChangeListener(this);
+		
 	}
 	
 	private void defineActionListeners() {
@@ -421,14 +388,12 @@ public class Capillarytrack extends PluginActionable implements ActionListener, 
 		transformForGulpsComboBox.addActionListener(new ActionListener() { @Override public void actionPerformed(ActionEvent e) {
 				kymosDisplayFiltered(2);
 			}});
-		
-			
+
 		closeAllButton.addActionListener(new ActionListener() {	@Override public void actionPerformed(ActionEvent e) {
 				closeAll();
 				buttonsVisibilityUpdate(StatusAnalysis.NODATA);
 			}});
 		
-
 		displayResultsButton.addActionListener(new ActionListener() { @Override public void actionPerformed(ActionEvent e) {
 				displayResultsButton.setEnabled(false);
 				roisSaveEdits();
@@ -468,39 +433,6 @@ public class Capillarytrack extends PluginActionable implements ActionListener, 
 			detectGulpsButton.setEnabled( true);
 		}});
 		
-		deleteColorButton.addActionListener(new ActionListener () { @Override public void actionPerformed( final ActionEvent e ) { 
-			if (colorPickCombo.getItemCount() > 0 && colorPickCombo.getSelectedIndex() >= 0)
-				colorPickCombo.removeItemAt(colorPickCombo.getSelectedIndex());
-			colorsUpdateThresholdOverlayParameters();
-		} } );
-
-		pickColorButton.addActionListener(new ActionListener () { @Override public void actionPerformed( final ActionEvent e ) { 
-			pickColor(); 
-		} } );
-		
-		rbRGB.addActionListener(new ActionListener () { @Override public void actionPerformed( final ActionEvent e ) { 
-			colortransformop = TransformOp.NONE;
-			colorsUpdateThresholdOverlayParameters();
-		} } );
-	
-		rbHSV.addActionListener(new ActionListener () { @Override public void actionPerformed( final ActionEvent e ) { 
-				colortransformop = TransformOp.RGB_TO_HSV;
-				colorsUpdateThresholdOverlayParameters();
-			} } );
-		
-		rbH1H2H3.addActionListener(new ActionListener () { @Override public void actionPerformed( final ActionEvent e ) { 
-				colortransformop = TransformOp.RGB_TO_H1H2H3;
-				colorsUpdateThresholdOverlayParameters();
-			} } );
-		
-		rbL1.addActionListener(new ActionListener () { @Override public void actionPerformed( final ActionEvent e ) { 
-				colorsUpdateThresholdOverlayParameters();
-			} } );
-		
-		rbL2.addActionListener(new ActionListener () { @Override public void actionPerformed( final ActionEvent e ) { 
-				colorsUpdateThresholdOverlayParameters();
-			} } );
-		
 		rbFilterbyColor.addActionListener(new ActionListener () { @Override public void actionPerformed( final ActionEvent e ) {
 			if (rbFilterbyColor.isSelected())
 				selectTab(1);
@@ -510,16 +442,6 @@ public class Capillarytrack extends PluginActionable implements ActionListener, 
 			if (rbFilterbyFunction.isSelected())
 				selectTab(0);
 		} } );
-
-		class ItemChangeListener implements ItemListener{
-		    @Override
-		    public void itemStateChanged(ItemEvent event) {
-		       if (event.getStateChange() == ItemEvent.SELECTED) {
-		    	   updateThresholdOverlayParameters();
-		       }
-		    }       
-		}
-		colorPickCombo.addItemListener(new ItemChangeListener());
 
 	}
 	
@@ -2144,7 +2066,29 @@ public class Capillarytrack extends PluginActionable implements ActionListener, 
 		  else if (event.getPropertyName().equals("KYMOS_BUILD_STOP")) {
 			  kymosBuildStop ();
 		  }	
-	}
+		  else if (event.getPropertyName().equals("KYMO_DISPLAYFILTERED")) {
+			  kymosDisplayFiltered(1);
+		  }
+		  else if (event.getPropertyName().equals("KYMO_DETECT_TOP")) {
+				parseTextFields();
+				Collections.sort(kymographArrayList, new Tools.SequenceNameComparator()); 
+				final TransformOp transform = (TransformOp) detectTopBottomTab.transformForLevelsComboBox.getSelectedItem();
+				detectTopBottomTab.detectTopButton.setEnabled( false);
+				kymosBuildFiltered(0, 1, transform, detectTopBottomTab.getSpanDiffTop());
+				kymosDetectCapillaryLevels();
+				buttonsVisibilityUpdate(StatusAnalysis.MEASURETOP_OK); 
+		  }
+		  else if (event.getPropertyName().equals("KYMO_DETECT_TOP")) {
+				parseTextFields();
+				Collections.sort(kymographArrayList, new Tools.SequenceNameComparator()); 
+				final TransformOp transform = (TransformOp) detectTopBottomTab.transformForLevelsComboBox.getSelectedItem();
+				detectTopBottomTab.detectTopButton.setEnabled( false);
+				kymosBuildFiltered(0, 1, transform, detectTopBottomTab.getSpanDiffTop());
+				kymosDisplayUpdate();
+				optionsKymoTab.displayKymosCheckBox.setSelected(true);
+				detectTopBottomTab.detectTopButton.setEnabled( true);
+		  }
+	} 
 	
 	private void sequenceOpenFileAndMeasures(boolean loadMeasures) {
 		

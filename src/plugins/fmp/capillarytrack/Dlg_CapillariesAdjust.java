@@ -51,7 +51,6 @@ public class Dlg_CapillariesAdjust extends JPanel implements ActionListener{
 		else if (o == refBarCheckBox) {
 			firePropertyChange("ADJUST_DISPLAY", false, true);	
 		}
-	
 	}
 
 }

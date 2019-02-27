@@ -47,31 +47,9 @@ public class Dlg_DetectTopBottom  extends JPanel implements ActionListener {
 	}
 	
 	private void defineActionListeners() {
-//		transformForLevelsComboBox.addActionListener(new ActionListener() {	@Override public void actionPerformed(ActionEvent e) {
-//			kymosDisplayFiltered(1);
-//		}});
-//		detectTopButton.addActionListener(new ActionListener() {	@Override public void actionPerformed(ActionEvent e) {
-//			parseTextFields();
-//			Collections.sort(kymographArrayList, new Tools.SequenceNameComparator()); 
-//			final TransformOp transform = (TransformOp) transformForLevelsComboBox.getSelectedItem();
-//			detectTopButton.setEnabled( false);
-//			kymosBuildFiltered(0, 1, transform, spanDiffTop);
-//			
-//			kymosDetectCapillaryLevels();
-//			buttonsVisibilityUpdate(StatusAnalysis.MEASURETOP_OK); 
-//		}});
-//		
-//		displayTransform1Button.addActionListener(new ActionListener() {	@Override public void actionPerformed(ActionEvent e) {
-//			parseTextFields();
-//			Collections.sort(kymographArrayList, new Tools.SequenceNameComparator()); 
-//			final TransformOp transform = (TransformOp) transformForLevelsComboBox.getSelectedItem();
-//			detectTopButton.setEnabled( false);
-//			kymosBuildFiltered(0, 1, transform, spanDiffTop);
-//			kymosDisplayUpdate();
-//			optionsKymoTab.displayKymosCheckBox.setSelected(true);
-//			detectTopButton.setEnabled( true);
-//		}});
-		
+		transformForLevelsComboBox.addActionListener(this);
+		detectTopButton.addActionListener(this);		
+		displayTransform1Button.addActionListener(this);
 	}
 	
 	public void enableItems(boolean enabled) {
@@ -87,9 +65,15 @@ public class Dlg_DetectTopBottom  extends JPanel implements ActionListener {
 	@Override
 	public void actionPerformed(ActionEvent e) {
 		Object o = e.getSource();
-//		if ( o == createROIsFromPolygonButton2)  {
-//			firePropertyChange("CREATE_ROILINES", false, true);	
-//		}
+		if ( o == transformForLevelsComboBox)  {
+			firePropertyChange("KYMO_DISPLAYFILTERED", false, true);	
+		}
+		else if (o == detectTopButton) {
+			firePropertyChange("KYMO_DETECT_TOP", false, true);
+		}
+		else if (o== displayTransform1Button) {
+			firePropertyChange("KYMO_DISPLAY_TRANSFORM1", false, true);
+		}
 
 	}
 	
