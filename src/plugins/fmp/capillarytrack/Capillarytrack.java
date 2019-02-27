@@ -2,6 +2,7 @@ package plugins.fmp.capillarytrack;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
+import java.awt.Component;
 import java.awt.Font;
 import java.awt.GridLayout;
 import java.awt.Point;
@@ -108,20 +109,6 @@ public class Capillarytrack extends PluginActionable implements ActionListener, 
 	
 	// ---------------------------------------- measure
 
-	private JCheckBox	detectAllGulpsCheckBox 	= new JCheckBox ("all", true);
-
-	private JTextField	spanTransf2TextField	= new JTextField("3");
-	private JTextField 	detectGulpsThresholdTextField 	= new JTextField("90");
-	private JButton 	detectGulpsButton 		= new JButton("Detect gulps");
-	private JComboBox<TransformOp> transformForGulpsComboBox = new JComboBox<TransformOp> (new TransformOp[] {
-			TransformOp.XDIFFN /*, TransformOp.YDIFFN, TransformOp.XYDIFFN	*/});
-	
-	private JButton		displayTransform2Button	= new JButton("Display");
-	private JButton		openMeasuresButton		= new JButton("Load");
-	private JButton		saveMeasuresButton		= new JButton("Save");
-
-	// ---------------------------------------- display/edit/save
-
 	private JButton 	displayResultsButton 	= new JButton("Display results");
 	private JButton 	exportToXLSButton 		= new JButton("Export to XLS file...");
 	private JButton		closeAllButton			= new JButton("Close views");
@@ -175,21 +162,23 @@ public class Capillarytrack extends PluginActionable implements ActionListener, 
 	private Dlg_OpenSequence sourcePanel = null;
 	
 	private JTabbedPane tabbedCapillariesPane = new JTabbedPane();
-	private Dlg_CapillariesBuild defineCapillariesTab = null;
-	private Dlg_CapillariesLoadSave fileCapillariesTab = null;
-	private Dlg_CapillariesAdjust adjustCapillariesTab = null;
-	private Dlg_CapillariesProperties propCapillariesTab = null;
+	private Dlg_CapillariesBuild defineCapillariesTab = new Dlg_CapillariesBuild();
+	private Dlg_CapillariesLoadSave fileCapillariesTab = new Dlg_CapillariesLoadSave();
+	private Dlg_CapillariesAdjust adjustCapillariesTab = new Dlg_CapillariesAdjust();
+	private Dlg_CapillariesProperties propCapillariesTab = new Dlg_CapillariesProperties();
 	
 	private JTabbedPane tabbedKymosPane = new JTabbedPane();
-	private Dlg_KymosDisplayOptions optionsKymoTab = null;
-	private Dlg_KymosLoadSave fileKymoTab = null;
-	private Dlg_KymosBuild buildKymosTab = null;
+	private Dlg_KymosDisplayOptions optionsKymoTab = new Dlg_KymosDisplayOptions();
+	private Dlg_KymosLoadSave fileKymoTab = new Dlg_KymosLoadSave();
+	private Dlg_KymosBuild buildKymosTab = new Dlg_KymosBuild();
 	
 	private JTabbedPane tabbedDetectionPane	= new JTabbedPane();
-	private Dlg_DetectTopBottom detectTopBottomTab = null;
-	private Dlg_DetectColors detectColorsTab = null;
-	
-	private void panelSourceInterface (JPanel mainPanel) {
+	private Dlg_DetectTopBottom detectTopBottomTab = new Dlg_DetectTopBottom();
+	private Dlg_DetectColors detectColorsTab = new Dlg_DetectColors();
+	private Dlg_DetectGulps detectGulpsTab = new Dlg_DetectGulps();
+	private Dlg_DetectLoadSave detectLoadSave = new Dlg_DetectLoadSave();
+
+private void panelSourceInterface (JPanel mainPanel) {
 
 		sourcePanel = new Dlg_OpenSequence(); 
 		sourcePanel.init("SOURCE");
@@ -202,41 +191,24 @@ public class Capillarytrack extends PluginActionable implements ActionListener, 
 		mainPanel.add(GuiUtil.besidesPanel(capPanel));
 		GridLayout capLayout = new GridLayout(3, 2);
 		
-		panelCapillariesInterfaceTab1(tabbedCapillariesPane, capLayout);
-		panelCapillariesInterfaceTab2(tabbedCapillariesPane, capLayout);
-		panelCapillariesInterfaceTab3(tabbedCapillariesPane, capLayout);
-		panelCapillariesInterfaceTab4(tabbedCapillariesPane, capLayout);
+		// tab 1
+		defineCapillariesTab.init(capLayout);
+		defineCapillariesTab.addPropertyChangeListener(this);
+		tabbedCapillariesPane.addTab("Create lines", null, defineCapillariesTab, "Create lines defining capillaries");
+		// tab 2
+		adjustCapillariesTab.init(capLayout);
+		adjustCapillariesTab.addPropertyChangeListener(this);
+		tabbedCapillariesPane.addTab("Adjust lines", null, adjustCapillariesTab, "Adjust capillaries positions automatically");
+		// tab 3
+		propCapillariesTab.init(capLayout);
+		tabbedCapillariesPane.addTab("Properties", null, propCapillariesTab, "Define pixel conversion unit of images");
+		// tab 4
+		fileCapillariesTab.init(capLayout);
+		fileCapillariesTab.addPropertyChangeListener(this);
+		tabbedCapillariesPane.addTab("Load/Save", null, fileCapillariesTab, "Load/Save xml file with capillaries descriptors");
 		
 		tabbedCapillariesPane.setTabLayoutPolicy(JTabbedPane.SCROLL_TAB_LAYOUT);
 		capPanel.add(GuiUtil.besidesPanel(tabbedCapillariesPane));
-		
-		defineCapillariesTab.addPropertyChangeListener(this);
-		fileCapillariesTab.addPropertyChangeListener(this);
-		adjustCapillariesTab.addPropertyChangeListener(this);
-	}
-	
-	private void panelCapillariesInterfaceTab1(JTabbedPane tab, GridLayout capLayout) {
-		defineCapillariesTab = new Dlg_CapillariesBuild ();
-		defineCapillariesTab.init(capLayout);
-		tab.addTab("Create lines", null, defineCapillariesTab, "Create lines defining capillaries");
-	}
-	
-	private void panelCapillariesInterfaceTab2(JTabbedPane tab, GridLayout capLayout) {
-		adjustCapillariesTab = new Dlg_CapillariesAdjust ();
-		adjustCapillariesTab.init(capLayout);
-		tab.addTab("Adjust lines", null, adjustCapillariesTab, "Adjust capillaries positions automatically");
-	}
-	
-	private void panelCapillariesInterfaceTab3(JTabbedPane tab, GridLayout capLayout) {
-		propCapillariesTab = new Dlg_CapillariesProperties ();
-		propCapillariesTab.init(capLayout);
-		tab.addTab("Properties", null, propCapillariesTab, "Properties of the sequence of images");
-	}
-	
-	private void panelCapillariesInterfaceTab4(JTabbedPane tab, GridLayout capLayout) {
-		fileCapillariesTab = new Dlg_CapillariesLoadSave ();
-		fileCapillariesTab.init(capLayout);
-		tab.addTab("Load/Save", null, fileCapillariesTab, "Load/Save xml file with capillaries descriptors");
 	}
 	
 	private void panelKymosInterface(JPanel mainPanel) {
@@ -244,34 +216,20 @@ public class Capillarytrack extends PluginActionable implements ActionListener, 
 		mainPanel.add(GuiUtil.besidesPanel(kymosPanel));
 		GridLayout capLayout = new GridLayout(3, 2);
 		
-		panelKymosInterfaceTab1(tabbedKymosPane, capLayout);
-		panelKymosInterfaceTab2(tabbedKymosPane, capLayout);
-		panelKymosInterfaceTab3(tabbedKymosPane, capLayout);
+		buildKymosTab.init(capLayout);
+		tabbedKymosPane.addTab("Kymographs", null, buildKymosTab, "Build kymographs from ROI lines placed over capillaries");
+		
+		optionsKymoTab.init(capLayout);
+		optionsKymoTab.addPropertyChangeListener(this);
+		tabbedKymosPane.addTab("Display", null, optionsKymoTab, "Display options of data & kymographs");
+		
+		fileKymoTab.init(capLayout);
+		fileKymoTab.addPropertyChangeListener(this);
+		tabbedKymosPane.addTab("Load/Save", null, fileKymoTab, "Load/Save kymographs");
 		
 		tabbedKymosPane.setTabLayoutPolicy(JTabbedPane.SCROLL_TAB_LAYOUT);
-		kymosPanel.add(GuiUtil.besidesPanel(tabbedKymosPane));
-		
-		optionsKymoTab .addPropertyChangeListener(this);
-		fileKymoTab.addPropertyChangeListener(this);
 		buildKymosTab.addPropertyChangeListener(this);
-	}
-	
-	private void panelKymosInterfaceTab1(JTabbedPane tab, GridLayout capLayout) {
-		buildKymosTab = new Dlg_KymosBuild ();
-		buildKymosTab.init(capLayout);
-		tab.addTab("Kymographs", null, buildKymosTab, "Build kymographs from ROI lines placed over capillaries");
-	}
-	
-	private void panelKymosInterfaceTab2(JTabbedPane tab, GridLayout capLayout) {
-		optionsKymoTab = new Dlg_KymosDisplayOptions ();
-		optionsKymoTab.init(capLayout);
-		tab.addTab("Display", null, optionsKymoTab, "Display options of data & kymographs");
-	}
-	
-	private void panelKymosInterfaceTab3(JTabbedPane tab, GridLayout capLayout) {
-		fileKymoTab = new Dlg_KymosLoadSave ();
-		fileKymoTab.init(capLayout);
-		tab.addTab("Load/Save", null, fileKymoTab, "Load/Save kymographs");
+		kymosPanel.add(GuiUtil.besidesPanel(tabbedKymosPane));
 	}
 	
 	private void panelMeasureInterface(JPanel mainPanel) {
@@ -281,13 +239,23 @@ public class Capillarytrack extends PluginActionable implements ActionListener, 
 		ButtonGroup bgchoice = new ButtonGroup();
 		bgchoice.add(rbFilterbyColor);
 		bgchoice.add(rbFilterbyFunction);
-		
 		GridLayout capLayout = new GridLayout(4, 2);
 		
-		panelMeasureInterfaceTab1Filters(tabbedDetectionPane, capLayout);
-		panelMeasureInterfaceTab2Colors(tabbedDetectionPane, capLayout);
-		panelMeasureInterfaceTab3Gulps(tabbedDetectionPane, capLayout);
-		panelMeasureInterfaceTab4LoadSave(tabbedDetectionPane, capLayout);
+		detectTopBottomTab.init(capLayout);
+		detectTopBottomTab.addPropertyChangeListener(this);
+		tabbedDetectionPane.addTab("Filters", null, detectTopBottomTab, "thresholding a transformed image with different filters");
+		
+		detectColorsTab.init(capLayout);
+		detectTopBottomTab.addPropertyChangeListener(this);
+		tabbedDetectionPane.addTab("Colors", null, detectColorsTab, "thresholding an image with different colors and a distance");
+		
+		detectGulpsTab.init(capLayout);	
+		detectTopBottomTab.addPropertyChangeListener(this);
+		tabbedDetectionPane.addTab("Gulps", null, detectGulpsTab, "detect gulps");
+		
+		detectLoadSave.init (capLayout);
+		detectTopBottomTab.addPropertyChangeListener(this);
+		tabbedDetectionPane.addTab("Load/Save", null, detectLoadSave, "load / save parameters");
 		
 		tabbedDetectionPane.setTabLayoutPolicy(JTabbedPane.SCROLL_TAB_LAYOUT);
 		panel.add(GuiUtil.besidesPanel(tabbedDetectionPane));
@@ -295,41 +263,7 @@ public class Capillarytrack extends PluginActionable implements ActionListener, 
 		detectTopBottomTab.addPropertyChangeListener(this);
 	}
 	
-	private void panelMeasureInterfaceTab1Filters(JTabbedPane tab,GridLayout capLayout) {
-		detectTopBottomTab = new Dlg_DetectTopBottom ();
-		detectTopBottomTab.init(capLayout);
-		tab.addTab("Filters", null, detectTopBottomTab, "thresholding a transformed image with different filters");
-	}
-	
-	private void panelMeasureInterfaceTab2Colors(JTabbedPane tab, GridLayout capLayout) {
-		detectColorsTab = new Dlg_DetectColors ();
-		detectColorsTab.init(capLayout);
-		tab.addTab("Colors", null, detectColorsTab, "thresholding an image with different colors and a distance");
-	}
-	
-	private void panelMeasureInterfaceTab3Gulps(JTabbedPane tab, GridLayout capLayout) {
-		JComponent panel = new JPanel(false);
-		panel.setLayout(capLayout);
-		
-		panel.add( GuiUtil.besidesPanel( new JLabel("threshold ", SwingConstants.RIGHT), detectGulpsThresholdTextField, transformForGulpsComboBox, displayTransform2Button));
-		panel.add( GuiUtil.besidesPanel(  new JLabel(" "), detectAllGulpsCheckBox, new JLabel("span ", SwingConstants.RIGHT), spanTransf2TextField));
-		panel.add( GuiUtil.besidesPanel( detectGulpsButton,new JLabel(" ") ));
-		
-		tab.addTab("Gulps", null, panel, "detect gulps");
-	}
-	
-	private void panelMeasureInterfaceTab4LoadSave(JTabbedPane tab, GridLayout capLayout) {
-		JComponent panel = new JPanel(false);
-		panel.setLayout(capLayout);
-		
-		JLabel loadsaveText3 = new JLabel ("-> File (xml) ", SwingConstants.RIGHT); 
-		loadsaveText3.setFont(FontUtil.setStyle(loadsaveText3.getFont(), Font.ITALIC));
-		panel.add(GuiUtil.besidesPanel(new JLabel (" "), loadsaveText3,  openMeasuresButton, saveMeasuresButton));
-		
-		tab.addTab("Load/Save", null, panel, "load / save parameters");
-	}
 
-	
 	private void panelDisplaySaveInterface(JPanel mainPanel) {
 		final JPanel displayPanel = GuiUtil.generatePanel("DISPLAY/EDIT/EXPORT RESULTS");
 		mainPanel.add(GuiUtil.besidesPanel(displayPanel));
@@ -354,8 +288,6 @@ public class Capillarytrack extends PluginActionable implements ActionListener, 
 		
 		// -------------------------------------------- action listeners, etc
 		detectTopBottomTab.transformForLevelsComboBox.setSelectedItem(TransformOp.G2MINUS_RB);
-		transformForGulpsComboBox.setSelectedItem(TransformOp.XDIFFN);
-
 		colortransformop = TransformOp.NONE;
 
 		defineActionListeners();
@@ -385,10 +317,6 @@ public class Capillarytrack extends PluginActionable implements ActionListener, 
 	
 	private void defineActionListeners() {
 		
-		transformForGulpsComboBox.addActionListener(new ActionListener() { @Override public void actionPerformed(ActionEvent e) {
-				kymosDisplayFiltered(2);
-			}});
-
 		closeAllButton.addActionListener(new ActionListener() {	@Override public void actionPerformed(ActionEvent e) {
 				closeAll();
 				buttonsVisibilityUpdate(StatusAnalysis.NODATA);
@@ -400,39 +328,7 @@ public class Capillarytrack extends PluginActionable implements ActionListener, 
 				xyDisplayGraphs();
 				displayResultsButton.setEnabled(true);
 			}});
-								
-		openMeasuresButton.addActionListener(new ActionListener() { @Override public void actionPerformed(ActionEvent e) {
-				openMeasuresButton.setEnabled(false);
-				measuresFileOpen();
-				openMeasuresButton.setEnabled(true);
-				buttonsVisibilityUpdate(StatusAnalysis.MEASUREGULPS_OK );
-			}});		
-		
-		saveMeasuresButton.addActionListener(new ActionListener() {	@Override public void actionPerformed(ActionEvent e) {
-				saveMeasuresButton.setEnabled(false);
-				measuresFileSave();
-				saveMeasuresButton.setEnabled(true);
-			}});
-		
-		detectGulpsButton.addActionListener(new ActionListener() {	@Override public void actionPerformed(ActionEvent e) {
-			parseTextFields();
-			detectGulpsButton.setEnabled( false);
-			final TransformOp transform = (TransformOp) transformForGulpsComboBox.getSelectedItem();
-			kymosBuildFiltered(0, 2, transform, spanDiffTransf2);
-			kymosDetectGulps();
-			buttonsVisibilityUpdate(StatusAnalysis.MEASUREGULPS_OK );
-		}});
-		
-		displayTransform2Button.addActionListener(new ActionListener() {	@Override public void actionPerformed(ActionEvent e) {
-			parseTextFields();
-			detectGulpsButton.setEnabled( false);
-			final TransformOp transform = (TransformOp) transformForGulpsComboBox.getSelectedItem();
-			kymosBuildFiltered(0, 2, transform, spanDiffTransf2);
-			kymosDisplayUpdate();
-			optionsKymoTab.displayKymosCheckBox.setSelected(true);
-			detectGulpsButton.setEnabled( true);
-		}});
-		
+
 		rbFilterbyColor.addActionListener(new ActionListener () { @Override public void actionPerformed( final ActionEvent e ) {
 			if (rbFilterbyColor.isSelected())
 				selectTab(1);

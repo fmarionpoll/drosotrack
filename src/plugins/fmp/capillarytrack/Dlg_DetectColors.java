@@ -19,6 +19,7 @@ import javax.swing.JSpinner;
 import javax.swing.JTextField;
 import javax.swing.SpinnerNumberModel;
 import javax.swing.SwingConstants;
+import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
 import icy.gui.frame.progress.AnnounceFrame;
@@ -26,7 +27,7 @@ import icy.gui.util.GuiUtil;
 import plugins.fmp.sequencevirtual.ComboBoxColorRenderer;
 import plugins.fmp.sequencevirtual.ImageTransformTools.TransformOp;
 
-public class Dlg_DetectColors   extends JPanel implements ActionListener, ChangeListener {
+public class Dlg_DetectColors  extends JPanel implements ActionListener, ChangeListener {
 
 	private static final long serialVersionUID = 6652216082377109572L;
 	
@@ -131,6 +132,12 @@ public class Dlg_DetectColors   extends JPanel implements ActionListener, Change
 //			firePropertyChange("KYMO_DISPLAYFILTERED", false, true);	
 //		}
 
+	}
+
+	@Override
+	public void stateChanged(ChangeEvent arg0) {
+		// TODO Auto-generated method stub
+		
 	}
 	
 	

@@ -13,7 +13,7 @@ import javax.swing.SwingConstants;
 import icy.gui.util.FontUtil;
 import icy.gui.util.GuiUtil;
 
-public class Dlg_CapillariesLoadSave  extends JPanel implements ActionListener {
+public class Dlg_CapillariesLoadSave extends JPanel implements ActionListener {
 
 	/**
 	 * 
