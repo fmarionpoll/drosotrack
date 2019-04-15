@@ -115,6 +115,8 @@ public class Capillarytrack extends PluginActionable implements ActionListener, 
 
 	//------------------------------------------- global variables
 	private SequenceVirtual vSequence 		= null;
+	private ArrayList <SequencePlus> kymographArrayList	= new ArrayList <SequencePlus> ();	// list of kymograph sequences
+	//--------------------------------------------
 
 	private int	analyzeStep 				= 1;
 	private int startFrame 					= 1;
@@ -146,7 +148,6 @@ public class Capillarytrack extends PluginActionable implements ActionListener, 
 	private ROI2DLine	roiRefLineLower 	= new ROI2DLine ();
 	private BuildKymographsThread buildKymographsThread = null;
 	private ImageTransformTools tImg 		= null;
-	private ArrayList <SequencePlus> kymographArrayList	= new ArrayList <SequencePlus> ();	// list of kymograph sequences
 		
 	// colors
 	private TransformOp colortransformop 	= TransformOp.NONE;

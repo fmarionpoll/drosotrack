@@ -244,9 +244,13 @@ public class ROItoRoiArray extends EzPlug implements ViewerListener {
 		
 		for (int chan=0; chan < nchannels; chan++) {
 			double [] sourceValues = Array1DUtil.arrayToDoubleArray(image.getDataXY(chan), image.isSignedDataType());
+			int len_sourceValues = sourceValues.length -1;
 			for (int i=0; i<len; i++) {
 				Point2D point = pointList.get(i);
-				value[i][chan] = sourceValues [(int)point.getX() + ((int) point.getY() * sizeX)];
+				int index = (int)point.getX() + ((int) point.getY() * sizeX);
+				if (index > len_sourceValues)
+					index = len_sourceValues;
+				value[i][chan] = sourceValues [index];
 			}
 		}
 		return value;
