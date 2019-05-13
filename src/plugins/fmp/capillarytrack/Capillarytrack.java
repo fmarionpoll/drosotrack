@@ -81,7 +81,7 @@ import jxl.write.WritableSheet;
 import jxl.write.WritableWorkbook;
 import jxl.write.WriteException;
 import loci.formats.FormatException;
-
+import plugins.fmp.capillarytrack.Capillarytrack.StatusAnalysis;
 import plugins.fmp.sequencevirtual.ComboBoxColorRenderer;
 import plugins.fmp.sequencevirtual.ImageTransformTools;
 import plugins.fmp.sequencevirtual.Line2DPlus;
@@ -204,11 +204,9 @@ public class Capillarytrack extends PluginActionable implements ActionListener, 
 
 	private void declareChangeListeners() {
 		paneSequence.sourceTab.addPropertyChangeListener(this);
-		paneCapillaries.tabsPane.addChangeListener(this);
-		
+		paneCapillaries.tabsPane.addChangeListener(this);	
 		paneDetect.tabbedDetectionPane.addChangeListener(this);
 		paneKymos.tabbedKymosPane.addChangeListener(this);
-		
 		
 		thresholdSpinner.addChangeListener(this);
 		
@@ -451,51 +449,6 @@ public class Capillarytrack extends PluginActionable implements ActionListener, 
 		i++;
 		enabled = flagsTable[item][i] ;
 		paneKymos.optionsKymoTab.editGulpsCheckbox.setEnabled(enabled);
-	}
-
-	private boolean capillaryRoisOpen(String csFileName) {
-		
-		vSequence.removeAllROI();
-		boolean flag = false;
-		if (csFileName == null)
-			flag = vSequence.xmlReadROIsAndData();
-		else
-			flag = vSequence.xmlReadROIsAndData(csFileName);
-		if (!flag)
-			return false;
-		
-		startFrame = (int) vSequence.analysisStart;
-		endFrame = (int) vSequence.analysisEnd;
-		if (endFrame < 0)
-			endFrame = (int) vSequence.nTotalFrames-1;
-		
-		paneCapillaries.propCapillariesTab.setCapillaryVolume(vSequence.capillaryVolume);
-		paneCapillaries.propCapillariesTab.setCapillaryPixelLength(vSequence.capillaryPixels);
-		paneKymos.buildKymosTab.endFrameTextField.setText( Integer.toString(endFrame));
-		paneKymos.buildKymosTab.startFrameTextField.setText( Integer.toString(startFrame));
-		
-		vSequence.keepOnly2DLines_CapillariesArrayList();
-		roisUpdateCombo(vSequence.capillariesArrayList);
-
-		// get nb rois and type of distance between them
-		paneCapillaries.paneCapillaries_Build.setNbCapillaries(vSequence.capillariesArrayList.size());
-		paneCapillaries.paneCapillaries_Build.setGroupedBy2(vSequence.capillariesGrouping == 2);
-		
-		buttonsVisibilityUpdate(StatusAnalysis.ROIS_OK);
-		return true;
-	}
-	
-	private boolean capillaryRoisSave() {
-		parseTextFields();
-		vSequence.analysisStart = startFrame;
-		vSequence.analysisEnd = endFrame;
-		if (paneCapillaries.paneCapillaries_Build.getGroupedBy2())
-			vSequence.capillariesGrouping = 2;
-		else
-			vSequence.capillariesGrouping = 1;
-		
-		return vSequence.xmlWriteROIsAndData("capillarytrack.xml");
-
 	}
 	
 	private void closeAll() {
@@ -1557,12 +1510,19 @@ public class Capillarytrack extends PluginActionable implements ActionListener, 
 				roisUpdateCombo(vSequence.capillariesArrayList);
 				buttonsVisibilityUpdate(StatusAnalysis.ROIS_OK);	
 		  }
-		  else if (event.getPropertyName().equals("ROIS_OPEN")) {
-			  capillaryRoisOpen(null);
+		  else if (event.getPropertyName().equals("CAP_ROIS_OPEN")) {
+
+				startFrame = (int) vSequence.analysisStart;
+				endFrame = (int) vSequence.analysisEnd;
+				if (endFrame < 0)
+					endFrame = (int) vSequence.nTotalFrames-1;
+				
+				paneKymos.buildKymosTab.endFrameTextField.setText( Integer.toString(endFrame));
+				paneKymos.buildKymosTab.startFrameTextField.setText( Integer.toString(startFrame));
+				roisUpdateCombo(vSequence.capillariesArrayList);
+				buttonsVisibilityUpdate(StatusAnalysis.ROIS_OK);
 		  }			  
-		  else if (event.getPropertyName().equals("ROIS_SAVE")) {
-			  capillaryRoisSave();
-		  }	
+
 		  else if (event.getPropertyName().equals("KYMOS_OPEN")) {
 			  kymosOpenFiles();
 		  }			  
@@ -1619,9 +1579,12 @@ public class Capillarytrack extends PluginActionable implements ActionListener, 
 	private void sequenceLoadMeasures() {
 
 		String path = vSequence.getDirectory();
-		boolean flag = capillaryRoisOpen(path+"\\capillarytrack.xml");
+		boolean flag = paneCapillaries.fileCapillariesTab.capillaryRoisOpen(path+"\\capillarytrack.xml");
 		if (!flag)
-			flag = capillaryRoisOpen(path+"\\roislines.xml");
+			flag = paneCapillaries.fileCapillariesTab.capillaryRoisOpen(path+"\\roislines.xml");
+		paneCapillaries.UpdateInfosFromSequence();
+		// TODO update measure from to, etc (see "ROIS_OPEN")
+		
 		if (flag) {
 			paneKymos.tabbedKymosPane.setSelectedIndex(1);
 			final String cs = path+"\\results";

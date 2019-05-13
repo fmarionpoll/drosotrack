@@ -18,7 +18,7 @@ import icy.gui.frame.progress.AnnounceFrame;
 import icy.gui.util.GuiUtil;
 import icy.gui.viewer.Viewer;
 import icy.roi.ROI;
-import plugins.fmp.sequencevirtual.SequencePlus;
+
 
 public class PaneCapillaries_Properties extends JPanel implements ActionListener {
 
@@ -29,20 +29,20 @@ public class PaneCapillaries_Properties extends JPanel implements ActionListener
 	
 		private JTextField 	capillaryVolumeTextField= new JTextField("5");
 		private JTextField 	capillaryPixelsTextField= new JTextField("5");
-		public JCheckBox	displayCapillariesCheckBox	= new JCheckBox("display capillaries", false);
+		public JCheckBox	visibleCheckBox	= new JCheckBox("visible", false);
 		private Capillarytrack parent0;
 		
 		public void init(GridLayout capLayout, Capillarytrack parent0) {
 			setLayout(capLayout);
 			add( GuiUtil.besidesPanel(new JLabel("volume (µl) ", SwingConstants.RIGHT), capillaryVolumeTextField,  new JLabel("length (pixels) ", SwingConstants.RIGHT), capillaryPixelsTextField));
-			add( GuiUtil.besidesPanel(displayCapillariesCheckBox,  new JLabel(" ", SwingConstants.RIGHT)));
+			add( GuiUtil.besidesPanel(visibleCheckBox,  new JLabel(" ", SwingConstants.RIGHT)));
 			
 			this.parent0 = parent0;
 			defineActionListeners();
 		}
 		
 		private void defineActionListeners() {
-			displayCapillariesCheckBox.addActionListener(this);
+			visibleCheckBox.addActionListener(this);
 		}
 
 		public void enableItems(boolean enabled) {
@@ -53,33 +53,30 @@ public class PaneCapillaries_Properties extends JPanel implements ActionListener
 		@Override
 		public void actionPerformed(ActionEvent e) {
 			Object o = e.getSource();
-			if (o == displayCapillariesCheckBox) {
-				roisDisplay(displayCapillariesCheckBox.isSelected());
+			if (o == visibleCheckBox) {
+				roisDisplay(visibleCheckBox.isSelected());
 			}
 		}
 		
-		private void roisDisplay(boolean displayON) {
+		private void roisDisplay(boolean isVisible) {
 			
-			for (SequencePlus seq: kymographArrayList) {
-				ArrayList<Viewer>vList =  seq.getViewers();
-				Viewer v = vList.get(0);
-				IcyCanvas canvas = v.getCanvas();
-				List<Layer> layers = canvas.getLayers(false);
-				if (layers == null)
-					return;
-		
-				for (Layer layer: layers) {
-					ROI roi = layer.getAttachedROI();
-					if (roi == null)
-						continue;
-					String cs = roi.getName();
-					if (cs.contains("level")) { 
-						layer.setVisible(displayTop);
-					}
-					else 
-						layer.setVisible(displayGulps);
-				}
+			ArrayList<Viewer>vList =  parent0.vSequence.getViewers();
+			Viewer v = vList.get(0);
+			IcyCanvas canvas = v.getCanvas();
+			List<Layer> layers = canvas.getLayers(false);
+			if (layers == null)
+				return;
+	
+			for (Layer layer: layers) {
+				ROI roi = layer.getAttachedROI();
+				if (roi == null)
+					continue;
+				String cs = roi.getName();
+				if (cs.contains("line"))  
+					layer.setVisible(isVisible);
+
 			}
+		}
 			
 		// set/ get
 		

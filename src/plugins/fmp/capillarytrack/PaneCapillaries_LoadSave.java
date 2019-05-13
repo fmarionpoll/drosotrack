@@ -12,6 +12,7 @@ import javax.swing.SwingConstants;
 
 import icy.gui.util.FontUtil;
 import icy.gui.util.GuiUtil;
+import plugins.fmp.capillarytrack.Capillarytrack.StatusAnalysis;
 
 public class PaneCapillaries_LoadSave extends JPanel implements ActionListener {
 
@@ -19,16 +20,19 @@ public class PaneCapillaries_LoadSave extends JPanel implements ActionListener {
 	 * 
 	 */
 	private static final long serialVersionUID = -4019075448319252245L;
+	
 	private JButton		openButtonCapillaries	= new JButton("Load...");
 	private JButton		saveButtonCapillaries	= new JButton("Save...");
+	private Capillarytrack parent0 = null;
 	
-	public void init(GridLayout capLayout) {
+	public void init(GridLayout capLayout, Capillarytrack parent0) {
 		setLayout(capLayout);
 		
 		JLabel loadsaveText1 = new JLabel ("-> File (xml) ", SwingConstants.RIGHT);
 		loadsaveText1.setFont(FontUtil.setStyle(loadsaveText1.getFont(), Font.ITALIC));
 		add(GuiUtil.besidesPanel( new JLabel (" "), loadsaveText1, openButtonCapillaries, saveButtonCapillaries));
 		
+		this.parent0 = parent0;
 		defineActionListeners();
 	}
 	
@@ -46,11 +50,32 @@ public class PaneCapillaries_LoadSave extends JPanel implements ActionListener {
 	public void actionPerformed(ActionEvent e) {
 		Object o = e.getSource();
 		if ( o == openButtonCapillaries)  {
-			firePropertyChange("ROIS_OPEN", false, true);	
+			if (capillaryRoisOpen(null))
+				firePropertyChange("CAP_ROIS_OPEN", false, true);	
 		}
 		else if ( o == saveButtonCapillaries) {
-			firePropertyChange("ROIS_SAVE", false, true);	
+			firePropertyChange("CAP_ROIS_SAVE", false, true);	
 		}		
+	}
+
+	// ----------------------------------
+	public boolean capillaryRoisOpen(String csFileName) {
+		
+		parent0.vSequence.removeAllROI();
+		boolean flag = false;
+		if (csFileName == null)
+			flag = parent0.vSequence.xmlReadROIsAndData();
+		else
+			flag = parent0.vSequence.xmlReadROIsAndData(csFileName);
+		if (!flag)
+			return false;
+		
+		return true;
+	}
+	
+	public boolean capillaryRoisSave() {	
+		return parent0.vSequence.xmlWriteROIsAndData("capillarytrack.xml");
+
 	}
 
 }

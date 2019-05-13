@@ -17,7 +17,6 @@ import javax.swing.SwingConstants;
 import icy.gui.frame.progress.AnnounceFrame;
 import icy.gui.util.GuiUtil;
 import icy.roi.ROI2D;
-import plugins.fmp.sequencevirtual.SequenceVirtual;
 import plugins.fmp.sequencevirtual.Tools;
 import plugins.kernel.roi.roi2d.ROI2DLine;
 import plugins.kernel.roi.roi2d.ROI2DPolygon;
