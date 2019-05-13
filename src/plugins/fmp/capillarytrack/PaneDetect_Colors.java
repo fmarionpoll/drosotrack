@@ -27,7 +27,7 @@ import icy.gui.util.GuiUtil;
 import plugins.fmp.sequencevirtual.ComboBoxColorRenderer;
 import plugins.fmp.sequencevirtual.ImageTransformTools.TransformOp;
 
-public class Dlg_DetectColors  extends JPanel implements ActionListener, ChangeListener {
+public class PaneDetect_Colors  extends JPanel implements ActionListener, ChangeListener {
 
 	private static final long serialVersionUID = 6652216082377109572L;
 	

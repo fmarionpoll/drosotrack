@@ -16,7 +16,7 @@ import icy.gui.frame.progress.AnnounceFrame;
 import icy.gui.util.GuiUtil;
 import plugins.fmp.sequencevirtual.ImageTransformTools.TransformOp;
 
-public class Dlg_DetectTopBottom  extends JPanel implements ActionListener {
+public class PaneDetect_TopBottom  extends JPanel implements ActionListener {
 
 	/**
 	 * 

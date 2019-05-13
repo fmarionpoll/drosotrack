@@ -775,5 +775,4 @@ public class SequenceVirtual extends Sequence
 		return true;
 	}
 	
-	
 }
