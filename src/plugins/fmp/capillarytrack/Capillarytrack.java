@@ -68,6 +68,11 @@ import icy.preferences.XMLPreferences;
 import icy.roi.ROI;
 import icy.roi.ROI2D;
 import icy.sequence.DimensionId;
+import icy.sequence.Sequence;
+import icy.sequence.SequenceEvent;
+import icy.sequence.SequenceEvent.SequenceEventSourceType;
+import icy.sequence.SequenceEvent.SequenceEventType;
+import icy.sequence.SequenceListener;
 import icy.system.profile.Chronometer;
 
 import icy.type.collection.array.Array1DUtil;
@@ -91,10 +96,16 @@ import plugins.kernel.roi.roi2d.ROI2DPolyLine;
 import plugins.kernel.roi.roi2d.ROI2DPolygon;
 import plugins.kernel.roi.roi2d.ROI2DShape;
 
-public class Capillarytrack extends PluginActionable implements ActionListener, ChangeListener, ViewerListener, PropertyChangeListener
+// SequenceListener?
+public class Capillarytrack extends PluginActionable implements ActionListener, ChangeListener, ViewerListener, PropertyChangeListener, SequenceListener
 {
+	
+	//------------------------------------------- global variables
+	public SequenceVirtual vSequence 		= null;
+	public ArrayList <SequencePlus> kymographArrayList	= new ArrayList <SequencePlus> ();	// list of kymograph sequences
+		
 	// -------------------------------------- interface
-	private IcyFrame 	mainFrame 				= new IcyFrame("CapillaryTrack 25-02-2019", true, true, true, true);
+	private IcyFrame 	mainFrame 				= new IcyFrame("CapillaryTrack 11-May-2019", true, true, true, true);
 
 	//---------------------------------------------------------------------------
 
@@ -113,9 +124,6 @@ public class Capillarytrack extends PluginActionable implements ActionListener, 
 	private JButton 	exportToXLSButton 		= new JButton("Export to XLS file...");
 	private JButton		closeAllButton			= new JButton("Close views");
 
-	//------------------------------------------- global variables
-	private SequenceVirtual vSequence 		= null;
-	private ArrayList <SequencePlus> kymographArrayList	= new ArrayList <SequencePlus> ();	// list of kymograph sequences
 	//--------------------------------------------
 
 	private int	analyzeStep 				= 1;
@@ -160,18 +168,10 @@ public class Capillarytrack extends PluginActionable implements ActionListener, 
 	private TransformOp simpletransformop 	= TransformOp.R2MINUS_GB;
 	private int 		simplethreshold 	= 20;
 
-	private Dlg_OpenSequence sourcePanel = null;
-	
-	private JTabbedPane tabbedCapillariesPane = new JTabbedPane();
-	private Dlg_CapillariesBuild defineCapillariesTab = new Dlg_CapillariesBuild();
-	private Dlg_CapillariesLoadSave fileCapillariesTab = new Dlg_CapillariesLoadSave();
-	private Dlg_CapillariesAdjust adjustCapillariesTab = new Dlg_CapillariesAdjust();
-	private Dlg_CapillariesProperties propCapillariesTab = new Dlg_CapillariesProperties();
-	
-	private JTabbedPane tabbedKymosPane = new JTabbedPane();
-	private Dlg_KymosDisplayOptions optionsKymoTab = new Dlg_KymosDisplayOptions();
-	private Dlg_KymosLoadSave fileKymoTab = new Dlg_KymosLoadSave();
-	private Dlg_KymosBuild buildKymosTab = new Dlg_KymosBuild();
+	private PaneSequence paneSequence = null;
+	private PaneCapillaries paneCapillaries = null;
+	private PaneKymos paneKymos = null;
+
 	
 	private JTabbedPane tabbedDetectionPane	= new JTabbedPane();
 	private Dlg_DetectTopBottom detectTopBottomTab = new Dlg_DetectTopBottom();
@@ -179,60 +179,7 @@ public class Capillarytrack extends PluginActionable implements ActionListener, 
 	private Dlg_DetectGulps detectGulpsTab = new Dlg_DetectGulps();
 	private Dlg_DetectLoadSave detectLoadSave = new Dlg_DetectLoadSave();
 
-private void panelSourceInterface (JPanel mainPanel) {
-
-		sourcePanel = new Dlg_OpenSequence(); 
-		sourcePanel.init("SOURCE");
-		mainPanel.add(GuiUtil.besidesPanel(sourcePanel));
-		sourcePanel.addPropertyChangeListener(this);
-	}
-	
-	private void panelCapillariesInterface(JPanel mainPanel) {
-		final JPanel capPanel = GuiUtil.generatePanel("CAPILLARIES");
-		mainPanel.add(GuiUtil.besidesPanel(capPanel));
-		GridLayout capLayout = new GridLayout(3, 2);
 		
-		// tab 1
-		defineCapillariesTab.init(capLayout);
-		defineCapillariesTab.addPropertyChangeListener(this);
-		tabbedCapillariesPane.addTab("Create lines", null, defineCapillariesTab, "Create lines defining capillaries");
-		// tab 2
-		adjustCapillariesTab.init(capLayout);
-		adjustCapillariesTab.addPropertyChangeListener(this);
-		tabbedCapillariesPane.addTab("Adjust lines", null, adjustCapillariesTab, "Adjust capillaries positions automatically");
-		// tab 3
-		propCapillariesTab.init(capLayout);
-		tabbedCapillariesPane.addTab("Properties", null, propCapillariesTab, "Define pixel conversion unit of images");
-		// tab 4
-		fileCapillariesTab.init(capLayout);
-		fileCapillariesTab.addPropertyChangeListener(this);
-		tabbedCapillariesPane.addTab("Load/Save", null, fileCapillariesTab, "Load/Save xml file with capillaries descriptors");
-		
-		tabbedCapillariesPane.setTabLayoutPolicy(JTabbedPane.SCROLL_TAB_LAYOUT);
-		capPanel.add(GuiUtil.besidesPanel(tabbedCapillariesPane));
-	}
-	
-	private void panelKymosInterface(JPanel mainPanel) {
-		final JPanel kymosPanel = GuiUtil.generatePanel("KYMOGRAPHS");
-		mainPanel.add(GuiUtil.besidesPanel(kymosPanel));
-		GridLayout capLayout = new GridLayout(3, 2);
-		
-		buildKymosTab.init(capLayout);
-		tabbedKymosPane.addTab("Kymographs", null, buildKymosTab, "Build kymographs from ROI lines placed over capillaries");
-		
-		optionsKymoTab.init(capLayout);
-		optionsKymoTab.addPropertyChangeListener(this);
-		tabbedKymosPane.addTab("Display", null, optionsKymoTab, "Display options of data & kymographs");
-		
-		fileKymoTab.init(capLayout);
-		fileKymoTab.addPropertyChangeListener(this);
-		tabbedKymosPane.addTab("Load/Save", null, fileKymoTab, "Load/Save kymographs");
-		
-		tabbedKymosPane.setTabLayoutPolicy(JTabbedPane.SCROLL_TAB_LAYOUT);
-		buildKymosTab.addPropertyChangeListener(this);
-		kymosPanel.add(GuiUtil.besidesPanel(tabbedKymosPane));
-	}
-	
 	private void panelMeasureInterface(JPanel mainPanel) {
 		final JPanel panel = GuiUtil.generatePanel("MEASURE");
 		mainPanel.add(GuiUtil.besidesPanel(panel));
@@ -264,7 +211,6 @@ private void panelSourceInterface (JPanel mainPanel) {
 		detectTopBottomTab.addPropertyChangeListener(this);
 	}
 	
-
 	private void panelDisplaySaveInterface(JPanel mainPanel) {
 		final JPanel displayPanel = GuiUtil.generatePanel("DISPLAY/EDIT/EXPORT RESULTS");
 		mainPanel.add(GuiUtil.besidesPanel(displayPanel));
@@ -281,9 +227,15 @@ private void panelSourceInterface (JPanel mainPanel) {
 		mainFrame.add(mainPanel, BorderLayout.CENTER);
 
 		// ----------------- Source
-		panelSourceInterface(mainPanel);
-		panelCapillariesInterface(mainPanel);
-		panelKymosInterface(mainPanel);
+		paneSequence = new PaneSequence();
+		paneSequence.init(mainPanel, "SOURCE", this);
+
+		paneCapillaries = new PaneCapillaries();
+		paneCapillaries.init(mainPanel, "CAPILLARIES", this);
+		
+		paneKymos = new PaneKymos();
+		paneKymos.init(mainPanel, "KYMOGRAPHS", this);
+		
 		panelMeasureInterface(mainPanel);
 		panelDisplaySaveInterface(mainPanel);
 		
@@ -308,9 +260,12 @@ private void panelSourceInterface (JPanel mainPanel) {
 	}
 
 	private void declareChangeListeners() {
+		paneSequence.sourceTab.addPropertyChangeListener(this);
+		paneCapillaries.tabsPane.addChangeListener(this);
+		
 		tabbedDetectionPane.addChangeListener(this);
-		tabbedKymosPane.addChangeListener(this);
-		tabbedCapillariesPane.addChangeListener(this);
+		paneKymos.tabbedKymosPane.addChangeListener(this);
+		
 		
 		thresholdSpinner.addChangeListener(this);
 		
@@ -371,7 +326,7 @@ private void panelSourceInterface (JPanel mainPanel) {
 	private void tabbedCapillariesAndKymosSelected() {
 		if (vSequence == null)
 			return;
-		int iselected = tabbedKymosPane.getSelectedIndex();
+		int iselected = paneKymos.tabbedKymosPane.getSelectedIndex();
 		if (iselected == 0) {
 			Viewer v = vSequence.getFirstViewer();
 			v.toFront();
@@ -397,15 +352,16 @@ private void panelSourceInterface (JPanel mainPanel) {
 				break;
 				
 			case 1:  // color array
-				colorthreshold = Integer.parseInt(distanceSpinner.getValue().toString());
-				thresholdtype = ThresholdType.COLORARRAY;
-				colorarray.clear();
-				for (int i=0; i<colorPickCombo.getItemCount(); i++) {
-					colorarray.add(colorPickCombo.getItemAt(i));
-				}
-				colordistanceType = 1;
-				if (rbL2.isSelected()) 
-					colordistanceType = 2;
+				// TODO
+//				colorthreshold = Integer.parseInt(distanceSpinner.getValue().toString());
+//				thresholdtype = ThresholdType.COLORARRAY;
+//				colorarray.clear();
+//				for (int i=0; i<colorPickCombo.getItemCount(); i++) {
+//					colorarray.add(colorPickCombo.getItemAt(i));
+//				}
+//				colordistanceType = 1;
+//				if (rbL2.isSelected()) 
+//					colordistanceType = 2;
 				break;
 
 			default:
@@ -420,21 +376,21 @@ private void panelSourceInterface (JPanel mainPanel) {
 	private void pickColor() {
 		
 		boolean bActiveTrapOverlay = false;
-		
-		if (pickColorButton.getText().contains("*") || pickColorButton.getText().contains(":")) {
-			pickColorButton.setBackground(Color.LIGHT_GRAY);
-			pickColorButton.setText(textPickAPixel);
-			bActiveTrapOverlay = false;
-		}
-		else
-		{
-			pickColorButton.setText("*"+textPickAPixel+"*");
-			pickColorButton.setBackground(Color.DARK_GRAY);
-			bActiveTrapOverlay = true;
-		}
-//		System.out.println("activate mouse trap =" + bActiveTrapOverlay);
-		for (SequencePlus kSeq: kymographArrayList)
-			kSeq.setMouseTrapOverlay(bActiveTrapOverlay, pickColorButton, colorPickCombo);
+		// TODO
+//		if (pickColorButton.getText().contains("*") || pickColorButton.getText().contains(":")) {
+//			pickColorButton.setBackground(Color.LIGHT_GRAY);
+//			pickColorButton.setText(textPickAPixel);
+//			bActiveTrapOverlay = false;
+//		}
+//		else
+//		{
+//			pickColorButton.setText("*"+textPickAPixel+"*");
+//			pickColorButton.setBackground(Color.DARK_GRAY);
+//			bActiveTrapOverlay = true;
+//		}
+////		System.out.println("activate mouse trap =" + bActiveTrapOverlay);
+//		for (SequencePlus kSeq: kymographArrayList)
+//			kSeq.setMouseTrapOverlay(bActiveTrapOverlay, pickColorButton, colorPickCombo);
 	}
 
 	private void colorsActivateSequenceThresholdOverlay(boolean activate) {
@@ -469,15 +425,16 @@ private void panelSourceInterface (JPanel mainPanel) {
 				break;
 
 			case 1:  // color array
-				colorthreshold = Integer.parseInt(distanceSpinner.getValue().toString());
-				thresholdtype = ThresholdType.COLORARRAY;
-				colorarray.clear();
-				for (int i=0; i<colorPickCombo.getItemCount(); i++) {
-					colorarray.add(colorPickCombo.getItemAt(i));
-				}
-				colordistanceType = 1;
-				if (rbL2.isSelected()) 
-					colordistanceType = 2;
+				// TODO
+//				colorthreshold = Integer.parseInt(distanceSpinner.getValue().toString());
+//				thresholdtype = ThresholdType.COLORARRAY;
+//				colorarray.clear();
+//				for (int i=0; i<colorPickCombo.getItemCount(); i++) {
+//					colorarray.add(colorPickCombo.getItemAt(i));
+//				}
+//				colordistanceType = 1;
+//				if (rbL2.isSelected()) 
+//					colordistanceType = 2;
 				break;
 				
 			default:
@@ -519,50 +476,52 @@ private void panelSourceInterface (JPanel mainPanel) {
 		// 1-------------capillaries
 		int i = 0;
 		boolean enabled = flagsTable[item][i] ;
-		defineCapillariesTab.enableItems(enabled);
-		fileCapillariesTab.enableItems(enabled);
-		adjustCapillariesTab.enableItems(enabled);
+		paneCapillaries.defineCapillariesTab.enableItems(enabled);
+		paneCapillaries.fileCapillariesTab.enableItems(enabled);
+		paneCapillaries.adjustCapillariesTab.enableItems(enabled);
 
 		// 2----------------kymographs
 		i++;
 		enabled = flagsTable[item][i] ;
-		buildKymosTab.enableItems(enabled);
-		fileKymoTab.enableItems(enabled);
+		paneKymos.buildKymosTab.enableItems(enabled);
+		paneKymos.fileKymoTab.enableItems(enabled);
 
 		// 3---------------measure
 		i++;
 		enabled = flagsTable[item][i] ;
-		optionsKymoTab.displayKymosCheckBox.setEnabled(enabled);
-		boolean benabled =  (enabled && optionsKymoTab.displayKymosCheckBox.isSelected());
-		optionsKymoTab.displayKymosONButton.setEnabled(benabled);
-		optionsKymoTab.previousButton.setEnabled(benabled);
-		optionsKymoTab.nextButton.setEnabled(benabled);
-		optionsKymoTab.kymographNamesComboBox.setEnabled(benabled);
-		
+		paneKymos.optionsKymoTab.displayKymosCheckBox.setEnabled(enabled);
+		boolean benabled =  (enabled && paneKymos.optionsKymoTab.displayKymosCheckBox.isSelected());
+		paneKymos.optionsKymoTab.displayKymosONButton.setEnabled(benabled);
+		paneKymos.optionsKymoTab.previousButton.setEnabled(benabled);
+		paneKymos.optionsKymoTab.nextButton.setEnabled(benabled);
+		paneKymos.optionsKymoTab.kymographNamesComboBox.setEnabled(benabled);
+		// TODO
 //		detectTopCheckBox.setEnabled(enabled);
 //		detectBottomCheckBox.setEnabled(enabled);
 
 		detectTopBottomTab.setEnabled(enabled);
-		openMeasuresButton.setEnabled(enabled);
-		saveMeasuresButton.setEnabled(enabled);
+		// TODO
+//		openMeasuresButton.setEnabled(enabled);
+//		saveMeasuresButton.setEnabled(enabled);
 		exportToXLSButton.setEnabled(enabled);
 		
 		// 4---------------	
 		i++;
 		enabled = flagsTable[item][i] ;
-		detectGulpsButton.setEnabled(enabled);
-		detectAllGulpsCheckBox.setEnabled(benabled);
-		transformForGulpsComboBox.setEnabled(enabled);
-		detectGulpsThresholdTextField.setEnabled(enabled);
-		displayTransform2Button.setEnabled(enabled);
-		displayResultsButton.setEnabled(enabled);
-		spanTransf2TextField.setEnabled(enabled);
-		optionsKymoTab.editLevelsCheckbox.setEnabled(enabled);
+		// TODO
+//		detectGulpsButton.setEnabled(enabled);
+//		detectAllGulpsCheckBox.setEnabled(benabled);
+//		transformForGulpsComboBox.setEnabled(enabled);
+//		detectGulpsThresholdTextField.setEnabled(enabled);
+//		displayTransform2Button.setEnabled(enabled);
+//		displayResultsButton.setEnabled(enabled);
+//		spanTransf2TextField.setEnabled(enabled);
+//		optionsKymoTab.editLevelsCheckbox.setEnabled(enabled);
 
 		// 5---------------
 		i++;
 		enabled = flagsTable[item][i] ;
-		optionsKymoTab.editGulpsCheckbox.setEnabled(enabled);
+		paneKymos.optionsKymoTab.editGulpsCheckbox.setEnabled(enabled);
 	}
 
 	private boolean capillaryRoisOpen(String csFileName) {
@@ -581,17 +540,17 @@ private void panelSourceInterface (JPanel mainPanel) {
 		if (endFrame < 0)
 			endFrame = (int) vSequence.nTotalFrames-1;
 		
-		propCapillariesTab.setCapillaryVolume(vSequence.capillaryVolume);
-		propCapillariesTab.setCapillaryPixelLength(vSequence.capillaryPixels);
-		buildKymosTab.endFrameTextField.setText( Integer.toString(endFrame));
-		buildKymosTab.startFrameTextField.setText( Integer.toString(startFrame));
+		paneCapillaries.propCapillariesTab.setCapillaryVolume(vSequence.capillaryVolume);
+		paneCapillaries.propCapillariesTab.setCapillaryPixelLength(vSequence.capillaryPixels);
+		paneKymos.buildKymosTab.endFrameTextField.setText( Integer.toString(endFrame));
+		paneKymos.buildKymosTab.startFrameTextField.setText( Integer.toString(startFrame));
 		
 		vSequence.keepOnly2DLines_CapillariesArrayList();
 		roisUpdateCombo(vSequence.capillariesArrayList);
 
 		// get nb rois and type of distance between them
-		defineCapillariesTab.setNbCapillaries(vSequence.capillariesArrayList.size());
-		defineCapillariesTab.setGroupedBy2(vSequence.capillariesGrouping == 2);
+		paneCapillaries.defineCapillariesTab.setNbCapillaries(vSequence.capillariesArrayList.size());
+		paneCapillaries.defineCapillariesTab.setGroupedBy2(vSequence.capillariesGrouping == 2);
 		
 		buttonsVisibilityUpdate(StatusAnalysis.ROIS_OK);
 		return true;
@@ -601,7 +560,7 @@ private void panelSourceInterface (JPanel mainPanel) {
 		parseTextFields();
 		vSequence.analysisStart = startFrame;
 		vSequence.analysisEnd = endFrame;
-		if (defineCapillariesTab.getGroupedBy2())
+		if (paneCapillaries.defineCapillariesTab.getGroupedBy2())
 			vSequence.capillariesGrouping = 2;
 		else
 			vSequence.capillariesGrouping = 1;
@@ -611,7 +570,7 @@ private void panelSourceInterface (JPanel mainPanel) {
 	}
 	
 	private void closeAll() {
-
+		
 		for (SequencePlus seq:kymographArrayList)
 			seq.close();
 		
@@ -627,48 +586,51 @@ private void panelSourceInterface (JPanel mainPanel) {
 		thirdChart = null;
 
 		if (vSequence != null) {
+			vSequence.removeListener(this);
 			vSequence.close();
 			vSequence.capillariesArrayList.clear();
 		}
 
 		// clean kymographs & results
 		kymographArrayList.clear();
-		optionsKymoTab.kymographNamesComboBox.removeAllItems();
+		paneKymos.optionsKymoTab.kymographNamesComboBox.removeAllItems();
 	}
 
 	private void kymosOpenFiles() {
-		fileKymoTab.enableItems(false);
-		buildKymosTab.kymoStartComputationButton.setEnabled(false);
-		optionsKymoTab.displayKymosCheckBox.setSelected(true);
+		paneKymos.fileKymoTab.enableItems(false);
+		paneKymos.buildKymosTab.kymoStartComputationButton.setEnabled(false);
+		paneKymos.optionsKymoTab.displayKymosCheckBox.setSelected(true);
 		
 		String path = vSequence.getDirectory()+ "\\results";
 		boolean flag = kymosOpenFromDirectory(path); 
 		
-		fileKymoTab.enableItems(true);
-		buildKymosTab.kymoStartComputationButton.setEnabled(true);
+		paneKymos.fileKymoTab.enableItems(true);
+		paneKymos.buildKymosTab.kymoStartComputationButton.setEnabled(true);
 		if (flag)
 			buttonsVisibilityUpdate(StatusAnalysis.KYMOS_OK);
 	}
 	
 	private void kymosSaveFiles() {
-		fileKymoTab.enableItems(false);
+		paneKymos.fileKymoTab.enableItems(false);
 		
 		detectTopBottomTab.detectTopButton.setEnabled(false);
-		detectGulpsButton.setEnabled(false);
+		// TODO
+//		detectGulpsButton.setEnabled(false);
 
 		String path = vSequence.getDirectory() + "\\results";
 		kymosSaveToDirectory(path);
-		fileKymoTab.enableItems(true);
+		paneKymos.fileKymoTab.enableItems(true);
 		
 		detectTopBottomTab.detectTopButton.setEnabled(true);
-		detectGulpsButton.setEnabled(true);		
+		// TODO
+//		detectGulpsButton.setEnabled(true);		
 	}
 	
 	private void kymosActivateViews (boolean bEnable) {
-		optionsKymoTab.displayKymosONButton.setEnabled(bEnable);
-		optionsKymoTab.previousButton.setEnabled(bEnable);
-		optionsKymoTab.nextButton.setEnabled(bEnable);
-		optionsKymoTab.kymographNamesComboBox.setEnabled(bEnable);
+		paneKymos.optionsKymoTab.displayKymosONButton.setEnabled(bEnable);
+		paneKymos.optionsKymoTab.previousButton.setEnabled(bEnable);
+		paneKymos.optionsKymoTab.nextButton.setEnabled(bEnable);
+		paneKymos.optionsKymoTab.kymographNamesComboBox.setEnabled(bEnable);
 		if (bEnable)
 			kymosDisplayUpdate(); 
 		else
@@ -684,7 +646,7 @@ private void panelSourceInterface (JPanel mainPanel) {
 	
 	private void kymosBuildStop() {
 
-		if (buildKymosTab.sComputation == StatusComputation.STOP_COMPUTATION) {
+		if (paneKymos.buildKymosTab.sComputation == StatusComputation.STOP_COMPUTATION) {
 			if (buildKymographsThread.isAlive()) {
 				buildKymographsThread.interrupt();
 				try {
@@ -694,25 +656,25 @@ private void panelSourceInterface (JPanel mainPanel) {
 				}
 			}
 		}
-		buildKymosTab.sComputation = StatusComputation.START_COMPUTATION;
-		fileKymoTab.enableItems(true);
+		paneKymos.buildKymosTab.sComputation = StatusComputation.START_COMPUTATION;
+		paneKymos.fileKymoTab.enableItems(true);
 		buttonsVisibilityUpdate(StatusAnalysis.KYMOS_OK); 
 		tabbedCapillariesAndKymosSelected();
 	}
 	
 	private void kymosBuildKymographs() {
 		parseTextFields();
-		buildKymosTab.sComputation = StatusComputation.STOP_COMPUTATION;
-		fileKymoTab.enableItems(false);
+		paneKymos.buildKymosTab.sComputation = StatusComputation.STOP_COMPUTATION;
+		paneKymos.fileKymoTab.enableItems(false);
 		
-		startFrame 	= Integer.parseInt( buildKymosTab.startFrameTextField.getText() );
-		endFrame 	= Integer.parseInt( buildKymosTab.endFrameTextField.getText() );
+		startFrame 	= Integer.parseInt( paneKymos.buildKymosTab.startFrameTextField.getText() );
+		endFrame 	= Integer.parseInt( paneKymos.buildKymosTab.endFrameTextField.getText() );
 		if ( vSequence.nTotalFrames < endFrame ) {
 			endFrame = (int) vSequence.nTotalFrames-1;
-			buildKymosTab.endFrameTextField.setText( Integer.toString(endFrame));
+			paneKymos.buildKymosTab.endFrameTextField.setText( Integer.toString(endFrame));
 		}
-		buildKymosTab.kymosStopComputationButton.setEnabled(true);
-		buildKymosTab.kymoStartComputationButton.setEnabled(false);
+		paneKymos.buildKymosTab.kymosStopComputationButton.setEnabled(true);
+		paneKymos.buildKymosTab.kymoStartComputationButton.setEnabled(false);
 		
 		// clear previous data
 		if (kymographArrayList.size() > 0) {
@@ -733,7 +695,7 @@ private void panelSourceInterface (JPanel mainPanel) {
 			kymographSeq.setName(roi.getName());
 			kymographArrayList.add(kymographSeq);
 		}
-		optionsKymoTab.displayKymosCheckBox.setSelected(true);
+		paneKymos.optionsKymoTab.displayKymosCheckBox.setSelected(true);
 		kymosActivateViews (true);
 		Viewer v = vSequence.getFirstViewer();
 		v.toFront();
@@ -746,7 +708,7 @@ private void panelSourceInterface (JPanel mainPanel) {
 		{
 			try{buildKymographsThread.join();}
 			catch(Exception e){;} 
-			finally{ buildKymosTab.kymosStopComputationButton.doClick();}
+			finally{ paneKymos.buildKymosTab.kymosStopComputationButton.doClick();}
 		}});
 		waitcompletionThread.start();	
 	}
@@ -764,12 +726,13 @@ private void panelSourceInterface (JPanel mainPanel) {
 			transform = (TransformOp) detectTopBottomTab.transformForLevelsComboBox.getSelectedItem();
 		}
 		else {
-			transform = (TransformOp) transformForGulpsComboBox.getSelectedItem();
+			// TODO
+//			transform = (TransformOp) transformForGulpsComboBox.getSelectedItem();
 		}
-		
-		kymosBuildFiltered(0, zChannel, transform, detectTopBottomTab.getSpanDiffTop());
+		// TODO
+//		kymosBuildFiltered(0, zChannel, transform, detectTopBottomTab.getSpanDiffTop());
 		kymosDisplayUpdate();
-		optionsKymoTab.displayKymosCheckBox.setSelected(true);
+		paneKymos.optionsKymoTab.displayKymosCheckBox.setSelected(true);
 	}
 	
 	private void kymosInitForGulpsDetection(SequencePlus kymographSeq) {
@@ -795,10 +758,10 @@ private void panelSourceInterface (JPanel mainPanel) {
 		// scan each kymograph in the list
 		int firstkymo = 0;
 		int lastkymo = kymographArrayList.size() -1;
-		if (! detectAllGulpsCheckBox.isSelected()) {
-			firstkymo = optionsKymoTab.kymographNamesComboBox.getSelectedIndex();
-			lastkymo = firstkymo;
-		}
+//		if (! detectAllGulpsCheckBox.isSelected()) {
+//			firstkymo = optionsKymoTab.kymographNamesComboBox.getSelectedIndex();
+//			lastkymo = firstkymo;
+//		}
 		
 		for (int kymo=firstkymo; kymo <= lastkymo; kymo++) 
 		{
@@ -916,7 +879,7 @@ private void panelSourceInterface (JPanel mainPanel) {
 		int firstkymo = 0;
 		int lastkymo = kymographArrayList.size() -1;
 		if (! detectTopBottomTab.detectAllLevelCheckBox.isSelected()) {
-			firstkymo = optionsKymoTab.kymographNamesComboBox.getSelectedIndex();
+			firstkymo = paneKymos.optionsKymoTab.kymographNamesComboBox.getSelectedIndex();
 			lastkymo = firstkymo;
 		}
 
@@ -1131,15 +1094,15 @@ private void panelSourceInterface (JPanel mainPanel) {
 
 	private void kymosDisplayUpdate() {
 		
-		if (kymographArrayList.size() < 1 || optionsKymoTab.kymographNamesComboBox.getItemCount() < 1)
+		if (kymographArrayList.size() < 1 || paneKymos.optionsKymoTab.kymographNamesComboBox.getItemCount() < 1)
 			return;
 		
 		kymosDisplayON();
 	
-		int itemupfront = optionsKymoTab.kymographNamesComboBox.getSelectedIndex();
+		int itemupfront = paneKymos.optionsKymoTab.kymographNamesComboBox.getSelectedIndex();
 		if (itemupfront < 0) {
 			itemupfront = 0;
-			optionsKymoTab.kymographNamesComboBox.setSelectedIndex(0);
+			paneKymos.optionsKymoTab.kymographNamesComboBox.setSelectedIndex(0);
 		}
 		
 		Viewer v = kymographArrayList.get(itemupfront).getFirstViewer();
@@ -1185,9 +1148,9 @@ private void panelSourceInterface (JPanel mainPanel) {
 	}
 
 	private void kymosTransferNamesToComboBox() {
-		optionsKymoTab.kymographNamesComboBox.removeAllItems();
+		paneKymos.optionsKymoTab.kymographNamesComboBox.removeAllItems();
 		for (SequencePlus kymographSeq: kymographArrayList) {
-			optionsKymoTab.kymographNamesComboBox.addItem(kymographSeq.getName());
+			paneKymos.optionsKymoTab.kymographNamesComboBox.addItem(kymographSeq.getName());
 		}
 	}
 	
@@ -1337,9 +1300,10 @@ private void panelSourceInterface (JPanel mainPanel) {
 		detectTopBottomTab.detectAllLevelCheckBox.setSelected(seq.detectAllLevel);
 		
 		detectGulpsThreshold = seq.detectGulpsThreshold ;
-		detectGulpsThresholdTextField.setText(Integer.toString(seq.detectGulpsThreshold));
-		transformForGulpsComboBox.setSelectedItem(seq.transformForGulps);
-		detectAllGulpsCheckBox.setSelected(seq.detectAllGulps);
+		// TODO
+//		detectGulpsThresholdTextField.setText(Integer.toString(seq.detectGulpsThreshold));
+//		transformForGulpsComboBox.setSelectedItem(seq.transformForGulps);
+//		detectAllGulpsCheckBox.setSelected(seq.detectAllGulps);
 	}
 
 	private void getDialogBoxParametersForDetection(SequencePlus seq, boolean blevel, boolean bgulps) {
@@ -1352,41 +1316,42 @@ private void panelSourceInterface (JPanel mainPanel) {
 			seq.detectAllLevel 			= detectTopBottomTab.detectAllLevelCheckBox.isSelected();
 		}
 		
-		if (bgulps) {
-			seq.detectGulpsThreshold 	= (int) detectGulpsThreshold;
-			seq.transformForGulps 		= (TransformOp) transformForGulpsComboBox.getSelectedItem();
-			seq.detectAllGulps 			= detectAllGulpsCheckBox.isSelected();
-		}
+		// TODO
+//		if (bgulps) {
+//			seq.detectGulpsThreshold 	= (int) detectGulpsThreshold;
+//			seq.transformForGulps 		= (TransformOp) transformForGulpsComboBox.getSelectedItem();
+//			seq.detectAllGulps 			= detectAllGulpsCheckBox.isSelected();
+//		}
 		seq.bStatusChanged = true;
 	}
 
 	private void parseTextFields() {	
 
-		try { analyzeStep = Integer.parseInt( buildKymosTab.analyzeStepTextField.getText() );
+		try { analyzeStep = Integer.parseInt( paneKymos.buildKymosTab.analyzeStepTextField.getText() );
 		}catch( Exception e ) { new AnnounceFrame("Can't interpret the analyze step value."); }
 
-		try { diskRadius =  Integer.parseInt( buildKymosTab.diskRadiusTextField.getText() );
+		try { diskRadius =  Integer.parseInt( paneKymos.buildKymosTab.diskRadiusTextField.getText() );
 		}catch( Exception e ) { new AnnounceFrame("Can't interpret the disk radius value."); }
 
-		try { startFrame = Integer.parseInt( buildKymosTab.startFrameTextField.getText() );
+		try { startFrame = Integer.parseInt( paneKymos.buildKymosTab.startFrameTextField.getText() );
 		}catch( Exception e ) { new AnnounceFrame("Can't interpret the analyze start value."); }
 		
-		try { endFrame = Integer.parseInt( buildKymosTab.endFrameTextField.getText() );
+		try { endFrame = Integer.parseInt( paneKymos.buildKymosTab.endFrameTextField.getText() );
 		}catch( Exception e ) { new AnnounceFrame("Can't interpret the analyze step value."); }
 		
 //		try { detectLevelThreshold =  Double.parseDouble( detectTopTextField.getText() );
 //		}catch( Exception e ) { new AnnounceFrame("Can't interpret the top threshold value."); }
-
-		try { detectGulpsThreshold =  Double.parseDouble ( detectGulpsThresholdTextField.getText() );
-		}catch( Exception e ) { new AnnounceFrame("Can't interpret the top threshold value."); }
+// TODO
+//		try { detectGulpsThreshold =  Double.parseDouble ( detectGulpsThresholdTextField.getText() );
+//		}catch( Exception e ) { new AnnounceFrame("Can't interpret the top threshold value."); }
 
 		if (vSequence != null) {
-			vSequence.capillaryVolume = propCapillariesTab.getCapillaryVolume();
-			vSequence.capillaryPixels = propCapillariesTab.getCapillaryPixelLength();
+			vSequence.capillaryVolume = paneCapillaries.propCapillariesTab.getCapillaryVolume();
+			vSequence.capillaryPixels = paneCapillaries.propCapillariesTab.getCapillaryPixelLength();
 		}
-
-		try { spanDiffTransf2 = Integer.parseInt( spanTransf2TextField.getText() );
-		}catch( Exception e ) { new AnnounceFrame("Can't interpret the analyze step value."); }
+// TODO
+//		try { spanDiffTransf2 = Integer.parseInt( spanTransf2TextField.getText() );
+//		}catch( Exception e ) { new AnnounceFrame("Can't interpret the analyze step value."); }
 	}
 
 	private void roisCenterLinestoCapillaries() {
@@ -1394,14 +1359,14 @@ private void panelSourceInterface (JPanel mainPanel) {
 		if (vSequence.capillariesArrayList == null || vSequence.capillariesArrayList.size() == 0)
 			return;
 		
-		if (!adjustCapillariesTab.refBarCheckBox.isSelected()) 
-			adjustCapillariesTab.refBarCheckBox.setSelected(true);
+		if (!paneCapillaries.adjustCapillariesTab.refBarCheckBox.isSelected()) 
+			paneCapillaries.adjustCapillariesTab.refBarCheckBox.setSelected(true);
 		refLineUpper = roiRefLineUpper.getLine();
 		refLineLower = roiRefLineLower.getLine(); 
 		
 
 		int chan = 0;
-		int jitter = Integer.parseInt( adjustCapillariesTab.jitterTextField2.getText() );
+		int jitter = Integer.parseInt( paneCapillaries.adjustCapillariesTab.jitterTextField2.getText() );
 		int t = vSequence.currentFrame;
 		vSequence.setCurrentVImage(t);
 		IcyBufferedImage vinputImage = vSequence.getImage(t, 0, chan) ;
@@ -1426,7 +1391,7 @@ private void panelSourceInterface (JPanel mainPanel) {
 			}
 		}
 		
-		adjustCapillariesTab.refBarCheckBox.setSelected(false);
+		paneCapillaries.adjustCapillariesTab.refBarCheckBox.setSelected(false);
 		vSequence.removeROI(roiRefLineUpper);
 		vSequence.removeROI(roiRefLineLower);
 	}
@@ -1542,17 +1507,17 @@ private void panelSourceInterface (JPanel mainPanel) {
 	private void roisGenerateFromPolygon() {
 
 		boolean statusGroup2Mode = false;
-		if (defineCapillariesTab.getGroupedBy2()) statusGroup2Mode = true;
+		if (paneCapillaries.defineCapillariesTab.getGroupedBy2()) statusGroup2Mode = true;
 		// read values from text boxes
 		int nbcapillaries = 20;
 		int width_between_capillaries = 1;	// default value for statusGroup2Mode = false
 		int width_interval = 0;				// default value for statusGroup2Mode = false
 
 		try { 
-			nbcapillaries = defineCapillariesTab.getNbCapillaries();
+			nbcapillaries = paneCapillaries.defineCapillariesTab.getNbCapillaries();
 			if(statusGroup2Mode) {
-				width_between_capillaries = defineCapillariesTab.getWidthSmallInterval();
-				width_interval = defineCapillariesTab.getWidthLongInterval();
+				width_between_capillaries = paneCapillaries.defineCapillariesTab.getWidthSmallInterval();
+				width_interval = paneCapillaries.defineCapillariesTab.getWidthLongInterval();
 			}
 
 		}catch( Exception e ) { new AnnounceFrame("Can't interpret one of the ROI parameters value"); }
@@ -1625,8 +1590,8 @@ private void panelSourceInterface (JPanel mainPanel) {
 	}
 
 	private void roisDisplay() {
-		boolean displayTop = optionsKymoTab.editLevelsCheckbox.isSelected();
-		boolean displayGulps = optionsKymoTab.editGulpsCheckbox.isSelected();
+		boolean displayTop = paneKymos.optionsKymoTab.editLevelsCheckbox.isSelected();
+		boolean displayGulps = paneKymos.optionsKymoTab.editGulpsCheckbox.isSelected();
 		//Viewer v = vSequence.getFirstViewer();
 		for (SequencePlus seq: kymographArrayList) {
 			ArrayList<Viewer>vList =  seq.getViewers();
@@ -1654,7 +1619,7 @@ private void panelSourceInterface (JPanel mainPanel) {
 		if (vSequence == null)
 			return;
 		
-		if (adjustCapillariesTab.refBarCheckBox.isSelected()) 
+		if (paneCapillaries.adjustCapillariesTab.refBarCheckBox.isSelected()) 
 		{
 			if (refLineUpper == null) {
 				// take as ref the whole image otherwise, we won't see the lines if the use has not defined any capillaries
@@ -1706,9 +1671,9 @@ private void panelSourceInterface (JPanel mainPanel) {
 
 	private void roisUpdateCombo(ArrayList <ROI2DShape> roi2DArrayList) {
 
-		optionsKymoTab.kymographNamesComboBox.removeAllItems();
+		paneKymos.optionsKymoTab.kymographNamesComboBox.removeAllItems();
 		for (ROI2D roi:roi2DArrayList)
-			optionsKymoTab.kymographNamesComboBox.addItem(roi.getName());	
+			paneKymos.optionsKymoTab.kymographNamesComboBox.addItem(roi.getName());	
 	}
 
 	private void startstopBufferingThread() {
@@ -1724,13 +1689,14 @@ private void panelSourceInterface (JPanel mainPanel) {
 
 	@Override
 	public void stateChanged(ChangeEvent e) {
-		
-		if ((   e.getSource() == thresholdSpinner)  
-			|| (e.getSource() == tabbedDetectionPane) 
-			|| (e.getSource() == distanceSpinner)) 
-			colorsUpdateThresholdOverlayParameters();
-		
-		else if (e.getSource() == tabbedKymosPane)
+// TODO		
+//		if ((   e.getSource() == thresholdSpinner)  
+//			|| (e.getSource() == tabbedDetectionPane) 
+//			|| (e.getSource() == distanceSpinner)) 
+//			colorsUpdateThresholdOverlayParameters();
+//		
+//		else 
+			if (e.getSource() == paneKymos.tabbedKymosPane)
 			tabbedCapillariesAndKymosSelected();
 //		else
 //			System.out.println("other state change detected");
@@ -1885,7 +1851,7 @@ private void panelSourceInterface (JPanel mainPanel) {
 		}
 
 		int kmax = 1;
-		if (defineCapillariesTab.getGroupedBy2())
+		if (paneCapillaries.defineCapillariesTab.getGroupedBy2())
 			kmax = 2;
 		final Rectangle rectv = vSequence.getFirstViewer().getBounds();
 		Point ptRelative = new Point(0,30);
@@ -1920,8 +1886,9 @@ private void panelSourceInterface (JPanel mainPanel) {
 	@Override
 	public void propertyChange(PropertyChangeEvent event) {
 		  if (event.getPropertyName().equals("FILE_OPEN")) {
-			  boolean loadMeasures = sourcePanel.getLoadPreviousMeasures();
-			  sequenceOpenFileAndMeasures(loadMeasures);
+			  sequenceOpenFile();
+			  if( paneSequence.sourceTab.getLoadPreviousMeasures())
+				  sequenceLoadMeasures();
 		  }
 		  else if (event.getPropertyName().equals("KYMOS_DISPLAY_UPDATE")) {
 			  kymosDisplayUpdate();
@@ -1930,7 +1897,7 @@ private void panelSourceInterface (JPanel mainPanel) {
 			  roisDisplay();
 		  }
 		  else if (event.getPropertyName().equals("KYMOS_ACTIVATE_VIEWS")) {
-				boolean benabled = optionsKymoTab.displayKymosCheckBox.isSelected();
+				boolean benabled = paneKymos.optionsKymoTab.displayKymosCheckBox.isSelected();
 				kymosActivateViews(benabled);
 		  }
 		  else if (event.getPropertyName().equals("CREATE_ROILINES")) {
@@ -1982,57 +1949,81 @@ private void panelSourceInterface (JPanel mainPanel) {
 				detectTopBottomTab.detectTopButton.setEnabled( false);
 				kymosBuildFiltered(0, 1, transform, detectTopBottomTab.getSpanDiffTop());
 				kymosDisplayUpdate();
-				optionsKymoTab.displayKymosCheckBox.setSelected(true);
+				paneKymos.optionsKymoTab.displayKymosCheckBox.setSelected(true);
 				detectTopBottomTab.detectTopButton.setEnabled( true);
 		  }
 	} 
 	
-	private void sequenceOpenFileAndMeasures(boolean loadMeasures) {
+	private void sequenceOpenFile() {
+		addSequence(vSequence);
+		vSequence.addListener(this);
 		
-		// clear old data
-		if (vSequence != null)
-			closeAll();
-		vSequence = new SequenceVirtual();
-		String path = vSequence.loadInputVirtualStack(null);
-		
-		if (path != null) {
-			
-			XMLPreferences guiPrefs = this.getPreferences("gui");
-			guiPrefs.put("lastUsedPath", path);
-			addSequence(vSequence);
-			
-			Viewer v = vSequence.getFirstViewer();
-			Rectangle rectv = v.getBoundsInternal();
-			Rectangle rect0 = mainFrame.getBoundsInternal();
-			rectv.setLocation(rect0.x+ rect0.width, rect0.y);
-			v.setBounds(rectv);
-			v.addListener(Capillarytrack.this);		
+		Viewer v = vSequence.getFirstViewer();
+		Rectangle rectv = v.getBoundsInternal();
+		Rectangle rect0 = mainFrame.getBoundsInternal();
+		rectv.setLocation(rect0.x+ rect0.width, rect0.y);
+		v.setBounds(rectv);
+		v.addListener(Capillarytrack.this);		
 
-			endFrame = vSequence.getSizeT()-1;
-			buildKymosTab.endFrameTextField.setText( Integer.toString(endFrame));
-			buttonsVisibilityUpdate(StatusAnalysis.FILE_OK);
-			
-			if (loadMeasures) {
+		endFrame = vSequence.getSizeT()-1;
+		paneKymos.buildKymosTab.endFrameTextField.setText( Integer.toString(endFrame));
+		buttonsVisibilityUpdate(StatusAnalysis.FILE_OK);
+		startstopBufferingThread();
+	}
+	
+	private void sequenceLoadMeasures() {
+
+		String path = vSequence.getDirectory();
+		boolean flag = capillaryRoisOpen(path+"\\capillarytrack.xml");
+		if (!flag)
+			flag = capillaryRoisOpen(path+"\\roislines.xml");
+		if (flag) {
+			paneKymos.tabbedKymosPane.setSelectedIndex(1);
+			final String cs = path+"\\results";
+			if (kymosOpenFromDirectory(cs)) {
+				kymosTransferNamesToComboBox();
+				paneKymos.optionsKymoTab.displayKymosCheckBox.setSelected(true);
+				buttonsVisibilityUpdate(StatusAnalysis.KYMOS_OK);
 				
-				boolean flag = capillaryRoisOpen(path+"\\capillarytrack.xml");
-				if (!flag)
-					flag = capillaryRoisOpen(path+"\\roislines.xml");
-				if (flag) {
-					tabbedKymosPane.setSelectedIndex(1);
-					final String cs = path+"\\results";
-					if (kymosOpenFromDirectory(cs)) {
-						kymosTransferNamesToComboBox();
-						optionsKymoTab.displayKymosCheckBox.setSelected(true);
-						buttonsVisibilityUpdate(StatusAnalysis.KYMOS_OK);
-						
-						measuresFileOpen();
-						buttonsVisibilityUpdate(StatusAnalysis.MEASUREGULPS_OK );
-					}
-				}
+				measuresFileOpen();
+				buttonsVisibilityUpdate(StatusAnalysis.MEASUREGULPS_OK );
 			}
-//			progress.close();
-			startstopBufferingThread();
 		}
+	}
+
+	@Override
+	public void sequenceChanged(SequenceEvent sequenceEvent) {
+		Sequence seq = sequenceEvent.getSequence();
+		SequenceEventSourceType seqSourceType = sequenceEvent.getSourceType();
+		switch(seqSourceType) {
+		case SEQUENCE_TYPE:
+		case SEQUENCE_META:
+		case SEQUENCE_COLORMAP:
+		case SEQUENCE_COMPONENTBOUNDS:
+		case SEQUENCE_DATA:
+		case SEQUENCE_ROI:
+		case SEQUENCE_OVERLAY:
+		default:
+			break;
+        
+		}
+		SequenceEventType seqEventType = sequenceEvent.getType();
+		switch (seqEventType) {
+		case ADDED:
+			break;
+		case CHANGED:
+			break;
+		case REMOVED:
+			break;
+		default:
+			break;
+		}
+
+	}
+
+	@Override
+	public void sequenceClosed(Sequence sequence) {
+		closeAll();
 	}
 
 }

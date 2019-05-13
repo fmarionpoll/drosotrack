@@ -113,7 +113,7 @@ public class Dlg_DetectColors  extends JPanel implements ActionListener, ChangeL
 		    @Override
 		    public void itemStateChanged(ItemEvent event) {
 		       if (event.getStateChange() == ItemEvent.SELECTED) {
-		    	   updateThresholdOverlayParameters();
+//		    	   updateThresholdOverlayParameters();
 		       }
 		    }       
 		}
