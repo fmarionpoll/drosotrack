@@ -12,7 +12,6 @@ import javax.swing.SwingConstants;
 
 import icy.gui.util.FontUtil;
 import icy.gui.util.GuiUtil;
-import plugins.fmp.capillarytrack.Capillarytrack.StatusAnalysis;
 
 public class PaneCapillaries_LoadSave extends JPanel implements ActionListener {
 

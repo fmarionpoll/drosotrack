@@ -1,0 +1,64 @@
+package plugins.fmp.capillarytrack;
+
+import java.awt.GridLayout;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+
+import javax.swing.JButton;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.JTextField;
+import javax.swing.SwingConstants;
+
+import icy.gui.util.GuiUtil;
+import plugins.fmp.sequencevirtual.SequenceVirtual;
+
+public class PaneSequence_Options extends JPanel implements ActionListener{
+
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = -5739112045358747277L;
+	
+	public JTextField 	startFrameTextField		= new JTextField("0");
+	public JTextField 	endFrameTextField		= new JTextField("99999999");
+	public JTextField 	analyzeStepTextField 	= new JTextField("1");
+	private JButton 	updateButton 	= new JButton("Update");
+	
+	private Capillarytrack parent0 = null;
+	
+	public void init(GridLayout capLayout, Capillarytrack parent0) {
+		setLayout(capLayout);
+		this.parent0 = parent0;
+ 
+		add(GuiUtil.besidesPanel( new JLabel("start ", SwingConstants.RIGHT), startFrameTextField, 
+				new JLabel("end ", SwingConstants.RIGHT), endFrameTextField , 
+				new JLabel("step ", SwingConstants.RIGHT) , analyzeStepTextField
+				));
+		add(GuiUtil.besidesPanel( new JLabel(" "), new JLabel(" "), updateButton ));
+		
+		updateButton.addActionListener(this);
+	}
+	
+	@Override
+	public void actionPerformed(ActionEvent e) {
+		Object o = e.getSource();
+		if ( o == updateButton) {
+			UpdateItemsToSequence(parent0.vSequence);
+		}
+		
+	}
+
+	public void UpdateItemsFromSequence (SequenceVirtual vSequence) {
+		endFrameTextField.setText(Integer.toString((int) vSequence.analysisEnd));
+		startFrameTextField.setText(Integer.toString((int) vSequence.analysisStart));
+		analyzeStepTextField.setText(Integer.toString(vSequence.analyzeStep));
+	}
+	
+	public void UpdateItemsToSequence (SequenceVirtual vSequence) {
+		vSequence.analysisStart = Integer.parseInt( startFrameTextField.getText() );
+		vSequence.analysisEnd 	= Integer.parseInt( endFrameTextField.getText());
+		vSequence.analyzeStep   = Integer.parseInt(analyzeStepTextField.getText());
+	}
+	
+}

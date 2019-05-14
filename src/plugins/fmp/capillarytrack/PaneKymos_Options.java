@@ -21,9 +21,9 @@ public class PaneKymos_Options  extends JPanel implements ActionListener {
 	 * 
 	 */
 	private static final long serialVersionUID = -2103052112476748890L;
-	public JCheckBox 	displayKymosCheckBox 	= new JCheckBox("View kymos");
+	public JCheckBox 	viewKymosCheckBox 		= new JCheckBox("View kymos");
 	public JComboBox<String> kymographNamesComboBox = new JComboBox<String> (new String[] {"none"});
-	public JButton 	displayKymosONButton 		= new JButton("Update");
+	public JButton 	updateButton 				= new JButton("Update");
 	public JButton  	previousButton		 	= new JButton("<");
 	public JButton		nextButton				= new JButton(">");
 	
@@ -33,7 +33,6 @@ public class PaneKymos_Options  extends JPanel implements ActionListener {
 	public void init(GridLayout capLayout) {	
 		setLayout(capLayout);
 		
-		add(GuiUtil.besidesPanel(displayKymosCheckBox, displayKymosONButton, new JLabel(" ")));
 		JPanel k2Panel = new JPanel();
 		k2Panel.setLayout(new BorderLayout());
 		k2Panel.add(previousButton, BorderLayout.WEST); 
@@ -43,18 +42,19 @@ public class PaneKymos_Options  extends JPanel implements ActionListener {
 		k2Panel.add(kymographNamesComboBox, BorderLayout.CENTER);
 		nextButton.setPreferredSize(new Dimension(bWidth, height)); 
 		k2Panel.add(nextButton, BorderLayout.EAST);
-		add(GuiUtil.besidesPanel(k2Panel));
-		add(GuiUtil.besidesPanel(new JLabel ("display/edit : ", SwingConstants.RIGHT), editLevelsCheckbox, editGulpsCheckbox)); 
+		add(GuiUtil.besidesPanel(viewKymosCheckBox, k2Panel));
+		add(GuiUtil.besidesPanel( editLevelsCheckbox, editGulpsCheckbox, new JLabel(" "), new JLabel(" "))); 
+		add(GuiUtil.besidesPanel( new JLabel (" "), new JLabel(" "), updateButton));
 		
 		defineActionListeners();
 	}
 	
 	private void defineActionListeners() {
-		displayKymosONButton.addActionListener(this);
+		updateButton.addActionListener(this);
 		kymographNamesComboBox.addActionListener(this);
 		editGulpsCheckbox.addActionListener(this);
 		editLevelsCheckbox.addActionListener(this);
-		displayKymosCheckBox.addActionListener(this);
+		viewKymosCheckBox.addActionListener(this);
 		
 		nextButton.addActionListener(new ActionListener() {	@Override public void actionPerformed(ActionEvent e) {
 			int isel = kymographNamesComboBox.getSelectedIndex()+1;
@@ -76,13 +76,13 @@ public class PaneKymos_Options  extends JPanel implements ActionListener {
 	@Override
 	public void actionPerformed(ActionEvent e) {
 		Object o = e.getSource();
-		if (( o == displayKymosONButton) || (o == kymographNamesComboBox)) {
+		if (( o == updateButton) || (o == kymographNamesComboBox)) {
 			firePropertyChange("KYMOS_DISPLAY_UPDATE", false, true);	
 		}
 		else if (( o == editGulpsCheckbox) || (o == editLevelsCheckbox)) {
 			firePropertyChange("ROIS_DISPLAY", false, true);	
 		}
-		else if ( o == displayKymosCheckBox) {
+		else if ( o == viewKymosCheckBox) {
 			firePropertyChange("KYMOS_ACTIVATE_VIEWS", false, true);	
 		}
 	}

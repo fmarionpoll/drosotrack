@@ -7,9 +7,7 @@ import java.beans.PropertyChangeListener;
 import javax.swing.JPanel;
 import javax.swing.JTabbedPane;
 
-
 import icy.gui.util.GuiUtil;
-import plugins.fmp.capillarytrack.Capillarytrack.StatusAnalysis;
 
 
 public class PaneCapillaries extends JPanel implements PropertyChangeListener {

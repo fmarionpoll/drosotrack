@@ -31,9 +31,9 @@ public class PaneCapillaries_Adjust extends JPanel implements ActionListener{
 	 */
 	private static final long serialVersionUID = 1756354919434057560L;
 	
-	public JTextField	jitterTextField2		= new JTextField("10");
-	private JButton 	adjustButton 			= new JButton("Center lines");
-	public JCheckBox	refBarCheckBox			= new JCheckBox("display bars", false);
+	public JTextField	jitterTextField2	= new JTextField("10");
+	private JButton 	adjustButton 		= new JButton("Adjust");
+	public JCheckBox	displayYellowBarsCheckBox = new JCheckBox("display yellow bars", false);
 	private Capillarytrack parent0;
 	private Line2D		refLineUpper 		= null;
 	private Line2D  	refLineLower 		= null;
@@ -42,7 +42,8 @@ public class PaneCapillaries_Adjust extends JPanel implements ActionListener{
 
 	public void init(GridLayout capLayout, Capillarytrack parent0) {
 		setLayout(capLayout);
-		add( GuiUtil.besidesPanel(adjustButton, refBarCheckBox,  new JLabel("jitter ", SwingConstants.RIGHT), jitterTextField2));
+		add( GuiUtil.besidesPanel(displayYellowBarsCheckBox,   new JLabel(" "), new JLabel("jitter ", SwingConstants.RIGHT), jitterTextField2));
+		add( GuiUtil.besidesPanel( new JLabel(" "), adjustButton));
 		
 		this.parent0 = parent0;
 		defineActionListeners();
@@ -50,13 +51,13 @@ public class PaneCapillaries_Adjust extends JPanel implements ActionListener{
 	
 	private void defineActionListeners() {
 		adjustButton.addActionListener(this);
-		refBarCheckBox.addActionListener(this);
+		displayYellowBarsCheckBox.addActionListener(this);
 	}
 	
 	public void enableItems(boolean enabled) {
 		jitterTextField2.setEnabled(enabled);
 		adjustButton.setEnabled(enabled);
-		refBarCheckBox.setEnabled(enabled);
+		displayYellowBarsCheckBox.setEnabled(enabled);
 	}
 	
 	@Override
@@ -65,7 +66,7 @@ public class PaneCapillaries_Adjust extends JPanel implements ActionListener{
 		if ( o == adjustButton)  {
 			roisCenterLinestoCapillaries();
 		}
-		else if (o == refBarCheckBox) {
+		else if (o == displayYellowBarsCheckBox) {
 			roisDisplayrefBar();	
 		}
 	}
@@ -76,8 +77,8 @@ public class PaneCapillaries_Adjust extends JPanel implements ActionListener{
 		if (parent0.vSequence.capillariesArrayList == null || parent0.vSequence.capillariesArrayList.size() == 0)
 			return;
 		
-		if (!refBarCheckBox.isSelected()) 
-			refBarCheckBox.setSelected(true);
+		if (!displayYellowBarsCheckBox.isSelected()) 
+			displayYellowBarsCheckBox.setSelected(true);
 		refLineUpper = roiRefLineUpper.getLine();
 		refLineLower = roiRefLineLower.getLine(); 
 		
@@ -107,7 +108,7 @@ public class PaneCapillaries_Adjust extends JPanel implements ActionListener{
 			}
 		}
 		
-		refBarCheckBox.setSelected(false);
+		displayYellowBarsCheckBox.setSelected(false);
 		parent0.vSequence.removeROI(roiRefLineUpper);
 		parent0.vSequence.removeROI(roiRefLineLower);
 	}
@@ -224,7 +225,7 @@ public class PaneCapillaries_Adjust extends JPanel implements ActionListener{
 		if (parent0.vSequence == null)
 			return;
 		
-		if (refBarCheckBox.isSelected()) 
+		if (displayYellowBarsCheckBox.isSelected()) 
 		{
 			if (refLineUpper == null) {
 				// take as ref the whole image otherwise, we won't see the lines if the use has not defined any capillaries

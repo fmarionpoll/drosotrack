@@ -29,7 +29,7 @@ public class PaneCapillaries_Properties extends JPanel implements ActionListener
 	
 		private JTextField 	capillaryVolumeTextField= new JTextField("5");
 		private JTextField 	capillaryPixelsTextField= new JTextField("5");
-		public JCheckBox	visibleCheckBox	= new JCheckBox("visible", true);
+		public JCheckBox	visibleCheckBox	= new JCheckBox("capillary ROIs visible", true);
 		private Capillarytrack parent0;
 		
 		public void init(GridLayout capLayout, Capillarytrack parent0) {

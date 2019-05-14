@@ -20,11 +20,11 @@ public class PaneKymos extends JPanel {
 	public PaneKymos_LoadSave fileKymoTab = new PaneKymos_LoadSave();
 	public PaneKymos_Build buildKymosTab = new PaneKymos_Build();
 
-	private Capillarytrack parent0 = null;
+//	private Capillarytrack parent0 = null;
 
-	public void init (JPanel mainPanel, String string, Capillarytrack parent) {
+	public void init (JPanel mainPanel, String string, Capillarytrack parent0) {
 		
-		this.parent0 = parent0;
+//		this.parent0 = parent0;
 		
 		final JPanel kymosPanel = GuiUtil.generatePanel(string);
 		mainPanel.add(GuiUtil.besidesPanel(kymosPanel));
@@ -34,15 +34,15 @@ public class PaneKymos extends JPanel {
 		tabbedKymosPane.addTab("Build", null, buildKymosTab, "Build kymographs from ROI lines placed over capillaries");
 		
 		optionsKymoTab.init(capLayout);
-		optionsKymoTab.addPropertyChangeListener(parent);
+		optionsKymoTab.addPropertyChangeListener(parent0);
 		tabbedKymosPane.addTab("Display", null, optionsKymoTab, "Display options of data & kymographs");
 		
 		fileKymoTab.init(capLayout);
-		fileKymoTab.addPropertyChangeListener(parent);
+		fileKymoTab.addPropertyChangeListener(parent0);
 		tabbedKymosPane.addTab("Load/Save", null, fileKymoTab, "Load/Save kymographs");
 		
 		tabbedKymosPane.setTabLayoutPolicy(JTabbedPane.SCROLL_TAB_LAYOUT);
-		buildKymosTab.addPropertyChangeListener(parent);
+		buildKymosTab.addPropertyChangeListener(parent0);
 		kymosPanel.add(GuiUtil.besidesPanel(tabbedKymosPane));
 	}
 	
