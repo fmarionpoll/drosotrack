@@ -18,15 +18,18 @@ public class PaneKymos extends JPanel {
 	public PaneKymos_Options optionsKymoTab = new PaneKymos_Options();
 	public PaneKymos_LoadSave fileKymoTab = new PaneKymos_LoadSave();
 	public PaneKymos_Build buildKymosTab = new PaneKymos_Build();
-	
+
+	private Capillarytrack parent0 = null;
+
 	public void init (JPanel mainPanel, String string, Capillarytrack parent) {
 		
+		this.parent0 = parent0;
 		final JPanel kymosPanel = GuiUtil.generatePanel(string);
 		mainPanel.add(GuiUtil.besidesPanel(kymosPanel));
 		GridLayout capLayout = new GridLayout(3, 2);
 		
 		buildKymosTab.init(capLayout);
-		tabbedKymosPane.addTab("Create", null, buildKymosTab, "Build kymographs from ROI lines placed over capillaries");
+		tabbedKymosPane.addTab("Build", null, buildKymosTab, "Build kymographs from ROI lines placed over capillaries");
 		
 		optionsKymoTab.init(capLayout);
 		optionsKymoTab.addPropertyChangeListener(parent);

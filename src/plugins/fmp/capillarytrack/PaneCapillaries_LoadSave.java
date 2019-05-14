@@ -50,8 +50,7 @@ public class PaneCapillaries_LoadSave extends JPanel implements ActionListener {
 	public void actionPerformed(ActionEvent e) {
 		Object o = e.getSource();
 		if ( o == openButtonCapillaries)  {
-			if (capillaryRoisOpen(null))
-				firePropertyChange("CAP_ROIS_OPEN", false, true);	
+			firePropertyChange("CAP_ROIS_OPEN", false, true);	
 		}
 		else if ( o == saveButtonCapillaries) {
 			firePropertyChange("CAP_ROIS_SAVE", false, true);	
@@ -67,15 +66,11 @@ public class PaneCapillaries_LoadSave extends JPanel implements ActionListener {
 			flag = parent0.vSequence.xmlReadROIsAndData();
 		else
 			flag = parent0.vSequence.xmlReadROIsAndData(csFileName);
-		if (!flag)
-			return false;
-		
-		return true;
+		return flag;
 	}
 	
 	public boolean capillaryRoisSave() {	
 		return parent0.vSequence.xmlWriteROIsAndData("capillarytrack.xml");
-
 	}
 
 }

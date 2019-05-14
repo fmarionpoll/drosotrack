@@ -24,7 +24,8 @@ public class PaneCapillaries extends JPanel implements PropertyChangeListener {
 	public PaneCapillaries_LoadSave fileCapillariesTab = new PaneCapillaries_LoadSave();
 	public PaneCapillaries_Adjust adjustCapillariesTab = new PaneCapillaries_Adjust();
 	public PaneCapillaries_Properties propCapillariesTab = new PaneCapillaries_Properties();
-	Capillarytrack parent0 = null;
+	
+	private Capillarytrack parent0 = null;
 
 	public void init (JPanel mainPanel, String string, Capillarytrack parent0) {
 		
@@ -66,8 +67,8 @@ public class PaneCapillaries extends JPanel implements PropertyChangeListener {
 	@Override
 	public void propertyChange(PropertyChangeEvent event) {
 		if (event.getPropertyName().equals("CAP_ROIS_OPEN")) {
+			fileCapillariesTab.capillaryRoisOpen(null);
 		  	UpdateInfosFromSequence();
-		  	fileCapillariesTab.capillaryRoisOpen(null);
 		  	firePropertyChange("CAP_ROIS_OPEN", false, true);
 		 }			  
 		 else if (event.getPropertyName().equals("CAP_ROIS_SAVE")) {
