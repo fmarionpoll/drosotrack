@@ -532,7 +532,7 @@ public class multiCAFE extends PluginActionable implements ActionListener, Chang
 			public void actionPerformed( final ActionEvent e ) { 
 				parseTextFields();
 				if (vSequence != null) {
-					vSequence.istep = analyzeStep;
+					vSequence.analyzeStep = analyzeStep;
 					startStopBufferingThread();
 				}
 			} } );
@@ -1027,7 +1027,7 @@ public class multiCAFE extends PluginActionable implements ActionListener, Chang
 
 		vSequence.vImageBufferThread_STOP();
 		parseTextFields() ;
-		vSequence.istep = analyzeStep;
+		vSequence.analyzeStep = analyzeStep;
 		vSequence.vImageBufferThread_START(100); //numberOfImageForBuffer);
 		checkBufferTimer.start();
 	}

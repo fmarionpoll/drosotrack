@@ -6,6 +6,7 @@ import javax.swing.JPanel;
 import javax.swing.JTabbedPane;
 
 import icy.gui.util.GuiUtil;
+import plugins.fmp.sequencevirtual.SequenceVirtual;
 
 public class PaneKymos extends JPanel {
 
@@ -24,11 +25,12 @@ public class PaneKymos extends JPanel {
 	public void init (JPanel mainPanel, String string, Capillarytrack parent) {
 		
 		this.parent0 = parent0;
+		
 		final JPanel kymosPanel = GuiUtil.generatePanel(string);
 		mainPanel.add(GuiUtil.besidesPanel(kymosPanel));
 		GridLayout capLayout = new GridLayout(3, 2);
 		
-		buildKymosTab.init(capLayout);
+		buildKymosTab.init(capLayout, parent0);
 		tabbedKymosPane.addTab("Build", null, buildKymosTab, "Build kymographs from ROI lines placed over capillaries");
 		
 		optionsKymoTab.init(capLayout);
@@ -42,5 +44,13 @@ public class PaneKymos extends JPanel {
 		tabbedKymosPane.setTabLayoutPolicy(JTabbedPane.SCROLL_TAB_LAYOUT);
 		buildKymosTab.addPropertyChangeListener(parent);
 		kymosPanel.add(GuiUtil.besidesPanel(tabbedKymosPane));
+	}
+	
+	public void UpdateItemsFromSequence(SequenceVirtual vSequence) {
+		buildKymosTab.UpdateItemsFromSequence (vSequence);
+	}
+	
+	public void UpdateItemsToSequence(SequenceVirtual vSequence) {
+		buildKymosTab.UpdateItemsToSequence ( vSequence);
 	}
 }

@@ -109,7 +109,7 @@ public class AreaAnalysisThread extends Thread
 	public void run()
 	{
 		// global parameters
-		analyzeStep = vSequence.istep;
+		analyzeStep = vSequence.analyzeStep;
 		roiList = vSequence.getROI2Ds();
 		Collections.sort(roiList, new Tools.ROI2DNameComparator());
 		if ( vSequence.nTotalFrames < endFrame+1 )

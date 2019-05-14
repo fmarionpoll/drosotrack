@@ -4,6 +4,7 @@ import javax.swing.JPanel;
 
 
 import icy.gui.util.GuiUtil;
+import plugins.fmp.sequencevirtual.SequenceVirtual;
 
 public class PaneSequence extends JPanel {
 	/**
@@ -19,6 +20,14 @@ public class PaneSequence extends JPanel {
 		sourceTab = new PaneSequence_Open(); 
 		sourceTab.init(string, parent);
 		mainPanel.add(GuiUtil.besidesPanel(sourceTab));
+	}
+	
+	public void UpdateItemsFromSequence(SequenceVirtual vSequence) {
+		sourceTab.UpdateItemsFromSequence (vSequence);
+	}
+	
+	public void UpdateItemsToSequence(SequenceVirtual vSequence) {
+		sourceTab.UpdateItemsToSequence ( vSequence);
 	}
 
 }

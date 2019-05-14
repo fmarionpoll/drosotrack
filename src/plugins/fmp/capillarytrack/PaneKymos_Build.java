@@ -12,6 +12,7 @@ import javax.swing.SwingConstants;
 
 import icy.gui.util.GuiUtil;
 import plugins.fmp.capillarytrack.Capillarytrack.StatusComputation;
+import plugins.fmp.sequencevirtual.SequenceVirtual;
 
 
 public class PaneKymos_Build extends JPanel implements ActionListener { 
@@ -20,6 +21,7 @@ public class PaneKymos_Build extends JPanel implements ActionListener {
 	 * 
 	 */
 	private static final long serialVersionUID = 1771360416354320887L;
+	
 	public JButton 	kymoStartComputationButton 	= new JButton("Start");
 	public JButton  kymosStopComputationButton 	= new JButton("Stop");
 	public JTextField 	startFrameTextField		= new JTextField("0");
@@ -27,13 +29,15 @@ public class PaneKymos_Build extends JPanel implements ActionListener {
 	public JTextField 	analyzeStepTextField 	= new JTextField("1");
 	public JTextField 	diskRadiusTextField 	= new JTextField("5");
 	public StatusComputation sComputation = StatusComputation.START_COMPUTATION; 
+	
+	Capillarytrack parent0;
 		
-	public void init(GridLayout capLayout) {
+	public void init(GridLayout capLayout, Capillarytrack parent0) {
 		setLayout(capLayout);	
 		add(GuiUtil.besidesPanel(kymoStartComputationButton, kymosStopComputationButton));
-		add(GuiUtil.besidesPanel( new JLabel("start ", SwingConstants.RIGHT), startFrameTextField, new JLabel("end ", SwingConstants.RIGHT), endFrameTextField) );	
-		add(GuiUtil.besidesPanel( new JLabel("step ", SwingConstants.RIGHT) , analyzeStepTextField, new JLabel("area ", SwingConstants.RIGHT), diskRadiusTextField));
+		add(GuiUtil.besidesPanel(new JLabel("area around ROIs", SwingConstants.RIGHT), diskRadiusTextField, new JLabel (" "), new JLabel (" ")));
 		defineActionListeners();
+		this.parent0 = parent0;
 	}
 	
 	private void defineActionListeners() {
@@ -61,5 +65,17 @@ public class PaneKymos_Build extends JPanel implements ActionListener {
 		else if ( o == kymosStopComputationButton) {
 			firePropertyChange("KYMOS_BUILD_STOP", false, true);
 		}
+	}
+	
+	public void UpdateItemsFromSequence (SequenceVirtual vSequence) {
+//		endFrameTextField.setText(Integer.toString((int) vSequence.analysisEnd));
+//		startFrameTextField.setText(Integer.toString((int) vSequence.analysisStart));
+//		analyzeStepTextField.setText(Integer.toString(vSequence.analyzeStep));
+	}
+	
+	public void UpdateItemsToSequence (SequenceVirtual vSequence) {
+//		vSequence.analysisStart = Integer.parseInt( startFrameTextField.getText() );
+//		vSequence.analysisEnd 	= Integer.parseInt( endFrameTextField.getText());
+//		vSequence.analyzeStep   = Integer.parseInt(analyzeStepTextField.getText());
 	}
 }

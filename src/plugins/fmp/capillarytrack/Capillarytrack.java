@@ -123,9 +123,9 @@ public class Capillarytrack extends PluginActionable implements ActionListener, 
 
 	//--------------------------------------------
 
-	private int	analyzeStep 				= 1;
-	private int startFrame 					= 1;
-	private int endFrame 					= 99999999;
+//	private int	analyzeStep 				= 1;
+//	private int startFrame 					= 1;
+//	private int endFrame 					= 99999999;
 	private int diskRadius 					= 5;
 	private double detectGulpsThreshold 	= 5.;
 
@@ -521,7 +521,6 @@ public class Capillarytrack extends PluginActionable implements ActionListener, 
 	
 	private void kymosBuildStart() {
 		if (vSequence != null) {
-			vSequence.istep = analyzeStep;	
 			kymosBuildKymographs();
 		}
 	}
@@ -549,12 +548,7 @@ public class Capillarytrack extends PluginActionable implements ActionListener, 
 		paneKymos.buildKymosTab.sComputation = StatusComputation.STOP_COMPUTATION;
 		paneKymos.fileKymoTab.enableItems(false);
 		
-		startFrame 	= Integer.parseInt( paneKymos.buildKymosTab.startFrameTextField.getText() );
-		endFrame 	= Integer.parseInt( paneKymos.buildKymosTab.endFrameTextField.getText() );
-		if ( vSequence.nTotalFrames < endFrame ) {
-			endFrame = (int) vSequence.nTotalFrames-1;
-			paneKymos.buildKymosTab.endFrameTextField.setText( Integer.toString(endFrame));
-		}
+		paneSequence.UpdateItemsToSequence ( vSequence);
 		paneKymos.buildKymosTab.kymosStopComputationButton.setEnabled(true);
 		paneKymos.buildKymosTab.kymoStartComputationButton.setEnabled(false);
 		
@@ -568,9 +562,9 @@ public class Capillarytrack extends PluginActionable implements ActionListener, 
 		// start building kymos in a separate thread
 		buildKymographsThread = new BuildKymographsThread();
 		buildKymographsThread.vSequence  	= vSequence;
-		buildKymographsThread.analyzeStep 	= analyzeStep;
-		buildKymographsThread.startFrame 	= startFrame;
-		buildKymographsThread.endFrame 		= endFrame;
+		buildKymographsThread.analyzeStep 	= vSequence.analyzeStep;
+		buildKymographsThread.startFrame 	= (int) vSequence.analysisStart;
+		buildKymographsThread.endFrame 		= (int) vSequence.analysisEnd;
 		buildKymographsThread.diskRadius 	= diskRadius;
 		for (ROI2DShape roi:vSequence.capillariesArrayList) {
 			SequencePlus kymographSeq = new SequencePlus();	
@@ -631,7 +625,7 @@ public class Capillarytrack extends PluginActionable implements ActionListener, 
 		
 		// send some info
 		ProgressFrame progress = new ProgressFrame("Gulp analysis started");
-		progress.setLength(kymographArrayList.size() * (endFrame - startFrame +1));
+		progress.setLength(kymographArrayList.size() * (vSequence.analysisEnd - vSequence.analysisStart +1));
 		progress.setPosition(0);
 		Chronometer chrono = new Chronometer("Tracking computation" );
 		int  nbSeconds = 0;
@@ -750,7 +744,7 @@ public class Capillarytrack extends PluginActionable implements ActionListener, 
 		// send some info
 		ProgressFrame progress = new ProgressFrame("Processing started");
 		int len = kymographArrayList.size();
-		int nbframes = endFrame - startFrame +1;
+		int nbframes = (int) (vSequence.analysisEnd - vSequence.analysisStart +1);
 		progress.setLength(len*nbframes);
 		progress.setPosition(0);
 		Chronometer chrono = new Chronometer("Tracking computation" );
@@ -1146,7 +1140,7 @@ public class Capillarytrack extends PluginActionable implements ActionListener, 
 			
 			SequencePlus seq = kymographArrayList.get(kymo);
 			seq.beginUpdate();
-			if (flag = seq.loadXMLCapillaryTrackResults(directory, startFrame, endFrame)) {
+			if (flag = seq.loadXMLCapillaryTrackResults(directory, (int) vSequence.analysisStart, (int) vSequence.analysisEnd)) {
 				seq.validateRois();
 				seq.getArrayListFromRois(ArrayListType.cumSum);
 			}
@@ -1166,7 +1160,7 @@ public class Capillarytrack extends PluginActionable implements ActionListener, 
 		for (int kymo=0; kymo < kymographArrayList.size(); kymo++) {
 			SequencePlus seq = kymographArrayList.get(kymo);
 			System.out.println("saving "+seq.getName());
-			if (!seq.saveXMLCapillaryTrackResults(directory, startFrame, endFrame))
+			if (!seq.saveXMLCapillaryTrackResults(directory, (int) vSequence.analysisStart, (int) vSequence.analysisEnd))
 				System.out.println(" -> failed - in directory: " + directory);
 		}
 	}
@@ -1209,17 +1203,11 @@ public class Capillarytrack extends PluginActionable implements ActionListener, 
 
 	private void parseTextFields() {	
 
-		try { analyzeStep = Integer.parseInt( paneKymos.buildKymosTab.analyzeStepTextField.getText() );
-		}catch( Exception e ) { new AnnounceFrame("Can't interpret the analyze step value."); }
+//		try { analyzeStep = Integer.parseInt( paneKymos.buildKymosTab.analyzeStepTextField.getText() );
+//		}catch( Exception e ) { new AnnounceFrame("Can't interpret the analyze step value."); }
 
 		try { diskRadius =  Integer.parseInt( paneKymos.buildKymosTab.diskRadiusTextField.getText() );
 		}catch( Exception e ) { new AnnounceFrame("Can't interpret the disk radius value."); }
-
-		try { startFrame = Integer.parseInt( paneKymos.buildKymosTab.startFrameTextField.getText() );
-		}catch( Exception e ) { new AnnounceFrame("Can't interpret the analyze start value."); }
-		
-		try { endFrame = Integer.parseInt( paneKymos.buildKymosTab.endFrameTextField.getText() );
-		}catch( Exception e ) { new AnnounceFrame("Can't interpret the analyze step value."); }
 		
 //		try { detectLevelThreshold =  Double.parseDouble( detectTopTextField.getText() );
 //		}catch( Exception e ) { new AnnounceFrame("Can't interpret the top threshold value."); }
@@ -1288,8 +1276,7 @@ public class Capillarytrack extends PluginActionable implements ActionListener, 
 			return;
 
 		vSequence.vImageBufferThread_STOP();
-		parseTextFields() ;
-		vSequence.istep = analyzeStep;
+		paneSequence.UpdateItemsToSequence(vSequence); ;
 		vSequence.vImageBufferThread_START(100); //numberOfImageForBuffer);
 	}
 
@@ -1424,6 +1411,7 @@ public class Capillarytrack extends PluginActionable implements ActionListener, 
 		irow++;
 
 		// output data
+		int startFrame = (int) vSequence.analysisStart;
 		int t = startFrame;
 		for (int j=0; j<nrows; j++) {
 			icol0 = 0;
@@ -1436,7 +1424,7 @@ public class Capillarytrack extends PluginActionable implements ActionListener, 
 			}
 
 			XLSUtil.setCellNumber( excelSheet , icol0, irow, t);
-			t  += analyzeStep;
+			t  += vSequence.analyzeStep;
 			
 			icol0++;
 			for (int i=0; i< ncols; i++, icol0++) {
@@ -1476,14 +1464,14 @@ public class Capillarytrack extends PluginActionable implements ActionListener, 
 	private XYMultiChart xyDisplayGraphsItem(String title, ArrayListType option, XYMultiChart iChart, Rectangle rectv, Point ptRelative, int kmax) {
 		
 		if (iChart != null && iChart.mainChartPanel.isValid()) {
-			iChart.fetchNewData(kymographArrayList, option, kmax, startFrame);
+			iChart.fetchNewData(kymographArrayList, option, kmax, (int) vSequence.analysisStart);
 
 		}
 		else {
 			iChart = new XYMultiChart();
 			iChart.createPanel(title);
 			iChart.setLocationRelativeToRectangle(rectv, ptRelative);
-			iChart.displayData(kymographArrayList, option, kmax, startFrame);
+			iChart.displayData(kymographArrayList, option, kmax, (int) vSequence.analysisStart);
 		}
 		iChart.mainChartFrame.toFront();
 		return iChart;
@@ -1511,14 +1499,8 @@ public class Capillarytrack extends PluginActionable implements ActionListener, 
 				buttonsVisibilityUpdate(StatusAnalysis.ROIS_OK);	
 		  }
 		  else if (event.getPropertyName().equals("CAP_ROIS_OPEN")) {
-
-				startFrame = (int) vSequence.analysisStart;
-				endFrame = (int) vSequence.analysisEnd;
-				if (endFrame < 0)
-					endFrame = (int) vSequence.nTotalFrames-1;
 				
-				paneKymos.buildKymosTab.endFrameTextField.setText( Integer.toString(endFrame));
-				paneKymos.buildKymosTab.startFrameTextField.setText( Integer.toString(startFrame));
+			  	paneSequence.UpdateItemsFromSequence(vSequence);
 				roisUpdateCombo(vSequence.capillariesArrayList);
 				buttonsVisibilityUpdate(StatusAnalysis.ROIS_OK);
 		  }			  
@@ -1570,7 +1552,7 @@ public class Capillarytrack extends PluginActionable implements ActionListener, 
 		v.setBounds(rectv);
 		v.addListener(Capillarytrack.this);		
 
-		endFrame = vSequence.getSizeT()-1;
+		int endFrame = vSequence.getSizeT()-1;
 		paneKymos.buildKymosTab.endFrameTextField.setText( Integer.toString(endFrame));
 		buttonsVisibilityUpdate(StatusAnalysis.FILE_OK);
 		startstopBufferingThread();

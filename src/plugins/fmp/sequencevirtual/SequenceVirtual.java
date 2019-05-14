@@ -49,7 +49,6 @@ public class SequenceVirtual extends Sequence
 	public Status 			status;
 	public int 				currentFrame = 0;
 	public int				nTotalFrames = 0;
-	public int 				istep = 1;
 	public boolean 			flag = false;
 	public String			comment = null;
 	public double 			capillaryVolume = 1.;
@@ -57,6 +56,7 @@ public class SequenceVirtual extends Sequence
 	public int				capillariesGrouping = 1;
 	public long				analysisStart = 0;
 	public long 			analysisEnd	= 99999999;
+	public int 				analyzeStep = 1;
 	public int				threshold = -1;
 	public VImageBufferThread bufferThread = null;
 	public ArrayList <ROI2DShape> capillariesArrayList 	= new ArrayList <ROI2DShape>();			// list of ROIs describing objects in all images for ex. glass capillaries 
@@ -452,11 +452,12 @@ public class SequenceVirtual extends Sequence
 
 		String [] filedummy = null;
 		filedummy = Tools.selectFiles(directory,"xml");
-
-		boolean wasOk = true;
-		for (int i= 0; i< filedummy.length; i++) {
-			String csFile = filedummy[i];
-			wasOk &= xmlReadROIsAndData(csFile);
+		boolean wasOk = false;
+		if (filedummy != null) {
+			for (int i= 0; i< filedummy.length; i++) {
+				String csFile = filedummy[i];
+				wasOk &= xmlReadROIsAndData(csFile);
+			}
 		}
 		return wasOk;
 	}
@@ -564,7 +565,7 @@ public class SequenceVirtual extends Sequence
 
 			float nbImage = 1;
 			float nbImageLoaded = 1;
-			for (int t = frameStart; t <= frameEnd; t+= istep)
+			for (int t = frameStart; t <= frameEnd; t+= analyzeStep)
 			{
 				nbImage++;
 				if (getImage(t, 0) != null)
@@ -599,7 +600,7 @@ public class SequenceVirtual extends Sequence
 							return;
 					}
 					
-					for (int t = frameStart; t < frameEnd ; t+= istep) {	
+					for (int t = frameStart; t < frameEnd ; t+= analyzeStep) {	
 						setVImage(t);
 						if (isInterrupted())
 							return;

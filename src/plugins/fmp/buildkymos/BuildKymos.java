@@ -171,7 +171,7 @@ public class BuildKymos extends PluginActionable implements ActionListener, Chan
 			return;
 
 		vinputSequence.vImageBufferThread_STOP();
-		vinputSequence.istep = analyzeStep;
+		vinputSequence.analyzeStep = analyzeStep;
 		vinputSequence.vImageBufferThread_START(100); //numberOfImageForBuffer);
 	}
 	
