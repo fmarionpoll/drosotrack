@@ -105,7 +105,7 @@ public class Capillarytrack extends PluginActionable implements ActionListener, 
 	public ArrayList <SequencePlus> kymographArrayList	= new ArrayList <SequencePlus> ();	// list of kymograph sequences
 		
 	// -------------------------------------- interface
-	private IcyFrame 	mainFrame 				= new IcyFrame("CapillaryTrack 13-May-2019", true, true, true, true);
+	private IcyFrame 	mainFrame 				= new IcyFrame("CapillaryTrack 15-May-2019", true, true, true, true);
 
 	//---------------------------------------------------------------------------
 	
@@ -123,7 +123,6 @@ public class Capillarytrack extends PluginActionable implements ActionListener, 
 
 	//--------------------------------------------
 
-	private int diskRadius 					= 5;
 	private double detectGulpsThreshold 	= 5.;
 
 	private	int	spanDiffTransf2 			= 3;
@@ -144,13 +143,15 @@ public class Capillarytrack extends PluginActionable implements ActionListener, 
 		{true, true, true, true, true}
 	};
 
-	private BuildKymographsThread buildKymographsThread = null;
+	
 	private ImageTransformTools tImg 		= null;
 	
-	private SequencePane paneSequence = null;
-	private CapillariesPane paneCapillaries = null;
-	private KymosPane paneKymos = null;
-	private DetectPane paneDetect = null;
+	SequencePane paneSequence = null;
+	CapillariesPane paneCapillaries = null;
+	KymosPane paneKymos = null;
+	DetectPane paneDetect = null;
+	
+	//-------------------------------------------------------------------
 	
 	private void panelDisplaySaveInterface(JPanel mainPanel) {
 		final JPanel displayPanel = GuiUtil.generatePanel("DISPLAY/EDIT/EXPORT RESULTS");
@@ -170,16 +171,21 @@ public class Capillarytrack extends PluginActionable implements ActionListener, 
 		// ----------------- Source
 		paneSequence = new SequencePane();
 		paneSequence.init(mainPanel, "SOURCE", this);
+		paneSequence.addPropertyChangeListener(this);
 
 		paneCapillaries = new CapillariesPane();
 		paneCapillaries.init(mainPanel, "CAPILLARIES", this);
-		
+		paneCapillaries.tabsPane.addChangeListener(this);	
+				
 		paneKymos = new KymosPane();
 		paneKymos.init(mainPanel, "KYMOGRAPHS", this);
+		paneKymos.tabbedKymosPane.addChangeListener(this);
 		
 		paneDetect = new DetectPane();
 		paneDetect.init(mainPanel, "DETECT", this);
+		paneDetect.tabbedDetectionPane.addChangeListener(this);
 		
+		// TODO: change old interface style 
 		panelDisplaySaveInterface (mainPanel);
 		
 		// -------------------------------------------- action listeners, etc
@@ -199,10 +205,6 @@ public class Capillarytrack extends PluginActionable implements ActionListener, 
 	}
 
 	private void declareChangeListeners() {
-		paneSequence.sourceTab.addPropertyChangeListener(this);
-		paneCapillaries.tabsPane.addChangeListener(this);	
-		paneDetect.tabbedDetectionPane.addChangeListener(this);
-		paneKymos.tabbedKymosPane.addChangeListener(this);
 		
 		thresholdSpinner.addChangeListener(this);
 		
@@ -221,7 +223,6 @@ public class Capillarytrack extends PluginActionable implements ActionListener, 
 				xyDisplayGraphs();
 				displayResultsButton.setEnabled(true);
 			}});
-
 	}
 	
 	@Override
@@ -249,18 +250,6 @@ public class Capillarytrack extends PluginActionable implements ActionListener, 
 	}
 
 	// -------------------------------------------
-	
-	private void tabbedCapillariesAndKymosSelected() {
-		if (vSequence == null)
-			return;
-		int iselected = paneKymos.tabbedKymosPane.getSelectedIndex();
-		if (iselected == 0) {
-			Viewer v = vSequence.getFirstViewer();
-			v.toFront();
-		} else if (iselected == 1) {
-			paneKymos.optionsKymoTab.kymosDisplayUpdate();
-		}
-	}
 	
 	private void colorsUpdateThresholdOverlayParameters() {
 		
@@ -474,91 +463,7 @@ public class Capillarytrack extends PluginActionable implements ActionListener, 
 		paneKymos.optionsKymoTab.kymographNamesComboBox.removeAllItems();
 	}
 
-
-	
-
-	
-	private void kymosActivateViews (boolean bEnable) {
-		paneKymos.optionsKymoTab.updateButton.setEnabled(bEnable);
-		paneKymos.optionsKymoTab.previousButton.setEnabled(bEnable);
-		paneKymos.optionsKymoTab.nextButton.setEnabled(bEnable);
-		paneKymos.optionsKymoTab.kymographNamesComboBox.setEnabled(bEnable);
-		if (bEnable)
-			paneKymos.optionsKymoTab.kymosDisplayUpdate(); 
-		else
-			paneKymos.optionsKymoTab.kymosDisplayOFF();
-	}
-	
-	private void kymosBuildStart() {
-		if (vSequence != null) {
-			kymosBuildKymographs();
-		}
-	}
-	
-	private void kymosBuildStop() {
-
-		if (paneKymos.buildKymosTab.sComputation == StatusComputation.STOP_COMPUTATION) {
-			if (buildKymographsThread.isAlive()) {
-				buildKymographsThread.interrupt();
-				try {
-					buildKymographsThread.join();
-				} catch (InterruptedException e1) {
-					e1.printStackTrace();
-				}
-			}
-		}
-		paneKymos.buildKymosTab.sComputation = StatusComputation.START_COMPUTATION;
-		paneKymos.fileKymoTab.enableItems(true);
-		buttonsVisibilityUpdate(StatusAnalysis.KYMOS_OK); 
-		tabbedCapillariesAndKymosSelected();
-	}
-	
-	private void kymosBuildKymographs() {
-		parseTextFields();
-		paneKymos.buildKymosTab.sComputation = StatusComputation.STOP_COMPUTATION;
-		paneKymos.fileKymoTab.enableItems(false);
-		
-		paneSequence.UpdateItemsToSequence ( vSequence);
-		paneKymos.buildKymosTab.kymosStopComputationButton.setEnabled(true);
-		paneKymos.buildKymosTab.kymoStartComputationButton.setEnabled(false);
-		
-		// clear previous data
-		if (kymographArrayList.size() > 0) {
-			for (SequencePlus seq:kymographArrayList)
-				seq.close();
-		}
-		kymographArrayList.clear();
-		
-		// start building kymos in a separate thread
-		buildKymographsThread = new BuildKymographsThread();
-		buildKymographsThread.vSequence  	= vSequence;
-		buildKymographsThread.analyzeStep 	= vSequence.analyzeStep;
-		buildKymographsThread.startFrame 	= (int) vSequence.analysisStart;
-		buildKymographsThread.endFrame 		= (int) vSequence.analysisEnd;
-		buildKymographsThread.diskRadius 	= diskRadius;
-		for (ROI2DShape roi:vSequence.capillariesArrayList) {
-			SequencePlus kymographSeq = new SequencePlus();	
-			kymographSeq.setName(roi.getName());
-			kymographArrayList.add(kymographSeq);
-		}
-		paneKymos.optionsKymoTab.viewKymosCheckBox.setSelected(true);
-		kymosActivateViews (true);
-		Viewer v = vSequence.getFirstViewer();
-		v.toFront();
-		
-		buildKymographsThread.kymographArrayList = kymographArrayList;
-		buildKymographsThread.start();
-		
-		//observer thread for notifications
-		Thread waitcompletionThread = new Thread(new Runnable(){public void run()
-		{
-			try{buildKymographsThread.join();}
-			catch(Exception e){;} 
-			finally{ paneKymos.buildKymosTab.kymosStopComputationButton.doClick();}
-		}});
-		waitcompletionThread.start();	
-	}
-	
+				
 	private void kymosDisplayFiltered(int zChannel) {
 		
 		if (kymographArrayList == null)
@@ -577,7 +482,7 @@ public class Capillarytrack extends PluginActionable implements ActionListener, 
 		}
 		// TODO
 //		kymosBuildFiltered(0, zChannel, transform, detectTopBottomTab.getSpanDiffTop());
-		paneKymos.optionsKymoTab.kymosDisplayUpdate();
+		paneKymos.optionsKymoTab.displayUpdate();
 		paneKymos.optionsKymoTab.viewKymosCheckBox.setSelected(true);
 	}
 	
@@ -898,16 +803,6 @@ public class Capillarytrack extends PluginActionable implements ActionListener, 
 		}
 	}
 
-
-	
-	private void kymosTransferNamesToComboBox() {
-		paneKymos.optionsKymoTab.kymographNamesComboBox.removeAllItems();
-		for (SequencePlus kymographSeq: kymographArrayList) {
-			paneKymos.optionsKymoTab.kymographNamesComboBox.addItem(kymographSeq.getName());
-		}
-	}
-	
-	
 	private void measuresFileOpen() {
 	
 		String directory = vSequence.getDirectory();
@@ -979,18 +874,6 @@ public class Capillarytrack extends PluginActionable implements ActionListener, 
 
 	private void parseTextFields() {	
 
-//		try { analyzeStep = Integer.parseInt( paneKymos.buildKymosTab.analyzeStepTextField.getText() );
-//		}catch( Exception e ) { new AnnounceFrame("Can't interpret the analyze step value."); }
-
-		try { diskRadius =  Integer.parseInt( paneKymos.buildKymosTab.diskRadiusTextField.getText() );
-		}catch( Exception e ) { new AnnounceFrame("Can't interpret the disk radius value."); }
-		
-//		try { detectLevelThreshold =  Double.parseDouble( detectTopTextField.getText() );
-//		}catch( Exception e ) { new AnnounceFrame("Can't interpret the top threshold value."); }
-// TODO
-//		try { detectGulpsThreshold =  Double.parseDouble ( detectGulpsThresholdTextField.getText() );
-//		}catch( Exception e ) { new AnnounceFrame("Can't interpret the top threshold value."); }
-
 		if (vSequence != null) {
 			vSequence.capillaryVolume = paneCapillaries.propCapillariesTab.getCapillaryVolume();
 			vSequence.capillaryPixels = paneCapillaries.propCapillariesTab.getCapillaryPixelLength();
@@ -1011,23 +894,6 @@ public class Capillarytrack extends PluginActionable implements ActionListener, 
 		}
 	}
 
-	private void roisUpdateCombo(ArrayList <ROI2DShape> roi2DArrayList) {
-
-		paneKymos.optionsKymoTab.kymographNamesComboBox.removeAllItems();
-		for (ROI2D roi:roi2DArrayList)
-			paneKymos.optionsKymoTab.kymographNamesComboBox.addItem(roi.getName());	
-	}
-
-	private void startstopBufferingThread() {
-
-		if (vSequence == null)
-			return;
-
-		vSequence.vImageBufferThread_STOP();
-		paneSequence.UpdateItemsToSequence(vSequence); ;
-		vSequence.vImageBufferThread_START(100); //numberOfImageForBuffer);
-	}
-
 	@Override
 	public void stateChanged(ChangeEvent e) {
 // TODO		
@@ -1038,7 +904,7 @@ public class Capillarytrack extends PluginActionable implements ActionListener, 
 //		
 //		else 
 			if (e.getSource() == paneKymos.tabbedKymosPane)
-			tabbedCapillariesAndKymosSelected();
+				paneKymos.tabbedCapillariesAndKymosSelected();
 //		else
 //			System.out.println("other state change detected");
 	}
@@ -1227,73 +1093,49 @@ public class Capillarytrack extends PluginActionable implements ActionListener, 
 
 	@Override
 	public void propertyChange(PropertyChangeEvent event) {
-		  if (event.getPropertyName().equals("FILE_OPEN")) {
-			  sequenceOpenFile();
-			  if( paneSequence.sourceTab.getLoadPreviousMeasures())
-				  sequenceLoadMeasures();
-		  }
+		if (event.getPropertyName().equals("SEQ_OPEN")) {
+			Viewer v = vSequence.getFirstViewer();
+			Rectangle rectv = v.getBoundsInternal();
+			Rectangle rect0 = mainFrame.getBoundsInternal();
+			rectv.setLocation(rect0.x+ rect0.width, rect0.y);
+			v.setBounds(rectv);
+			buttonsVisibilityUpdate(StatusAnalysis.FILE_OK);
+			if( paneSequence.fileTab.getLoadPreviousMeasures())
+				sequenceLoadMeasures();
+		}
 
-		  else if (event.getPropertyName().equals("KYMOS_ACTIVATE_VIEWS")) {
-				boolean benabled = paneKymos.optionsKymoTab.viewKymosCheckBox.isSelected();
-				kymosActivateViews(benabled);
-		  }
-		  else if (event.getPropertyName().equals("CREATE_ROILINES")) {
-				roisUpdateCombo(vSequence.capillariesArrayList);
-				buttonsVisibilityUpdate(StatusAnalysis.ROIS_OK);	
-		  }
-		  else if (event.getPropertyName().equals("CAP_ROIS_OPEN")) {
-				
-			  	paneSequence.UpdateItemsFromSequence(vSequence);
-				roisUpdateCombo(vSequence.capillariesArrayList);
-				buttonsVisibilityUpdate(StatusAnalysis.ROIS_OK);
-		  }			  
-	
-		  else if (event.getPropertyName().equals("KYMOS_BUILD_START")) {
-			  kymosBuildStart();
-		  }			  
-		  else if (event.getPropertyName().equals("KYMOS_BUILD_STOP")) {
-			  kymosBuildStop ();
-		  }	
-		  else if (event.getPropertyName().equals("KYMO_DISPLAYFILTERED")) {
-			  kymosDisplayFiltered(1);
-		  }
-		  else if (event.getPropertyName().equals("KYMO_DETECT_TOP")) {
-				parseTextFields();
-				Collections.sort(kymographArrayList, new Tools.SequenceNameComparator()); 
-				final TransformOp transform = (TransformOp) paneDetect.detectTopBottomTab.transformForLevelsComboBox.getSelectedItem();
-				paneDetect.detectTopBottomTab.detectTopButton.setEnabled( false);
-				kymosBuildFiltered(0, 1, transform, paneDetect.detectTopBottomTab.getSpanDiffTop());
-				kymosDetectCapillaryLevels();
-				buttonsVisibilityUpdate(StatusAnalysis.MEASURETOP_OK); 
-		  }
-		  else if (event.getPropertyName().equals("KYMO_DETECT_TOP")) {
-				parseTextFields();
-				Collections.sort(kymographArrayList, new Tools.SequenceNameComparator()); 
-				final TransformOp transform = (TransformOp) paneDetect.detectTopBottomTab.transformForLevelsComboBox.getSelectedItem();
-				paneDetect.detectTopBottomTab.detectTopButton.setEnabled( false);
-				kymosBuildFiltered(0, 1, transform, paneDetect.detectTopBottomTab.getSpanDiffTop());
-				paneKymos.optionsKymoTab.kymosDisplayUpdate();
-				paneKymos.optionsKymoTab.viewKymosCheckBox.setSelected(true);
-				paneDetect.detectTopBottomTab.detectTopButton.setEnabled( true);
-		  }
-	} 
-	
-	private void sequenceOpenFile() {
-		addSequence(vSequence);
-		vSequence.addListener(this);
+		else if (event.getPropertyName().equals("CAPILLARIES_NEW")) {
+			buttonsVisibilityUpdate(StatusAnalysis.ROIS_OK);	
+		}
 		
-		Viewer v = vSequence.getFirstViewer();
-		Rectangle rectv = v.getBoundsInternal();
-		Rectangle rect0 = mainFrame.getBoundsInternal();
-		rectv.setLocation(rect0.x+ rect0.width, rect0.y);
-		v.setBounds(rectv);
-		v.addListener(Capillarytrack.this);		
-
-		int endFrame = vSequence.getSizeT()-1;
-		paneKymos.buildKymosTab.endFrameTextField.setText( Integer.toString(endFrame));
-		buttonsVisibilityUpdate(StatusAnalysis.FILE_OK);
-		startstopBufferingThread();
-	}
+		else if (event.getPropertyName().equals("CAPILLARIES_OPEN")) {
+		  	paneSequence.UpdateItemsFromSequence(vSequence);
+			buttonsVisibilityUpdate(StatusAnalysis.ROIS_OK);
+		}			  
+	
+		else if (event.getPropertyName().equals("KYMO_DISPLAYFILTERED")) {
+			kymosDisplayFiltered(1);
+		}
+		else if (event.getPropertyName().equals("KYMO_DETECT_TOP")) {
+			parseTextFields();
+			Collections.sort(kymographArrayList, new Tools.SequenceNameComparator()); 
+			final TransformOp transform = (TransformOp) paneDetect.detectTopBottomTab.transformForLevelsComboBox.getSelectedItem();
+			paneDetect.detectTopBottomTab.detectTopButton.setEnabled( false);
+			kymosBuildFiltered(0, 1, transform, paneDetect.detectTopBottomTab.getSpanDiffTop());
+			kymosDetectCapillaryLevels();
+			buttonsVisibilityUpdate(StatusAnalysis.MEASURETOP_OK); 
+		}
+		else if (event.getPropertyName().equals("KYMO_DETECT_TOP")) {
+			parseTextFields();
+			Collections.sort(kymographArrayList, new Tools.SequenceNameComparator()); 
+			final TransformOp transform = (TransformOp) paneDetect.detectTopBottomTab.transformForLevelsComboBox.getSelectedItem();
+			paneDetect.detectTopBottomTab.detectTopButton.setEnabled( false);
+			kymosBuildFiltered(0, 1, transform, paneDetect.detectTopBottomTab.getSpanDiffTop());
+			paneKymos.optionsKymoTab.displayUpdate();
+			paneKymos.optionsKymoTab.viewKymosCheckBox.setSelected(true);
+			paneDetect.detectTopBottomTab.detectTopButton.setEnabled( true);
+		}
+	} 
 	
 	private void sequenceLoadMeasures() {
 
@@ -1308,7 +1150,7 @@ public class Capillarytrack extends PluginActionable implements ActionListener, 
 			paneKymos.tabbedKymosPane.setSelectedIndex(1);
 			final String cs = path+"\\results";
 			if (paneKymos.fileKymoTab.openFiles(cs)) {
-				kymosTransferNamesToComboBox();
+				paneKymos.optionsKymoTab.transferFileNamesToComboBox();
 				paneKymos.optionsKymoTab.viewKymosCheckBox.setSelected(true);
 				buttonsVisibilityUpdate(StatusAnalysis.KYMOS_OK);
 				

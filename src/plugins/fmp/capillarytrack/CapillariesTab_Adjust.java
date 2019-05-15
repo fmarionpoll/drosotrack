@@ -42,7 +42,10 @@ public class CapillariesTab_Adjust extends JPanel implements ActionListener{
 
 	public void init(GridLayout capLayout, Capillarytrack parent0) {
 		setLayout(capLayout);
-		add( GuiUtil.besidesPanel(displayYellowBarsCheckBox,   new JLabel(" "), new JLabel("jitter ", SwingConstants.RIGHT), jitterTextField2));
+		add( GuiUtil.besidesPanel(
+				displayYellowBarsCheckBox, 
+				new JLabel("jitter ", SwingConstants.RIGHT), 
+				jitterTextField2));
 		add( GuiUtil.besidesPanel( new JLabel(" "), adjustButton));
 		
 		this.parent0 = parent0;

@@ -67,7 +67,7 @@ public class CapillariesPane extends JPanel implements PropertyChangeListener {
 		if (event.getPropertyName().equals("CAP_ROIS_OPEN")) {
 			fileCapillariesTab.capillaryRoisOpen(null);
 		  	UpdateInfosFromSequence();
-		  	firePropertyChange("CAP_ROIS_OPEN", false, true);
+		  	firePropertyChange("CAPILLARIES_OPEN", false, true);
 		 }			  
 		 else if (event.getPropertyName().equals("CAP_ROIS_SAVE")) {
 			if (paneCapillaries_Build.getGroupedBy2())

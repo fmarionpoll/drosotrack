@@ -35,17 +35,14 @@ public class KymosTab_File  extends JPanel implements ActionListener {
 	private static final long serialVersionUID = -3973928400949966679L;
 	private JButton		openButtonKymos	= new JButton("Load...");
 	private JButton		saveButtonKymos	= new JButton("Save...");
-	Capillarytrack parent0 = null;
+	private Capillarytrack parent0 = null;
 	
 	public void init(GridLayout capLayout, Capillarytrack parent0) {
 		setLayout(capLayout);
 		this.parent0 = parent0;
-		
 		JLabel loadsaveText1 = new JLabel ("-> File (tiff) ", SwingConstants.RIGHT);
-		loadsaveText1.setFont(FontUtil.setStyle(loadsaveText1.getFont(), Font.ITALIC));
-		
+		loadsaveText1.setFont(FontUtil.setStyle(loadsaveText1.getFont(), Font.ITALIC));	
 		add(GuiUtil.besidesPanel( new JLabel (" "), loadsaveText1, openButtonKymos, saveButtonKymos));
-		
 		defineActionListeners();
 	}
 	
@@ -63,13 +60,14 @@ public class KymosTab_File  extends JPanel implements ActionListener {
 	public void actionPerformed(ActionEvent e) {
 		Object o = e.getSource();
 		if ( o == openButtonKymos)  {
-			firePropertyChange("KYMOS_OPEN", false, true);	
 			enableItems(false);
 			String path = parent0.vSequence.getDirectory()+ "\\results";
 			boolean flag = openFiles(path); 
 			enableItems(true);
-			if (flag)
+			if (flag) {
 				parent0.buttonsVisibilityUpdate(StatusAnalysis.KYMOS_OK);
+				firePropertyChange("KYMOS_OPEN", false, true);	
+			}
 		}
 		else if ( o == saveButtonKymos) {
 			enableItems(false);
@@ -79,7 +77,6 @@ public class KymosTab_File  extends JPanel implements ActionListener {
 			firePropertyChange("KYMOS_SAVE", false, true);	
 		}		
 	}
-	
 	
 	public boolean openFiles(String directory) {
 		
@@ -151,7 +148,6 @@ public class KymosTab_File  extends JPanel implements ActionListener {
 		try {
 			Files.createDirectories(Paths.get(directory));
 		} catch (IOException e1) {
-			// TODO Auto-generated catch block
 			e1.printStackTrace();
 		}
 

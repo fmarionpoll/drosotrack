@@ -45,8 +45,16 @@ public class CapillariesTab_Build extends JPanel implements ActionListener {
 		buttonGroup2.add(selectGroupedby2Button);
 		buttonGroup2.add(selectRegularButton);
 		selectGroupedby2Button.setSelected(true);
-		add( GuiUtil.besidesPanel( new JLabel ("N capillaries ", SwingConstants.RIGHT),  nbcapillariesTextField, selectRegularButton, selectGroupedby2Button)); 
-		add( GuiUtil.besidesPanel( new JLabel("Pixels btw. caps ", SwingConstants.RIGHT), width_between_capillariesTextField, new JLabel("btw. groups ", SwingConstants.RIGHT), width_intervalTextField ) );
+		add( GuiUtil.besidesPanel( 
+				new JLabel ("N capillaries ", SwingConstants.RIGHT),  
+				nbcapillariesTextField, 
+				selectRegularButton, 
+				selectGroupedby2Button)); 
+		add( GuiUtil.besidesPanel( 
+				new JLabel("Pixels btw. caps ", SwingConstants.RIGHT), 
+				width_between_capillariesTextField, 
+				new JLabel("btw. groups ", SwingConstants.RIGHT), 
+				width_intervalTextField ) );
 		
 		defineActionListeners();
 		this.parent0 = parent0;
@@ -75,7 +83,7 @@ public class CapillariesTab_Build extends JPanel implements ActionListener {
 		if ( o == createROIsFromPolygonButton2)  {
 			roisGenerateFromPolygon();
 			parent0.vSequence.keepOnly2DLines_CapillariesArrayList();
-			firePropertyChange("CREATE_ROILINES", false, true);	
+			firePropertyChange("CAPILLARIES_NEW", false, true);	
 		}
 		else if ( o == selectRegularButton) {
 			boolean status = false;

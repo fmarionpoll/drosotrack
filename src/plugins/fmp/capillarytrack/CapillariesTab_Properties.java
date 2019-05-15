@@ -29,13 +29,19 @@ public class CapillariesTab_Properties extends JPanel implements ActionListener 
 	
 		private JTextField 	capillaryVolumeTextField= new JTextField("5");
 		private JTextField 	capillaryPixelsTextField= new JTextField("5");
-		public JCheckBox	visibleCheckBox	= new JCheckBox("capillary ROIs visible", true);
+		public JCheckBox	visibleCheckBox	= new JCheckBox("ROIs visible", true);
 		private Capillarytrack parent0;
 		
 		public void init(GridLayout capLayout, Capillarytrack parent0) {
 			setLayout(capLayout);
-			add( GuiUtil.besidesPanel(new JLabel("volume (µl) ", SwingConstants.RIGHT), capillaryVolumeTextField,  new JLabel("length (pixels) ", SwingConstants.RIGHT), capillaryPixelsTextField));
-			add( GuiUtil.besidesPanel(visibleCheckBox,  new JLabel(" ", SwingConstants.RIGHT)));
+			add( GuiUtil.besidesPanel(
+					new JLabel("volume (µl) ", SwingConstants.RIGHT), 
+					capillaryVolumeTextField,  
+					new JLabel("length (pixels) ", SwingConstants.RIGHT), 
+					capillaryPixelsTextField));
+			add( GuiUtil.besidesPanel(
+					visibleCheckBox,  
+					new JLabel(" ", SwingConstants.RIGHT)));
 			
 			this.parent0 = parent0;
 			defineActionListeners();
@@ -59,14 +65,12 @@ public class CapillariesTab_Properties extends JPanel implements ActionListener 
 		}
 		
 		private void roisDisplayLine(boolean isVisible) {
-			
 			ArrayList<Viewer>vList =  parent0.vSequence.getViewers();
 			Viewer v = vList.get(0);
 			IcyCanvas canvas = v.getCanvas();
 			List<Layer> layers = canvas.getLayers(false);
 			if (layers == null)
 				return;
-	
 			for (Layer layer: layers) {
 				ROI roi = layer.getAttachedROI();
 				if (roi == null)
@@ -74,7 +78,6 @@ public class CapillariesTab_Properties extends JPanel implements ActionListener 
 				String cs = roi.getName();
 				if (cs.contains("line"))  
 					layer.setVisible(isVisible);
-
 			}
 		}
 			

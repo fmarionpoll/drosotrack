@@ -10,6 +10,7 @@ import javax.swing.JPanel;
 import javax.swing.JTextField;
 import javax.swing.SwingConstants;
 
+import icy.gui.frame.progress.AnnounceFrame;
 import icy.gui.util.GuiUtil;
 import plugins.fmp.sequencevirtual.SequenceVirtual;
 
@@ -23,19 +24,18 @@ public class SequenceTab_Options extends JPanel implements ActionListener{
 	public JTextField 	startFrameTextField		= new JTextField("0");
 	public JTextField 	endFrameTextField		= new JTextField("99999999");
 	public JTextField 	analyzeStepTextField 	= new JTextField("1");
-	private JButton 	updateButton 	= new JButton("Update");
+	private JButton 	updateButton 			= new JButton("Update");
 	
-	private Capillarytrack parent0 = null;
-	
-	public void init(GridLayout capLayout, Capillarytrack parent0) {
+	public void init(GridLayout capLayout) {
 		setLayout(capLayout);
-		this.parent0 = parent0;
  
-		add(GuiUtil.besidesPanel( new JLabel("start ", SwingConstants.RIGHT), startFrameTextField, 
-				new JLabel("end ", SwingConstants.RIGHT), endFrameTextField , 
-				new JLabel("step ", SwingConstants.RIGHT) , analyzeStepTextField
+		add(GuiUtil.besidesPanel( 
+				new JLabel("start ", SwingConstants.RIGHT), startFrameTextField, 
+				new JLabel("step ", SwingConstants.RIGHT) , analyzeStepTextField 				
 				));
-		add(GuiUtil.besidesPanel( new JLabel(" "), new JLabel(" "), updateButton ));
+		add(GuiUtil.besidesPanel( 
+				new JLabel("end ", SwingConstants.RIGHT), endFrameTextField, 
+				new JLabel(" "), updateButton ));
 		
 		updateButton.addActionListener(this);
 	}
@@ -44,9 +44,8 @@ public class SequenceTab_Options extends JPanel implements ActionListener{
 	public void actionPerformed(ActionEvent e) {
 		Object o = e.getSource();
 		if ( o == updateButton) {
-			UpdateItemsToSequence(parent0.vSequence);
+			firePropertyChange("UPDATE", false, true);
 		}
-		
 	}
 
 	public void UpdateItemsFromSequence (SequenceVirtual vSequence) {
@@ -58,7 +57,11 @@ public class SequenceTab_Options extends JPanel implements ActionListener{
 	public void UpdateItemsToSequence (SequenceVirtual vSequence) {
 		vSequence.analysisStart = Integer.parseInt( startFrameTextField.getText() );
 		vSequence.analysisEnd 	= Integer.parseInt( endFrameTextField.getText());
-		vSequence.analyzeStep   = Integer.parseInt(analyzeStepTextField.getText());
+		try { 
+			vSequence.analyzeStep = Integer.parseInt( analyzeStepTextField.getText() );
+		} catch( Exception e ) { 
+			new AnnounceFrame("Can't interpret the analyze step value."); 
+		}
 	}
 	
 }

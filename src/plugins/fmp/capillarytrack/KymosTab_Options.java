@@ -14,7 +14,6 @@ import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
-import javax.swing.SwingConstants;
 
 import icy.canvas.Canvas2D;
 import icy.canvas.IcyCanvas;
@@ -22,7 +21,9 @@ import icy.canvas.Layer;
 import icy.gui.util.GuiUtil;
 import icy.gui.viewer.Viewer;
 import icy.roi.ROI;
+import icy.roi.ROI2D;
 import plugins.fmp.sequencevirtual.SequencePlus;
+import plugins.kernel.roi.roi2d.ROI2DShape;
 
 
 public class KymosTab_Options  extends JPanel implements ActionListener {
@@ -35,7 +36,6 @@ public class KymosTab_Options  extends JPanel implements ActionListener {
 	public JButton 	updateButton 				= new JButton("Update");
 	public JButton  	previousButton		 	= new JButton("<");
 	public JButton		nextButton				= new JButton(">");
-	
 	public JCheckBox 	editLevelsCheckbox 		= new JCheckBox("capillary levels", true);
 	public JCheckBox 	editGulpsCheckbox 		= new JCheckBox("gulps", true);
 
@@ -55,8 +55,9 @@ public class KymosTab_Options  extends JPanel implements ActionListener {
 		k2Panel.add(kymographNamesComboBox, BorderLayout.CENTER);
 		nextButton.setPreferredSize(new Dimension(bWidth, height)); 
 		k2Panel.add(nextButton, BorderLayout.EAST);
-		add(GuiUtil.besidesPanel(viewKymosCheckBox, k2Panel));
-		add(GuiUtil.besidesPanel( editLevelsCheckbox, editGulpsCheckbox, new JLabel(" "), new JLabel(" "))); 
+		
+		add(GuiUtil.besidesPanel( viewKymosCheckBox, k2Panel));
+		add(GuiUtil.besidesPanel( editLevelsCheckbox, editGulpsCheckbox, new JLabel(" "))); 
 		add(GuiUtil.besidesPanel( new JLabel (" "), new JLabel(" "), updateButton));
 		
 		defineActionListeners();
@@ -90,31 +91,41 @@ public class KymosTab_Options  extends JPanel implements ActionListener {
 	public void actionPerformed(ActionEvent e) {
 		Object o = e.getSource();
 		if (( o == updateButton) || (o == kymographNamesComboBox)) {
-			kymosDisplayUpdate();
-//			firePropertyChange("KYMOS_DISPLAY_UPDATE", false, true);	
+			displayUpdate();
 		}
 		else if (( o == editGulpsCheckbox) || (o == editLevelsCheckbox)) {
-			roisDisplay();
-//			firePropertyChange("ROIS_DISPLAY", false, true);	
+			roisDisplay();	
 		}
 		else if ( o == viewKymosCheckBox) {
-			firePropertyChange("KYMOS_ACTIVATE_VIEWS", false, true);	
+			displayViews(viewKymosCheckBox.isSelected());
 		}
 	}
 	
 	// ---------------------------
+	public void transferFileNamesToComboBox() {
+		kymographNamesComboBox.removeAllItems();
+		for (SequencePlus kymographSeq: parent0.kymographArrayList) {
+			kymographNamesComboBox.addItem(kymographSeq.getName());
+		}
+	}
+	
+	public void transferRoisNamesToComboBox(ArrayList <ROI2DShape> roi2DArrayList) {
+
+		kymographNamesComboBox.removeAllItems();
+		for (ROI2D roi:roi2DArrayList)
+			kymographNamesComboBox.addItem(roi.getName());	
+	}
+	
 	private void roisDisplay() {
 		boolean displayTop = editLevelsCheckbox.isSelected();
 		boolean displayGulps = editGulpsCheckbox.isSelected();
-		//Viewer v = vSequence.getFirstViewer();
 		for (SequencePlus seq: parent0.kymographArrayList) {
 			ArrayList<Viewer>vList =  seq.getViewers();
 			Viewer v = vList.get(0);
 			IcyCanvas canvas = v.getCanvas();
 			List<Layer> layers = canvas.getLayers(false);
 			if (layers == null)
-				return;
-	
+				return;	
 			for (Layer layer: layers) {
 				ROI roi = layer.getAttachedROI();
 				if (roi == null)
@@ -129,25 +140,7 @@ public class KymosTab_Options  extends JPanel implements ActionListener {
 		}
 	}
 
-	public void kymosDisplayOFF() {
-		int nseq = parent0.kymographArrayList.size();
-		if (nseq < 1) return;
-
-		for(int i=0; i< nseq; i++) 
-		{
-			SequencePlus seq = parent0.kymographArrayList.get(i);
-			ArrayList<Viewer>vList =  seq.getViewers();
-			if (vList.size() > 0) 
-			{
-				for (Viewer v: vList) 
-					v.close();
-				vList.clear();
-			}
-		}
-		previousupfront =-1;
-	}
-	
-	public void kymosDisplayON() {
+	public void displayON() {
 		if (parent0.kymographArrayList.size() < 1) return;
 
 		Rectangle rectMaster = parent0.vSequence.getFirstViewer().getBounds();
@@ -169,12 +162,30 @@ public class KymosTab_Options  extends JPanel implements ActionListener {
 		}
 	}
 	
-	public void kymosDisplayUpdate() {
+	public void displayOFF() {
+		int nseq = parent0.kymographArrayList.size();
+		if (nseq < 1) return;
+
+		for(int i=0; i< nseq; i++) 
+		{
+			SequencePlus seq = parent0.kymographArrayList.get(i);
+			ArrayList<Viewer>vList =  seq.getViewers();
+			if (vList.size() > 0) 
+			{
+				for (Viewer v: vList) 
+					v.close();
+				vList.clear();
+			}
+		}
+		previousupfront =-1;
+	}
+	
+	public void displayUpdate() {
 		
 		if (parent0.kymographArrayList.size() < 1 || kymographNamesComboBox.getItemCount() < 1)
 			return;
 		
-		kymosDisplayON();
+		displayON();
 	
 		int itemupfront = kymographNamesComboBox.getSelectedIndex();
 		if (itemupfront < 0) {
@@ -183,7 +194,9 @@ public class KymosTab_Options  extends JPanel implements ActionListener {
 		}
 		
 		Viewer v = parent0.kymographArrayList.get(itemupfront).getFirstViewer();
-		if (previousupfront != itemupfront && previousupfront >= 0 && previousupfront < parent0.kymographArrayList.size()) {
+		if (previousupfront != itemupfront 
+				&& previousupfront >= 0 
+				&& previousupfront < parent0.kymographArrayList.size()) {
 			
 			SequencePlus seq0 =  parent0.kymographArrayList.get(previousupfront);
 			// save changes and interpolate points if necessary
@@ -224,4 +237,14 @@ public class KymosTab_Options  extends JPanel implements ActionListener {
 		previousupfront = itemupfront;
 	}
 
+	public void displayViews (boolean bEnable) {
+		updateButton.setEnabled(bEnable);
+		previousButton.setEnabled(bEnable);
+		nextButton.setEnabled(bEnable);
+		kymographNamesComboBox.setEnabled(bEnable);
+		if (bEnable)
+			displayUpdate(); 
+		else
+			displayOFF();
+	}
 }

@@ -8,7 +8,8 @@ import javax.swing.JPanel;
 import javax.swing.JTabbedPane;
 
 import icy.gui.util.GuiUtil;
-import plugins.fmp.sequencevirtual.SequenceVirtual;
+import icy.gui.viewer.Viewer;
+
 
 public class KymosPane extends JPanel  implements PropertyChangeListener{
 
@@ -22,11 +23,11 @@ public class KymosPane extends JPanel  implements PropertyChangeListener{
 	public KymosTab_File fileKymoTab = new KymosTab_File();
 	public KymosTab_Build buildKymosTab = new KymosTab_Build();
 
-//	private Capillarytrack parent0 = null;
+	private Capillarytrack parent0 = null;
 
 	public void init (JPanel mainPanel, String string, Capillarytrack parent0) {
 		
-//		this.parent0 = parent0;
+		this.parent0 = parent0;
 		
 		final JPanel kymosPanel = GuiUtil.generatePanel(string);
 		mainPanel.add(GuiUtil.besidesPanel(kymosPanel));
@@ -40,7 +41,6 @@ public class KymosPane extends JPanel  implements PropertyChangeListener{
 		tabbedKymosPane.addTab("Display", null, optionsKymoTab, "Display options of data & kymographs");
 		
 		fileKymoTab.init(capLayout, parent0);
-//		fileKymoTab.addPropertyChangeListener(parent0);
 		fileKymoTab.addPropertyChangeListener(this);
 		tabbedKymosPane.addTab("Load/Save", null, fileKymoTab, "Load/Save kymographs");
 		
@@ -49,19 +49,28 @@ public class KymosPane extends JPanel  implements PropertyChangeListener{
 		kymosPanel.add(GuiUtil.besidesPanel(tabbedKymosPane));
 	}
 	
-	public void UpdateItemsFromSequence(SequenceVirtual vSequence) {
-		buildKymosTab.UpdateItemsFromSequence (vSequence);
-	}
-	
-	public void UpdateItemsToSequence(SequenceVirtual vSequence) {
-		buildKymosTab.UpdateItemsToSequence ( vSequence);
-	}
-	
 	@Override
 	public void propertyChange(PropertyChangeEvent arg0) {
 		if (arg0.getPropertyName().equals("KYMOS_OPEN")) {
 			optionsKymoTab.viewKymosCheckBox.setSelected(true);
-		  }	
+			optionsKymoTab.transferFileNamesToComboBox();
+		}	
+		else if (arg0.getPropertyName().equals("KYMOS_CREATE")) {
+			optionsKymoTab.viewKymosCheckBox.setSelected(true);
+			optionsKymoTab.transferRoisNamesToComboBox(parent0.vSequence.capillariesArrayList);
+		 }
 		
+	}
+	
+	public void tabbedCapillariesAndKymosSelected() {
+		if (parent0.vSequence == null)
+			return;
+		int iselected = tabbedKymosPane.getSelectedIndex();
+		if (iselected == 0) {
+			Viewer v = parent0.vSequence.getFirstViewer();
+			v.toFront();
+		} else if (iselected == 1) {
+			optionsKymoTab.displayUpdate();
+		}
 	}
 }
