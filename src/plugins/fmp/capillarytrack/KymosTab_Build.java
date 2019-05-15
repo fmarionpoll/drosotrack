@@ -15,7 +15,7 @@ import plugins.fmp.capillarytrack.Capillarytrack.StatusComputation;
 import plugins.fmp.sequencevirtual.SequenceVirtual;
 
 
-public class PaneKymos_Build extends JPanel implements ActionListener { 
+public class KymosTab_Build extends JPanel implements ActionListener { 
 
 	/**
 	 * 

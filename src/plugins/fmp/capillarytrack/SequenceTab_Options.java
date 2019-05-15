@@ -13,7 +13,7 @@ import javax.swing.SwingConstants;
 import icy.gui.util.GuiUtil;
 import plugins.fmp.sequencevirtual.SequenceVirtual;
 
-public class PaneSequence_Options extends JPanel implements ActionListener{
+public class SequenceTab_Options extends JPanel implements ActionListener{
 
 	/**
 	 * 

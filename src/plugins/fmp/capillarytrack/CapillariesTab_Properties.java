@@ -20,7 +20,7 @@ import icy.gui.viewer.Viewer;
 import icy.roi.ROI;
 
 
-public class PaneCapillaries_Properties extends JPanel implements ActionListener {
+public class CapillariesTab_Properties extends JPanel implements ActionListener {
 
 	/**
 	 * 

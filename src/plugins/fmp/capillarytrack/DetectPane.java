@@ -15,13 +15,13 @@ import icy.gui.util.GuiUtil;
 import plugins.fmp.sequencevirtual.ImageThresholdTools.ThresholdType;
 import plugins.fmp.sequencevirtual.ImageTransformTools.TransformOp;
 
-public class PaneDetect extends JPanel {
+public class DetectPane extends JPanel {
 	
 	public JTabbedPane tabbedDetectionPane	= new JTabbedPane();
-	public PaneDetect_TopBottom detectTopBottomTab = new PaneDetect_TopBottom();
-	public PaneDetect_Colors detectColorsTab = new PaneDetect_Colors();
-	public PaneDetect_Gulps detectGulpsTab = new PaneDetect_Gulps();
-	public PaneDetect_LoadSave detectLoadSave = new PaneDetect_LoadSave();
+	public DetectTab_TopBottom detectTopBottomTab = new DetectTab_TopBottom();
+	public DetectTab_Colors detectColorsTab = new DetectTab_Colors();
+	public DetectTab_Gulps detectGulpsTab = new DetectTab_Gulps();
+	public DetectTab_File detectLoadSave = new DetectTab_File();
 	
 	public JRadioButton rbFilterbyColor		= new JRadioButton("filter by color array");
 	public JRadioButton rbFilterbyFunction		= new JRadioButton("filter by function");

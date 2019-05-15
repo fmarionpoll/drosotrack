@@ -123,14 +123,10 @@ public class Capillarytrack extends PluginActionable implements ActionListener, 
 
 	//--------------------------------------------
 
-//	private int	analyzeStep 				= 1;
-//	private int startFrame 					= 1;
-//	private int endFrame 					= 99999999;
 	private int diskRadius 					= 5;
 	private double detectGulpsThreshold 	= 5.;
 
 	private	int	spanDiffTransf2 			= 3;
-	private int previousupfront 			= -1;
 	
 	// results arrays
 	private XYMultiChart firstChart 		= null;
@@ -151,10 +147,10 @@ public class Capillarytrack extends PluginActionable implements ActionListener, 
 	private BuildKymographsThread buildKymographsThread = null;
 	private ImageTransformTools tImg 		= null;
 	
-	private PaneSequence paneSequence = null;
-	private PaneCapillaries paneCapillaries = null;
-	private PaneKymos paneKymos = null;
-	private PaneDetect paneDetect = null;
+	private SequencePane paneSequence = null;
+	private CapillariesPane paneCapillaries = null;
+	private KymosPane paneKymos = null;
+	private DetectPane paneDetect = null;
 	
 	private void panelDisplaySaveInterface(JPanel mainPanel) {
 		final JPanel displayPanel = GuiUtil.generatePanel("DISPLAY/EDIT/EXPORT RESULTS");
@@ -172,16 +168,16 @@ public class Capillarytrack extends PluginActionable implements ActionListener, 
 		mainFrame.add(mainPanel, BorderLayout.CENTER);
 
 		// ----------------- Source
-		paneSequence = new PaneSequence();
+		paneSequence = new SequencePane();
 		paneSequence.init(mainPanel, "SOURCE", this);
 
-		paneCapillaries = new PaneCapillaries();
+		paneCapillaries = new CapillariesPane();
 		paneCapillaries.init(mainPanel, "CAPILLARIES", this);
 		
-		paneKymos = new PaneKymos();
+		paneKymos = new KymosPane();
 		paneKymos.init(mainPanel, "KYMOGRAPHS", this);
 		
-		paneDetect = new PaneDetect();
+		paneDetect = new DetectPane();
 		paneDetect.init(mainPanel, "DETECT", this);
 		
 		panelDisplaySaveInterface (mainPanel);
@@ -262,7 +258,7 @@ public class Capillarytrack extends PluginActionable implements ActionListener, 
 			Viewer v = vSequence.getFirstViewer();
 			v.toFront();
 		} else if (iselected == 1) {
-			kymosDisplayUpdate();
+			paneKymos.optionsKymoTab.kymosDisplayUpdate();
 		}
 	}
 	
@@ -375,7 +371,7 @@ public class Capillarytrack extends PluginActionable implements ActionListener, 
 	
 	// ----------------------------------------------
 	
-	private void buttonsVisibilityUpdate(StatusAnalysis istate) {
+	public void buttonsVisibilityUpdate(StatusAnalysis istate) {
 
 		int item = 0;
 		switch (istate ) {
@@ -478,35 +474,9 @@ public class Capillarytrack extends PluginActionable implements ActionListener, 
 		paneKymos.optionsKymoTab.kymographNamesComboBox.removeAllItems();
 	}
 
-	private void kymosOpenFiles() {
-		paneKymos.fileKymoTab.enableItems(false);
-		paneKymos.buildKymosTab.kymoStartComputationButton.setEnabled(false);
-		paneKymos.optionsKymoTab.viewKymosCheckBox.setSelected(true);
-		
-		String path = vSequence.getDirectory()+ "\\results";
-		boolean flag = kymosOpenFromDirectory(path); 
-		
-		paneKymos.fileKymoTab.enableItems(true);
-		paneKymos.buildKymosTab.kymoStartComputationButton.setEnabled(true);
-		if (flag)
-			buttonsVisibilityUpdate(StatusAnalysis.KYMOS_OK);
-	}
-	
-	private void kymosSaveFiles() {
-		paneKymos.fileKymoTab.enableItems(false);
-		
-		paneDetect.detectTopBottomTab.detectTopButton.setEnabled(false);
-		// TODO
-//		detectGulpsButton.setEnabled(false);
 
-		String path = vSequence.getDirectory() + "\\results";
-		kymosSaveToDirectory(path);
-		paneKymos.fileKymoTab.enableItems(true);
-		
-		paneDetect.detectTopBottomTab.detectTopButton.setEnabled(true);
-		// TODO
-//		detectGulpsButton.setEnabled(true);		
-	}
+	
+
 	
 	private void kymosActivateViews (boolean bEnable) {
 		paneKymos.optionsKymoTab.updateButton.setEnabled(bEnable);
@@ -514,9 +484,9 @@ public class Capillarytrack extends PluginActionable implements ActionListener, 
 		paneKymos.optionsKymoTab.nextButton.setEnabled(bEnable);
 		paneKymos.optionsKymoTab.kymographNamesComboBox.setEnabled(bEnable);
 		if (bEnable)
-			kymosDisplayUpdate(); 
+			paneKymos.optionsKymoTab.kymosDisplayUpdate(); 
 		else
-			kymosDisplayOFF();
+			paneKymos.optionsKymoTab.kymosDisplayOFF();
 	}
 	
 	private void kymosBuildStart() {
@@ -607,7 +577,7 @@ public class Capillarytrack extends PluginActionable implements ActionListener, 
 		}
 		// TODO
 //		kymosBuildFiltered(0, zChannel, transform, detectTopBottomTab.getSpanDiffTop());
-		kymosDisplayUpdate();
+		paneKymos.optionsKymoTab.kymosDisplayUpdate();
 		paneKymos.optionsKymoTab.viewKymosCheckBox.setSelected(true);
 	}
 	
@@ -928,101 +898,8 @@ public class Capillarytrack extends PluginActionable implements ActionListener, 
 		}
 	}
 
-	private void kymosDisplayOFF() {
-		int nseq = kymographArrayList.size();
-		if (nseq < 1) return;
 
-		for(int i=0; i< nseq; i++) 
-		{
-			SequencePlus seq = kymographArrayList.get(i);
-			ArrayList<Viewer>vList =  seq.getViewers();
-			if (vList.size() > 0) 
-			{
-				for (Viewer v: vList) 
-					v.close();
-				vList.clear();
-			}
-		}
-		previousupfront =-1;
-	}
 	
-	private void kymosDisplayON() {
-		if (kymographArrayList.size() < 1) return;
-
-		Rectangle rectMaster = vSequence.getFirstViewer().getBounds();
-		int deltax = 5;
-		int deltay = 5;
-
-		for(int i=0; i< kymographArrayList.size(); i++) 
-		{
-			SequencePlus seq = kymographArrayList.get(i);
-			ArrayList<Viewer>vList = seq.getViewers();
-			if (vList.size() == 0) 
-			{
-				Viewer v = new Viewer(seq, true);
-				v.addListener(Capillarytrack.this);
-				Rectangle rectDataView = v.getBounds();
-				rectDataView.translate(rectMaster.x + deltax - rectDataView.x, rectMaster.y + deltay - rectDataView.y);
-				v.setBounds(rectDataView);
-			}
-		}
-	}
-
-	private void kymosDisplayUpdate() {
-		
-		if (kymographArrayList.size() < 1 || paneKymos.optionsKymoTab.kymographNamesComboBox.getItemCount() < 1)
-			return;
-		
-		kymosDisplayON();
-	
-		int itemupfront = paneKymos.optionsKymoTab.kymographNamesComboBox.getSelectedIndex();
-		if (itemupfront < 0) {
-			itemupfront = 0;
-			paneKymos.optionsKymoTab.kymographNamesComboBox.setSelectedIndex(0);
-		}
-		
-		Viewer v = kymographArrayList.get(itemupfront).getFirstViewer();
-		if (previousupfront != itemupfront && previousupfront >= 0 && previousupfront < kymographArrayList.size()) {
-			
-			SequencePlus seq0 =  kymographArrayList.get(previousupfront);
-			// save changes and interpolate points if necessary
-			if (seq0.hasChanged) {
-				seq0.validateRois();
-				seq0.hasChanged = false;
-			}
-			// update canvas size of all kymograph windows if size of window has changed
-			Viewer v0 = kymographArrayList.get(previousupfront).getFirstViewer();
-			Rectangle rect0 = v0.getBounds();
-			Canvas2D cv0 = (Canvas2D) v0.getCanvas();
-			int positionZ0 = cv0.getPositionZ(); 
-					
-			Rectangle rect = v.getBounds();
-			if (rect != rect0) {
-				v.setBounds(rect0);
-				int i= 0;
-				int imax = 500;
-				while (!v.isInitialized() && i < imax) { i ++; }
-				if (!v.isInitialized())
-					System.out.println("Viewer still not initialized after " + imax +" iterations");
-				
-				for (SequencePlus seq: kymographArrayList) {
-					Viewer vi = seq.getFirstViewer();
-					Rectangle recti = vi.getBounds();
-					if (recti != rect0)
-						vi.setBounds(rect0);
-				}
-			}
-			// copy zoom and position of image from previous canvas to the one selected
-			Canvas2D cv = (Canvas2D) v.getCanvas();
-			cv.setScale(cv0.getScaleX(), cv0.getScaleY(), false);
-			cv.setOffset(cv0.getOffsetX(), cv0.getOffsetY(), false);
-			cv.setPositionZ(positionZ0);
-		}
-		v.toFront();
-		v.requestFocus();
-		previousupfront = itemupfront;
-	}
-
 	private void kymosTransferNamesToComboBox() {
 		paneKymos.optionsKymoTab.kymographNamesComboBox.removeAllItems();
 		for (SequencePlus kymographSeq: kymographArrayList) {
@@ -1030,108 +907,7 @@ public class Capillarytrack extends PluginActionable implements ActionListener, 
 		}
 	}
 	
-	private boolean kymosOpenFromDirectory(String directory) {
-		
-		if (directory == null) {
-			directory = vSequence.getDirectory();
-		
-			JFileChooser f = new JFileChooser(directory);
-			f.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY); 
-			int v = f.showOpenDialog(null);
-			if (v == JFileChooser.APPROVE_OPTION  )
-				directory =  f.getSelectedFile().getAbsolutePath();
-			else
-				return false;
-		}
-		
-		String[] list = (new File(directory)).list();
-		if (list == null)
-			return false;
-		Arrays.sort(list, String.CASE_INSENSITIVE_ORDER);
-
-		// send some info
-		ProgressFrame progress = new ProgressFrame("Open kymographs ...");
-		int itotal = kymographArrayList.size();
-		progress.setLength(itotal);
-
-		// loop over the list to open tiff files as kymographs
-		kymographArrayList.clear();
-
-		for (String filename: list) {
-			if (!filename.contains(".tiff"))
-				continue;
-
-			SequencePlus kymographSeq = new SequencePlus();
-			filename = directory + "\\" + filename;
-			progress.incPosition(  );
-			progress.setMessage( "Open file : " + filename);
-
-			IcyBufferedImage ibufImage = null;
-			try {
-				ibufImage = Loader.loadImage(filename);
-
-			} catch (UnsupportedFormatException e) {
-				e.printStackTrace();
-			} catch (IOException e) {
-				e.printStackTrace();
-			}
-			kymographSeq.addImage(ibufImage);
-			
-			int index1 = filename.indexOf(".tiff");
-			int index0 = filename.lastIndexOf("\\")+1;
-			String title = filename.substring(index0, index1);
-			kymographSeq.setName(title);
-			kymographArrayList.add(kymographSeq);
-		}
-
-		progress.close();
-		return true;
-	}	
-
-	private void kymosSaveToDirectory(String outputpath) {
-
-		// send some info
-		ProgressFrame progress = new ProgressFrame("Save kymographs");
-		
-		String directory = null; 
-		if (outputpath == null) {
-			outputpath = vSequence.getDirectory()+ "\\results";
-			}
-		
-		try {
-			Files.createDirectories(Paths.get(outputpath));
-		} catch (IOException e1) {
-			// TODO Auto-generated catch block
-			e1.printStackTrace();
-		}
-
-		directory = outputpath;
-		JFileChooser f = new JFileChooser(directory);
-		f.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY); 
-		int returnedval = f.showSaveDialog(null);
-		if (returnedval == JFileChooser.APPROVE_OPTION) { 
-			directory = f.getSelectedFile().getAbsolutePath();		
-			for (SequencePlus seq: kymographArrayList) {
 	
-				progress.setMessage( "Save kymograph file : " + seq.getName());
-				String filename = directory + "\\" + seq.getName() + ".tiff";
-				File file = new File (filename);
-				IcyBufferedImage image = seq.getFirstImage();
-				try {
-					Saver.saveImage(image, file, true);
-				} catch (FormatException e) {
-					e.printStackTrace();
-				} catch (IOException e) {
-					e.printStackTrace();
-				}
-				
-				System.out.println("File "+ seq.getName() + " saved " );
-			}
-			System.out.println("End of Kymograph saving process");
-		}
-		progress.close();
-	}
-
 	private void measuresFileOpen() {
 	
 		String directory = vSequence.getDirectory();
@@ -1223,35 +999,7 @@ public class Capillarytrack extends PluginActionable implements ActionListener, 
 //		try { spanDiffTransf2 = Integer.parseInt( spanTransf2TextField.getText() );
 //		}catch( Exception e ) { new AnnounceFrame("Can't interpret the analyze step value."); }
 	}
-
-	private void roisDisplay() {
-		boolean displayTop = paneKymos.optionsKymoTab.editLevelsCheckbox.isSelected();
-		boolean displayGulps = paneKymos.optionsKymoTab.editGulpsCheckbox.isSelected();
-		//Viewer v = vSequence.getFirstViewer();
-		for (SequencePlus seq: kymographArrayList) {
-			ArrayList<Viewer>vList =  seq.getViewers();
-			Viewer v = vList.get(0);
-			IcyCanvas canvas = v.getCanvas();
-			List<Layer> layers = canvas.getLayers(false);
-			if (layers == null)
-				return;
 	
-			for (Layer layer: layers) {
-				ROI roi = layer.getAttachedROI();
-				if (roi == null)
-					continue;
-				String cs = roi.getName();
-				if (cs.contains("level")) { 
-					layer.setVisible(displayTop);
-				}
-				else 
-					layer.setVisible(displayGulps);
-			}
-		}
-	}
-	
-
-		
 	private void roisSaveEdits() {
 
 		for (SequencePlus seq: kymographArrayList) {
@@ -1484,12 +1232,7 @@ public class Capillarytrack extends PluginActionable implements ActionListener, 
 			  if( paneSequence.sourceTab.getLoadPreviousMeasures())
 				  sequenceLoadMeasures();
 		  }
-		  else if (event.getPropertyName().equals("KYMOS_DISPLAY_UPDATE")) {
-			  kymosDisplayUpdate();
-		  }
-		  else if (event.getPropertyName().equals("ROIS_DISPLAY")) {
-			  roisDisplay();
-		  }
+
 		  else if (event.getPropertyName().equals("KYMOS_ACTIVATE_VIEWS")) {
 				boolean benabled = paneKymos.optionsKymoTab.viewKymosCheckBox.isSelected();
 				kymosActivateViews(benabled);
@@ -1504,13 +1247,7 @@ public class Capillarytrack extends PluginActionable implements ActionListener, 
 				roisUpdateCombo(vSequence.capillariesArrayList);
 				buttonsVisibilityUpdate(StatusAnalysis.ROIS_OK);
 		  }			  
-
-		  else if (event.getPropertyName().equals("KYMOS_OPEN")) {
-			  kymosOpenFiles();
-		  }			  
-		  else if (event.getPropertyName().equals("KYMOS_SAVE")) {
-			  kymosSaveFiles();
-		  }	
+	
 		  else if (event.getPropertyName().equals("KYMOS_BUILD_START")) {
 			  kymosBuildStart();
 		  }			  
@@ -1535,7 +1272,7 @@ public class Capillarytrack extends PluginActionable implements ActionListener, 
 				final TransformOp transform = (TransformOp) paneDetect.detectTopBottomTab.transformForLevelsComboBox.getSelectedItem();
 				paneDetect.detectTopBottomTab.detectTopButton.setEnabled( false);
 				kymosBuildFiltered(0, 1, transform, paneDetect.detectTopBottomTab.getSpanDiffTop());
-				kymosDisplayUpdate();
+				paneKymos.optionsKymoTab.kymosDisplayUpdate();
 				paneKymos.optionsKymoTab.viewKymosCheckBox.setSelected(true);
 				paneDetect.detectTopBottomTab.detectTopButton.setEnabled( true);
 		  }
@@ -1570,7 +1307,7 @@ public class Capillarytrack extends PluginActionable implements ActionListener, 
 		if (flag) {
 			paneKymos.tabbedKymosPane.setSelectedIndex(1);
 			final String cs = path+"\\results";
-			if (kymosOpenFromDirectory(cs)) {
+			if (paneKymos.fileKymoTab.openFiles(cs)) {
 				kymosTransferNamesToComboBox();
 				paneKymos.optionsKymoTab.viewKymosCheckBox.setSelected(true);
 				buttonsVisibilityUpdate(StatusAnalysis.KYMOS_OK);

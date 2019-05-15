@@ -10,7 +10,7 @@ import javax.swing.JTabbedPane;
 import icy.gui.util.GuiUtil;
 
 
-public class PaneCapillaries extends JPanel implements PropertyChangeListener {
+public class CapillariesPane extends JPanel implements PropertyChangeListener {
 	
 	/**
 	 * 
@@ -18,10 +18,10 @@ public class PaneCapillaries extends JPanel implements PropertyChangeListener {
 	private static final long serialVersionUID = 853047648249832145L;
 	
 	public JTabbedPane tabsPane = new JTabbedPane();
-	public PaneCapillaries_Build paneCapillaries_Build = new PaneCapillaries_Build();
-	public PaneCapillaries_LoadSave fileCapillariesTab = new PaneCapillaries_LoadSave();
-	public PaneCapillaries_Adjust adjustCapillariesTab = new PaneCapillaries_Adjust();
-	public PaneCapillaries_Properties propCapillariesTab = new PaneCapillaries_Properties();
+	public CapillariesTab_Build paneCapillaries_Build = new CapillariesTab_Build();
+	public CapillariesTab_File fileCapillariesTab = new CapillariesTab_File();
+	public CapillariesTab_Adjust adjustCapillariesTab = new CapillariesTab_Adjust();
+	public CapillariesTab_Properties propCapillariesTab = new CapillariesTab_Properties();
 	
 	private Capillarytrack parent0 = null;
 

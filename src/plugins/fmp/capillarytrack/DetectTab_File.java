@@ -14,7 +14,7 @@ import icy.gui.util.FontUtil;
 import icy.gui.util.GuiUtil;
 import plugins.fmp.capillarytrack.Capillarytrack.StatusAnalysis;
 
-public class PaneDetect_LoadSave extends JPanel implements ActionListener {
+public class DetectTab_File extends JPanel implements ActionListener {
 
 	/**
 	 * 

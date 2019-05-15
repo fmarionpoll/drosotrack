@@ -24,7 +24,7 @@ import icy.type.collection.array.Array1DUtil;
 import plugins.fmp.sequencevirtual.Line2DPlus;
 import plugins.kernel.roi.roi2d.ROI2DLine;
 
-public class PaneCapillaries_Adjust extends JPanel implements ActionListener{
+public class CapillariesTab_Adjust extends JPanel implements ActionListener{
 
 	/**
 	 * 

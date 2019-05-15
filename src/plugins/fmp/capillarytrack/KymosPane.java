@@ -1,6 +1,8 @@
 package plugins.fmp.capillarytrack;
 
 import java.awt.GridLayout;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 
 import javax.swing.JPanel;
 import javax.swing.JTabbedPane;
@@ -8,7 +10,7 @@ import javax.swing.JTabbedPane;
 import icy.gui.util.GuiUtil;
 import plugins.fmp.sequencevirtual.SequenceVirtual;
 
-public class PaneKymos extends JPanel {
+public class KymosPane extends JPanel  implements PropertyChangeListener{
 
 	/**
 	 * 
@@ -16,9 +18,9 @@ public class PaneKymos extends JPanel {
 	private static final long serialVersionUID = -7339633966002954720L;
 	
 	public JTabbedPane tabbedKymosPane = new JTabbedPane();
-	public PaneKymos_Options optionsKymoTab = new PaneKymos_Options();
-	public PaneKymos_LoadSave fileKymoTab = new PaneKymos_LoadSave();
-	public PaneKymos_Build buildKymosTab = new PaneKymos_Build();
+	public KymosTab_Options optionsKymoTab = new KymosTab_Options();
+	public KymosTab_File fileKymoTab = new KymosTab_File();
+	public KymosTab_Build buildKymosTab = new KymosTab_Build();
 
 //	private Capillarytrack parent0 = null;
 
@@ -33,12 +35,13 @@ public class PaneKymos extends JPanel {
 		buildKymosTab.init(capLayout, parent0);
 		tabbedKymosPane.addTab("Build", null, buildKymosTab, "Build kymographs from ROI lines placed over capillaries");
 		
-		optionsKymoTab.init(capLayout);
+		optionsKymoTab.init(capLayout, parent0);
 		optionsKymoTab.addPropertyChangeListener(parent0);
 		tabbedKymosPane.addTab("Display", null, optionsKymoTab, "Display options of data & kymographs");
 		
-		fileKymoTab.init(capLayout);
-		fileKymoTab.addPropertyChangeListener(parent0);
+		fileKymoTab.init(capLayout, parent0);
+//		fileKymoTab.addPropertyChangeListener(parent0);
+		fileKymoTab.addPropertyChangeListener(this);
 		tabbedKymosPane.addTab("Load/Save", null, fileKymoTab, "Load/Save kymographs");
 		
 		tabbedKymosPane.setTabLayoutPolicy(JTabbedPane.SCROLL_TAB_LAYOUT);
@@ -52,5 +55,13 @@ public class PaneKymos extends JPanel {
 	
 	public void UpdateItemsToSequence(SequenceVirtual vSequence) {
 		buildKymosTab.UpdateItemsToSequence ( vSequence);
+	}
+	
+	@Override
+	public void propertyChange(PropertyChangeEvent arg0) {
+		if (arg0.getPropertyName().equals("KYMOS_OPEN")) {
+			optionsKymoTab.viewKymosCheckBox.setSelected(true);
+		  }	
+		
 	}
 }

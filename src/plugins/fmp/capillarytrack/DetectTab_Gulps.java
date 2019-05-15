@@ -18,7 +18,7 @@ import icy.gui.util.GuiUtil;
 import plugins.fmp.capillarytrack.Capillarytrack.StatusAnalysis;
 import plugins.fmp.sequencevirtual.ImageTransformTools.TransformOp;
 
-public class PaneDetect_Gulps  extends JPanel implements ActionListener {
+public class DetectTab_Gulps  extends JPanel implements ActionListener {
 
 	/**
 	 * 

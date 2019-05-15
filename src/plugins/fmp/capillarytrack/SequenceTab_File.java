@@ -1,6 +1,7 @@
 package plugins.fmp.capillarytrack;
 
 import java.awt.GridLayout;
+import java.awt.Rectangle;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
@@ -9,11 +10,13 @@ import javax.swing.JCheckBox;
 import javax.swing.JPanel;
 
 import icy.gui.util.GuiUtil;
+import icy.gui.viewer.Viewer;
 import icy.preferences.XMLPreferences;
+import plugins.fmp.capillarytrack.Capillarytrack.StatusAnalysis;
 import plugins.fmp.sequencevirtual.SequenceVirtual;
 
 
-public class PaneSequence_Open extends JPanel implements ActionListener {
+public class SequenceTab_File extends JPanel implements ActionListener {
 	/**
 	 * 
 	 */
@@ -57,6 +60,5 @@ public class PaneSequence_Open extends JPanel implements ActionListener {
 		return loadpreviousCheckBox.isSelected();
 	}
 	
-
 
 }

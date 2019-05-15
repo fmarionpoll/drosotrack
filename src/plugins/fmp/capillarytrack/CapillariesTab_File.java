@@ -13,7 +13,7 @@ import javax.swing.SwingConstants;
 import icy.gui.util.FontUtil;
 import icy.gui.util.GuiUtil;
 
-public class PaneCapillaries_LoadSave extends JPanel implements ActionListener {
+public class CapillariesTab_File extends JPanel implements ActionListener {
 
 	/**
 	 * 

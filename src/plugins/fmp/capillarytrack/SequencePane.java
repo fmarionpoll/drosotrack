@@ -8,15 +8,15 @@ import javax.swing.JTabbedPane;
 import icy.gui.util.GuiUtil;
 import plugins.fmp.sequencevirtual.SequenceVirtual;
 
-public class PaneSequence extends JPanel {
+public class SequencePane extends JPanel {
 	/**
 	 * 
 	 */
 	private static final long serialVersionUID = -6826269677524125173L;
 	
 	public JTabbedPane tabsPane = new JTabbedPane();
-	public PaneSequence_Open sourceTab = new PaneSequence_Open();
-	public PaneSequence_Options sourceParameters = new PaneSequence_Options();
+	public SequenceTab_File sourceTab = new SequenceTab_File();
+	public SequenceTab_Options sourceParameters = new SequenceTab_Options();
 //	private Capillarytrack parent0 = null;
 	
 	public void init (JPanel mainPanel, String string, Capillarytrack parent0) {
