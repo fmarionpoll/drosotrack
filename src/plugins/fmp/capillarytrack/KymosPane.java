@@ -55,10 +55,12 @@ public class KymosPane extends JPanel  implements PropertyChangeListener{
 		if (arg0.getPropertyName().equals("KYMOS_OPEN")) {
 			optionsKymoTab.viewKymosCheckBox.setSelected(true);
 			optionsKymoTab.transferFileNamesToComboBox();
+			tabbedKymosPane.setSelectedIndex(1);
 		}	
 		else if (arg0.getPropertyName().equals("KYMOS_CREATE")) {
 			optionsKymoTab.viewKymosCheckBox.setSelected(true);
 			optionsKymoTab.transferRoisNamesToComboBox(parent0.vSequence.capillariesArrayList);
+			tabbedKymosPane.setSelectedIndex(1);
 		 }
 		
 	}

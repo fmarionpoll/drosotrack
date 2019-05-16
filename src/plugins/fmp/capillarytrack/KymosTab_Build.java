@@ -67,7 +67,6 @@ public class KymosTab_Build extends JPanel implements ActionListener {
 			try { diskRadius =  Integer.parseInt( diskRadiusTextField.getText() );
 			} catch( Exception e ) { new AnnounceFrame("Can't interpret the disk radius value."); } 
 			kymosBuildStart();
-			firePropertyChange("KYMOS_CREATE", false, true);	
 		}
 		else if ( o == kymosStopComputationButton) {
 			kymosBuildStop();
@@ -87,6 +86,9 @@ public class KymosTab_Build extends JPanel implements ActionListener {
 		kymosStopComputationButton.setEnabled(true);
 		kymoStartComputationButton.setEnabled(false);
 		kymosBuildKymographs();	
+		
+		Viewer v = parent0.vSequence.getFirstViewer();
+		v.toFront();
 	}
 	
 	private void kymosBuildKymographs() {
@@ -112,8 +114,6 @@ public class KymosTab_Build extends JPanel implements ActionListener {
 		}
 		parent0.paneKymos.optionsKymoTab.viewKymosCheckBox.setSelected(true);
 		parent0.paneKymos.optionsKymoTab.displayViews (true);
-		Viewer v = parent0.vSequence.getFirstViewer();
-		v.toFront();
 		
 		buildKymographsThread.kymographArrayList = parent0.kymographArrayList;
 		buildKymographsThread.start();
@@ -121,14 +121,15 @@ public class KymosTab_Build extends JPanel implements ActionListener {
 		//observer thread for notifications
 		Thread waitcompletionThread = new Thread(new Runnable(){public void run()
 		{
-			try{
+			try {
 				buildKymographsThread.join();
 				}
 			catch(Exception e){;} 
-			finally{ 
+			finally { 
 				kymosStopComputationButton.doClick();
 				}
 		}});
+
 		waitcompletionThread.start();	
 	}
 	

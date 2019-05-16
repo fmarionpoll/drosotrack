@@ -101,7 +101,13 @@ import plugins.nchenouard.kymographtracker.spline.CubicSmoothingSpline;
 
 							if (mask.size() > 1)
 								sum = sum/mask.size();
-							tabValues[cnt*kymographSizeX + t_out] = sum; 
+							if (cnt*kymographSizeX + t_out >= tabValues.length) {
+								int ilimit = tabValues.length;
+								int x = cnt*kymographSizeX + t_out;
+								cnt=0;
+							}
+							else
+								tabValues[cnt*kymographSizeX + t_out] = sum; 
 							cnt ++;
 						}
 					}
@@ -126,7 +132,7 @@ import plugins.nchenouard.kymographtracker.spline.CubicSmoothingSpline;
 			int sizey = vSequence.getSizeY();
 			vSequence.keepOnly2DLines_CapillariesArrayList();
 			int numC = vSequence.getSizeC();
-			double fimagewidth =  (endFrame - startFrame +1)/analyzeStep;
+			double fimagewidth =  1 + (endFrame - startFrame )/analyzeStep;
 			int imagewidth = (int) fimagewidth;
 		
 			for (int iroi=0; iroi < vSequence.capillariesArrayList.size(); iroi++)

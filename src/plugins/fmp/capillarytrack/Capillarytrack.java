@@ -207,7 +207,6 @@ public class Capillarytrack extends PluginActionable implements ActionListener, 
 	private void declareChangeListeners() {
 		
 		thresholdSpinner.addChangeListener(this);
-		
 	}
 	
 	private void defineActionListeners() {

@@ -110,7 +110,6 @@ public class KymosTab_Options  extends JPanel implements ActionListener {
 	}
 	
 	public void transferRoisNamesToComboBox(ArrayList <ROI2DShape> roi2DArrayList) {
-
 		kymographNamesComboBox.removeAllItems();
 		for (ROI2D roi:roi2DArrayList)
 			kymographNamesComboBox.addItem(roi.getName());	

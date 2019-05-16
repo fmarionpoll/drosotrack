@@ -533,18 +533,18 @@ public class SequenceVirtual extends Sequence
 
 		public VImageBufferThread(SequenceVirtual vseq, int depth) {
 			fenetre = depth;
-			span = fenetre/2;
+			span = fenetre/2 * analyzeStep;
 			bBufferON = true;
 		}
 		
 		public void setFenetre (int depth) {
 			fenetre = depth;
-			span = fenetre/2;
+			span = fenetre/2 * analyzeStep;
 		}
 
 		public void getFenetre (int depth) {
 			fenetre = depth;
-			span = fenetre/2;
+			span = fenetre/2 * analyzeStep;
 		}
 
 		public int getCurrentBufferLoadPercent()
@@ -577,8 +577,8 @@ public class SequenceVirtual extends Sequence
 				{
 					ThreadUtil.sleep(100);
 
-					int frameStart 	= currentFrame - (span * analyzeStep);
-					int frameEnd 	= currentFrame + (span * analyzeStep);
+					int frameStart 	= currentFrame - span;
+					int frameEnd 	= currentFrame + span;
 					if (frameStart < 0) 
 						frameStart = 0;
 					if (frameEnd > nTotalFrames) 
