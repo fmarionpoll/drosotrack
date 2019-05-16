@@ -34,7 +34,7 @@ public class CapillariesPane extends JPanel implements PropertyChangeListener {
 		
 		// tab 1
 		paneCapillaries_Build.init(capLayout, parent0);
-		paneCapillaries_Build.addPropertyChangeListener(parent0);
+		paneCapillaries_Build.addPropertyChangeListener(this);
 		tabsPane.addTab("Create", null, paneCapillaries_Build, "Create lines defining capillaries");
 		// tab 2
 		adjustCapillariesTab.init(capLayout, parent0);
@@ -67,6 +67,7 @@ public class CapillariesPane extends JPanel implements PropertyChangeListener {
 		if (event.getPropertyName().equals("CAP_ROIS_OPEN")) {
 			fileCapillariesTab.capillaryRoisOpen(null);
 		  	UpdateInfosFromSequence();
+		  	tabsPane.setSelectedIndex(2);
 		  	firePropertyChange("CAPILLARIES_OPEN", false, true);
 		 }			  
 		 else if (event.getPropertyName().equals("CAP_ROIS_SAVE")) {
@@ -75,6 +76,10 @@ public class CapillariesPane extends JPanel implements PropertyChangeListener {
 			else
 				parent0.vSequence.capillariesGrouping = 1;
 			fileCapillariesTab.capillaryRoisSave();
+		 }
+		 else if (event.getPropertyName().equals("CAPILLARIES_NEW")) {
+			 firePropertyChange("CAPILLARIES_NEW", false, true);
+			 tabsPane.setSelectedIndex(2);
 		 }
 	}
 	

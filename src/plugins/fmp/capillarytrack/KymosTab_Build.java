@@ -67,9 +67,11 @@ public class KymosTab_Build extends JPanel implements ActionListener {
 			try { diskRadius =  Integer.parseInt( diskRadiusTextField.getText() );
 			} catch( Exception e ) { new AnnounceFrame("Can't interpret the disk radius value."); } 
 			kymosBuildStart();
+			firePropertyChange("KYMOS_CREATE", false, true);	
 		}
 		else if ( o == kymosStopComputationButton) {
 			kymosBuildStop();
+			firePropertyChange("KYMOS_CREATE", false, true);	
 		}
 	}
 	

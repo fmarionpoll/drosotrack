@@ -34,6 +34,7 @@ public class KymosPane extends JPanel  implements PropertyChangeListener{
 		GridLayout capLayout = new GridLayout(3, 2);
 		
 		buildKymosTab.init(capLayout, parent0);
+		buildKymosTab.addPropertyChangeListener(this);
 		tabbedKymosPane.addTab("Build", null, buildKymosTab, "Build kymographs from ROI lines placed over capillaries");
 		
 		optionsKymoTab.init(capLayout, parent0);

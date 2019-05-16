@@ -57,6 +57,7 @@ public class SequencePane extends JPanel implements PropertyChangeListener {
 			if (sequenceOpenFile()) {
 				int endFrame = parent0.vSequence.getSizeT()-1;
 				optionsTab.endFrameTextField.setText( Integer.toString(endFrame));
+				tabsPane.setSelectedIndex(1);
 				firePropertyChange("SEQ_OPEN", false, true);
 			}
 		 }			  

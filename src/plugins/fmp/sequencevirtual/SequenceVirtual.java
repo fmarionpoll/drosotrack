@@ -161,12 +161,9 @@ public class SequenceVirtual extends Sequence
 	{
 		IcyBufferedImage image;
 		if (t == currentFrame) {
-//			System.out.println("getimage: super getImage (t, z)");
 			image = super.getImage(t, z);
 		}
-		else
-		{
-//			System.out.println("getimage: loadVImage (t, z)");
+		else {
 		  	image =  loadVImage(t, z);
 		}
 		setVImageName(t);
@@ -175,7 +172,6 @@ public class SequenceVirtual extends Sequence
 	
 	public IcyBufferedImage getImageTransf(int t, int z, int c, int transform) 
 	{
-		//setVImageName(t);
 		IcyBufferedImage image =  loadVImageTransf(t, transform);
 		if (image != null && c != -1)
 			image = IcyBufferedImageUtil.extractChannel(image, c);
@@ -186,8 +182,7 @@ public class SequenceVirtual extends Sequence
 	{
 		IcyBufferedImage ibufImage = loadVImage(t);
 		switch (transform) {
-			// subtract image n-1
-			case 1:
+			case 1: // subtract image n-1
 			{
 				int t0 = t-1;
 				if (t0 <0)
@@ -196,8 +191,7 @@ public class SequenceVirtual extends Sequence
 				ibufImage = subtractImages (ibufImage, ibufImage0);
 			}	
 				break;
-			// subtract reference image
-			case 2:
+			case 2: // subtract reference image
 			{
 				if (refImage == null)
 					refImage = loadVImage(0);
@@ -565,8 +559,7 @@ public class SequenceVirtual extends Sequence
 
 			float nbImage = 1;
 			float nbImageLoaded = 1;
-			for (int t = frameStart; t <= frameEnd; t+= analyzeStep)
-			{
+			for (int t = frameStart; t <= frameEnd; t+= analyzeStep) {
 				nbImage++;
 				if (getImage(t, 0) != null)
 					nbImageLoaded++;
@@ -584,15 +577,15 @@ public class SequenceVirtual extends Sequence
 				{
 					ThreadUtil.sleep(100);
 
-					int frameStart 	= currentFrame - span;
-					int frameEnd 	= currentFrame + span;
+					int frameStart 	= currentFrame - (span * analyzeStep);
+					int frameEnd 	= currentFrame + (span * analyzeStep);
 					if (frameStart < 0) 
 						frameStart = 0;
 					if (frameEnd > nTotalFrames) 
 						frameEnd = nTotalFrames;
 			
 					// clean all images except those within the buffer 
-					for (int t = 0; t < nTotalFrames-1 ; t++) {
+					for (int t = 0; t < nTotalFrames-1 ; t+= analyzeStep) { // t++) {
 						if (t < frameStart || t > frameEnd)
 							removeImage(t, 0);
 						
