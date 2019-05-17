@@ -73,16 +73,14 @@ public class KymosTab_Options  extends JPanel implements ActionListener {
 		nextButton.addActionListener(new ActionListener() {	@Override public void actionPerformed(ActionEvent e) {
 			int isel = kymographNamesComboBox.getSelectedIndex()+1;
 			if (isel < kymographNamesComboBox.getItemCount()) {
-				kymographNamesComboBox.setSelectedIndex(isel);
-				firePropertyChange("KYMOS_DISPLAY_UPDATE", false, true);
+				selectKymograph(isel);
 			}
 		}});
 		
 		previousButton.addActionListener(new ActionListener() {	@Override public void actionPerformed(ActionEvent e) {
 			int isel = kymographNamesComboBox.getSelectedIndex()-1;
 			if (isel >= 0) {
-				kymographNamesComboBox.setSelectedIndex(isel);
-				firePropertyChange("KYMOS_DISPLAY_UPDATE", false, true);
+				selectKymograph(isel);
 			}
 		}});
 	}
@@ -179,19 +177,15 @@ public class KymosTab_Options  extends JPanel implements ActionListener {
 		previousupfront =-1;
 	}
 	
-	public void displayUpdate() {
-		
+	public void displayUpdate() {	
 		if (parent0.kymographArrayList.size() < 1 || kymographNamesComboBox.getItemCount() < 1)
-			return;
-		
+			return;	
 		displayON();
-	
 		int itemupfront = kymographNamesComboBox.getSelectedIndex();
 		if (itemupfront < 0) {
 			itemupfront = 0;
 			kymographNamesComboBox.setSelectedIndex(0);
 		}
-		
 		Viewer v = parent0.kymographArrayList.get(itemupfront).getFirstViewer();
 		if (previousupfront != itemupfront 
 				&& previousupfront >= 0 
@@ -245,5 +239,10 @@ public class KymosTab_Options  extends JPanel implements ActionListener {
 			displayUpdate(); 
 		else
 			displayOFF();
+	}
+
+	public void selectKymograph(int isel) {
+		kymographNamesComboBox.setSelectedIndex(isel);
+		firePropertyChange("KYMOS_DISPLAY_UPDATE", false, true);
 	}
 }

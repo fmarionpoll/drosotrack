@@ -13,7 +13,7 @@ import javax.swing.JPanel;
 import javax.swing.JTextField;
 import javax.swing.SwingConstants;
 
-
+import icy.gui.frame.progress.AnnounceFrame;
 import icy.gui.util.GuiUtil;
 import plugins.fmp.capillarytrack.Capillarytrack.StatusAnalysis;
 import plugins.fmp.sequencevirtual.ImageTransformTools.TransformOp;
@@ -24,12 +24,12 @@ public class DetectTab_Gulps  extends JPanel implements ActionListener {
 	 * 
 	 */
 	private static final long serialVersionUID = -5590697762090397890L;
-	private JCheckBox	detectAllGulpsCheckBox 	= new JCheckBox ("all", true);
+	public JCheckBox	detectAllGulpsCheckBox 	= new JCheckBox ("all", true);
 	private JButton		displayTransform2Button	= new JButton("Display");
 	private JTextField	spanTransf2TextField	= new JTextField("3");
-	private JTextField 	detectGulpsThresholdTextField 	= new JTextField("90");
+	public JTextField 	detectGulpsThresholdTextField 	= new JTextField("90");
 	private JButton 	detectGulpsButton 		= new JButton("Detect gulps");
-	private JComboBox<TransformOp> transformForGulpsComboBox = new JComboBox<TransformOp> (new TransformOp[] {
+	public JComboBox<TransformOp> transformForGulpsComboBox = new JComboBox<TransformOp> (new TransformOp[] {
 			TransformOp.XDIFFN /*, TransformOp.YDIFFN, TransformOp.XYDIFFN	*/});
 
 	
@@ -66,8 +66,6 @@ public class DetectTab_Gulps  extends JPanel implements ActionListener {
 //			optionsKymoTab.displayKymosCheckBox.setSelected(true);
 //			detectGulpsButton.setEnabled( true);
 //		}});
-		
-
 
 	}
 	
@@ -84,6 +82,15 @@ public class DetectTab_Gulps  extends JPanel implements ActionListener {
 //		else if ( o == saveMeasuresButton) {
 //			firePropertyChange("MEASURES_SAVE", false, true);	
 //		}		
+	}
+	
+	// get/set
+	
+	public double getDetectGulpsThreshold() {
+		double detectLevelThreshold = 0;
+		try { detectLevelThreshold =  Double.parseDouble( detectGulpsThresholdTextField.getText() );
+		}catch( Exception e ) { new AnnounceFrame("Can't interpret the top threshold value."); }
+		return detectLevelThreshold;
 	}
 
 }

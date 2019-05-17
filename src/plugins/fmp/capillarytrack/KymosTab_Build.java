@@ -112,8 +112,8 @@ public class KymosTab_Build extends JPanel implements ActionListener {
 			kymographSeq.setName(roi.getName());
 			parent0.kymographArrayList.add(kymographSeq);
 		}
-		parent0.paneKymos.optionsKymoTab.viewKymosCheckBox.setSelected(true);
-		parent0.paneKymos.optionsKymoTab.displayViews (true);
+		parent0.paneKymos.optionsTab.viewKymosCheckBox.setSelected(true);
+		parent0.paneKymos.optionsTab.displayViews (true);
 		
 		buildKymographsThread.kymographArrayList = parent0.kymographArrayList;
 		buildKymographsThread.start();

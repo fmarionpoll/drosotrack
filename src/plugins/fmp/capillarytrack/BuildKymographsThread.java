@@ -98,16 +98,9 @@ import plugins.nchenouard.kymographtracker.spline.CubicSmoothingSpline;
 							double sum = 0;
 							for (int[] m:mask)
 								sum += sourceValues[m[0] + m[1]*vinputSizeX]; //  m[0] and m[1] are xy coords
-
 							if (mask.size() > 1)
 								sum = sum/mask.size();
-							if (cnt*kymographSizeX + t_out >= tabValues.length) {
-								int ilimit = tabValues.length;
-								int x = cnt*kymographSizeX + t_out;
-								cnt=0;
-							}
-							else
-								tabValues[cnt*kymographSizeX + t_out] = sum; 
+							tabValues[cnt*kymographSizeX + t_out] = sum; 
 							cnt ++;
 						}
 					}

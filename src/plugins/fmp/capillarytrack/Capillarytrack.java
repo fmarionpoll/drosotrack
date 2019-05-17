@@ -101,11 +101,9 @@ public class Capillarytrack extends PluginActionable implements ActionListener, 
 {
 	
 	//------------------------------------------- global variables
-	public SequenceVirtual vSequence 		= null;
-	public ArrayList <SequencePlus> kymographArrayList	= new ArrayList <SequencePlus> ();	// list of kymograph sequences
-		
-	// -------------------------------------- interface
-	private IcyFrame 	mainFrame 				= new IcyFrame("CapillaryTrack 15-May-2019", true, true, true, true);
+	SequenceVirtual vSequence 		= null;
+	ArrayList <SequencePlus> kymographArrayList	= new ArrayList <SequencePlus> ();	// list of kymograph sequences
+	IcyFrame 	mainFrame 				= new IcyFrame("CapillaryTrack 15-May-2019", true, true, true, true);
 
 	//---------------------------------------------------------------------------
 	
@@ -144,7 +142,6 @@ public class Capillarytrack extends PluginActionable implements ActionListener, 
 	};
 
 	
-	private ImageTransformTools tImg 		= null;
 	
 	SequencePane paneSequence = null;
 	CapillariesPane paneCapillaries = null;
@@ -241,11 +238,10 @@ public class Capillarytrack extends PluginActionable implements ActionListener, 
 
 				xlsExportResultsToFile(filename);		// save excel file
 				
-				measuresFileSave();						// save also measures on disk
+				paneDetect.detectLoadSave.measuresFileSave();						// save also measures on disk
 				exportToXLSButton.setEnabled( true ); 	// allow export
 			}
 		}
-
 	}
 
 	// -------------------------------------------
@@ -400,12 +396,12 @@ public class Capillarytrack extends PluginActionable implements ActionListener, 
 		// 3---------------measure
 		i++;
 		enabled = flagsTable[item][i] ;
-		paneKymos.optionsKymoTab.viewKymosCheckBox.setEnabled(enabled);
-		boolean benabled =  (enabled && paneKymos.optionsKymoTab.viewKymosCheckBox.isSelected());
-		paneKymos.optionsKymoTab.updateButton.setEnabled(benabled);
-		paneKymos.optionsKymoTab.previousButton.setEnabled(benabled);
-		paneKymos.optionsKymoTab.nextButton.setEnabled(benabled);
-		paneKymos.optionsKymoTab.kymographNamesComboBox.setEnabled(benabled);
+		paneKymos.optionsTab.viewKymosCheckBox.setEnabled(enabled);
+		boolean benabled =  (enabled && paneKymos.optionsTab.viewKymosCheckBox.isSelected());
+		paneKymos.optionsTab.updateButton.setEnabled(benabled);
+		paneKymos.optionsTab.previousButton.setEnabled(benabled);
+		paneKymos.optionsTab.nextButton.setEnabled(benabled);
+		paneKymos.optionsTab.kymographNamesComboBox.setEnabled(benabled);
 		// TODO
 //		detectTopCheckBox.setEnabled(enabled);
 //		detectBottomCheckBox.setEnabled(enabled);
@@ -432,7 +428,7 @@ public class Capillarytrack extends PluginActionable implements ActionListener, 
 		// 5---------------
 		i++;
 		enabled = flagsTable[item][i] ;
-		paneKymos.optionsKymoTab.editGulpsCheckbox.setEnabled(enabled);
+		paneKymos.optionsTab.editGulpsCheckbox.setEnabled(enabled);
 	}
 	
 	private void closeAll() {
@@ -459,429 +455,10 @@ public class Capillarytrack extends PluginActionable implements ActionListener, 
 
 		// clean kymographs & results
 		kymographArrayList.clear();
-		paneKymos.optionsKymoTab.kymographNamesComboBox.removeAllItems();
+		paneKymos.optionsTab.kymographNamesComboBox.removeAllItems();
 	}
 
-				
-	private void kymosDisplayFiltered(int zChannel) {
-		
-		if (kymographArrayList == null)
-			return;
-		
-		parseTextFields();
-		Collections.sort(kymographArrayList, new Tools.SequenceNameComparator()); 
-		
-		TransformOp transform;
-		if (zChannel == 1) {
-			transform = (TransformOp) paneDetect.detectTopBottomTab.transformForLevelsComboBox.getSelectedItem();
-		}
-		else {
-			// TODO
-//			transform = (TransformOp) transformForGulpsComboBox.getSelectedItem();
-		}
-		// TODO
-//		kymosBuildFiltered(0, zChannel, transform, detectTopBottomTab.getSpanDiffTop());
-		paneKymos.optionsKymoTab.displayUpdate();
-		paneKymos.optionsKymoTab.viewKymosCheckBox.setSelected(true);
-	}
-	
-	private void kymosInitForGulpsDetection(SequencePlus kymographSeq) {
-		
-		getDialogBoxParametersForDetection(kymographSeq, false, true);
-		for (ROI roi:kymographSeq.getROIs()) {
-			if (roi.getName().contains("gulp"))
-				kymographSeq.removeROI(roi);
-		}
-		kymographSeq.derivedValuesArrayList.clear();
-	}
-	
-	private void kymosDetectGulps() {
-		
-		// send some info
-		ProgressFrame progress = new ProgressFrame("Gulp analysis started");
-		progress.setLength(kymographArrayList.size() * (vSequence.analysisEnd - vSequence.analysisStart +1));
-		progress.setPosition(0);
-		Chronometer chrono = new Chronometer("Tracking computation" );
-		int  nbSeconds = 0;
-		int jitter = 5;
-
-		// scan each kymograph in the list
-		int firstkymo = 0;
-		int lastkymo = kymographArrayList.size() -1;
-//		if (! detectAllGulpsCheckBox.isSelected()) {
-//			firstkymo = optionsKymoTab.kymographNamesComboBox.getSelectedIndex();
-//			lastkymo = firstkymo;
-//		}
-		
-		for (int kymo=firstkymo; kymo <= lastkymo; kymo++) 
-		{
-			// update progression bar
-			int pos = (int)(100d * (double)kymo / kymographArrayList.size());
-			progress.setPosition( kymo  );
-			nbSeconds =  (int) (chrono.getNanos() / 1000000000f);
-			int nbSecondsNext = nbSeconds*10 + 1;
-			double timeleft = ((double)nbSeconds)* (100d-pos) /pos;
-			progress.setMessage( "Processing gulps: " + pos + " % - Elapsed time: " + nbSeconds + " s - Estimated time left: " + (int) timeleft + " s");
-			int done = 0;
-
-			// clear old data
-			SequencePlus kymographSeq = kymographArrayList.get(kymo);
-			kymosInitForGulpsDetection(kymographSeq);
-			ROI2DPolyLine roiTrack = new ROI2DPolyLine ();
-
-			kymographSeq.beginUpdate();
-			IcyBufferedImage image = kymographSeq.getImage(0, 2, 0);	// time=0; z=2; c=0
-
-			double[] tabValues = image.getDataXYAsDouble(0);			// channel 0 - RED
-			int xwidth = image.getSizeX();
-			int yheight = image.getSizeY();
-			int ix = 0;
-			int iy = 0;
-			List<Point2D> pts = new ArrayList<>();
-			Collection<ROI> boutsRois = new ArrayList <> ();
-			Point2D.Double pt = null;
-
-			// scan each image row
-			kymographSeq.derivedValuesArrayList.add(0);
-			// once an event is detected, we will cut and save the corresponding part of topLevelArray
-			ArrayList <Integer> topLevelArray = kymographSeq.getArrayListFromRois(ArrayListType.topLevel);
-
-			for (ix = 1; ix < topLevelArray.size(); ix++) 
-			{
-				// send some info to the user
-				nbSeconds =  (int) (chrono.getNanos() / 100000000f);
-				if (nbSeconds > nbSecondsNext) {
-					nbSecondsNext = nbSeconds*10 + 1;
-					pos = (int)(100d * (double)((done +ix) / kymographArrayList.size()));
-					timeleft = ((double)nbSeconds)* (100d-pos) /pos;
-					progress.setMessage( "Processing gulps : " + pos + " % - Elapsed time: " + nbSeconds + " s - Estimated time left: " + (int) timeleft + " s");
-				}
-
-				// for each point of topLevelArray, define a bracket of rows to look at ("jitter" = 10)
-				int low = topLevelArray.get(ix)- jitter;
-				int high = low + 2*jitter;
-				if (low < 0) 
-					low = 0;
-				if (high >= yheight) 
-					high = yheight-1;
-
-				int max = (int) tabValues [ix + low*xwidth];
-				for (iy = low+1; iy < high; iy++) 
-				{
-					int val = (int) tabValues [ix  + iy*xwidth];
-					if (max < val) {
-						max = val;
-					}
-				}
-
-				// add new point to display as roi
-				if (max > detectGulpsThreshold) {
-					if (pts.size() > 0) {
-						Point2D prevPt = pts.get(pts.size() -1);
-						if (prevPt.getX() != (double) (ix-1)) {
-							roiTrack.setColor(Color.red);
-							roiTrack.setName("gulp"+String.format("%07d", ix));
-							roiTrack.setPoints(pts);
-							boutsRois.add(roiTrack);
-							roiTrack = new ROI2DPolyLine ();
-							pts = new ArrayList<>();
-							pt = new Point2D.Double (ix-1, topLevelArray.get(ix-1));
-							pts.add(pt);
-						}
-					} 
-					pt = new Point2D.Double (ix, topLevelArray.get(ix));
-					pts.add(pt);
-				}
-				kymographSeq.derivedValuesArrayList.add(max);
-			}
-
-			if (pts.size() > 0) {
-				roiTrack.setPoints(pts);
-				roiTrack.setColor(Color.red);
-				roiTrack.setName("gulp"+String.format("%07d", ix));
-				boutsRois.add(roiTrack);
-			}
-
-			kymographSeq.addROIs(boutsRois, false);
-			kymographSeq.endUpdate(); 
-
-			done += xwidth;
-		}
-
-		// send some info
-		progress.close();
-		System.out.println("Elapsed time (s):" + nbSeconds);
-	}	
-
-	private void kymosDetectCapillaryLevels() {
-
-		// send some info
-		ProgressFrame progress = new ProgressFrame("Processing started");
-		int len = kymographArrayList.size();
-		int nbframes = (int) (vSequence.analysisEnd - vSequence.analysisStart +1);
-		progress.setLength(len*nbframes);
-		progress.setPosition(0);
-		Chronometer chrono = new Chronometer("Tracking computation" );
-		int  nbSeconds = 0;
-
-		boolean bdetectUp = (paneDetect.detectTopBottomTab.directionComboBox.getSelectedIndex() == 0);
-		int jitter = 10;
-		int firstkymo = 0;
-		int lastkymo = kymographArrayList.size() -1;
-		if (! paneDetect.detectTopBottomTab.detectAllLevelCheckBox.isSelected()) {
-			firstkymo = paneKymos.optionsKymoTab.kymographNamesComboBox.getSelectedIndex();
-			lastkymo = firstkymo;
-		}
-
-		// scan each kymograph in the list
-		for (int kymo=firstkymo; kymo <= lastkymo; kymo++) 
-		{
-			// update progression bar
-			double pos = (100d * (double)kymo / len);
-			progress.setPosition( kymo  );
-			nbSeconds =  (int) (chrono.getNanos() / 1000000000f);
-			int nbSecondsNext = nbSeconds*10 + 1;
-			double timeleft = ((double)nbSeconds)* (100d-pos) /pos;
-			progress.setMessage( "Processing: " + pos + " % - Elapsed time: " + nbSeconds + " s - Estimated time left: " +  (int) timeleft + " s");
-			int done = 0;
-
-			SequencePlus kymographSeq = kymographArrayList.get(kymo);
-			for (ROI roi:kymographSeq.getROIs()) {
-				if (roi.getName().contains("topLevel"))
-					kymographSeq.removeROI(roi);
-			}
-			kymographSeq.removeAllROI();
-			
-			// save parameters status
-			getDialogBoxParametersForDetection(kymographSeq, true, false); 
-			
-			ROI2DPolyLine roiTopTrack = new ROI2DPolyLine ();
-			roiTopTrack.setName("toplevel");
-			kymographSeq.addROI(roiTopTrack);
-			List<Point2D> ptsTop = new ArrayList<>();
-			
-			ROI2DPolyLine roiBottomTrack = new ROI2DPolyLine ();
-			roiBottomTrack.setName("bottomlevel");
-			kymographSeq.addROI(roiBottomTrack);
-			List<Point2D> ptsBottom = new ArrayList<>();
-
-			kymographSeq.beginUpdate();
-			IcyBufferedImage image = null;
-			int c = 0;
-			image = kymographSeq.getImage(0, 1, c);
-			double[] tabValues = image.getDataXYAsDouble(c);
-			int xwidth = image.getSizeX();
-			int yheight = image.getSizeY();
-			double x = 0;
-			double y = 0;
-			int ix = 0;
-			int iy = 0;
-			int oldiytop = 0;		// assume that curve goes from left to right with jitter 
-			int oldiybottom = yheight-1;
-			
-			boolean flagtop = true; //detectTopCheckBox.isSelected();
-			boolean flagbottom = true; //detectBottomCheckBox.isSelected();
-			double detectLevelThreshold = paneDetect.detectTopBottomTab.getDetectLevelThreshold();
-
-			// scan each image row
-			for (ix = 0; ix < xwidth; ix++) 
-			{
-				// send some info
-				nbSeconds =  (int) (chrono.getNanos() / 100000000f);
-				if (nbSeconds > nbSecondsNext) {
-					nbSecondsNext = nbSeconds*10 + 1;
-					pos = (int)(100d * (double)((done +ix) / len));
-					timeleft = ((double)nbSeconds)* (100d-pos) /pos;
-					progress.setMessage( "Processing: " + pos + " % - Elapsed time: " + nbSeconds + " s - Estimated time left: " + (int) timeleft + " s");
-				}
-
-				// ---------------------------------------------------- detect top level
-				if (flagtop) {
-					// set flags for internal loop (part of the row)
-					boolean found = false;
-					x = ix;
-					oldiytop -= jitter;
-					if (oldiytop < 0) 
-						oldiytop = 0;
-
-					// for each line, go from left to right - starting from the last position found minus "jitter" (set to 10)
-					for (iy = oldiytop; iy < yheight; iy++) 
-					{
-						boolean flag = false;
-						if (bdetectUp)
-							flag = tabValues [ix + iy* xwidth] > detectLevelThreshold;
-						else 
-							flag = tabValues [ix + iy* xwidth] < detectLevelThreshold;
-
-						if( flag) {
-							y = iy;
-							found = true;
-							oldiytop = iy;
-							break;
-						}
-					}
-					if (!found) {
-						oldiytop = 0;
-					}
-					// add new point to display as roi
-					ptsTop.add(new Point2D.Double (x, y));
-				}
-				
-				// --------------------------------------------------- detect bottom level
-				if (flagbottom) {
-					// set flags for internal loop (part of the row)
-					boolean found = false;
-					x = ix;
-					oldiybottom = yheight - 1;
-
-					// for each line, go from left to right - starting from the last position found minus "jitter" (set to 10)
-					for (iy = oldiybottom; iy >= 0 ; iy--) 
-					{
-						boolean flag = false;
-						if (bdetectUp)
-							flag = tabValues [ix + iy* xwidth] > detectLevelThreshold;
-						else 
-							flag = tabValues [ix + iy* xwidth] < detectLevelThreshold;
-
-						if (flag) {
-							y = iy;
-							found = true;
-							oldiybottom = iy;
-							break;
-						}
-					}
-					if (!found) {
-						oldiybottom = yheight - 1;
-					}
-					// add new point to display as roi
-					ptsBottom.add(new Point2D.Double (x, y));
-				}
-			}
-			
-			roiTopTrack.setPoints(ptsTop);
-			roiBottomTrack.setPoints(ptsBottom);
-			kymographSeq.getArrayListFromRois(ArrayListType.cumSum);
-			kymographSeq.endUpdate();
-			done += xwidth;
-		}
-
-		// send some info
-		progress.close();
-		System.out.println("Elapsed time (s):" + nbSeconds);
-	}
-
-	private void kymosBuildFiltered(int zChannelSource, int zChannelDestination, TransformOp transformop, int spanDiff) {
-
-		if (tImg == null) 
-			tImg = new ImageTransformTools();
-		tImg.setSpanDiff(spanDiff);
-		
-		for (int i=0; i < kymographArrayList.size(); i++) {
-
-			SequencePlus kSeq = kymographArrayList.get(i); 
-			kSeq.beginUpdate();
-			
-			tImg.setSequence(kSeq);
-			IcyBufferedImage img = kSeq.getImage(0, zChannelSource);
-			IcyBufferedImage img2 = tImg.transformImage (img, transformop);
-			img2 = tImg.transformImage(img2, TransformOp.RTOGB);
-			
-			if (kSeq.getSizeZ(0) < (zChannelDestination+1)) 
-				kSeq.addImage(img2);
-			else
-				kSeq.setImage(0, zChannelDestination, img2);
-			
-			if (zChannelDestination == 1)
-				kSeq.transformForLevels = transformop;
-			else
-				kSeq.transformForGulps = transformop;
-
-			kSeq.dataChanged();
-			kSeq.endUpdate();
-			kSeq.getFirstViewer().getCanvas().setPositionZ(zChannelDestination);
-		}
-	}
-
-	private void measuresFileOpen() {
-	
-		String directory = vSequence.getDirectory();
-		boolean flag = true;
-		for (int kymo=0; kymo < kymographArrayList.size(); kymo++) {
-			
-			SequencePlus seq = kymographArrayList.get(kymo);
-			seq.beginUpdate();
-			if (flag = seq.loadXMLCapillaryTrackResults(directory, (int) vSequence.analysisStart, (int) vSequence.analysisEnd)) {
-				seq.validateRois();
-				seq.getArrayListFromRois(ArrayListType.cumSum);
-			}
-			else 
-				System.out.println("load measures -> failed or not found in directory: " + directory);
-			seq.endUpdate();
-		}
-		if (flag && kymographArrayList.size() > 0) {
-			SequencePlus seq = kymographArrayList.get(kymographArrayList.size() -1);
-			measureSetStatusFromSequence (seq);
-		}
-	}
- 
-	private void measuresFileSave() {
-		
-		String directory = vSequence.getDirectory();
-		for (int kymo=0; kymo < kymographArrayList.size(); kymo++) {
-			SequencePlus seq = kymographArrayList.get(kymo);
-			System.out.println("saving "+seq.getName());
-			if (!seq.saveXMLCapillaryTrackResults(directory, (int) vSequence.analysisStart, (int) vSequence.analysisEnd))
-				System.out.println(" -> failed - in directory: " + directory);
-		}
-	}
-	
-	private void measureSetStatusFromSequence(SequencePlus seq) {
-		
-//		detectTopCheckBox.setSelected(seq.detectTop);
-//		detectBottomCheckBox.setSelected(seq.detectBottom);
-		paneDetect.detectTopBottomTab.transformForLevelsComboBox.setSelectedItem(seq.transformForLevels);
-		paneDetect.detectTopBottomTab.directionComboBox.setSelectedIndex(seq.direction);
-		paneDetect.detectTopBottomTab.setDetectLevelThreshold(seq.detectLevelThreshold);
-		paneDetect.detectTopBottomTab.detectTopTextField.setText(Integer.toString(seq.detectLevelThreshold));
-		paneDetect.detectTopBottomTab.detectAllLevelCheckBox.setSelected(seq.detectAllLevel);
-		
-		detectGulpsThreshold = seq.detectGulpsThreshold ;
-		// TODO
-//		detectGulpsThresholdTextField.setText(Integer.toString(seq.detectGulpsThreshold));
-//		transformForGulpsComboBox.setSelectedItem(seq.transformForGulps);
-//		detectAllGulpsCheckBox.setSelected(seq.detectAllGulps);
-	}
-
-	private void getDialogBoxParametersForDetection(SequencePlus seq, boolean blevel, boolean bgulps) {
-		if (blevel) {
-			seq.detectTop 				= true; //detectTopCheckBox.isSelected();
-			seq.detectBottom 			= true; //detectBottomCheckBox.isSelected();
-			seq.transformForLevels 		= (TransformOp) paneDetect.detectTopBottomTab.transformForLevelsComboBox.getSelectedItem();
-			seq.direction 				= paneDetect.detectTopBottomTab.directionComboBox.getSelectedIndex();
-			seq.detectLevelThreshold 	= (int) paneDetect.detectTopBottomTab.getDetectLevelThreshold();
-			seq.detectAllLevel 			= paneDetect.detectTopBottomTab.detectAllLevelCheckBox.isSelected();
-		}
-		
-		// TODO
-//		if (bgulps) {
-//			seq.detectGulpsThreshold 	= (int) detectGulpsThreshold;
-//			seq.transformForGulps 		= (TransformOp) transformForGulpsComboBox.getSelectedItem();
-//			seq.detectAllGulps 			= detectAllGulpsCheckBox.isSelected();
-//		}
-		seq.bStatusChanged = true;
-	}
-
-	private void parseTextFields() {	
-
-		if (vSequence != null) {
-			vSequence.capillaryVolume = paneCapillaries.propCapillariesTab.getCapillaryVolume();
-			vSequence.capillaryPixels = paneCapillaries.propCapillariesTab.getCapillaryPixelLength();
-		}
-// TODO
-//		try { spanDiffTransf2 = Integer.parseInt( spanTransf2TextField.getText() );
-//		}catch( Exception e ) { new AnnounceFrame("Can't interpret the analyze step value."); }
-	}
-	
+ 	
 	private void roisSaveEdits() {
 
 		for (SequencePlus seq: kymographArrayList) {
@@ -929,7 +506,6 @@ public class Capillarytrack extends PluginActionable implements ActionListener, 
 
 		// xls output - successive positions
 		System.out.println("XLS output");
-		parseTextFields();
 		double ratio = vSequence.capillaryVolume / vSequence.capillaryPixels;
 
 		try {
@@ -1089,75 +665,52 @@ public class Capillarytrack extends PluginActionable implements ActionListener, 
 		iChart.mainChartFrame.toFront();
 		return iChart;
 	}
+	
+	private void loadPreviousMeasures(boolean flag) {
+		if (!flag) return;
+		if( !paneCapillaries.loadDefaultCapillaries()) return;
+		if ( !paneKymos.loadDefaultKymos()) return;
+		buttonsVisibilityUpdate(StatusAnalysis.KYMOS_OK);
+		if (paneDetect.detectLoadSave.measuresFileOpen())
+			buttonsVisibilityUpdate(StatusAnalysis.MEASUREGULPS_OK );
+	}
 
 	@Override
 	public void propertyChange(PropertyChangeEvent event) {
 		if (event.getPropertyName().equals("SEQ_OPEN")) {
-			Viewer v = vSequence.getFirstViewer();
-			Rectangle rectv = v.getBoundsInternal();
-			Rectangle rect0 = mainFrame.getBoundsInternal();
-			rectv.setLocation(rect0.x+ rect0.width, rect0.y);
-			v.setBounds(rectv);
 			buttonsVisibilityUpdate(StatusAnalysis.FILE_OK);
-			if( paneSequence.fileTab.getLoadPreviousMeasures())
-				sequenceLoadMeasures();
+			loadPreviousMeasures(paneSequence.fileTab.isCheckedLoadPreviousMeasures());
 		}
-
 		else if (event.getPropertyName().equals("CAPILLARIES_NEW")) {
 			buttonsVisibilityUpdate(StatusAnalysis.ROIS_OK);	
 		}
-		
 		else if (event.getPropertyName().equals("CAPILLARIES_OPEN")) {
 		  	paneSequence.UpdateItemsFromSequence(vSequence);
 			buttonsVisibilityUpdate(StatusAnalysis.ROIS_OK);
 		}			  
-	
-		else if (event.getPropertyName().equals("KYMO_DISPLAYFILTERED")) {
-			kymosDisplayFiltered(1);
-		}
-		else if (event.getPropertyName().equals("KYMO_DETECT_TOP")) {
-			parseTextFields();
-			Collections.sort(kymographArrayList, new Tools.SequenceNameComparator()); 
-			final TransformOp transform = (TransformOp) paneDetect.detectTopBottomTab.transformForLevelsComboBox.getSelectedItem();
-			paneDetect.detectTopBottomTab.detectTopButton.setEnabled( false);
-			kymosBuildFiltered(0, 1, transform, paneDetect.detectTopBottomTab.getSpanDiffTop());
-			kymosDetectCapillaryLevels();
+		else if (event.getPropertyName().equals("MEASURETOP_OK")) {
 			buttonsVisibilityUpdate(StatusAnalysis.MEASURETOP_OK); 
 		}
-		else if (event.getPropertyName().equals("KYMO_DETECT_TOP")) {
-			parseTextFields();
-			Collections.sort(kymographArrayList, new Tools.SequenceNameComparator()); 
-			final TransformOp transform = (TransformOp) paneDetect.detectTopBottomTab.transformForLevelsComboBox.getSelectedItem();
+		
+		else if (event.getPropertyName().equals("DETECT_GULPS")) {
+			paneDetect.kymosDisplayFiltered(2);
 			paneDetect.detectTopBottomTab.detectTopButton.setEnabled( false);
-			kymosBuildFiltered(0, 1, transform, paneDetect.detectTopBottomTab.getSpanDiffTop());
-			paneKymos.optionsKymoTab.displayUpdate();
-			paneKymos.optionsKymoTab.viewKymosCheckBox.setSelected(true);
+			paneKymos.optionsTab.viewKymosCheckBox.setSelected(true);
 			paneDetect.detectTopBottomTab.detectTopButton.setEnabled( true);
+		}
+		else if (event.getPropertyName().equals("MEASURE_OPEN")) {	
+			paneKymos.optionsTab.selectKymograph(0);
+			buttonsVisibilityUpdate(StatusAnalysis.MEASUREGULPS_OK );
+		}
+//		else if (event.getPropertyName() .equals("KYMOS_DISPLAY_UPDATE")) {
+		else if (event.getPropertyName() .equals("KYMO_DISPLAYFILTERED")) {
+//			int ikymo = paneKymos.optionsTab.kymographNamesComboBox.getSelectedIndex();
+//			paneKymos.optionsTab.selectKymograph(ikymo);
+			paneKymos.optionsTab.displayUpdate();
+			paneKymos.optionsTab.viewKymosCheckBox.setSelected(true);
 		}
 	} 
 	
-	private void sequenceLoadMeasures() {
-
-		String path = vSequence.getDirectory();
-		boolean flag = paneCapillaries.fileCapillariesTab.capillaryRoisOpen(path+"\\capillarytrack.xml");
-		if (!flag)
-			flag = paneCapillaries.fileCapillariesTab.capillaryRoisOpen(path+"\\roislines.xml");
-		paneCapillaries.UpdateInfosFromSequence();
-		// TODO update measure from to, etc (see "ROIS_OPEN")
-		
-		if (flag) {
-			paneKymos.tabbedKymosPane.setSelectedIndex(1);
-			final String cs = path+"\\results";
-			if (paneKymos.fileKymoTab.openFiles(cs)) {
-				paneKymos.optionsKymoTab.transferFileNamesToComboBox();
-				paneKymos.optionsKymoTab.viewKymosCheckBox.setSelected(true);
-				buttonsVisibilityUpdate(StatusAnalysis.KYMOS_OK);
-				
-				measuresFileOpen();
-				buttonsVisibilityUpdate(StatusAnalysis.MEASUREGULPS_OK );
-			}
-		}
-	}
 
 	@Override
 	public void sequenceChanged(SequenceEvent sequenceEvent) {

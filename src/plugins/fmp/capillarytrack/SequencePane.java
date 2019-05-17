@@ -1,6 +1,7 @@
 package plugins.fmp.capillarytrack;
 
 import java.awt.GridLayout;
+import java.awt.Rectangle;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.util.ArrayList;
@@ -58,6 +59,12 @@ public class SequencePane extends JPanel implements PropertyChangeListener {
 				int endFrame = parent0.vSequence.getSizeT()-1;
 				optionsTab.endFrameTextField.setText( Integer.toString(endFrame));
 				tabsPane.setSelectedIndex(1);
+				Viewer v = parent0.vSequence.getFirstViewer();
+				Rectangle rectv = v.getBoundsInternal();
+				Rectangle rect0 = parent0.mainFrame.getBoundsInternal();
+				rectv.setLocation(rect0.x+ rect0.width, rect0.y);
+				v.setBounds(rectv);
+				
 				firePropertyChange("SEQ_OPEN", false, true);
 			}
 		 }			  
