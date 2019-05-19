@@ -26,7 +26,7 @@ import plugins.fmp.sequencevirtual.SequencePlus;
 import plugins.kernel.roi.roi2d.ROI2DShape;
 
 
-public class KymosTab_Options  extends JPanel implements ActionListener {
+public class KymosTab_Options extends JPanel implements ActionListener {
 	/**
 	 * 
 	 */
@@ -40,7 +40,7 @@ public class KymosTab_Options  extends JPanel implements ActionListener {
 	public JCheckBox 	editGulpsCheckbox 		= new JCheckBox("gulps", true);
 
 	private Capillarytrack parent0 = null;
-	private int previousupfront 			= -1;
+	private int previousupfront  = -1;
 
 	public void init(GridLayout capLayout, Capillarytrack parent0) {	
 		setLayout(capLayout);

@@ -115,20 +115,13 @@ public class Capillarytrack extends PluginActionable implements ActionListener, 
 	
 	// ---------------------------------------- measure
 
-	private JButton 	displayResultsButton 	= new JButton("Display results");
-	private JButton 	exportToXLSButton 		= new JButton("Export to XLS file...");
 	private JButton		closeAllButton			= new JButton("Close views");
 
 	//--------------------------------------------
 
 	private double detectGulpsThreshold 	= 5.;
-
 	private	int	spanDiffTransf2 			= 3;
-	
-	// results arrays
-	private XYMultiChart firstChart 		= null;
-	private XYMultiChart secondChart 		= null;
-	private XYMultiChart thirdChart 		= null;
+
 
 	enum StatusAnalysis { NODATA, FILE_OK, ROIS_OK, KYMOS_OK, MEASURETOP_OK, MEASUREGULPS_OK};
 	enum StatusComputation {START_COMPUTATION, STOP_COMPUTATION};
@@ -141,21 +134,13 @@ public class Capillarytrack extends PluginActionable implements ActionListener, 
 		{true, true, true, true, true}
 	};
 
-	
-	
 	SequencePane paneSequence = null;
 	CapillariesPane paneCapillaries = null;
 	KymosPane paneKymos = null;
 	DetectPane paneDetect = null;
+	ResultsPane paneResults = null;
 	
 	//-------------------------------------------------------------------
-	
-	private void panelDisplaySaveInterface(JPanel mainPanel) {
-		final JPanel displayPanel = GuiUtil.generatePanel("DISPLAY/EDIT/EXPORT RESULTS");
-		mainPanel.add(GuiUtil.besidesPanel(displayPanel));
-		displayPanel.add( GuiUtil.besidesPanel( displayResultsButton, exportToXLSButton));
-		displayPanel.add( GuiUtil.besidesPanel( closeAllButton));
-	}
 	
 	@Override
 	public void run() {
@@ -182,16 +167,13 @@ public class Capillarytrack extends PluginActionable implements ActionListener, 
 		paneDetect.init(mainPanel, "DETECT", this);
 		paneDetect.tabbedDetectionPane.addChangeListener(this);
 		
-		// TODO: change old interface style 
-		panelDisplaySaveInterface (mainPanel);
+		paneResults = new ResultsPane();
+		paneResults.init(mainPanel, "RESULTS", this);
 		
 		// -------------------------------------------- action listeners, etc
 
 		defineActionListeners();
 		declareChangeListeners();
-		
-		// if series (action performed)
-		exportToXLSButton.addActionListener (this);
 		
 		buttonsVisibilityUpdate(StatusAnalysis.NODATA);
 		
@@ -212,36 +194,12 @@ public class Capillarytrack extends PluginActionable implements ActionListener, 
 				closeAll();
 				buttonsVisibilityUpdate(StatusAnalysis.NODATA);
 			}});
-		
-		displayResultsButton.addActionListener(new ActionListener() { @Override public void actionPerformed(ActionEvent e) {
-				displayResultsButton.setEnabled(false);
-				roisSaveEdits();
-				xyDisplayGraphs();
-				displayResultsButton.setEnabled(true);
-			}});
 	}
 	
 	@Override
 	public void actionPerformed(ActionEvent e ) 
 	{
 		Object o = e.getSource();
-		// _______________________________________________
-		if (o == exportToXLSButton ) {
-			roisSaveEdits();
-			Path directory = Paths.get(vSequence.getFileName(0)).getParent();
-			Path subpath = directory.getName(directory.getNameCount()-1);
-			String tentativeName = subpath.toString()+"_feeding.xls";
-			String file = Tools.saveFileAs(tentativeName, directory.getParent().toString(), "xls");
-			if (file != null) {
-				final String filename = file;
-				exportToXLSButton.setEnabled( false);	// prevent export when operation is ongoing
-
-				xlsExportResultsToFile(filename);		// save excel file
-				
-				paneDetect.detectLoadSave.measuresFileSave();						// save also measures on disk
-				exportToXLSButton.setEnabled( true ); 	// allow export
-			}
-		}
 	}
 
 	// -------------------------------------------
@@ -410,7 +368,7 @@ public class Capillarytrack extends PluginActionable implements ActionListener, 
 		// TODO
 //		openMeasuresButton.setEnabled(enabled);
 //		saveMeasuresButton.setEnabled(enabled);
-		exportToXLSButton.setEnabled(enabled);
+		paneResults.resultsTab.exportToXLSButton.setEnabled(enabled);
 		
 		// 4---------------	
 		i++;
@@ -436,16 +394,7 @@ public class Capillarytrack extends PluginActionable implements ActionListener, 
 		for (SequencePlus seq:kymographArrayList)
 			seq.close();
 		
-		if (firstChart != null) 
-			firstChart.mainChartFrame.dispose();
-		if (secondChart != null) 
-			secondChart.mainChartFrame.close(); //secondChart.mainChartFrame.close();
-		if (thirdChart != null) 
-			thirdChart.mainChartFrame.close();
-
-		firstChart = null;
-		secondChart = null;
-		thirdChart = null;
+		paneResults.graphicsTab.closeAll();
 
 		if (vSequence != null) {
 			vSequence.removeListener(this);
@@ -458,8 +407,7 @@ public class Capillarytrack extends PluginActionable implements ActionListener, 
 		paneKymos.optionsTab.kymographNamesComboBox.removeAllItems();
 	}
 
- 	
-	private void roisSaveEdits() {
+	public void roisSaveEdits() {
 
 		for (SequencePlus seq: kymographArrayList) {
 			if (seq.hasChanged) {
@@ -491,7 +439,7 @@ public class Capillarytrack extends PluginActionable implements ActionListener, 
 		if ((event.getType() == ViewerEventType.POSITION_CHANGED)) {
 			if (event.getDim() == DimensionId.T)        
             	vSequence.currentFrame = event.getSource().getPositionT() ;
-			}
+		}
 //		else 
 //			System.out.println("viewer change detected");
 	}
@@ -502,170 +450,6 @@ public class Capillarytrack extends PluginActionable implements ActionListener, 
 		viewer.removeListener(this);
 	}
 
-	private void xlsExportResultsToFile(String filename) {
-
-		// xls output - successive positions
-		System.out.println("XLS output");
-		double ratio = vSequence.capillaryVolume / vSequence.capillaryPixels;
-
-		try {
-			WritableWorkbook xlsWorkBook = XLSUtil.createWorkbook( filename);
-			xlsExportToWorkbook(xlsWorkBook, "toplevel", 0, ratio);
-			xlsExportToWorkbook(xlsWorkBook, "bottomlevel", 3, ratio);
-			xlsExportToWorkbook(xlsWorkBook, "derivative", 1, ratio);
-			xlsExportToWorkbook(xlsWorkBook, "consumption", 2, ratio);
-			XLSUtil.saveAndClose( xlsWorkBook );
-		} catch (IOException e) {
-			e.printStackTrace();
-		} catch (WriteException e) {
-			e.printStackTrace();
-		}
-		System.out.println("XLS output finished");
-	}
-
-	private void xlsExportToWorkbook(WritableWorkbook xlsWorkBook, String title, int ioption, double ratio ) {
-		
-		System.out.println("export worksheet "+title);
-		int ncols = kymographArrayList.size();
-		ArrayList <ArrayList<Integer >> arrayList = new ArrayList <ArrayList <Integer>> ();
-		for (SequencePlus seq: kymographArrayList) {
-			switch (ioption) {
-			case 1:
-				arrayList.add(seq.getArrayListFromRois(ArrayListType.derivedValues));
-				break;
-			case 2: 
-				seq.getArrayListFromRois(ArrayListType.cumSum);
-				arrayList.add(seq.getArrayListFromRois(ArrayListType.cumSum));
-				break;
-			case 3:
-				arrayList.add(seq.getArrayListFromRois(ArrayListType.bottomLevel));
-				break;
-			case 0:
-			default:
-				arrayList.add(seq.getArrayListFromRois(ArrayListType.topLevel));
-				break;
-			}
-		}
-		
-		if (arrayList.size() == 0)
-			return;
-
-		int nrowmax = 0;
-		for (int i=0; i< arrayList.size(); i++) {
-			ArrayList<Integer> datai = arrayList.get(i);
-			if (datai.size() > nrowmax)
-				nrowmax = datai.size();
-		}
-		int nrows = nrowmax-1;
-		// exit if no data in the first sequence
-		if (nrows <= 0)
-			return;
-
-		WritableSheet excelSheet = XLSUtil.createNewPage( xlsWorkBook , title );
-
-		// output last interval at which movement was detected over the whole period analyzed
-		int irow = 0;
-		XLSUtil.setCellString( excelSheet , 0, irow, "name:" );
-		
-		File file = new File(vSequence.getFileName(0));
-		String path = file.getParent();
-		XLSUtil.setCellString( excelSheet , 1, irow, path );
-		irow++;
-		int icol00 = 0;
-		XLSUtil.setCellString( excelSheet, icol00++, irow, "capillary" );
-		XLSUtil.setCellString( excelSheet, icol00++, irow, "volume (µl):" );
-		XLSUtil.setCellNumber( excelSheet, icol00++, irow, 	vSequence.capillaryVolume);
-		XLSUtil.setCellString( excelSheet, icol00++, irow, "pixels:" );
-		XLSUtil.setCellNumber( excelSheet, icol00++, irow, 	vSequence.capillaryPixels);
-		irow++;
-		irow++;
-
-		// output column headers
-		int icol0 = 0;
-
-		if (vSequence.isFileStack()) {
-			XLSUtil.setCellString( excelSheet , icol0, irow, "filename" );
-			icol0++;
-		}
-
-		XLSUtil.setCellString( excelSheet , icol0, irow, "i" );
-		icol0++;
-
-		// export data
-		for (int i=0; i< ncols; i++) {
-			SequencePlus kymographSeq = kymographArrayList.get(i);
-			String name = kymographSeq.getName();
-			XLSUtil.setCellString( excelSheet , icol0 + i, irow, name );
-		}
-		irow++;
-
-		// output data
-		int startFrame = (int) vSequence.analysisStart;
-		int t = startFrame;
-		for (int j=0; j<nrows; j++) {
-			icol0 = 0;
-			if (vSequence.isFileStack()) {
-				String cs = vSequence.getFileName(j+startFrame);
-				int index = cs.lastIndexOf("\\");
-				String fileName = cs.substring(index + 1);
-				XLSUtil.setCellString( excelSheet , icol0, irow, fileName );
-				icol0++;
-			}
-
-			XLSUtil.setCellNumber( excelSheet , icol0, irow, t);
-			t  += vSequence.analyzeStep;
-			
-			icol0++;
-			for (int i=0; i< ncols; i++, icol0++) {
-				ArrayList<Integer> data = arrayList.get(i);
-				if (j < data.size())
-					XLSUtil.setCellNumber( excelSheet , icol0, irow, data.get(j)*ratio );
-			}
-			irow++;
-		}
-	}
-
-	private void xyDisplayGraphs() {
-
-		final ArrayList <String> names = new ArrayList <String> ();
-		for (int iKymo=0; iKymo < kymographArrayList.size(); iKymo++) {
-			SequencePlus seq = kymographArrayList.get(iKymo);
-			names.add(seq.getName());
-		}
-
-		int kmax = 1;
-		if (paneCapillaries.paneCapillaries_Build.getGroupedBy2())
-			kmax = 2;
-		final Rectangle rectv = vSequence.getFirstViewer().getBounds();
-		Point ptRelative = new Point(0,30);
-		final int deltay = 230;
-
-		firstChart = xyDisplayGraphsItem("top + bottom levels", ArrayListType.topAndBottom, firstChart, rectv, ptRelative, kmax);
-		ptRelative.y += deltay;
-
-		secondChart = xyDisplayGraphsItem("Derivative", ArrayListType.derivedValues, secondChart, rectv, ptRelative, kmax);
-		ptRelative.y += deltay; 
-		
-		thirdChart = xyDisplayGraphsItem("Cumulated gulps", ArrayListType.cumSum, thirdChart, rectv, ptRelative, kmax);
-
-	}
-
-	private XYMultiChart xyDisplayGraphsItem(String title, ArrayListType option, XYMultiChart iChart, Rectangle rectv, Point ptRelative, int kmax) {
-		
-		if (iChart != null && iChart.mainChartPanel.isValid()) {
-			iChart.fetchNewData(kymographArrayList, option, kmax, (int) vSequence.analysisStart);
-
-		}
-		else {
-			iChart = new XYMultiChart();
-			iChart.createPanel(title);
-			iChart.setLocationRelativeToRectangle(rectv, ptRelative);
-			iChart.displayData(kymographArrayList, option, kmax, (int) vSequence.analysisStart);
-		}
-		iChart.mainChartFrame.toFront();
-		return iChart;
-	}
-	
 	private void loadPreviousMeasures(boolean flag) {
 		if (!flag) return;
 		if( !paneCapillaries.loadDefaultCapillaries()) return;
@@ -711,7 +495,6 @@ public class Capillarytrack extends PluginActionable implements ActionListener, 
 		}
 	} 
 	
-
 	@Override
 	public void sequenceChanged(SequenceEvent sequenceEvent) {
 		Sequence seq = sequenceEvent.getSequence();
