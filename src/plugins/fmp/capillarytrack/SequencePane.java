@@ -23,6 +23,7 @@ public class SequencePane extends JPanel implements PropertyChangeListener {
 	public JTabbedPane tabsPane = new JTabbedPane();
 	public SequenceTab_File fileTab = new SequenceTab_File();
 	public SequenceTab_Options optionsTab = new SequenceTab_Options();
+	public SequenceTab_Close closeTab = new SequenceTab_Close();
 	private Capillarytrack parent0 = null;
 	
 	public void init (JPanel mainPanel, String string, Capillarytrack parent0) {
@@ -38,6 +39,10 @@ public class SequencePane extends JPanel implements PropertyChangeListener {
 		optionsTab.init(capLayout);
 		tabsPane.addTab("Parameters", null, optionsTab, "change parameters reading file - beginning, end, step");
 		optionsTab.addPropertyChangeListener(this);
+		
+		closeTab.init(capLayout, parent0);
+		tabsPane.addTab("Close", null, closeTab, "close file and associated windows");
+		closeTab.addPropertyChangeListener(this);
 
 		tabsPane.setTabLayoutPolicy(JTabbedPane.SCROLL_TAB_LAYOUT);
 		capPanel.add(GuiUtil.besidesPanel(tabsPane));
@@ -74,6 +79,10 @@ public class SequencePane extends JPanel implements PropertyChangeListener {
 			Viewer v = vList.get(0);
 			v.toFront();
 			v.requestFocus();
+		 }
+		 else if (event.getPropertyName().equals("SEQ_CLOSE")) {
+			tabsPane.setSelectedIndex(0);
+			firePropertyChange("SEQ_CLOSE", false, true);
 		 }
 	}
 	

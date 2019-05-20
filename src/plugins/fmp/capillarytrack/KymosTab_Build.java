@@ -82,7 +82,7 @@ public class KymosTab_Build extends JPanel implements ActionListener {
 		sComputation = StatusComputation.STOP_COMPUTATION;
 		enableItems(false);
 		
-		parent0.paneSequence.UpdateItemsToSequence ( parent0.vSequence);
+		parent0.sequencePane.UpdateItemsToSequence ( parent0.vSequence);
 		kymosStopComputationButton.setEnabled(true);
 		kymoStartComputationButton.setEnabled(false);
 		kymosBuildKymographs();	
@@ -112,8 +112,8 @@ public class KymosTab_Build extends JPanel implements ActionListener {
 			kymographSeq.setName(roi.getName());
 			parent0.kymographArrayList.add(kymographSeq);
 		}
-		parent0.paneKymos.optionsTab.viewKymosCheckBox.setSelected(true);
-		parent0.paneKymos.optionsTab.displayViews (true);
+		parent0.kymographsPane.optionsTab.viewKymosCheckBox.setSelected(true);
+		parent0.kymographsPane.optionsTab.displayViews (true);
 		
 		buildKymographsThread.kymographArrayList = parent0.kymographArrayList;
 		buildKymographsThread.start();
@@ -146,9 +146,9 @@ public class KymosTab_Build extends JPanel implements ActionListener {
 			}
 		}
 		sComputation = StatusComputation.START_COMPUTATION;
-		parent0.paneKymos.fileKymoTab.enableItems(true);
+		parent0.kymographsPane.fileKymoTab.enableItems(true);
 		parent0.buttonsVisibilityUpdate(StatusAnalysis.KYMOS_OK); 
-		parent0.paneKymos.tabbedCapillariesAndKymosSelected();
+		parent0.kymographsPane.tabbedCapillariesAndKymosSelected();
 	}
 
 }

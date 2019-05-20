@@ -61,7 +61,7 @@ public class ResultsTab_Graphics extends JPanel implements ActionListener  {
 		}
 
 		int kmax = 1;
-		if (parent0.paneCapillaries.paneCapillaries_Build.getGroupedBy2())
+		if (parent0.capillariesPane.paneCapillaries_Build.getGroupedBy2())
 			kmax = 2;
 		final Rectangle rectv = parent0.vSequence.getFirstViewer().getBounds();
 		Point ptRelative = new Point(0,30);

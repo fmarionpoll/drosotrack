@@ -15,7 +15,6 @@ import icy.gui.util.GuiUtil;
 import plugins.fmp.sequencevirtual.SequenceVirtual;
 
 public class SequenceTab_Options extends JPanel implements ActionListener{
-
 	/**
 	 * 
 	 */

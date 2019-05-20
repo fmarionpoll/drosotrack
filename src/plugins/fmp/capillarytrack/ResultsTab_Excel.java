@@ -59,7 +59,7 @@ public class ResultsTab_Excel extends JPanel implements ActionListener  {
 
 				xlsExportResultsToFile(filename);		// save excel file
 				firePropertyChange("EXPORT_TO_EXCEL", false, true);	
-				parent0.paneDetect.detectLoadSave.measuresFileSave();						// save also measures on disk
+				parent0.detectPane.detectLoadSave.measuresFileSave();						// save also measures on disk
 				exportToXLSButton.setEnabled( true ); 	// allow export
 			}
 			

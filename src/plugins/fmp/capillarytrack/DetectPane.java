@@ -10,9 +10,14 @@ import java.util.ArrayList;
 import java.util.Collections;
 
 import javax.swing.ButtonGroup;
+import javax.swing.JComboBox;
 import javax.swing.JPanel;
 import javax.swing.JRadioButton;
+import javax.swing.JSpinner;
 import javax.swing.JTabbedPane;
+import javax.swing.SpinnerNumberModel;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
 
 import icy.gui.util.GuiUtil;
 import icy.image.IcyBufferedImage;
@@ -23,7 +28,7 @@ import plugins.fmp.sequencevirtual.ImageTransformTools;
 import plugins.fmp.sequencevirtual.SequencePlus;
 import plugins.fmp.sequencevirtual.Tools;
 
-public class DetectPane extends JPanel implements PropertyChangeListener {
+public class DetectPane extends JPanel implements PropertyChangeListener, ChangeListener {
 	
 	/**
 	 * 
@@ -49,6 +54,12 @@ public class DetectPane extends JPanel implements PropertyChangeListener {
 	public TransformOp simpletransformop 	= TransformOp.R2MINUS_GB;
 	public int 		simplethreshold 		= 20;
 	
+	private JComboBox<TransformOp> transformsComboBox = new JComboBox<TransformOp> (new TransformOp[] {
+			TransformOp.R_RGB, TransformOp.G_RGB, TransformOp.B_RGB, 
+			TransformOp.R2MINUS_GB, TransformOp.G2MINUS_RB, TransformOp.B2MINUS_RG, TransformOp.NORM_BRMINUSG, TransformOp.RGB,
+			TransformOp.H_HSB, TransformOp.S_HSB, TransformOp.B_HSB	});
+	private JSpinner 	thresholdSpinner		= new JSpinner(new SpinnerNumberModel(70, 0, 255, 5));
+		
 	ImageTransformTools tImg = null;
 	Capillarytrack parent0 = null;
 
@@ -67,7 +78,7 @@ public class DetectPane extends JPanel implements PropertyChangeListener {
 		tabbedDetectionPane.addTab("Filters", null, detectTopBottomTab, "thresholding a transformed image with different filters");
 		detectTopBottomTab.addPropertyChangeListener(this);
 		
-		detectColorsTab.init(capLayout);
+		detectColorsTab.init(capLayout, parent0);
 		tabbedDetectionPane.addTab("Colors", null, detectColorsTab, "thresholding an image with different colors and a distance");
 		detectColorsTab.addPropertyChangeListener(this);
 		
@@ -96,6 +107,8 @@ public class DetectPane extends JPanel implements PropertyChangeListener {
 			if (rbFilterbyFunction.isSelected())
 				selectTab(0);
 		} } );
+		
+		thresholdSpinner.addChangeListener(this);
 	}
 	
 	private void selectTab(int index) {
@@ -177,6 +190,100 @@ public class DetectPane extends JPanel implements PropertyChangeListener {
 			kSeq.endUpdate();
 			kSeq.getFirstViewer().getCanvas().setPositionZ(zChannelDestination);
 		}
+	}
+	
+	private void updateThresholdOverlayParameters() {
+		
+		if (parent0.vSequence == null)
+			return;
+		
+		boolean activateThreshold = true;
+		
+		switch (tabbedDetectionPane.getSelectedIndex()) {
+				
+			case 0:	// simple filter & single threshold
+				simpletransformop = (TransformOp) transformsComboBox.getSelectedItem();
+				simplethreshold = Integer.parseInt(thresholdSpinner.getValue().toString());
+				thresholdtype = ThresholdType.SINGLE;
+				break;
+
+			case 1:  // color array
+				// TODO
+//				colorthreshold = Integer.parseInt(distanceSpinner.getValue().toString());
+//				thresholdtype = ThresholdType.COLORARRAY;
+//				colorarray.clear();
+//				for (int i=0; i<colorPickCombo.getItemCount(); i++) {
+//					colorarray.add(colorPickCombo.getItemAt(i));
+//				}
+//				colordistanceType = 1;
+//				if (rbL2.isSelected()) 
+//					colordistanceType = 2;
+				break;
+				
+			default:
+				activateThreshold = false;
+				break;
+		}
+		
+		//--------------------------------
+		colorsActivateSequenceThresholdOverlay(activateThreshold);
+	}
+	
+	private void colorsUpdateThresholdOverlayParameters() {
+		
+		boolean activateThreshold = true;
+
+		switch (tabbedDetectionPane.getSelectedIndex()) {
+		
+			case 0:	// simple filter & single threshold
+				simpletransformop = (TransformOp) transformsComboBox.getSelectedItem();
+				simplethreshold = Integer.parseInt(thresholdSpinner.getValue().toString());
+				thresholdtype = ThresholdType.SINGLE;
+				break;
+				
+			case 1:  // color array
+				// TODO
+//				colorthreshold = Integer.parseInt(distanceSpinner.getValue().toString());
+//				thresholdtype = ThresholdType.COLORARRAY;
+//				colorarray.clear();
+//				for (int i=0; i<colorPickCombo.getItemCount(); i++) {
+//					colorarray.add(colorPickCombo.getItemAt(i));
+//				}
+//				colordistanceType = 1;
+//				if (rbL2.isSelected()) 
+//					colordistanceType = 2;
+				break;
+
+			default:
+				activateThreshold = false;
+				break;
+		}
+		colorsActivateSequenceThresholdOverlay(activateThreshold);
+	}
+	
+	private void colorsActivateSequenceThresholdOverlay(boolean activate) {
+		if (parent0.kymographArrayList.size() == 0)
+			return;
+		
+		for (SequencePlus kSeq: parent0.kymographArrayList) {
+			kSeq.setThresholdOverlay(activate);
+			if (activate) {
+				if (thresholdtype == ThresholdType.SINGLE)
+					kSeq.setThresholdOverlayParametersSingle(simpletransformop, simplethreshold);
+				else
+					kSeq.setThresholdOverlayParametersColors(colortransformop, colorarray, colordistanceType, colorthreshold);
+			}
+		}
+		//thresholdOverlayON = activate;
+	}
+
+	@Override
+	public void stateChanged(ChangeEvent e) {
+		if ((   e.getSource() == thresholdSpinner)  
+//		|| (e.getSource() == tabbedDetectionPane) 
+//		|| (e.getSource() == distanceSpinner)
+				) 
+		colorsUpdateThresholdOverlayParameters();
 	}
 }
 

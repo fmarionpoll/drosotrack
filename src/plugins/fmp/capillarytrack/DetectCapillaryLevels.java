@@ -26,12 +26,12 @@ public class DetectCapillaryLevels {
 		Chronometer chrono = new Chronometer("Tracking computation" );
 		int  nbSeconds = 0;
 
-		boolean bdetectUp = (parent0.paneDetect.detectTopBottomTab.directionComboBox.getSelectedIndex() == 0);
+		boolean bdetectUp = (parent0.detectPane.detectTopBottomTab.directionComboBox.getSelectedIndex() == 0);
 		int jitter = 10;
 		int firstkymo = 0;
 		int lastkymo = parent0.kymographArrayList.size() -1;
-		if (! parent0.paneDetect.detectTopBottomTab.detectAllLevelCheckBox.isSelected()) {
-			firstkymo = parent0.paneKymos.optionsTab.kymographNamesComboBox.getSelectedIndex();
+		if (! parent0.detectPane.detectTopBottomTab.detectAllLevelCheckBox.isSelected()) {
+			firstkymo = parent0.kymographsPane.optionsTab.kymographNamesComboBox.getSelectedIndex();
 			lastkymo = firstkymo;
 		}
 
@@ -48,7 +48,7 @@ public class DetectCapillaryLevels {
 			int done = 0;
 
 			SequencePlus kymographSeq = parent0.kymographArrayList.get(kymo);
-			double detectLevelThreshold = parent0.paneDetect.detectTopBottomTab.getDetectLevelThreshold();
+			double detectLevelThreshold = parent0.detectPane.detectTopBottomTab.getDetectLevelThreshold();
 
 			for (ROI roi:kymographSeq.getROIs()) {
 				if (roi.getName().contains("topLevel"))
@@ -177,10 +177,10 @@ public class DetectCapillaryLevels {
 		if (blevel) {
 			seq.detectTop 				= true; 
 			seq.detectBottom 			= true; 
-			seq.transformForLevels 		= (TransformOp) parent0.paneDetect.detectTopBottomTab.transformForLevelsComboBox.getSelectedItem();
-			seq.direction 				= parent0.paneDetect.detectTopBottomTab.directionComboBox.getSelectedIndex();
-			seq.detectLevelThreshold 	= (int) parent0.paneDetect.detectTopBottomTab.getDetectLevelThreshold();
-			seq.detectAllLevel 			= parent0.paneDetect.detectTopBottomTab.detectAllLevelCheckBox.isSelected();
+			seq.transformForLevels 		= (TransformOp) parent0.detectPane.detectTopBottomTab.transformForLevelsComboBox.getSelectedItem();
+			seq.direction 				= parent0.detectPane.detectTopBottomTab.directionComboBox.getSelectedIndex();
+			seq.detectLevelThreshold 	= (int) parent0.detectPane.detectTopBottomTab.getDetectLevelThreshold();
+			seq.detectAllLevel 			= parent0.detectPane.detectTopBottomTab.detectAllLevelCheckBox.isSelected();
 		}
 		seq.bStatusChanged = true;
 	}

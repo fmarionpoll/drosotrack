@@ -14,7 +14,6 @@ import icy.gui.util.FontUtil;
 import icy.gui.util.GuiUtil;
 
 public class CapillariesTab_File extends JPanel implements ActionListener {
-
 	/**
 	 * 
 	 */

@@ -12,12 +12,10 @@ import javax.swing.SwingConstants;
 
 import icy.gui.util.FontUtil;
 import icy.gui.util.GuiUtil;
-import plugins.fmp.capillarytrack.Capillarytrack.StatusAnalysis;
 import plugins.fmp.sequencevirtual.SequencePlus;
 import plugins.fmp.sequencevirtual.SequencePlus.ArrayListType;
 
 public class DetectTab_File extends JPanel implements ActionListener {
-
 	/**
 	 * 
 	 */

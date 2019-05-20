@@ -25,6 +25,8 @@ import javax.swing.event.ChangeListener;
 import icy.gui.frame.progress.AnnounceFrame;
 import icy.gui.util.GuiUtil;
 import plugins.fmp.sequencevirtual.ComboBoxColorRenderer;
+import plugins.fmp.sequencevirtual.SequencePlus;
+import plugins.fmp.sequencevirtual.ImageThresholdTools.ThresholdType;
 import plugins.fmp.sequencevirtual.ImageTransformTools.TransformOp;
 
 public class DetectTab_Colors  extends JPanel implements ActionListener, ChangeListener {
@@ -48,9 +50,12 @@ public class DetectTab_Colors  extends JPanel implements ActionListener, ChangeL
 //	private JButton		saveFiltersButton	= new JButton("Save...");
 	private JButton 	detectColorButton 		= new JButton("Detect limits");
 	private JCheckBox	detectAllColorsCheckBox = new JCheckBox ("all", true);
+
+	private Capillarytrack parent0;
 	
-	public void init(GridLayout capLayout) {
+	public void init(GridLayout capLayout, Capillarytrack parent0) {
 		setLayout(capLayout);
+		this.parent0 = parent0;
 		
 		colorPickCombo.setRenderer(colorPickComboRenderer);
 		add( GuiUtil.besidesPanel(pickColorButton, colorPickCombo, deleteColorButton));
@@ -140,6 +145,27 @@ public class DetectTab_Colors  extends JPanel implements ActionListener, ChangeL
 		
 	}
 	
+
 	
+	private void pickColor() {
+		
+		boolean bActiveTrapOverlay = false;
+		// TODO
+//		if (pickColorButton.getText().contains("*") || pickColorButton.getText().contains(":")) {
+//			pickColorButton.setBackground(Color.LIGHT_GRAY);
+//			pickColorButton.setText(textPickAPixel);
+//			bActiveTrapOverlay = false;
+//		}
+//		else
+//		{
+//			pickColorButton.setText("*"+textPickAPixel+"*");
+//			pickColorButton.setBackground(Color.DARK_GRAY);
+//			bActiveTrapOverlay = true;
+//		}
+////		System.out.println("activate mouse trap =" + bActiveTrapOverlay);
+//		for (SequencePlus kSeq: kymographArrayList)
+//			kSeq.setMouseTrapOverlay(bActiveTrapOverlay, pickColorButton, colorPickCombo);
+	}
+
 
 }

@@ -11,7 +11,6 @@ import icy.gui.util.GuiUtil;
 
 
 public class CapillariesPane extends JPanel implements PropertyChangeListener {
-	
 	/**
 	 * 
 	 */

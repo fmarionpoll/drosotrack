@@ -24,7 +24,7 @@ public class ResultsPane  extends JPanel implements PropertyChangeListener {
 		this.parent0 = parent0;
 		final JPanel capPanel = GuiUtil.generatePanel(string);
 		mainPanel.add(GuiUtil.besidesPanel(capPanel));
-		GridLayout capLayout = new GridLayout(2, 2);
+		GridLayout capLayout = new GridLayout(1, 2);
 		
 		graphicsTab.init(capLayout, parent0);
 		tabsPane.addTab("Graphics", null, graphicsTab, "Display results as graphics");

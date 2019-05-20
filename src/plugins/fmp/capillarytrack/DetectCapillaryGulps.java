@@ -29,8 +29,8 @@ public class DetectCapillaryGulps {
 		// scan each kymograph in the list
 		int firstkymo = 0;
 		int lastkymo = parent0.kymographArrayList.size() -1;
-		if (! parent0.paneDetect.detectGulpsTab.detectAllGulpsCheckBox.isSelected()) {
-			firstkymo = parent0.paneKymos.optionsTab.kymographNamesComboBox.getSelectedIndex();
+		if (! parent0.detectPane.detectGulpsTab.detectAllGulpsCheckBox.isSelected()) {
+			firstkymo = parent0.kymographsPane.optionsTab.kymographNamesComboBox.getSelectedIndex();
 			lastkymo = firstkymo;
 		}
 		
@@ -148,16 +148,16 @@ public class DetectCapillaryGulps {
 		if (blevel) {
 			seq.detectTop 				= true; 
 			seq.detectBottom 			= true; 
-			seq.transformForLevels 		= (TransformOp) parent0.paneDetect.detectTopBottomTab.transformForLevelsComboBox.getSelectedItem();
-			seq.direction 				= parent0.paneDetect.detectTopBottomTab.directionComboBox.getSelectedIndex();
-			seq.detectLevelThreshold 	= (int) parent0.paneDetect.detectTopBottomTab.getDetectLevelThreshold();
-			seq.detectAllLevel 			= parent0.paneDetect.detectTopBottomTab.detectAllLevelCheckBox.isSelected();
+			seq.transformForLevels 		= (TransformOp) parent0.detectPane.detectTopBottomTab.transformForLevelsComboBox.getSelectedItem();
+			seq.direction 				= parent0.detectPane.detectTopBottomTab.directionComboBox.getSelectedIndex();
+			seq.detectLevelThreshold 	= (int) parent0.detectPane.detectTopBottomTab.getDetectLevelThreshold();
+			seq.detectAllLevel 			= parent0.detectPane.detectTopBottomTab.detectAllLevelCheckBox.isSelected();
 		}
 		
 		if (bgulps) {
-			seq.detectGulpsThreshold 	= (int) parent0.paneDetect.detectGulpsTab.getDetectGulpsThreshold();
-			seq.transformForGulps 		= (TransformOp) parent0.paneDetect.detectGulpsTab.transformForGulpsComboBox.getSelectedItem();
-			seq.detectAllGulps 			= parent0.paneDetect.detectGulpsTab.detectAllGulpsCheckBox.isSelected();
+			seq.detectGulpsThreshold 	= (int) parent0.detectPane.detectGulpsTab.getDetectGulpsThreshold();
+			seq.transformForGulps 		= (TransformOp) parent0.detectPane.detectGulpsTab.transformForGulpsComboBox.getSelectedItem();
+			seq.detectAllGulps 			= parent0.detectPane.detectGulpsTab.detectAllGulpsCheckBox.isSelected();
 		}
 		seq.bStatusChanged = true;
 	}

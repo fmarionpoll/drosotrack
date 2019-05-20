@@ -37,5 +37,4 @@ public class SequenceTab_File extends JPanel implements ActionListener {
 		return loadpreviousCheckBox.isSelected();
 	}
 	
-
 }

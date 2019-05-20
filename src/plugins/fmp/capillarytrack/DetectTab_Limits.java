@@ -3,7 +3,6 @@ package plugins.fmp.capillarytrack;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.util.Collections;
 
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
@@ -15,11 +14,6 @@ import javax.swing.SwingConstants;
 
 import icy.gui.frame.progress.AnnounceFrame;
 import icy.gui.util.GuiUtil;
-import icy.image.IcyBufferedImage;
-import plugins.fmp.capillarytrack.Capillarytrack.StatusAnalysis;
-import plugins.fmp.sequencevirtual.ImageTransformTools;
-import plugins.fmp.sequencevirtual.SequencePlus;
-import plugins.fmp.sequencevirtual.Tools;
 import plugins.fmp.sequencevirtual.ImageTransformTools.TransformOp;
 
 public class DetectTab_Limits  extends JPanel implements ActionListener {

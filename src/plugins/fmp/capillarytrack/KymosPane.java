@@ -12,7 +12,6 @@ import icy.gui.viewer.Viewer;
 
 
 public class KymosPane extends JPanel implements PropertyChangeListener {
-
 	/**
 	 * 
 	 */

@@ -1,6 +1,5 @@
 package plugins.fmp.capillarytrack;
 
-import java.awt.Font;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -15,7 +14,6 @@ import javax.swing.SwingConstants;
 
 import icy.gui.frame.progress.AnnounceFrame;
 import icy.gui.util.GuiUtil;
-import plugins.fmp.capillarytrack.Capillarytrack.StatusAnalysis;
 import plugins.fmp.sequencevirtual.ImageTransformTools.TransformOp;
 
 public class DetectTab_Gulps  extends JPanel implements ActionListener {

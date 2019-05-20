@@ -21,7 +21,6 @@ import icy.roi.ROI;
 
 
 public class CapillariesTab_Properties extends JPanel implements ActionListener {
-
 	/**
 	 * 
 	 */
