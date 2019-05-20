@@ -3,6 +3,7 @@ package plugins.fmp.capillarytrack;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.Collections;
 
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
@@ -14,6 +15,7 @@ import javax.swing.SwingConstants;
 
 import icy.gui.frame.progress.AnnounceFrame;
 import icy.gui.util.GuiUtil;
+import plugins.fmp.sequencevirtual.Tools;
 import plugins.fmp.sequencevirtual.ImageTransformTools.TransformOp;
 
 public class DetectTab_Limits  extends JPanel implements ActionListener {
@@ -55,7 +57,7 @@ public class DetectTab_Limits  extends JPanel implements ActionListener {
 	}
 	
 	public void enableItems(boolean enabled) {
-		detectAllLevelCheckBox.setEnabled(enabled); // * benabled
+		detectAllLevelCheckBox.setEnabled(enabled);
 		detectTopButton.setEnabled(enabled);
 		transformForLevelsComboBox.setEnabled(enabled);
 		displayTransform1Button.setEnabled(enabled);
@@ -68,13 +70,17 @@ public class DetectTab_Limits  extends JPanel implements ActionListener {
 	public void actionPerformed(ActionEvent e) {
 		Object o = e.getSource();
 		if ( o == transformForLevelsComboBox)  {
-			firePropertyChange("KYMO_DISPLAYFILTERED1", false, true);	
+			if (parent0.vSequence != null) {
+				kymosDisplayFiltered1();
+				firePropertyChange("KYMO_DISPLAY_FILTERED1", false, true);
+			}
 		}
 		else if (o == detectTopButton) {
 			firePropertyChange("KYMO_DETECT_TOP", false, true);
 		}
 		else if (o== displayTransform1Button) {
-			firePropertyChange("KYMO_DISPLAY_TRANSFORM1", false, true);
+			kymosDisplayFiltered1();
+			firePropertyChange("KYMO_DISPLAY_FILTERED1", false, true);
 		}
 	}
 	
@@ -98,4 +104,12 @@ public class DetectTab_Limits  extends JPanel implements ActionListener {
 		return spanDiffTop;
 	}
 		
+	public void kymosDisplayFiltered1() {
+		if (parent0.kymographArrayList == null)
+			return;
+		Collections.sort(parent0.kymographArrayList, new Tools.SequenceNameComparator()); 
+		TransformOp transform;
+		transform = (TransformOp) transformForLevelsComboBox.getSelectedItem();
+		parent0.detectPane.kymosBuildFiltered(0, 1, transform, getSpanDiffTop());
+	}
 }

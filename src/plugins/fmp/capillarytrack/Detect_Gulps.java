@@ -15,7 +15,7 @@ import plugins.fmp.sequencevirtual.ImageTransformTools.TransformOp;
 import plugins.fmp.sequencevirtual.SequencePlus.ArrayListType;
 import plugins.kernel.roi.roi2d.ROI2DPolyLine;
 
-public class DetectCapillaryGulps {
+public class Detect_Gulps {
 	
 	public void kymosDetectGulps(Capillarytrack parent0) {	
 		// send some info
@@ -148,10 +148,10 @@ public class DetectCapillaryGulps {
 		if (blevel) {
 			seq.detectTop 				= true; 
 			seq.detectBottom 			= true; 
-			seq.transformForLevels 		= (TransformOp) parent0.detectPane.detectTopBottomTab.transformForLevelsComboBox.getSelectedItem();
-			seq.direction 				= parent0.detectPane.detectTopBottomTab.directionComboBox.getSelectedIndex();
-			seq.detectLevelThreshold 	= (int) parent0.detectPane.detectTopBottomTab.getDetectLevelThreshold();
-			seq.detectAllLevel 			= parent0.detectPane.detectTopBottomTab.detectAllLevelCheckBox.isSelected();
+			seq.transformForLevels 		= (TransformOp) parent0.detectPane.detectLimitsTab.transformForLevelsComboBox.getSelectedItem();
+			seq.direction 				= parent0.detectPane.detectLimitsTab.directionComboBox.getSelectedIndex();
+			seq.detectLevelThreshold 	= (int) parent0.detectPane.detectLimitsTab.getDetectLevelThreshold();
+			seq.detectAllLevel 			= parent0.detectPane.detectLimitsTab.detectAllLevelCheckBox.isSelected();
 		}
 		
 		if (bgulps) {

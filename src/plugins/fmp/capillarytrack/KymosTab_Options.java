@@ -18,15 +18,19 @@ import javax.swing.JPanel;
 import icy.canvas.Canvas2D;
 import icy.canvas.IcyCanvas;
 import icy.canvas.Layer;
+import icy.gui.main.ActiveViewerListener;
 import icy.gui.util.GuiUtil;
 import icy.gui.viewer.Viewer;
+import icy.gui.viewer.ViewerEvent;
+import icy.main.Icy;
 import icy.roi.ROI;
 import icy.roi.ROI2D;
+import icy.sequence.Sequence;
 import plugins.fmp.sequencevirtual.SequencePlus;
 import plugins.kernel.roi.roi2d.ROI2DShape;
 
 
-public class KymosTab_Options extends JPanel implements ActionListener {
+public class KymosTab_Options extends JPanel implements ActionListener, ActiveViewerListener {
 
 	/**
 	 * 
@@ -34,7 +38,7 @@ public class KymosTab_Options extends JPanel implements ActionListener {
 	private static final long serialVersionUID = -2103052112476748890L;
 	public JCheckBox 	viewKymosCheckBox 		= new JCheckBox("View kymos");
 	public JComboBox<String> kymographNamesComboBox = new JComboBox<String> (new String[] {"none"});
-	public JButton 	updateButton 				= new JButton("Update");
+	public JButton 		updateButton 			= new JButton("Update");
 	public JButton  	previousButton		 	= new JButton("<");
 	public JButton		nextButton				= new JButton(">");
 	public JCheckBox 	editLevelsCheckbox 		= new JCheckBox("capillary levels", true);
@@ -145,9 +149,8 @@ public class KymosTab_Options extends JPanel implements ActionListener {
 		int deltax = 5;
 		int deltay = 5;
 
-		for(int i=0; i< parent0.kymographArrayList.size(); i++) 
+		for(SequencePlus seq: parent0.kymographArrayList) 
 		{
-			SequencePlus seq = parent0.kymographArrayList.get(i);
 			ArrayList<Viewer>vList = seq.getViewers();
 			if (vList.size() == 0) 
 			{
@@ -158,15 +161,15 @@ public class KymosTab_Options extends JPanel implements ActionListener {
 				v.setBounds(rectDataView);
 			}
 		}
+		Icy.getMainInterface().addActiveViewerListener(this);
 	}
 	
 	public void displayOFF() {
 		int nseq = parent0.kymographArrayList.size();
 		if (nseq < 1) return;
 
-		for(int i=0; i< nseq; i++) 
+		for(SequencePlus seq: parent0.kymographArrayList) 
 		{
-			SequencePlus seq = parent0.kymographArrayList.get(i);
 			ArrayList<Viewer>vList =  seq.getViewers();
 			if (vList.size() > 0) 
 			{
@@ -176,6 +179,7 @@ public class KymosTab_Options extends JPanel implements ActionListener {
 			}
 		}
 		previousupfront =-1;
+		Icy.getMainInterface().removeActiveViewerListener(this);
 	}
 	
 	public void displayUpdate() {	
@@ -243,7 +247,28 @@ public class KymosTab_Options extends JPanel implements ActionListener {
 	}
 
 	public void selectKymograph(int isel) {
-		kymographNamesComboBox.setSelectedIndex(isel);
-		firePropertyChange("KYMOS_DISPLAY_UPDATE", false, true);
+		int icurrent = kymographNamesComboBox.getSelectedIndex();
+		if (icurrent != isel) {
+			kymographNamesComboBox.setSelectedIndex(isel);
+			firePropertyChange("KYMOS_DISPLAY_UPDATE", false, true);
+		}
+	}
+
+	@Override
+	public void viewerActivated(Viewer viewer) {
+		
+	}
+
+	@Override
+	public void viewerDeactivated(Viewer viewer) {
+		Sequence seq = viewer.getSequence();
+		if (seq != null)
+			seq.setSelectedROI(null);
+	}
+
+	@Override
+	public void activeViewerChanged(ViewerEvent event) {
+		// TODO Auto-generated method stub
+		
 	}
 }

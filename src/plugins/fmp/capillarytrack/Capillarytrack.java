@@ -107,8 +107,6 @@ public class Capillarytrack extends PluginActionable implements ActionListener, 
 
 	//---------------------------------------------------------------------------
 
-	private double detectGulpsThreshold 	= 5.;
-	private	int	spanDiffTransf2 			= 3;
 
 	enum StatusAnalysis { NODATA, FILE_OK, ROIS_OK, KYMOS_OK, MEASURETOP_OK, MEASUREGULPS_OK};
 	enum StatusComputation {START_COMPUTATION, STOP_COMPUTATION};
@@ -227,7 +225,7 @@ public class Capillarytrack extends PluginActionable implements ActionListener, 
 //		detectTopCheckBox.setEnabled(enabled);
 //		detectBottomCheckBox.setEnabled(enabled);
 
-		detectPane.detectTopBottomTab.setEnabled(enabled);
+		detectPane.detectLimitsTab.setEnabled(enabled);
 		// TODO
 //		openMeasuresButton.setEnabled(enabled);
 //		saveMeasuresButton.setEnabled(enabled);
@@ -322,18 +320,10 @@ public class Capillarytrack extends PluginActionable implements ActionListener, 
 		else if (event.getPropertyName().equals("MEASURETOP_OK")) {
 			buttonsVisibilityUpdate(StatusAnalysis.MEASURETOP_OK); 
 		}
-		
-		else if (event.getPropertyName().equals("DETECT_GULPS")) {
-			detectPane.kymosDisplayFiltered(2);
-			detectPane.detectTopBottomTab.detectTopButton.setEnabled( false);
-			kymographsPane.optionsTab.viewKymosCheckBox.setSelected(true);
-			detectPane.detectTopBottomTab.detectTopButton.setEnabled( true);
-		}
 		else if (event.getPropertyName().equals("MEASURE_OPEN")) {	
 			kymographsPane.optionsTab.selectKymograph(0);
 			buttonsVisibilityUpdate(StatusAnalysis.MEASUREGULPS_OK );
 		}
-//		else if (event.getPropertyName() .equals("KYMOS_DISPLAY_UPDATE")) {
 		else if (event.getPropertyName() .equals("KYMO_DISPLAYFILTERED")) {
 //			int ikymo = paneKymos.optionsTab.kymographNamesComboBox.getSelectedIndex();
 //			paneKymos.optionsTab.selectKymograph(ikymo);

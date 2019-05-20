@@ -40,22 +40,25 @@ public class DetectTab_Colors  extends JPanel implements ActionListener, ChangeL
 	private JButton		deleteColorButton		= new JButton ("Delete color");
 	private JRadioButton		rbL1			= new JRadioButton ("L1");
 	private JRadioButton		rbL2			= new JRadioButton ("L2");
-	private JSpinner    distanceSpinner 		= new JSpinner (new SpinnerNumberModel(10, 0, 800, 5));
+	public JSpinner    	distanceSpinner 		= new JSpinner (new SpinnerNumberModel(10, 0, 800, 5));
 	private JRadioButton		rbRGB			= new JRadioButton ("RGB");
 	private JRadioButton		rbHSV			= new JRadioButton ("HSV");
 	private JRadioButton		rbH1H2H3		= new JRadioButton ("H1H2H3");
 	private JLabel 		distanceLabel 			= new JLabel("Distance  ");
 	private JLabel 		colorspaceLabel 		= new JLabel("Color space ", SwingConstants.RIGHT);
-//	private JButton		openFiltersButton	= new JButton("Load...");
-//	private JButton		saveFiltersButton	= new JButton("Save...");
 	private JButton 	detectColorButton 		= new JButton("Detect limits");
 	private JCheckBox	detectAllColorsCheckBox = new JCheckBox ("all", true);
-
-	private Capillarytrack parent0;
+//	private JButton		openFiltersButton	= new JButton("Load...");
+//	private JButton		saveFiltersButton	= new JButton("Save...");
+	public JSpinner thresholdSpinner = new JSpinner(new SpinnerNumberModel(70, 0, 255, 5));
 	
-	public void init(GridLayout capLayout, Capillarytrack parent0) {
+	private Capillarytrack parent0;
+	private DetectPane parent;
+	
+	public void init(GridLayout capLayout, Capillarytrack parent0, DetectPane parent) {
 		setLayout(capLayout);
 		this.parent0 = parent0;
+		this.parent = parent;
 		
 		colorPickCombo.setRenderer(colorPickComboRenderer);
 		add( GuiUtil.besidesPanel(pickColorButton, colorPickCombo, deleteColorButton));
@@ -118,14 +121,105 @@ public class DetectTab_Colors  extends JPanel implements ActionListener, ChangeL
 		    @Override
 		    public void itemStateChanged(ItemEvent event) {
 		       if (event.getStateChange() == ItemEvent.SELECTED) {
-//		    	   updateThresholdOverlayParameters();
+		    	   updateThresholdOverlayParameters();
 		       }
 		    }       
 		}
 		colorPickCombo.addItemListener(new ItemChangeListener());
 		distanceSpinner.addChangeListener(this);
+		thresholdSpinner.addChangeListener(this);
 
 	}
+	
+	private void updateThresholdOverlayParameters() {
+		
+		if (parent0.vSequence == null)
+			return;
+		
+		boolean activateThreshold = true;
+		
+		switch (parent.tabbedDetectionPane.getSelectedIndex()) {
+				
+			case 0:	// simple filter & single threshold
+				parent.simpletransformop = (TransformOp) parent.transformsComboBox.getSelectedItem();
+				parent.simplethreshold = Integer.parseInt(thresholdSpinner.getValue().toString());
+				parent.thresholdtype = ThresholdType.SINGLE;
+				break;
+
+			case 1:  // color array
+				// TODO
+//				colorthreshold = Integer.parseInt(distanceSpinner.getValue().toString());
+//				thresholdtype = ThresholdType.COLORARRAY;
+//				colorarray.clear();
+//				for (int i=0; i<colorPickCombo.getItemCount(); i++) {
+//					colorarray.add(colorPickCombo.getItemAt(i));
+//				}
+//				colordistanceType = 1;
+//				if (rbL2.isSelected()) 
+//					colordistanceType = 2;
+				break;
+				
+			default:
+				activateThreshold = false;
+				break;
+		}
+		
+		//--------------------------------
+		colorsActivateSequenceThresholdOverlay(activateThreshold);
+	}
+	
+	public void colorsUpdateThresholdOverlayParameters() {
+		
+		boolean activateThreshold = true;
+
+		switch (parent.tabbedDetectionPane.getSelectedIndex()) {
+		
+			case 0:	// simple filter & single threshold
+				parent.simpletransformop = (TransformOp) parent.transformsComboBox.getSelectedItem();
+				parent.simplethreshold = Integer.parseInt(thresholdSpinner.getValue().toString());
+				parent.thresholdtype = ThresholdType.SINGLE;
+				break;
+				
+			case 1:  // color array
+				// TODO
+//				colorthreshold = Integer.parseInt(distanceSpinner.getValue().toString());
+//				thresholdtype = ThresholdType.COLORARRAY;
+//				colorarray.clear();
+//				for (int i=0; i<colorPickCombo.getItemCount(); i++) {
+//					colorarray.add(colorPickCombo.getItemAt(i));
+//				}
+//				colordistanceType = 1;
+//				if (rbL2.isSelected()) 
+//					colordistanceType = 2;
+				break;
+
+			default:
+				activateThreshold = false;
+				break;
+		}
+		colorsActivateSequenceThresholdOverlay(activateThreshold);
+	}
+	
+	private void colorsActivateSequenceThresholdOverlay(boolean activate) {
+		if (parent0.kymographArrayList.size() == 0)
+			return;
+		
+		for (SequencePlus kSeq: parent0.kymographArrayList) {
+			kSeq.setThresholdOverlay(activate);
+			if (activate) {
+				if (parent.thresholdtype == ThresholdType.SINGLE)
+					kSeq.setThresholdOverlayParametersSingle(parent.simpletransformop, parent.simplethreshold);
+				else
+					kSeq.setThresholdOverlayParametersColors(
+							parent.colortransformop, 
+							parent.colorarray, 
+							parent.colordistanceType, 
+							parent.colorthreshold);
+			}
+		}
+		//thresholdOverlayON = activate;
+	}
+
 	
 	public void enableItems(boolean enabled) {
 	}
@@ -141,7 +235,10 @@ public class DetectTab_Colors  extends JPanel implements ActionListener, ChangeL
 
 	@Override
 	public void stateChanged(ChangeEvent arg0) {
-		// TODO Auto-generated method stub
+		if ((   arg0.getSource() == thresholdSpinner)  
+
+		|| (arg0.getSource() == distanceSpinner)) 
+		colorsUpdateThresholdOverlayParameters();
 		
 	}
 	
