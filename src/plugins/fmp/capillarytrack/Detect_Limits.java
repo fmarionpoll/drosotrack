@@ -15,7 +15,7 @@ import plugins.kernel.roi.roi2d.ROI2DPolyLine;
 
 public class Detect_Limits {
 	
-	public void kymosDetectCapillaryLevels(Capillarytrack parent0) {
+	public void detectCapillaryLevels(Capillarytrack parent0) {
 
 		// send some info
 		ProgressFrame progress = new ProgressFrame("Processing started");

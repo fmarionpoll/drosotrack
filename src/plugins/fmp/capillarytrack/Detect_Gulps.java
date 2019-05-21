@@ -17,7 +17,7 @@ import plugins.kernel.roi.roi2d.ROI2DPolyLine;
 
 public class Detect_Gulps {
 	
-	public void kymosDetectGulps(Capillarytrack parent0) {	
+	public void detectGulps(Capillarytrack parent0) {	
 		// send some info
 		ProgressFrame progress = new ProgressFrame("Gulp analysis started");
 		progress.setLength(parent0.kymographArrayList.size() * (parent0.vSequence.analysisEnd - parent0.vSequence.analysisStart +1));

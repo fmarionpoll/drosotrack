@@ -60,6 +60,7 @@ public class DetectTab_Gulps  extends JPanel implements ActionListener {
 			parent0.detectPane.kymosBuildFiltered(0, 2, transform, spanDiffTransf2);
 // TODO
 //			kymosDetectGulps();
+			firePropertyChange("KYMO_DETECT_GULP", false, true);
 			parent0.buttonsVisibilityUpdate(StatusAnalysis.MEASUREGULPS_OK );
 		}});
 		

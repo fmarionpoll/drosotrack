@@ -47,7 +47,6 @@ public class DetectPane extends JPanel implements PropertyChangeListener, Change
 			TransformOp.R2MINUS_GB, TransformOp.G2MINUS_RB, TransformOp.B2MINUS_RG, TransformOp.NORM_BRMINUSG, TransformOp.RGB,
 			TransformOp.H_HSB, TransformOp.S_HSB, TransformOp.B_HSB	});
 
-		
 	ImageTransformTools tImg = null;
 	Capillarytrack parent0 = null;
 
@@ -95,8 +94,13 @@ public class DetectPane extends JPanel implements PropertyChangeListener, Change
 		}
 		else if (arg0.getPropertyName().equals("KYMO_DETECT_TOP")) {
 			Detect_Limits detect = new Detect_Limits();
-			detect.kymosDetectCapillaryLevels(parent0); 
+			detect.detectCapillaryLevels(parent0); 
 			firePropertyChange("MEASURETOP_OK", false, true);
+		}
+		else if (arg0.getPropertyName().equals("KYMO_DETECT_GULP")) {
+			Detect_Gulps detect = new Detect_Gulps();
+			detect.detectGulps(parent0);
+			firePropertyChange( "MEASURE_OPEN", false, true);
 		}
 	}
 	

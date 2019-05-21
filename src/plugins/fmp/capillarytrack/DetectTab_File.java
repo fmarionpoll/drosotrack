@@ -38,14 +38,7 @@ public class DetectTab_File extends JPanel implements ActionListener {
 	
 	private void defineActionListeners() {
 		openMeasuresButton.addActionListener(this); 
-		saveMeasuresButton.addActionListener(this);	
-// TODO		
-//saveMeasuresButton.addActionListener(new ActionListener() {	@Override public void actionPerformed(ActionEvent e) {
-//saveMeasuresButton.setEnabled(false);
-//measuresFileSave();
-//saveMeasuresButton.setEnabled(true);
-//}});
-		
+		saveMeasuresButton.addActionListener(this);		
 	}
 	
 	public void enableItems(boolean enabled) {
