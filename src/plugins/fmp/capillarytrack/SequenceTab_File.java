@@ -6,6 +6,7 @@ import java.awt.event.ActionListener;
 
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
+import javax.swing.JLabel;
 import javax.swing.JPanel;
 
 import icy.gui.util.GuiUtil;
@@ -21,7 +22,8 @@ public class SequenceTab_File extends JPanel implements ActionListener {
 	
 	public void init(GridLayout capLayout) {
 		setLayout(capLayout);
-		add( GuiUtil.besidesPanel(setVideoSourceButton, loadpreviousCheckBox));
+		add( GuiUtil.besidesPanel(setVideoSourceButton, new JLabel(" ")));
+		add( GuiUtil.besidesPanel(loadpreviousCheckBox));
 		setVideoSourceButton.addActionListener(this);
 	}
 	

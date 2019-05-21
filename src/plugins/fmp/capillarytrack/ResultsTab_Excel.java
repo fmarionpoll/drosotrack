@@ -10,6 +10,7 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 
 import javax.swing.JButton;
+import javax.swing.JCheckBox;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 
@@ -28,7 +29,11 @@ public class ResultsTab_Excel extends JPanel implements ActionListener  {
 	 * 
 	 */
 	private static final long serialVersionUID = 1290058998782225526L;
-	public JButton 	exportToXLSButton 		= new JButton("Export to XLS file...");
+	public JButton 		exportToXLSButton 	= new JButton("Export to XLS file...");
+	public JCheckBox 	topLevelCheckbox 	= new JCheckBox("top level", true);
+	public JCheckBox 	bottomLevelCheckbox = new JCheckBox("bottom level", true);
+	public JCheckBox 	derivativeCheckbox 	= new JCheckBox("derivative", true);
+	public JCheckBox 	consumptionCheckbox = new JCheckBox("consumption", true);
 
 	private Capillarytrack parent0 = null;
 	
@@ -36,6 +41,7 @@ public class ResultsTab_Excel extends JPanel implements ActionListener  {
 	public void init(GridLayout capLayout, Capillarytrack parent0) {	
 		setLayout(capLayout);
 		this.parent0 = parent0;
+		add(GuiUtil.besidesPanel( topLevelCheckbox, bottomLevelCheckbox, derivativeCheckbox, consumptionCheckbox));
 		add(GuiUtil.besidesPanel( exportToXLSButton, new JLabel(" "))); 
 		defineActionListeners();
 	}
@@ -55,29 +61,30 @@ public class ResultsTab_Excel extends JPanel implements ActionListener  {
 			String file = Tools.saveFileAs(tentativeName, directory.getParent().toString(), "xls");
 			if (file != null) {
 				final String filename = file;
-				exportToXLSButton.setEnabled( false);	// prevent export when operation is ongoing
-
-				xlsExportResultsToFile(filename);		// save excel file
+				exportToXLSButton.setEnabled( false);
+				parent0.capillariesPane.propertiesTab.updateSequenceFromDialog();
+				xlsExportResultsToFile(filename);
 				firePropertyChange("EXPORT_TO_EXCEL", false, true);	
-				parent0.detectPane.detectLoadSave.measuresFileSave();						// save also measures on disk
-				exportToXLSButton.setEnabled( true ); 	// allow export
+				exportToXLSButton.setEnabled( true );
 			}
-			
 		}
 	}
 
 	private void xlsExportResultsToFile(String filename) {
-
-		// xls output - successive positions
 		System.out.println("XLS output");
-		double ratio =parent0. vSequence.capillaryVolume / parent0.vSequence.capillaryPixels;
+		
+		double ratio = parent0.vSequence.capillaryVolume / parent0.vSequence.capillaryPixels;
 
 		try {
-			WritableWorkbook xlsWorkBook = XLSUtil.createWorkbook( filename);
-			xlsExportToWorkbook(xlsWorkBook, "toplevel", 0, ratio);
-			xlsExportToWorkbook(xlsWorkBook, "bottomlevel", 3, ratio);
-			xlsExportToWorkbook(xlsWorkBook, "derivative", 1, ratio);
-			xlsExportToWorkbook(xlsWorkBook, "consumption", 2, ratio);
+			WritableWorkbook xlsWorkBook = XLSUtil.createWorkbook( filename); 
+			if (topLevelCheckbox.isSelected()) 
+				xlsExportToWorkbook(xlsWorkBook, "toplevel", 0, ratio);
+			if (bottomLevelCheckbox.isSelected()) 
+				xlsExportToWorkbook(xlsWorkBook, "bottomlevel", 3, ratio);
+			if (derivativeCheckbox.isSelected()) 
+				xlsExportToWorkbook(xlsWorkBook, "derivative", 1, ratio);
+			if (consumptionCheckbox.isSelected()) 
+				xlsExportToWorkbook(xlsWorkBook, "consumption", 2, ratio);
 			XLSUtil.saveAndClose( xlsWorkBook );
 		} catch (IOException e) {
 			e.printStackTrace();
@@ -88,7 +95,6 @@ public class ResultsTab_Excel extends JPanel implements ActionListener  {
 	}
 
 	private void xlsExportToWorkbook(WritableWorkbook xlsWorkBook, String title, int ioption, double ratio ) {
-		
 		System.out.println("export worksheet "+title);
 		int ncols = parent0.kymographArrayList.size();
 		ArrayList <ArrayList<Integer >> arrayList = new ArrayList <ArrayList <Integer>> ();

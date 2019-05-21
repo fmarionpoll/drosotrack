@@ -29,7 +29,7 @@ public class Detect_Gulps {
 		// scan each kymograph in the list
 		int firstkymo = 0;
 		int lastkymo = parent0.kymographArrayList.size() -1;
-		if (! parent0.detectPane.detectGulpsTab.detectAllGulpsCheckBox.isSelected()) {
+		if (! parent0.detectPane.gulpsTab.detectAllGulpsCheckBox.isSelected()) {
 			firstkymo = parent0.kymographsPane.optionsTab.kymographNamesComboBox.getSelectedIndex();
 			lastkymo = firstkymo;
 		}
@@ -148,16 +148,16 @@ public class Detect_Gulps {
 		if (blevel) {
 			seq.detectTop 				= true; 
 			seq.detectBottom 			= true; 
-			seq.transformForLevels 		= (TransformOp) parent0.detectPane.detectLimitsTab.transformForLevelsComboBox.getSelectedItem();
-			seq.direction 				= parent0.detectPane.detectLimitsTab.directionComboBox.getSelectedIndex();
-			seq.detectLevelThreshold 	= (int) parent0.detectPane.detectLimitsTab.getDetectLevelThreshold();
-			seq.detectAllLevel 			= parent0.detectPane.detectLimitsTab.detectAllLevelCheckBox.isSelected();
+			seq.transformForLevels 		= (TransformOp) parent0.detectPane.limitsTab.transformForLevelsComboBox.getSelectedItem();
+			seq.direction 				= parent0.detectPane.limitsTab.directionComboBox.getSelectedIndex();
+			seq.detectLevelThreshold 	= (int) parent0.detectPane.limitsTab.getDetectLevelThreshold();
+			seq.detectAllLevel 			= parent0.detectPane.limitsTab.detectAllLevelCheckBox.isSelected();
 		}
 		
 		if (bgulps) {
-			seq.detectGulpsThreshold 	= (int) parent0.detectPane.detectGulpsTab.getDetectGulpsThreshold();
-			seq.transformForGulps 		= (TransformOp) parent0.detectPane.detectGulpsTab.transformForGulpsComboBox.getSelectedItem();
-			seq.detectAllGulps 			= parent0.detectPane.detectGulpsTab.detectAllGulpsCheckBox.isSelected();
+			seq.detectGulpsThreshold 	= (int) parent0.detectPane.gulpsTab.getDetectGulpsThreshold();
+			seq.transformForGulps 		= (TransformOp) parent0.detectPane.gulpsTab.transformForGulpsComboBox.getSelectedItem();
+			seq.detectAllGulps 			= parent0.detectPane.gulpsTab.detectAllGulpsCheckBox.isSelected();
 		}
 		seq.bStatusChanged = true;
 	}

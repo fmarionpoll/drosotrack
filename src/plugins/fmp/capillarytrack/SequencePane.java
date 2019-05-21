@@ -20,10 +20,10 @@ public class SequencePane extends JPanel implements PropertyChangeListener {
 	 */
 	private static final long serialVersionUID = -6826269677524125173L;
 	
-	public JTabbedPane tabsPane = new JTabbedPane();
-	public SequenceTab_File fileTab = new SequenceTab_File();
-	public SequenceTab_Options optionsTab = new SequenceTab_Options();
-	public SequenceTab_Close closeTab = new SequenceTab_Close();
+	public JTabbedPane tabsPane 			= new JTabbedPane();
+	public SequenceTab_File fileTab 		= new SequenceTab_File();
+	public SequenceTab_Options optionsTab 	= new SequenceTab_Options();
+	public SequenceTab_Close closeTab 		= new SequenceTab_Close();
 	private Capillarytrack parent0 = null;
 	
 	public void init (JPanel mainPanel, String string, Capillarytrack parent0) {

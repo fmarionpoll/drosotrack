@@ -28,7 +28,7 @@ public class CapillariesTab_Properties extends JPanel implements ActionListener 
 	
 		private JTextField 	capillaryVolumeTextField= new JTextField("5");
 		private JTextField 	capillaryPixelsTextField= new JTextField("5");
-		public JCheckBox	visibleCheckBox	= new JCheckBox("ROIs visible", true);
+		public JCheckBox	visibleCheckBox			= new JCheckBox("ROIs visible", true);
 		private Capillarytrack parent0;
 		
 		public void init(GridLayout capLayout, Capillarytrack parent0) {
@@ -53,6 +53,7 @@ public class CapillariesTab_Properties extends JPanel implements ActionListener 
 		public void enableItems(boolean enabled) {
 			capillaryVolumeTextField.setEnabled(enabled);
 			capillaryPixelsTextField.setEnabled(enabled);
+			visibleCheckBox.setEnabled(enabled);
 		}
 		
 		@Override
@@ -100,7 +101,12 @@ public class CapillariesTab_Properties extends JPanel implements ActionListener 
 			double capillaryPixels=0;
 			try { 
 				capillaryPixels = Double.parseDouble(capillaryPixelsTextField.getText()); 
-			}catch( Exception e ) { new AnnounceFrame("Can't interpret capillary volume value."); }
+			} catch( Exception e ) { new AnnounceFrame("Can't interpret capillary volume value."); }
 			return capillaryPixels;
+		}
+		
+		public void updateSequenceFromDialog() {
+			parent0.vSequence.capillaryVolume = getCapillaryVolume();
+			parent0.vSequence.capillaryPixels = getCapillaryPixelLength();
 		}
 }

@@ -1,10 +1,8 @@
 package plugins.fmp.capillarytrack;
 
-import java.awt.Color;
 import java.awt.GridLayout;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
-import java.util.ArrayList;
 
 import javax.swing.JComboBox;
 import javax.swing.JPanel;
@@ -14,7 +12,6 @@ import javax.swing.event.ChangeListener;
 
 import icy.gui.util.GuiUtil;
 import icy.image.IcyBufferedImage;
-import plugins.fmp.sequencevirtual.ImageThresholdTools.ThresholdType;
 import plugins.fmp.sequencevirtual.ImageTransformTools.TransformOp;
 import plugins.fmp.sequencevirtual.ImageTransformTools;
 import plugins.fmp.sequencevirtual.SequencePlus;
@@ -26,19 +23,12 @@ public class DetectPane extends JPanel implements PropertyChangeListener, Change
 	 */
 	private static final long serialVersionUID = 3457738144388946607L;
 	
-	public JTabbedPane tabbedDetectionPane	= new JTabbedPane();
-	public DetectTab_Limits detectLimitsTab = new DetectTab_Limits();
-	public DetectTab_Colors detectColorsTab = new DetectTab_Colors();
-	public DetectTab_Gulps detectGulpsTab 	= new DetectTab_Gulps();
-	public DetectTab_File detectLoadSave 	= new DetectTab_File();
+	public JTabbedPane tabsPane				= new JTabbedPane();
+	public DetectTab_Limits limitsTab 		= new DetectTab_Limits();
+	public DetectTab_Colors colorsTab 		= new DetectTab_Colors();
+	public DetectTab_Gulps gulpsTab 		= new DetectTab_Gulps();
+	public DetectTab_File fileTab 			= new DetectTab_File();
 	
-	public TransformOp colortransformop 	= TransformOp.NONE;
-	public int colordistanceType 			= 0;
-	public int colorthreshold 				= 20;
-	public ArrayList <Color> colorarray 	= new ArrayList <Color>();
-	//private boolean 	thresholdOverlayON	= false;
-	public ThresholdType thresholdtype 		= ThresholdType.COLORARRAY; 
-	// TODO
 	public TransformOp simpletransformop 	= TransformOp.R2MINUS_GB;
 	public int simplethreshold 				= 20;
 	
@@ -55,30 +45,30 @@ public class DetectPane extends JPanel implements PropertyChangeListener, Change
 		this.parent0 = parent0;
 		final JPanel panel = GuiUtil.generatePanel(string);
 		mainPanel.add(GuiUtil.besidesPanel(panel));
-		GridLayout capLayout = new GridLayout(4, 2);
+//		GridLayout capLayout = new GridLayout(4, 2);
+		GridLayout capLayout = new GridLayout(3, 2);
 		
-		detectLimitsTab.init(capLayout, parent0);
-		tabbedDetectionPane.addTab("Filters", null, detectLimitsTab, "thresholding a transformed image with different filters");
-		detectLimitsTab.addPropertyChangeListener(this);
+		limitsTab.init(capLayout, parent0);
+		tabsPane.addTab("Upper/lower(1)", null, limitsTab, "thresholding a transformed image with different filters");
+		limitsTab.addPropertyChangeListener(this);
 		
 //		detectColorsTab.init(capLayout, parent0, this);
 //		tabbedDetectionPane.addTab("Colors", null, detectColorsTab, "thresholding an image with different colors and a distance");
 //		detectColorsTab.addPropertyChangeListener(this);
 		
-		detectGulpsTab.init(capLayout, parent0);	
-		tabbedDetectionPane.addTab("Gulps", null, detectGulpsTab, "detect gulps");
-		detectGulpsTab.addPropertyChangeListener(this);
+		gulpsTab.init(capLayout, parent0);	
+		tabsPane.addTab("Gulps", null, gulpsTab, "detect gulps");
+		gulpsTab.addPropertyChangeListener(this);
 		
-		detectLoadSave.init (capLayout, parent0);
-		tabbedDetectionPane.addTab("Load/Save", null, detectLoadSave, "load / save parameters");
-		detectLoadSave.addPropertyChangeListener(this);
+		fileTab.init (capLayout, parent0);
+		tabsPane.addTab("Load/Save", null, fileTab, "load / save parameters");
+		fileTab.addPropertyChangeListener(this);
 		
-		tabbedDetectionPane.setTabLayoutPolicy(JTabbedPane.SCROLL_TAB_LAYOUT);
-		panel.add(GuiUtil.besidesPanel(tabbedDetectionPane));
+		tabsPane.setTabLayoutPolicy(JTabbedPane.SCROLL_TAB_LAYOUT);
+		panel.add(GuiUtil.besidesPanel(tabsPane));
 	
-		detectLimitsTab.transformForLevelsComboBox.setSelectedItem(TransformOp.G2MINUS_RB);
-		colortransformop = TransformOp.NONE;
-		tabbedDetectionPane.setSelectedIndex(0);
+		limitsTab.transformForLevelsComboBox.setSelectedItem(TransformOp.G2MINUS_RB);
+		tabsPane.setSelectedIndex(0);
 	}
 
 	@Override
@@ -93,36 +83,33 @@ public class DetectPane extends JPanel implements PropertyChangeListener, Change
 			}
 		}
 		else if (arg0.getPropertyName().equals("KYMO_DETECT_TOP")) {
-			Detect_Limits detect = new Detect_Limits();
-			detect.detectCapillaryLevels(parent0); 
 			firePropertyChange("MEASURETOP_OK", false, true);
 		}
 		else if (arg0.getPropertyName().equals("KYMO_DETECT_GULP")) {
-			Detect_Gulps detect = new Detect_Gulps();
-			detect.detectGulps(parent0);
-			firePropertyChange( "MEASURE_OPEN", false, true);
+			firePropertyChange( "MEASUREGULPS_OK", false, true);
 		}
 	}
 	
 	public void setDetectionParameters(int ikymo) {
 		SequencePlus seq = parent0.kymographArrayList.get(ikymo);
-		detectLimitsTab.transformForLevelsComboBox.setSelectedItem(seq.transformForLevels);
-		detectLimitsTab.directionComboBox.setSelectedIndex(seq.direction);
-		detectLimitsTab.setDetectLevelThreshold(seq.detectLevelThreshold);
-		detectLimitsTab.detectTopTextField.setText(Integer.toString(seq.detectLevelThreshold));
-		detectLimitsTab.detectAllLevelCheckBox.setSelected(seq.detectAllLevel);
+		limitsTab.transformForLevelsComboBox.setSelectedItem(seq.transformForLevels);
+		limitsTab.directionComboBox.setSelectedIndex(seq.direction);
+		limitsTab.setDetectLevelThreshold(seq.detectLevelThreshold);
+		limitsTab.detectTopTextField.setText(Integer.toString(seq.detectLevelThreshold));
+		limitsTab.detectAllLevelCheckBox.setSelected(seq.detectAllLevel);
 
-		detectGulpsTab.detectGulpsThresholdTextField.setText(Integer.toString(seq.detectGulpsThreshold));
-		detectGulpsTab.transformForGulpsComboBox.setSelectedItem(seq.transformForGulps);
-		detectGulpsTab.detectAllGulpsCheckBox.setSelected(seq.detectAllGulps);
+		gulpsTab.detectGulpsThresholdTextField.setText(Integer.toString(seq.detectGulpsThreshold));
+		gulpsTab.transformForGulpsComboBox.setSelectedItem(seq.transformForGulps);
+		gulpsTab.detectAllGulpsCheckBox.setSelected(seq.detectAllGulps);
 	}
+	
 	
 	// ----------------------------
 	
 	@Override
 	public void stateChanged(ChangeEvent arg0) {
-		if (arg0.getSource() == tabbedDetectionPane)
-			detectColorsTab.colorsUpdateThresholdOverlayParameters();
+		if (arg0.getSource() == tabsPane)
+			colorsTab.colorsUpdateThresholdOverlayParameters();
 	}
 	
 	public void kymosBuildFiltered(int zChannelSource, int zChannelDestination, TransformOp transformop, int spanDiff) {

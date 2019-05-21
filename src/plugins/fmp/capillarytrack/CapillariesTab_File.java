@@ -40,7 +40,7 @@ public class CapillariesTab_File extends JPanel implements ActionListener {
 	}
 	
 	public void enableItems(boolean enabled) {
-		openButtonCapillaries.setEnabled(enabled);
+//		openButtonCapillaries.setEnabled(enabled);
 		saveButtonCapillaries.setEnabled(enabled);
 	}
 	
@@ -67,7 +67,7 @@ public class CapillariesTab_File extends JPanel implements ActionListener {
 		return flag;
 	}
 	
-	public boolean capillaryRoisSave() {	
+	public boolean capillaryRoisSave() {
 		return parent0.vSequence.xmlWriteROIsAndData("capillarytrack.xml");
 	}
 

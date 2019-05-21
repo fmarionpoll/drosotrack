@@ -62,8 +62,7 @@ public class KymosTab_Options extends JPanel implements ActionListener, ActiveVi
 		k2Panel.add(nextButton, BorderLayout.EAST);
 		
 		add(GuiUtil.besidesPanel( viewKymosCheckBox, k2Panel));
-		add(GuiUtil.besidesPanel( editLevelsCheckbox, editGulpsCheckbox, new JLabel(" "))); 
-		add(GuiUtil.besidesPanel( new JLabel (" "), new JLabel(" "), updateButton));
+		add(GuiUtil.besidesPanel( editLevelsCheckbox, editGulpsCheckbox, updateButton));
 		
 		defineActionListeners();
 	}
@@ -74,20 +73,12 @@ public class KymosTab_Options extends JPanel implements ActionListener, ActiveVi
 		editGulpsCheckbox.addActionListener(this);
 		editLevelsCheckbox.addActionListener(this);
 		viewKymosCheckBox.addActionListener(this);
-		
-		nextButton.addActionListener(new ActionListener() {	@Override public void actionPerformed(ActionEvent e) {
-			int isel = kymographNamesComboBox.getSelectedIndex()+1;
-			if (isel < kymographNamesComboBox.getItemCount()) {
-				selectKymograph(isel);
-			}
-		}});
-		
-		previousButton.addActionListener(new ActionListener() {	@Override public void actionPerformed(ActionEvent e) {
-			int isel = kymographNamesComboBox.getSelectedIndex()-1;
-			if (isel >= 0) {
-				selectKymograph(isel);
-			}
-		}});
+		nextButton.addActionListener(this);
+		previousButton.addActionListener(this);
+	}
+	
+	public void enableItems(boolean enabled) {
+		editLevelsCheckbox.setEnabled(enabled);
 	}
 	
 	@Override
@@ -101,6 +92,18 @@ public class KymosTab_Options extends JPanel implements ActionListener, ActiveVi
 		}
 		else if ( o == viewKymosCheckBox) {
 			displayViews(viewKymosCheckBox.isSelected());
+		}
+		else if ( o == nextButton) {
+			int isel = kymographNamesComboBox.getSelectedIndex()+1;
+			if (isel < kymographNamesComboBox.getItemCount()) {
+				selectKymograph(isel);
+			}
+		}
+		else if ( o == previousButton) {
+			int isel = kymographNamesComboBox.getSelectedIndex()-1;
+			if (isel < kymographNamesComboBox.getItemCount()) {
+				selectKymograph(isel);
+			}
 		}
 	}
 	
@@ -256,19 +259,18 @@ public class KymosTab_Options extends JPanel implements ActionListener, ActiveVi
 
 	@Override
 	public void viewerActivated(Viewer viewer) {
-		
 	}
 
 	@Override
 	public void viewerDeactivated(Viewer viewer) {
-		Sequence seq = viewer.getSequence();
-		if (seq != null)
-			seq.setSelectedROI(null);
+		if (viewer != null) {
+			Sequence seq = viewer.getSequence();
+			if (seq != null)
+				seq.setSelectedROI(null);
+		}
 	}
 
 	@Override
-	public void activeViewerChanged(ViewerEvent event) {
-		// TODO Auto-generated method stub
-		
+	public void activeViewerChanged(ViewerEvent event) {		
 	}
 }

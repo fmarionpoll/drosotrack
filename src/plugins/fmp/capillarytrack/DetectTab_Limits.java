@@ -35,7 +35,7 @@ public class DetectTab_Limits  extends JPanel implements ActionListener {
 			TransformOp.H_HSB, TransformOp.S_HSB, TransformOp.B_HSB	});
 	private JButton		displayTransform1Button	= new JButton("Display");
 	private JTextField	spanTopTextField		= new JTextField("3");
-	public JButton 		detectTopButton 		= new JButton("Detect level");
+	public JButton 		detectTopButton 		= new JButton("Detect");
 	Capillarytrack parent0 = null;
 	
 	
@@ -76,6 +76,8 @@ public class DetectTab_Limits  extends JPanel implements ActionListener {
 			}
 		}
 		else if (o == detectTopButton) {
+			Detect_Limits detect = new Detect_Limits();
+			detect.detectCapillaryLevels(parent0);
 			firePropertyChange("KYMO_DETECT_TOP", false, true);
 		}
 		else if (o== displayTransform1Button) {

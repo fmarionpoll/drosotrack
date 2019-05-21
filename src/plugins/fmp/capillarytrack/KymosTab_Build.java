@@ -13,7 +13,6 @@ import javax.swing.SwingConstants;
 import icy.gui.frame.progress.AnnounceFrame;
 import icy.gui.util.GuiUtil;
 import icy.gui.viewer.Viewer;
-import plugins.fmp.capillarytrack.Capillarytrack.StatusAnalysis;
 import plugins.fmp.capillarytrack.Capillarytrack.StatusComputation;
 import plugins.fmp.sequencevirtual.SequencePlus;
 import plugins.kernel.roi.roi2d.ROI2DShape;
@@ -146,9 +145,7 @@ public class KymosTab_Build extends JPanel implements ActionListener {
 			}
 		}
 		sComputation = StatusComputation.START_COMPUTATION;
-		parent0.kymographsPane.fileKymoTab.enableItems(true);
-		parent0.buttonsVisibilityUpdate(StatusAnalysis.KYMOS_OK); 
-		parent0.kymographsPane.tabbedCapillariesAndKymosSelected();
+		firePropertyChange( "KYMOS_OK", false, true);
 	}
 
 }

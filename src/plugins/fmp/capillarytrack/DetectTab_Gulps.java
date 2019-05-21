@@ -16,7 +16,6 @@ import javax.swing.SwingConstants;
 import icy.gui.frame.progress.AnnounceFrame;
 import icy.gui.util.GuiUtil;
 import plugins.fmp.sequencevirtual.Tools;
-import plugins.fmp.capillarytrack.Capillarytrack.StatusAnalysis;
 import plugins.fmp.sequencevirtual.ImageTransformTools.TransformOp;
 
 public class DetectTab_Gulps  extends JPanel implements ActionListener {
@@ -29,7 +28,7 @@ public class DetectTab_Gulps  extends JPanel implements ActionListener {
 	private JButton		displayTransform2Button	= new JButton("Display");
 	private JTextField	spanTransf2TextField	= new JTextField("3");
 	public JTextField 	detectGulpsThresholdTextField 	= new JTextField("90");
-	private JButton 	detectGulpsButton 		= new JButton("Detect gulps");
+	private JButton 	detectGulpsButton 		= new JButton("Detect");
 	public JComboBox<TransformOp> transformForGulpsComboBox = new JComboBox<TransformOp> (new TransformOp[] {
 			TransformOp.XDIFFN /*, TransformOp.YDIFFN, TransformOp.XYDIFFN	*/});
 	private	int	spanDiffTransf2 			= 3;
@@ -40,7 +39,7 @@ public class DetectTab_Gulps  extends JPanel implements ActionListener {
 		setLayout(capLayout);
 		this.parent0 = parent0;
 		add( GuiUtil.besidesPanel( new JLabel("threshold ", SwingConstants.RIGHT), detectGulpsThresholdTextField, transformForGulpsComboBox, displayTransform2Button));
-		add( GuiUtil.besidesPanel(  new JLabel(" "), detectAllGulpsCheckBox, new JLabel("span ", SwingConstants.RIGHT), spanTransf2TextField));
+		add( GuiUtil.besidesPanel( new JLabel(" "), detectAllGulpsCheckBox, new JLabel("span ", SwingConstants.RIGHT), spanTransf2TextField));
 		add( GuiUtil.besidesPanel( detectGulpsButton,new JLabel(" ") ));
 
 		transformForGulpsComboBox.setSelectedItem(TransformOp.XDIFFN);
@@ -48,41 +47,42 @@ public class DetectTab_Gulps  extends JPanel implements ActionListener {
 	}
 	
 	private void defineActionListeners() {
-		transformForGulpsComboBox.addActionListener(new ActionListener() { @Override public void actionPerformed(ActionEvent e) {
-			getDetectGulpsThreshold();
-			kymosDisplayFiltered2();
-		}});
-		
-		detectGulpsButton.addActionListener(new ActionListener() {	@Override public void actionPerformed(ActionEvent e) {
-			getDetectGulpsThreshold();
-			detectGulpsButton.setEnabled( false);
-			final TransformOp transform = (TransformOp) transformForGulpsComboBox.getSelectedItem();
-			parent0.detectPane.kymosBuildFiltered(0, 2, transform, spanDiffTransf2);
-// TODO
-//			kymosDetectGulps();
-			firePropertyChange("KYMO_DETECT_GULP", false, true);
-			parent0.buttonsVisibilityUpdate(StatusAnalysis.MEASUREGULPS_OK );
-		}});
-		
-		displayTransform2Button.addActionListener(new ActionListener() {	@Override public void actionPerformed(ActionEvent e) {
-			getDetectGulpsThreshold();
-			detectGulpsButton.setEnabled( false);
-			final TransformOp transform = (TransformOp) transformForGulpsComboBox.getSelectedItem();
-			parent0.detectPane.kymosBuildFiltered(0, 2, transform, spanDiffTransf2);
-			kymosDisplayFiltered2();
-			parent0.kymographsPane.optionsTab.viewKymosCheckBox.setSelected(true);
-			detectGulpsButton.setEnabled( true);
-		}});
-
+		transformForGulpsComboBox.addActionListener(this); 
+		detectGulpsButton.addActionListener(this);
+		displayTransform2Button.addActionListener(this);
 	}
 	
 	public void enableItems(boolean enabled) {
-
+		detectGulpsButton.setEnabled(enabled);
+		detectAllGulpsCheckBox.setEnabled(enabled);
+		transformForGulpsComboBox.setEnabled(enabled);
+		detectGulpsThresholdTextField.setEnabled(enabled);
+		displayTransform2Button.setEnabled(enabled);
+		spanTransf2TextField.setEnabled(enabled);
 	}
 	
 	@Override
 	public void actionPerformed(ActionEvent e) {
 		Object o = e.getSource();
+		if ( o == transformForGulpsComboBox)  {
+			getDetectGulpsThreshold();
+			kymosDisplayFiltered2();
+		}
+		else if (o == detectGulpsButton) {
+			getDetectGulpsThreshold();
+			final TransformOp transform = (TransformOp) transformForGulpsComboBox.getSelectedItem();
+			parent0.detectPane.kymosBuildFiltered(0, 2, transform, spanDiffTransf2);
+			Detect_Gulps detect = new Detect_Gulps();
+			detect.detectGulps(parent0);
+			firePropertyChange("KYMO_DETECT_GULP", false, true);
+		}
+		else if (o == displayTransform2Button) {
+			getDetectGulpsThreshold();
+			final TransformOp transform = (TransformOp) transformForGulpsComboBox.getSelectedItem();
+			parent0.detectPane.kymosBuildFiltered(0, 2, transform, spanDiffTransf2);
+			kymosDisplayFiltered2();
+			parent0.kymographsPane.optionsTab.viewKymosCheckBox.setSelected(true);
+		}
 	}
 	
 	// get/set
