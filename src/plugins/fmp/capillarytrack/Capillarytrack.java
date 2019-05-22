@@ -80,14 +80,16 @@ public class Capillarytrack extends PluginActionable implements ViewerListener, 
 	// -------------------------------------------
 	enum StatusAnalysis { NODATA, SEQ_OK, ROIS_OK, KYMOS_OK, MEASURETOP_OK, MEASUREGULPS_OK};
 	enum StatusComputation {START_COMPUTATION, STOP_COMPUTATION};
-//	private boolean[] [] flagsTable 		= new boolean [][] {
-//		{false,	false,	false, 	false, 	false},
-//		{true, 	false, 	false, 	false, 	false},
-//		{true, 	true, 	false, 	false, 	false},
-//		{true, 	true, 	true, 	false, 	false},
-//		{true, 	true, 	true, 	true, 	false},
-//		{true, 	true, 	true, 	true, 	true}
-//	};
+	enum StatusPane { DISABLED, INIT, FULL};
+	private StatusPane [] [] flagsTable 		= new StatusPane [][] {
+		//capillaries|		  	kymos|			   	detect_limits|	detect_gulps   |results
+		{StatusPane.DISABLED, StatusPane.DISABLED, StatusPane.DISABLED, StatusPane.DISABLED, StatusPane.DISABLED},  // NODATA
+		{StatusPane.INIT, 	StatusPane.DISABLED, StatusPane.DISABLED, StatusPane.DISABLED, StatusPane.DISABLED},	// SEQ_OK
+		{StatusPane.FULL, 	StatusPane.INIT, 	StatusPane.DISABLED, StatusPane.DISABLED, StatusPane.DISABLED},		// ROIS_OK
+		{StatusPane.FULL, 	StatusPane.FULL, 	StatusPane.INIT, 	StatusPane.DISABLED, StatusPane.DISABLED},		// KYMOS_OK
+		{StatusPane.FULL, 	StatusPane.FULL, 	StatusPane.FULL, 	StatusPane.INIT, 	StatusPane.DISABLED},		// MEASURETOP_OK
+		{StatusPane.FULL, 	StatusPane.FULL, 	StatusPane.FULL, 	StatusPane.FULL,	StatusPane.FULL}		// MEASUREGULPS_OK
+	};
 	
 	public void buttonsVisibilityUpdate(StatusAnalysis istate) {
 
@@ -102,42 +104,10 @@ public class Capillarytrack extends PluginActionable implements ViewerListener, 
 		default: 			analysisStep = 5; break;
 		}
 
-		// 1-------------capillaries
-		boolean enabled = (analysisStep > 0) ;
-		analysisStep--;
-		capillariesPane.enableItems(enabled);
-		
-		// 2----------------kymographs
-		enabled = (analysisStep > 0) ;
-		analysisStep--;
-		kymographsPane.buildTab.enableItems(enabled);
-		kymographsPane.fileTab.enableItems(enabled);
-
-		// 3---------------measure limits
-		enabled = (analysisStep > 0) ;
-		analysisStep--;
-		kymographsPane.optionsTab.viewKymosCheckBox.setEnabled(enabled);
-		boolean benabled =  (enabled && kymographsPane.optionsTab.viewKymosCheckBox.isSelected());
-		kymographsPane.optionsTab.updateButton.setEnabled(benabled);
-		kymographsPane.optionsTab.previousButton.setEnabled(benabled);
-		kymographsPane.optionsTab.nextButton.setEnabled(benabled);
-		kymographsPane.optionsTab.kymographNamesComboBox.setEnabled(benabled);
-		
-		detectPane.limitsTab.setEnabled(enabled);
-		detectPane.fileTab.setEnabled(enabled);
-		resultsPane.excelTab.exportToXLSButton.setEnabled(enabled);
-		
-		// 4---------------measure gulps
-		enabled = (analysisStep > 0) ;
-		analysisStep--;
-		detectPane.gulpsTab.enableItems(enabled);
-		resultsPane.graphicsTab.enableItems(enabled);
-		kymographsPane.optionsTab.editLevelsCheckbox.setEnabled(enabled);
-
-		// 5---------------results
-		enabled = (analysisStep > 0) ;
-		analysisStep--;
-		kymographsPane.optionsTab.editGulpsCheckbox.setEnabled(enabled);
+		capillariesPane.enableItems(flagsTable[analysisStep][0]);
+		kymographsPane.enableItems(flagsTable[analysisStep][1]);
+		detectPane.enableItems(flagsTable[analysisStep][2]);
+		resultsPane.enableItems(flagsTable[analysisStep][3]);
 	}
 	
 	public void roisSaveEdits() {

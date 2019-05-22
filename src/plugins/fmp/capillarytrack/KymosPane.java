@@ -11,6 +11,7 @@ import javax.swing.event.ChangeListener;
 
 import icy.gui.util.GuiUtil;
 import icy.gui.viewer.Viewer;
+import plugins.fmp.capillarytrack.Capillarytrack.StatusPane;
 
 
 public class KymosPane extends JPanel implements PropertyChangeListener, ChangeListener {
@@ -104,8 +105,14 @@ public class KymosPane extends JPanel implements PropertyChangeListener, ChangeL
 		if (event.getSource() == tabsPane)
 			tabbedCapillariesAndKymosSelected();
 	}
-	
-
+		
+	public void enableItems(StatusPane status) {
+		boolean enable1 = !(status == StatusPane.DISABLED);
+		buildTab.enableItems(enable1);
+		fileTab.enableItems(enable1);
+		boolean enable2 = (status == StatusPane.FULL);
+		optionsTab.enableItems(enable2);
+	}
 
 	
 }

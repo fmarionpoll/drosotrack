@@ -63,4 +63,11 @@ public class SequenceTab_Options extends JPanel implements ActionListener{
 		}
 	}
 	
+	public void enableItems(boolean enable) {
+		startFrameTextField.setEnabled(enable);
+		endFrameTextField.setEnabled(enable);
+		analyzeStepTextField.setEnabled(enable);
+		updateButton.setEnabled(enable);
+	}
+	
 }

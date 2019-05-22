@@ -40,8 +40,8 @@ public class KymosTab_Options extends JPanel implements ActionListener, ActiveVi
 	public JButton 		updateButton 			= new JButton("Update");
 	public JButton  	previousButton		 	= new JButton("<");
 	public JButton		nextButton				= new JButton(">");
-	public JCheckBox 	editLevelsCheckbox 		= new JCheckBox("capillary levels", true);
-	public JCheckBox 	editGulpsCheckbox 		= new JCheckBox("gulps", true);
+	public JCheckBox 	viewLevelsCheckbox 		= new JCheckBox("capillary levels", true);
+	public JCheckBox 	viewGulpsCheckbox 		= new JCheckBox("gulps", true);
 
 	private Capillarytrack parent0 = null;
 	private int previousupfront  = -1;
@@ -61,7 +61,7 @@ public class KymosTab_Options extends JPanel implements ActionListener, ActiveVi
 		k2Panel.add(nextButton, BorderLayout.EAST);
 		
 		add(GuiUtil.besidesPanel( viewKymosCheckBox, k2Panel));
-		add(GuiUtil.besidesPanel( editLevelsCheckbox, editGulpsCheckbox, updateButton));
+		add(GuiUtil.besidesPanel( viewLevelsCheckbox, viewGulpsCheckbox, updateButton));
 		
 		defineActionListeners();
 	}
@@ -69,15 +69,22 @@ public class KymosTab_Options extends JPanel implements ActionListener, ActiveVi
 	private void defineActionListeners() {
 		updateButton.addActionListener(this);
 		kymographNamesComboBox.addActionListener(this);
-		editGulpsCheckbox.addActionListener(this);
-		editLevelsCheckbox.addActionListener(this);
+		viewGulpsCheckbox.addActionListener(this);
+		viewLevelsCheckbox.addActionListener(this);
 		viewKymosCheckBox.addActionListener(this);
 		nextButton.addActionListener(this);
 		previousButton.addActionListener(this);
 	}
 	
 	public void enableItems(boolean enabled) {
-		editLevelsCheckbox.setEnabled(enabled);
+		viewKymosCheckBox.setEnabled(enabled);
+		boolean benabled =  (enabled && viewKymosCheckBox.isSelected());
+		kymographNamesComboBox.setEnabled(benabled);
+		updateButton.setEnabled(benabled);
+		previousButton.setEnabled(benabled);
+		nextButton.setEnabled(benabled);
+		viewLevelsCheckbox.setEnabled(benabled);
+		viewGulpsCheckbox.setEnabled(benabled);
 	}
 	
 	@Override
@@ -86,7 +93,7 @@ public class KymosTab_Options extends JPanel implements ActionListener, ActiveVi
 		if (( o == updateButton) || (o == kymographNamesComboBox)) {
 			displayUpdate();
 		}
-		else if (( o == editGulpsCheckbox) || (o == editLevelsCheckbox)) {
+		else if (( o == viewGulpsCheckbox) || (o == viewLevelsCheckbox)) {
 			roisDisplay();	
 		}
 		else if ( o == viewKymosCheckBox) {
@@ -121,8 +128,8 @@ public class KymosTab_Options extends JPanel implements ActionListener, ActiveVi
 	}
 	
 	private void roisDisplay() {
-		boolean displayTop = editLevelsCheckbox.isSelected();
-		boolean displayGulps = editGulpsCheckbox.isSelected();
+		boolean displayTop = viewLevelsCheckbox.isSelected();
+		boolean displayGulps = viewGulpsCheckbox.isSelected();
 		for (SequencePlus seq: parent0.kymographArrayList) {
 			ArrayList<Viewer>vList =  seq.getViewers();
 			Viewer v = vList.get(0);

@@ -1,12 +1,13 @@
 package plugins.fmp.capillarytrack;
 
+
 import java.util.ArrayList;
 import java.util.Collections;
-import icy.gui.frame.progress.ProgressFrame;
+
 import icy.gui.viewer.Viewer;
 import icy.image.IcyBufferedImage;
 import icy.main.Icy;
-import icy.system.profile.Chronometer;
+import icy.sequence.Sequence;
 import icy.type.DataType;
 import icy.type.collection.array.Array1DUtil;
 import plugins.fmp.sequencevirtual.SequencePlus;
@@ -15,6 +16,8 @@ import plugins.fmp.sequencevirtual.Tools;
 import plugins.kernel.roi.roi2d.ROI2DShape;
 import plugins.nchenouard.kymographtracker.Util;
 import plugins.nchenouard.kymographtracker.spline.CubicSmoothingSpline;
+import tools.DufourRegistration;
+import tools.ProgressChrono;
 
 //-------------------------------------------
 	public class BuildKymographsThread extends Thread  
@@ -24,11 +27,16 @@ import plugins.nchenouard.kymographtracker.spline.CubicSmoothingSpline;
 		public int startFrame = 1;
 		public int endFrame = 99999999;
 		public int diskRadius = 5;
-		public ArrayList <SequencePlus> kymographArrayList 	= null;		// list of kymograph sequences
+		public ArrayList <SequencePlus> kymographArrayList 	= null;
+		public boolean doRegistration = false;
 		
-		private ArrayList<ArrayList<ArrayList<int[]>>> masksArrayList 	= new ArrayList<ArrayList<ArrayList<int[]>>>();
+		private ArrayList<double []> sourceValuesList = null;
+		private ArrayList<ArrayList<ArrayList<int[]>>> masksArrayList = new ArrayList<ArrayList<ArrayList<int[]>>>();
 		private ArrayList<ArrayList <double []>> rois_tabValuesList = new ArrayList<ArrayList <double []>>();
 		private Viewer sequenceViewer = null;
+		IcyBufferedImage workImage = null; 
+		IcyBufferedImage tempImage = null;
+		IcyBufferedImage previousImage = null;
 		
 		@Override
 		public void run () 
@@ -45,41 +53,27 @@ import plugins.nchenouard.kymographtracker.spline.CubicSmoothingSpline;
 
 			// send some info
 			int nbframes = endFrame - startFrame +1;
-			ProgressFrame progress = new ProgressFrame("Processing started");
-			progress.setLength(nbframes);
-			progress.setPosition(startFrame);
-			Chronometer chrono = new Chronometer("Tracking computation" );
-			int  nbSeconds = 0;
+			ProgressChrono progressBar = new ProgressChrono("Processing started");
+			progressBar.initStuff(nbframes);
 
 			int vinputSizeX = vSequence.getSizeX();
 			vSequence.beginUpdate();
 			sequenceViewer = Icy.getMainInterface().getFirstViewer(vSequence);
 			int ipixelcolumn = 0;
 
-			for (int t = startFrame ; t <= endFrame && !isInterrupted(); t  += analyzeStep, ipixelcolumn++ )
+			for (int t = startFrame ; t <= endFrame && !isInterrupted(); t += analyzeStep, ipixelcolumn++ )
 			{
-				// update progression bar
-				int pos = (int)(100d * (double)t / nbframes);
-				progress.setPosition( t );
-				nbSeconds =  (int) (chrono.getNanos() / 1000000000f);
-				double timeleft = ((double)nbSeconds)* (100d-pos) /pos;
-				progress.setMessage( "Processing: " + pos + "% - Estimated time left: " + (int) timeleft + " s");
-
-				// get image to be processed and transfer it into sourceValues array (1 per color chan)
-				IcyBufferedImage workImage = getImageFromSequence(t); 
-				sequenceViewer.setPositionT(t);
-				sequenceViewer.setTitle(vSequence.getVImageName(t)); 
-				
-				if (workImage == null)
+				progressBar.updatePositionAndTimeLeft(t);
+				if (!getImageAndUpdateViewer (t))
 					continue;
-				ArrayList<double []> sourceValuesList = new ArrayList<double []>();
 				
-				for (int chan = 0; chan < vSequence.getSizeC(); chan++) 
-				{
-					double [] sourceValues = Array1DUtil.arrayToDoubleArray(workImage.getDataXY(chan), workImage.isSignedDataType()); 
-					sourceValuesList.add(sourceValues);
+				if (doRegistration && (previousImage != null)) {
+					tempImage = workImage;
+					adjustImage();
 				}
-
+				
+				transferWorkImageToDoubleArrayList ();
+				
 				for (int iroi=0; iroi < vSequence.capillariesArrayList.size(); iroi++)
 				{
 					SequencePlus kymographSeq = kymographArrayList.get(iroi);
@@ -97,7 +91,7 @@ import plugins.nchenouard.kymographtracker.spline.CubicSmoothingSpline;
 						{
 							double sum = 0;
 							for (int[] m:mask)
-								sum += sourceValues[m[0] + m[1]*vinputSizeX]; //  m[0] and m[1] are xy coords
+								sum += sourceValues[m[0] + m[1]*vinputSizeX];
 							if (mask.size() > 1)
 								sum = sum/mask.size();
 							tabValues[cnt*kymographSizeX + t_out] = sum; 
@@ -105,20 +99,42 @@ import plugins.nchenouard.kymographtracker.spline.CubicSmoothingSpline;
 						}
 					}
 				}
+				if (doRegistration) {
+					previousImage = tempImage;
+				}
 			}
 			vSequence.endUpdate();
-
 			for (int iroi=0; iroi < vSequence.capillariesArrayList.size(); iroi++)
 			{
 				SequencePlus kymographSeq = kymographArrayList.get(iroi);
 				kymographSeq.dataChanged();
 			}
-			/**/
-			progress.close();
-			System.out.println("Elapsed time (s):" + nbSeconds);
+
+			System.out.println("Elapsed time (s):" + progressBar.getSecondsSinceStart());
+			progressBar.close();
 		}
 		
 		// -------------------------------------------
+		private boolean getImageAndUpdateViewer(int t) {
+			workImage = getImageFromSequence(t); 
+			sequenceViewer.setPositionT(t);
+			sequenceViewer.setTitle(vSequence.getVImageName(t));
+			if (workImage == null)
+				return false;
+			return true;
+		}
+		
+		private boolean transferWorkImageToDoubleArrayList() {
+			
+			sourceValuesList = new ArrayList<double []>();
+			for (int chan = 0; chan < vSequence.getSizeC(); chan++) 
+			{
+				double [] sourceValues = Array1DUtil.arrayToDoubleArray(workImage.getDataXY(chan), workImage.isSignedDataType()); 
+				sourceValuesList.add(sourceValues);
+			}
+			return true;
+		}
+		
 		private void initKymographs() {
 			
 			int sizex = vSequence.getSizeX();
@@ -201,5 +217,13 @@ import plugins.nchenouard.kymographtracker.spline.CubicSmoothingSpline;
 			}
 			return workImage;
 		}
-
+		
+		private void adjustImage() {
+			Sequence s = new Sequence();
+			s.addImage(previousImage);
+			s.addImage(workImage);
+	        DufourRegistration.correctTemporalTranslation2D(s, 0, 0);
+	        boolean rotate = DufourRegistration.correctTemporalRotation2D(s, 0, 0);
+	        if (rotate) DufourRegistration.correctTemporalTranslation2D(s, 0, 0);
+		}
 	}

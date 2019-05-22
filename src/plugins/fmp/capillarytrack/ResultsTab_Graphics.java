@@ -56,6 +56,9 @@ public class ResultsTab_Graphics extends JPanel implements ActionListener  {
 	}
 	
 	public void enableItems(boolean enabled) {
+		limitsCheckbox.setEnabled(enabled);
+		derivativeCheckbox.setEnabled(enabled);
+		consumptionCheckbox.setEnabled(enabled);
 		displayResultsButton.setEnabled(enabled);
 	}
 	

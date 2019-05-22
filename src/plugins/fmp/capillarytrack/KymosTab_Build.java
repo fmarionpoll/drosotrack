@@ -5,6 +5,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
 import javax.swing.JButton;
+import javax.swing.JCheckBox;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
@@ -28,6 +29,8 @@ public class KymosTab_Build extends JPanel implements ActionListener {
 	public JButton 	kymoStartComputationButton 	= new JButton("Start");
 	public JButton  kymosStopComputationButton 	= new JButton("Stop");
 	public JTextField 	diskRadiusTextField 	= new JTextField("5");
+	JCheckBox doRegistrationCheckBox = new JCheckBox("registration", false);
+	
 	public StatusComputation sComputation = StatusComputation.START_COMPUTATION; 
 	public int diskRadius = 5;
 	
@@ -43,7 +46,7 @@ public class KymosTab_Build extends JPanel implements ActionListener {
 		add(GuiUtil.besidesPanel(
 				new JLabel("area around ROIs", SwingConstants.RIGHT), 
 				diskRadiusTextField, 
-				new JLabel (" ")
+				new JLabel (" "), doRegistrationCheckBox
 				));
 		defineActionListeners();
 	}
@@ -106,6 +109,7 @@ public class KymosTab_Build extends JPanel implements ActionListener {
 		buildKymographsThread.startFrame 	= (int) parent0.vSequence.analysisStart;
 		buildKymographsThread.endFrame 		= (int) parent0.vSequence.analysisEnd;
 		buildKymographsThread.diskRadius 	= diskRadius;
+		buildKymographsThread.doRegistration = doRegistrationCheckBox.isSelected();
 		for (ROI2DShape roi:parent0.vSequence.capillariesArrayList) {
 			SequencePlus kymographSeq = new SequencePlus();	
 			kymographSeq.setName(roi.getName());

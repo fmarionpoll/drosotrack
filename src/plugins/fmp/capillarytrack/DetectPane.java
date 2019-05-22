@@ -13,6 +13,7 @@ import javax.swing.event.ChangeListener;
 import icy.gui.util.GuiUtil;
 import icy.image.IcyBufferedImage;
 import plugins.fmp.sequencevirtual.ImageTransformTools.TransformOp;
+import plugins.fmp.capillarytrack.Capillarytrack.StatusPane;
 import plugins.fmp.sequencevirtual.ImageTransformTools;
 import plugins.fmp.sequencevirtual.SequencePlus;
 
@@ -69,6 +70,14 @@ public class DetectPane extends JPanel implements PropertyChangeListener, Change
 	
 		limitsTab.transformForLevelsComboBox.setSelectedItem(TransformOp.G2MINUS_RB);
 		tabsPane.setSelectedIndex(0);
+	}
+	
+	public void enableItems(StatusPane status) {
+		boolean enable1 = !(status == StatusPane.DISABLED);
+		limitsTab.enableItems(enable1);
+		fileTab.enableItems(enable1);
+		boolean enable2 = (status == StatusPane.FULL);
+		gulpsTab.enableItems(enable2);
 	}
 
 	@Override

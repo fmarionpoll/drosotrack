@@ -8,6 +8,7 @@ import javax.swing.JPanel;
 import javax.swing.JTabbedPane;
 
 import icy.gui.util.GuiUtil;
+import plugins.fmp.capillarytrack.Capillarytrack.StatusPane;
 
 
 public class CapillariesPane extends JPanel implements PropertyChangeListener {
@@ -50,6 +51,8 @@ public class CapillariesPane extends JPanel implements PropertyChangeListener {
 		tabsPane.setTabLayoutPolicy(JTabbedPane.SCROLL_TAB_LAYOUT);
 		capPanel.add(GuiUtil.besidesPanel(tabsPane));
 		
+		propertiesTab.enableItems(false);
+		adjustTab.enableItems(false);
 	}
 	
 	public void UpdateInfosFromSequence() {
@@ -60,11 +63,13 @@ public class CapillariesPane extends JPanel implements PropertyChangeListener {
 		buildTab.setGroupedBy2(parent0.vSequence.capillariesGrouping == 2);
 	}
 	
-	public void enableItems(boolean enabled) {
-		buildTab.enableItems(enabled);
-		propertiesTab.enableItems(enabled);
-		adjustTab.enableItems(enabled);
-		fileTab.enableItems(enabled);
+	public void enableItems(StatusPane status) {
+		boolean enable1 = !(status == StatusPane.DISABLED);
+		buildTab.enableItems(enable1);
+		fileTab.enableItems(enable1);
+		boolean enable2 = (status == StatusPane.FULL);
+		propertiesTab.enableItems(enable2);
+		adjustTab.enableItems(enable2);
 	}
 
 	@Override
@@ -73,6 +78,8 @@ public class CapillariesPane extends JPanel implements PropertyChangeListener {
 			fileTab.capillaryRoisOpen(null);
 		  	UpdateInfosFromSequence();
 		  	tabsPane.setSelectedIndex(2);
+		  	propertiesTab.enableItems(true);
+			adjustTab.enableItems(true);
 		  	firePropertyChange("CAPILLARIES_OPEN", false, true);
 		 }			  
 		 else if (event.getPropertyName().equals("CAP_ROIS_SAVE")) {
@@ -85,6 +92,8 @@ public class CapillariesPane extends JPanel implements PropertyChangeListener {
 			tabsPane.setSelectedIndex(2);
 		 }
 		 else if (event.getPropertyName().equals("CAPILLARIES_NEW")) {
+			propertiesTab.enableItems(true);
+			adjustTab.enableItems(true);
 			firePropertyChange("CAPILLARIES_NEW", false, true);
 			tabsPane.setSelectedIndex(2);
 		 }

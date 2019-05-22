@@ -50,6 +50,14 @@ public class ResultsTab_Excel extends JPanel implements ActionListener  {
 		exportToXLSButton.addActionListener (this);
 	}
 
+	public void enableItems(boolean enabled) {
+		exportToXLSButton.setEnabled(enabled);
+		topLevelCheckbox.setEnabled(enabled);
+		bottomLevelCheckbox.setEnabled(enabled);
+		derivativeCheckbox.setEnabled(enabled);
+		consumptionCheckbox.setEnabled(enabled);
+	}
+	
 	@Override
 	public void actionPerformed(ActionEvent e) {
 		Object o = e.getSource();

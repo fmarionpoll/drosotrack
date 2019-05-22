@@ -8,6 +8,7 @@ import javax.swing.JPanel;
 import javax.swing.JTabbedPane;
 
 import icy.gui.util.GuiUtil;
+import plugins.fmp.capillarytrack.Capillarytrack.StatusPane;
 
 public class ResultsPane  extends JPanel implements PropertyChangeListener {
 
@@ -41,6 +42,13 @@ public class ResultsPane  extends JPanel implements PropertyChangeListener {
 		if (arg0.getPropertyName().equals("EXPORT_TO_EXCEL")) {
 			firePropertyChange("EXPORT_TO_EXCEL", false, true);	
 		}
+	}
+	
+	public void enableItems(StatusPane status) {
+		boolean enable1 = !(status == StatusPane.DISABLED);
+		graphicsTab.enableItems(enable1);
+		excelTab.enableItems(enable1);
+//		boolean enable2 = (status == StatusPane.FULL);
 	}
 
 }

@@ -40,7 +40,7 @@ public class CapillariesTab_File extends JPanel implements ActionListener {
 	}
 	
 	public void enableItems(boolean enabled) {
-//		openButtonCapillaries.setEnabled(enabled);
+		openButtonCapillaries.setEnabled(enabled);
 		saveButtonCapillaries.setEnabled(enabled);
 	}
 	
