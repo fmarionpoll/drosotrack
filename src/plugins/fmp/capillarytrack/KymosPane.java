@@ -6,12 +6,14 @@ import java.beans.PropertyChangeListener;
 
 import javax.swing.JPanel;
 import javax.swing.JTabbedPane;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
 
 import icy.gui.util.GuiUtil;
 import icy.gui.viewer.Viewer;
 
 
-public class KymosPane extends JPanel implements PropertyChangeListener {
+public class KymosPane extends JPanel implements PropertyChangeListener, ChangeListener {
 	/**
 	 * 
 	 */
@@ -44,7 +46,8 @@ public class KymosPane extends JPanel implements PropertyChangeListener {
 		tabsPane.addTab("Load/Save", null, fileTab, "Load/Save kymographs");
 		
 		tabsPane.setTabLayoutPolicy(JTabbedPane.SCROLL_TAB_LAYOUT);
-		buildTab.addPropertyChangeListener(parent0);
+		tabsPane.addChangeListener(this);
+		
 		kymosPanel.add(GuiUtil.besidesPanel(tabsPane));
 	}
 	
@@ -70,6 +73,7 @@ public class KymosPane extends JPanel implements PropertyChangeListener {
 			firePropertyChange( "KYMOS_OK", false, true);
 		}
 	}
+
 	
 	public void tabbedCapillariesAndKymosSelected() {
 		if (parent0.vSequence == null)
@@ -94,5 +98,14 @@ public class KymosPane extends JPanel implements PropertyChangeListener {
 		tabsPane.setSelectedIndex(1);
 		return flag;
 	}
+
+	@Override
+	public void stateChanged(ChangeEvent event) {
+		if (event.getSource() == tabsPane)
+			tabbedCapillariesAndKymosSelected();
+	}
+	
+
+
 	
 }

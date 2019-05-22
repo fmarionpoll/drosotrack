@@ -6,8 +6,7 @@ import java.beans.PropertyChangeListener;
 import java.util.ArrayList;
 
 import javax.swing.JPanel;
-import javax.swing.event.ChangeEvent;
-import javax.swing.event.ChangeListener;
+
 
 import icy.gui.frame.IcyFrame;
 
@@ -28,7 +27,7 @@ import plugins.fmp.sequencevirtual.SequencePlus.ArrayListType;
 import plugins.fmp.sequencevirtual.SequenceVirtual;
 
 // SequenceListener?
-public class Capillarytrack extends PluginActionable implements ChangeListener, ViewerListener, PropertyChangeListener, SequenceListener
+public class Capillarytrack extends PluginActionable implements ViewerListener, PropertyChangeListener, SequenceListener
 {
 	
 	//------------------------------------------- global variables
@@ -57,15 +56,15 @@ public class Capillarytrack extends PluginActionable implements ChangeListener, 
 
 		capillariesPane = new CapillariesPane();
 		capillariesPane.init(mainPanel, "CAPILLARIES", this);
-		capillariesPane.tabsPane.addChangeListener(this);	
+		capillariesPane.addPropertyChangeListener(this);	
 				
 		kymographsPane = new KymosPane();
 		kymographsPane.init(mainPanel, "KYMOGRAPHS", this);
-		kymographsPane.tabsPane.addChangeListener(this);
+		kymographsPane.addPropertyChangeListener(this);
 		
 		detectPane = new DetectPane();
 		detectPane.init(mainPanel, "DETECT", this);
-		detectPane.tabsPane.addChangeListener(this);
+		detectPane.addPropertyChangeListener(this);
 		
 		resultsPane = new ResultsPane();
 		resultsPane.init(mainPanel, "RESULTS", this);
@@ -152,18 +151,6 @@ public class Capillarytrack extends PluginActionable implements ChangeListener, 
 		}
 	}
 
-	@Override
-	public void stateChanged(ChangeEvent e) {
-// TODO		
-//		if ((   e.getSource() == tabbedDetectionPane) 
-//			|| (e.getSource() == distanceSpinner)) 
-//			colorsUpdateThresholdOverlayParameters();
-//		
-//		else 
-			if (e.getSource() == kymographsPane.tabsPane)
-				kymographsPane.tabbedCapillariesAndKymosSelected();
-
-	}
 
 	@Override	
 	public void viewerChanged(ViewerEvent event)
@@ -211,10 +198,8 @@ public class Capillarytrack extends PluginActionable implements ChangeListener, 
 		else if (arg0.getPropertyName().equals("MEASURETOP_OK")) {
 			buttonsVisibilityUpdate(StatusAnalysis.MEASURETOP_OK); 
 		}
-		else if (arg0.getPropertyName().equals("MEASUREGULPS_OK")) {
-			buttonsVisibilityUpdate(StatusAnalysis.MEASUREGULPS_OK );
-		}
-		else if (arg0.getPropertyName().equals("MEASURE_OPEN")) {	
+		else if (arg0.getPropertyName().equals("MEASUREGULPS_OK") 
+				|| arg0.getPropertyName().equals("MEASURE_OPEN")) {	
 			kymographsPane.optionsTab.selectKymograph(0);
 			buttonsVisibilityUpdate(StatusAnalysis.MEASUREGULPS_OK );
 		}

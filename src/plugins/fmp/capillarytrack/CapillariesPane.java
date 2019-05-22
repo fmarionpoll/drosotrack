@@ -31,18 +31,18 @@ public class CapillariesPane extends JPanel implements PropertyChangeListener {
 		mainPanel.add(GuiUtil.besidesPanel(capPanel));
 		GridLayout capLayout = new GridLayout(3, 2);
 		
-		// tab 1
 		buildTab.init(capLayout, parent0);
 		buildTab.addPropertyChangeListener(this);
 		tabsPane.addTab("Create", null, buildTab, "Create lines defining capillaries");
-		// tab 2
+
 		adjustTab.init(capLayout, parent0);
 		adjustTab.addPropertyChangeListener(parent0);
 		tabsPane.addTab("Adjust lines", null, adjustTab, "Adjust capillaries positions automatically");
-		// tab 3
+
 		propertiesTab.init(capLayout, parent0);
+		propertiesTab.addPropertyChangeListener(this);
 		tabsPane.addTab("Properties", null, propertiesTab, "Define pixel conversion unit of images");
-		// tab 4
+
 		fileTab.init(capLayout, parent0);
 		fileTab.addPropertyChangeListener(this);
 		tabsPane.addTab("Load/Save", null, fileTab, "Load/Save xml file with capillaries descriptors");
@@ -50,7 +50,6 @@ public class CapillariesPane extends JPanel implements PropertyChangeListener {
 		tabsPane.setTabLayoutPolicy(JTabbedPane.SCROLL_TAB_LAYOUT);
 		capPanel.add(GuiUtil.besidesPanel(tabsPane));
 		
-		this.addPropertyChangeListener(parent0);
 	}
 	
 	public void UpdateInfosFromSequence() {
