@@ -43,7 +43,7 @@ import icy.system.thread.ThreadUtil;
 import loci.formats.FormatException;
 import plugins.fmp.capillarytrack.BuildKymographsThread;
 import plugins.fmp.sequencevirtual.*;
-import tools.Tools;
+import plugins.fmp.tools.Tools;
 
 public class BuildKymos extends PluginActionable implements ActionListener, ChangeListener, ViewerListener
 {

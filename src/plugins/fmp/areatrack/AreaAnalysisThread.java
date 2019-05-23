@@ -18,11 +18,11 @@ import icy.sequence.SequenceDataIterator;
 import icy.system.profile.Chronometer;
 import icy.type.DataType;
 import icy.type.collection.array.Array1DUtil;
-import tools.ImageOperations;
-import tools.Tools;
-import tools.ImageThresholdTools.ThresholdType;
-import tools.ImageTransformTools.TransformOp;
 import plugins.fmp.sequencevirtual.SequenceVirtual;
+import plugins.fmp.tools.ImageOperations;
+import plugins.fmp.tools.Tools;
+import plugins.fmp.tools.ImageThresholdTools.ThresholdType;
+import plugins.fmp.tools.ImageTransformTools.TransformOp;
 
 public class AreaAnalysisThread extends Thread
 {

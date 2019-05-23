@@ -15,8 +15,8 @@ import javax.swing.SwingConstants;
 
 import icy.gui.frame.progress.AnnounceFrame;
 import icy.gui.util.GuiUtil;
-import tools.Tools;
-import tools.ImageTransformTools.TransformOp;
+import plugins.fmp.tools.Tools;
+import plugins.fmp.tools.ImageTransformTools.TransformOp;
 
 public class DetectTab_Gulps  extends JPanel implements ActionListener {
 

@@ -1,4 +1,4 @@
-package tools;
+package plugins.fmp.tools;
 
 import java.awt.Point;
 import java.awt.Rectangle;
@@ -17,7 +17,7 @@ import icy.type.DataType;
 import icy.type.collection.array.Array1DUtil;
 
 
-public class DufourRegistration {
+public class DufourRigidRegistration {
 
     /**
      * Enumeration of the various supported resizing policies for rigid registration
@@ -613,7 +613,7 @@ public class DufourRegistration {
             }
             
             angle /= n;
-            System.out.println("[Rigid Registration] Angle: " + angle);
+ //           System.out.println("[Rigid Registration] Angle: " + angle);
             
             if (angle != 0.0)
             {

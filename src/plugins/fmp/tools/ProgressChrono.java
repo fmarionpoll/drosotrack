@@ -1,4 +1,4 @@
-package tools;
+package plugins.fmp.tools;
 
 import icy.gui.frame.progress.ProgressFrame;
 import icy.system.profile.Chronometer;

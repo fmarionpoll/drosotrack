@@ -16,10 +16,11 @@ import icy.gui.util.GuiUtil;
 import icy.gui.viewer.Viewer;
 import plugins.fmp.capillarytrack.Capillarytrack.StatusComputation;
 import plugins.fmp.sequencevirtual.SequencePlus;
+import plugins.fmp.tools.ThreadCompleteListener;
 import plugins.kernel.roi.roi2d.ROI2DShape;
 
 
-public class KymosTab_Build extends JPanel implements ActionListener { 
+public class KymosTab_Build extends JPanel implements ActionListener, ThreadCompleteListener { 
 
 	/**
 	 * 
@@ -62,17 +63,29 @@ public class KymosTab_Build extends JPanel implements ActionListener {
 		diskRadiusTextField.setEnabled(enabled);
 	}
 	
+	private void setStartButton(boolean enableStart) {
+		kymoStartComputationButton.setEnabled(enableStart );
+		kymosStopComputationButton.setEnabled(!enableStart);
+
+	}
+	
 	@Override
 	public void actionPerformed(ActionEvent evt) {
 		Object o = evt.getSource();
 		if ( o == kymoStartComputationButton)  {
-			try { diskRadius =  Integer.parseInt( diskRadiusTextField.getText() );
-			} catch( Exception e ) { new AnnounceFrame("Can't interpret the disk radius value."); } 
+			try { 
+				diskRadius = Integer.parseInt(diskRadiusTextField.getText());
+			} catch( Exception e ) { 
+				new AnnounceFrame("Can't interpret the disk radius value."); 
+			} 
 			kymosBuildStart();
 		}
 		else if ( o == kymosStopComputationButton) {
-			kymosBuildStop();
-			firePropertyChange("KYMOS_CREATE", false, true);	
+//			kymosBuildStop();
+			sComputation = StatusComputation.START_COMPUTATION;
+			firePropertyChange( "KYMOS_CREATE", false, true);
+			setStartButton(true);
+//			firePropertyChange( "KYMOS_OK", false, true);
 		}
 	}
 	
@@ -85,8 +98,7 @@ public class KymosTab_Build extends JPanel implements ActionListener {
 		enableItems(false);
 		
 		parent0.sequencePane.UpdateItemsToSequence ( parent0.vSequence);
-		kymosStopComputationButton.setEnabled(true);
-		kymoStartComputationButton.setEnabled(false);
+		setStartButton(false);
 		kymosBuildKymographs();	
 		
 		Viewer v = parent0.vSequence.getFirstViewer();
@@ -94,7 +106,6 @@ public class KymosTab_Build extends JPanel implements ActionListener {
 	}
 	
 	private void kymosBuildKymographs() {
-
 		// clear previous data
 		if (parent0.kymographArrayList.size() > 0) {
 			for (SequencePlus seq:parent0.kymographArrayList)
@@ -109,7 +120,8 @@ public class KymosTab_Build extends JPanel implements ActionListener {
 		buildKymographsThread.startFrame 	= (int) parent0.vSequence.analysisStart;
 		buildKymographsThread.endFrame 		= (int) parent0.vSequence.analysisEnd;
 		buildKymographsThread.diskRadius 	= diskRadius;
-		buildKymographsThread.doRegistration = doRegistrationCheckBox.isSelected();
+		buildKymographsThread.doRegistration= doRegistrationCheckBox.isSelected();
+		
 		for (ROI2DShape roi:parent0.vSequence.capillariesArrayList) {
 			SequencePlus kymographSeq = new SequencePlus();	
 			kymographSeq.setName(roi.getName());
@@ -119,37 +131,14 @@ public class KymosTab_Build extends JPanel implements ActionListener {
 		parent0.kymographsPane.optionsTab.displayViews (true);
 		
 		buildKymographsThread.kymographArrayList = parent0.kymographArrayList;
+		buildKymographsThread.addListener(this);
 		buildKymographsThread.start();
-		
-		//observer thread for notifications
-		Thread waitcompletionThread = new Thread(new Runnable(){public void run()
-		{
-			try {
-				buildKymographsThread.join();
-				}
-			catch(Exception e){;} 
-			finally { 
-				kymosStopComputationButton.doClick();
-				}
-		}});
-
-		waitcompletionThread.start();	
 	}
-	
-	private void kymosBuildStop() {
 
-		if (sComputation == StatusComputation.STOP_COMPUTATION) {
-			if (buildKymographsThread.isAlive()) {
-				buildKymographsThread.interrupt();
-				try {
-					buildKymographsThread.join();
-				} catch (InterruptedException e1) {
-					e1.printStackTrace();
-				}
-			}
-		}
-		sComputation = StatusComputation.START_COMPUTATION;
-		firePropertyChange( "KYMOS_OK", false, true);
+	@Override
+	public void notifyOfThreadComplete(Thread thread) {
+		kymosStopComputationButton.doClick();
+//		System.out.println("doClick" );
 	}
 
 }

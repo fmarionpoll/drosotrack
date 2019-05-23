@@ -1,10 +1,10 @@
-package tools;
+package plugins.fmp.tools;
 
 import java.awt.Color;
 import java.util.ArrayList;
 
-import tools.ImageThresholdTools.ThresholdType;
-import tools.ImageTransformTools.TransformOp;
+import plugins.fmp.tools.ImageThresholdTools.ThresholdType;
+import plugins.fmp.tools.ImageTransformTools.TransformOp;
 
 public class ImageOperationsStruct {
 	

@@ -1,4 +1,4 @@
-package tools;
+package plugins.fmp.tools;
 
 import java.awt.Color;
 import java.util.ArrayList;

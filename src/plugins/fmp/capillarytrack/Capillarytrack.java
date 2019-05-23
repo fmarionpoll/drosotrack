@@ -33,7 +33,7 @@ public class Capillarytrack extends PluginActionable implements ViewerListener, 
 	//------------------------------------------- global variables
 	SequenceVirtual vSequence = null;
 	ArrayList <SequencePlus> kymographArrayList	= new ArrayList <SequencePlus> ();	// list of kymograph sequences
-	IcyFrame 	mainFrame = new IcyFrame("CapillaryTrack 21-May-2019", true, true, true, true);
+	IcyFrame 	mainFrame = new IcyFrame("CapillaryTrack 23-May-2019", true, true, true, true);
 
 	//---------------------------------------------------------------------------
 	SequencePane sequencePane 		= null;
@@ -82,13 +82,13 @@ public class Capillarytrack extends PluginActionable implements ViewerListener, 
 	enum StatusComputation {START_COMPUTATION, STOP_COMPUTATION};
 	enum StatusPane { DISABLED, INIT, FULL};
 	private StatusPane [] [] flagsTable 		= new StatusPane [][] {
-		//capillaries|		  	kymos|			   	detect_limits|	detect_gulps   |results
-		{StatusPane.DISABLED, StatusPane.DISABLED, StatusPane.DISABLED, StatusPane.DISABLED, StatusPane.DISABLED},  // NODATA
-		{StatusPane.INIT, 	StatusPane.DISABLED, StatusPane.DISABLED, StatusPane.DISABLED, StatusPane.DISABLED},	// SEQ_OK
-		{StatusPane.FULL, 	StatusPane.INIT, 	StatusPane.DISABLED, StatusPane.DISABLED, StatusPane.DISABLED},		// ROIS_OK
-		{StatusPane.FULL, 	StatusPane.FULL, 	StatusPane.INIT, 	StatusPane.DISABLED, StatusPane.DISABLED},		// KYMOS_OK
-		{StatusPane.FULL, 	StatusPane.FULL, 	StatusPane.FULL, 	StatusPane.INIT, 	StatusPane.DISABLED},		// MEASURETOP_OK
-		{StatusPane.FULL, 	StatusPane.FULL, 	StatusPane.FULL, 	StatusPane.FULL,	StatusPane.FULL}		// MEASUREGULPS_OK
+		//0-capillariesPane	1-kymosgraphsPane	2-detectPane(0)		3-resultsPane
+		{StatusPane.DISABLED, StatusPane.DISABLED, StatusPane.DISABLED, StatusPane.DISABLED}, //, StatusPane.DISABLED}, // 0 - NODATA
+		{StatusPane.INIT, 	StatusPane.DISABLED, StatusPane.DISABLED, StatusPane.DISABLED}, //, StatusPane.DISABLED},	// 1 - SEQ_OK
+		{StatusPane.FULL, 	StatusPane.INIT, 	StatusPane.DISABLED, StatusPane.DISABLED}, //, StatusPane.DISABLED},	// 2 - ROIS_OK
+		{StatusPane.FULL, 	StatusPane.FULL, 	StatusPane.INIT, 	StatusPane.DISABLED}, //, StatusPane.DISABLED},		// 3 - KYMOS_OK
+		{StatusPane.FULL, 	StatusPane.FULL, 	StatusPane.FULL, 	StatusPane.INIT}, //, 	StatusPane.DISABLED},		// 4 - MEASURETOP_OK
+		{StatusPane.FULL, 	StatusPane.FULL, 	StatusPane.FULL, 	StatusPane.FULL} //,	StatusPane.FULL}			// 5 - MEASUREGULPS_OK
 	};
 	
 	public void buttonsVisibilityUpdate(StatusAnalysis istate) {

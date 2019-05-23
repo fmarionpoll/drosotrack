@@ -21,7 +21,7 @@ import jxl.write.WritableWorkbook;
 import jxl.write.WriteException;
 import plugins.fmp.sequencevirtual.SequencePlus;
 import plugins.fmp.sequencevirtual.SequencePlus.ArrayListType;
-import tools.Tools;
+import plugins.fmp.tools.Tools;
 
 public class ResultsTab_Excel extends JPanel implements ActionListener  {
 

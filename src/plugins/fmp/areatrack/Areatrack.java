@@ -72,12 +72,12 @@ import jxl.write.WritableWorkbook;
 import jxl.write.WriteException;
 import plugins.fmp.areatrack.MeasureAndName;
 import plugins.fmp.areatrack.AreaAnalysisThread;
-import tools.ComboBoxColorRenderer;
-import tools.OverlayThreshold;
-import tools.Tools;
-import tools.ImageThresholdTools.ThresholdType;
-import tools.ImageTransformTools.TransformOp;
 import plugins.fmp.sequencevirtual.SequencePlus;
+import plugins.fmp.tools.ComboBoxColorRenderer;
+import plugins.fmp.tools.OverlayThreshold;
+import plugins.fmp.tools.Tools;
+import plugins.fmp.tools.ImageThresholdTools.ThresholdType;
+import plugins.fmp.tools.ImageTransformTools.TransformOp;
 
 
 public class Areatrack extends PluginActionable implements ActionListener, ChangeListener, ViewerListener

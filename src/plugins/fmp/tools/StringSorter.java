@@ -1,4 +1,4 @@
-package tools;
+package plugins.fmp.tools;
 
 /*
  * String sorter routines from imageJ

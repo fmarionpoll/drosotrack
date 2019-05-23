@@ -1,4 +1,4 @@
-package tools;
+package plugins.fmp.tools;
 
 import java.awt.Polygon;
 import java.awt.Rectangle;

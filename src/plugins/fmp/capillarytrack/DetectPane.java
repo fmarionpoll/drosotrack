@@ -14,8 +14,8 @@ import icy.gui.util.GuiUtil;
 import icy.image.IcyBufferedImage;
 import plugins.fmp.capillarytrack.Capillarytrack.StatusPane;
 import plugins.fmp.sequencevirtual.SequencePlus;
-import tools.ImageTransformTools;
-import tools.ImageTransformTools.TransformOp;
+import plugins.fmp.tools.ImageTransformTools;
+import plugins.fmp.tools.ImageTransformTools.TransformOp;
 
 public class DetectPane extends JPanel implements PropertyChangeListener, ChangeListener {
 	

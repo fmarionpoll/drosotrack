@@ -1,4 +1,4 @@
-package tools;
+package plugins.fmp.tools;
 
 import icy.canvas.IcyCanvas;
 import icy.canvas.IcyCanvas2D;

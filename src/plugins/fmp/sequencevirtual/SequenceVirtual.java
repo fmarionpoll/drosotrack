@@ -28,12 +28,12 @@ import icy.type.collection.array.Array1DUtil;
 import icy.util.XMLUtil;
 
 import plugins.fab.MiceProfiler.XugglerAviFile;
+import plugins.fmp.tools.ImageOperationsStruct;
+import plugins.fmp.tools.StringSorter;
+import plugins.fmp.tools.Tools;
 import plugins.kernel.roi.roi2d.ROI2DLine;
 import plugins.kernel.roi.roi2d.ROI2DPolyLine;
 import plugins.kernel.roi.roi2d.ROI2DShape;
-import tools.ImageOperationsStruct;
-import tools.StringSorter;
-import tools.Tools;
 
 public class SequenceVirtual extends Sequence 
 {
