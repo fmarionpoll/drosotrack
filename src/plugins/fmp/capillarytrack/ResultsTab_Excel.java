@@ -20,8 +20,8 @@ import jxl.write.WritableSheet;
 import jxl.write.WritableWorkbook;
 import jxl.write.WriteException;
 import plugins.fmp.sequencevirtual.SequencePlus;
-import plugins.fmp.sequencevirtual.Tools;
 import plugins.fmp.sequencevirtual.SequencePlus.ArrayListType;
+import tools.Tools;
 
 public class ResultsTab_Excel extends JPanel implements ActionListener  {
 

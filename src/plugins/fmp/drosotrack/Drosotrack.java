@@ -63,14 +63,13 @@ import icy.util.XLSUtil;
 import jxl.write.WritableSheet;
 import jxl.write.WritableWorkbook;
 import jxl.write.WriteException;
-import plugins.fmp.sequencevirtual.ImageTransformTools.TransformOp;
 import plugins.fmp.sequencevirtual.SequenceVirtual;
-//import plugins.fmp.capillarytrack.Capillarytrack.StatusAnalysis;
-import plugins.fmp.sequencevirtual.OverlayThreshold;
-import plugins.fmp.sequencevirtual.Tools;
 import plugins.kernel.roi.roi2d.ROI2DArea;
 import plugins.kernel.roi.roi2d.ROI2DPolygon;
 import plugins.kernel.roi.roi2d.ROI2DRectangle;
+import tools.OverlayThreshold;
+import tools.Tools;
+import tools.ImageTransformTools.TransformOp;
 
 public class Drosotrack extends PluginActionable implements ActionListener, ViewerListener, ChangeListener
 {

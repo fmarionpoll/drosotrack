@@ -21,8 +21,11 @@ import icy.roi.ROIEvent;
 import icy.sequence.SequenceEvent.SequenceEventType;
 import icy.type.geom.Polyline2D;
 import icy.util.XMLUtil;
-import plugins.fmp.sequencevirtual.ImageTransformTools.TransformOp;
 import plugins.kernel.roi.roi2d.ROI2DPolyLine;
+import tools.OverlayThreshold;
+import tools.OverlayTrapMouse;
+import tools.Tools;
+import tools.ImageTransformTools.TransformOp;
 
 public class SequencePlus extends SequenceVirtual  {
 	

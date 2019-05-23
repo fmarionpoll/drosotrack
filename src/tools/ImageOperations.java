@@ -1,11 +1,12 @@
-package plugins.fmp.sequencevirtual;
+package tools;
 
 import java.awt.Color;
 import java.util.ArrayList;
 
 import icy.image.IcyBufferedImage;
-import plugins.fmp.sequencevirtual.ImageThresholdTools.ThresholdType;
-import plugins.fmp.sequencevirtual.ImageTransformTools.TransformOp;
+import plugins.fmp.sequencevirtual.SequenceVirtual;
+import tools.ImageThresholdTools.ThresholdType;
+import tools.ImageTransformTools.TransformOp;
 
 public class ImageOperations {
 	

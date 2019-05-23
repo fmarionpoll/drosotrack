@@ -12,12 +12,13 @@ import icy.type.DataType;
 import icy.type.collection.array.Array1DUtil;
 import plugins.fmp.sequencevirtual.SequencePlus;
 import plugins.fmp.sequencevirtual.SequenceVirtual;
-import plugins.fmp.sequencevirtual.Tools;
 import plugins.kernel.roi.roi2d.ROI2DShape;
 import plugins.nchenouard.kymographtracker.Util;
 import plugins.nchenouard.kymographtracker.spline.CubicSmoothingSpline;
-import tools.DufourRegistration;
+import plugins.agaspard.rigidregistration.RigidRegistration;
+
 import tools.ProgressChrono;
+import tools.Tools;
 
 //-------------------------------------------
 	public class BuildKymographsThread extends Thread  
@@ -36,7 +37,7 @@ import tools.ProgressChrono;
 		private Viewer sequenceViewer = null;
 		IcyBufferedImage workImage = null; 
 		IcyBufferedImage tempImage = null;
-		IcyBufferedImage previousImage = null;
+		IcyBufferedImage referenceImage = null;
 		
 		@Override
 		public void run () 
@@ -67,8 +68,8 @@ import tools.ProgressChrono;
 				if (!getImageAndUpdateViewer (t))
 					continue;
 				
-				if (doRegistration && (previousImage != null)) {
-					tempImage = workImage;
+				if (doRegistration && (referenceImage != null)) {
+//					tempImage = workImage;
 					adjustImage();
 				}
 				
@@ -99,8 +100,8 @@ import tools.ProgressChrono;
 						}
 					}
 				}
-				if (doRegistration) {
-					previousImage = tempImage;
+				if (doRegistration && referenceImage == null) {
+					referenceImage = workImage;
 				}
 			}
 			vSequence.endUpdate();
@@ -220,10 +221,10 @@ import tools.ProgressChrono;
 		
 		private void adjustImage() {
 			Sequence s = new Sequence();
-			s.addImage(previousImage);
+			s.addImage(referenceImage);
 			s.addImage(workImage);
-	        DufourRegistration.correctTemporalTranslation2D(s, 0, 0);
-	        boolean rotate = DufourRegistration.correctTemporalRotation2D(s, 0, 0);
-	        if (rotate) DufourRegistration.correctTemporalTranslation2D(s, 0, 0);
+			RigidRegistration.correctTemporalTranslation2D(s, 0, 0);
+	        boolean rotate = RigidRegistration.correctTemporalRotation2D(s, 0, 0);
+	        if (rotate) RigidRegistration.correctTemporalTranslation2D(s, 0, 0);
 		}
 	}

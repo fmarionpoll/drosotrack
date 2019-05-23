@@ -1,4 +1,4 @@
-package plugins.fmp.sequencevirtual;
+package tools;
 
 /**
  * The Interface Distance.

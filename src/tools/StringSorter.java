@@ -1,4 +1,4 @@
-package plugins.fmp.sequencevirtual;
+package tools;
 
 /*
  * String sorter routines from imageJ

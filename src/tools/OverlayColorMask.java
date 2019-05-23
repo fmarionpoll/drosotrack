@@ -1,19 +1,19 @@
-package plugins.fmp.sequencevirtual;
+package tools;
 
 import java.awt.Color;
 
 import icy.image.colormap.IcyColorMap;
 import icy.util.ColorUtil;
 
-public class OverlayColorMap extends IcyColorMap {
+public class OverlayColorMask extends IcyColorMap {
 	/*
     * Creates a simple color map using a linear gradient from 'colorFrom' to 'colorTo'.
     */
-	public OverlayColorMap(String mapName, Color colorMask) {
+	public OverlayColorMask(String mapName, Color colorMask) {
 		   this(mapName, colorMask, IcyColorMapType.RGB);
 	}
 	
-	public OverlayColorMap(String mapName, Color colorMask, IcyColorMapType type) {
+	public OverlayColorMask(String mapName, Color colorMask, IcyColorMapType type) {
 	   
 		super(mapName, type);
 		beginUpdate();
@@ -24,7 +24,7 @@ public class OverlayColorMap extends IcyColorMap {
 			int flatend = MAX_INDEX-1;
 			int OFF = 0xFF;
 			int ON = 0x00;
-			Color colorBackground = new Color(0x00000000, true);
+			Color colorBackground = new Color(0xFF000000, true);
 						
 			red.setControlPoint(flatstart, colorBackground.getRed());
 			green.setControlPoint(flatstart, colorBackground.getGreen());

@@ -1,4 +1,4 @@
-package plugins.fmp.sequencevirtual;
+package tools;
 
 import java.awt.AlphaComposite;
 import java.awt.Color;
@@ -13,8 +13,8 @@ import icy.image.IcyBufferedImage;
 import icy.image.IcyBufferedImageUtil;
 import icy.painter.Overlay;
 import icy.sequence.Sequence;
-
-import plugins.fmp.sequencevirtual.ImageTransformTools.TransformOp;
+import plugins.fmp.sequencevirtual.SequenceVirtual;
+import tools.ImageTransformTools.TransformOp;
 
 public class OverlayThreshold extends Overlay
 {

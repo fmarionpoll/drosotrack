@@ -15,8 +15,8 @@ import javax.swing.SwingConstants;
 
 import icy.gui.frame.progress.AnnounceFrame;
 import icy.gui.util.GuiUtil;
-import plugins.fmp.sequencevirtual.Tools;
-import plugins.fmp.sequencevirtual.ImageTransformTools.TransformOp;
+import tools.Tools;
+import tools.ImageTransformTools.TransformOp;
 
 public class DetectTab_Limits  extends JPanel implements ActionListener {
 

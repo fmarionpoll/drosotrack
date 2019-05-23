@@ -31,6 +31,9 @@ import plugins.fab.MiceProfiler.XugglerAviFile;
 import plugins.kernel.roi.roi2d.ROI2DLine;
 import plugins.kernel.roi.roi2d.ROI2DPolyLine;
 import plugins.kernel.roi.roi2d.ROI2DShape;
+import tools.ImageOperationsStruct;
+import tools.StringSorter;
+import tools.Tools;
 
 public class SequenceVirtual extends Sequence 
 {

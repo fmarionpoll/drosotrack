@@ -1,4 +1,4 @@
-package plugins.fmp.sequencevirtual;
+package tools;
 
 import icy.canvas.IcyCanvas;
 import icy.canvas.IcyCanvas2D;

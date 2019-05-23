@@ -1,10 +1,10 @@
-package plugins.fmp.sequencevirtual;
+package tools;
 
 import java.awt.Color;
 import java.util.ArrayList;
 
-import plugins.fmp.sequencevirtual.ImageThresholdTools.ThresholdType;
-import plugins.fmp.sequencevirtual.ImageTransformTools.TransformOp;
+import tools.ImageThresholdTools.ThresholdType;
+import tools.ImageTransformTools.TransformOp;
 
 public class ImageOperationsStruct {
 	

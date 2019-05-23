@@ -72,12 +72,11 @@ import jxl.write.WritableWorkbook;
 import jxl.write.WriteException;
 import plugins.fmp.areatrack.MeasureAndName;
 import plugins.fmp.areatrack.AreaAnalysisThread;
-
-import plugins.fmp.sequencevirtual.ImageTransformTools.TransformOp;
-import plugins.fmp.sequencevirtual.OverlayThreshold;
-import plugins.fmp.sequencevirtual.ImageThresholdTools.ThresholdType;
-import plugins.fmp.sequencevirtual.ComboBoxColorRenderer;
-import plugins.fmp.sequencevirtual.Tools;
+import tools.ComboBoxColorRenderer;
+import tools.OverlayThreshold;
+import tools.Tools;
+import tools.ImageThresholdTools.ThresholdType;
+import tools.ImageTransformTools.TransformOp;
 import plugins.fmp.sequencevirtual.SequencePlus;
 
 

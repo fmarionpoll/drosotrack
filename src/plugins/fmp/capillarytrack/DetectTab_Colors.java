@@ -22,10 +22,10 @@ import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
 import icy.gui.util.GuiUtil;
-import plugins.fmp.sequencevirtual.ComboBoxColorRenderer;
 import plugins.fmp.sequencevirtual.SequencePlus;
-import plugins.fmp.sequencevirtual.ImageThresholdTools.ThresholdType;
-import plugins.fmp.sequencevirtual.ImageTransformTools.TransformOp;
+import tools.ComboBoxColorRenderer;
+import tools.ImageThresholdTools.ThresholdType;
+import tools.ImageTransformTools.TransformOp;
 
 public class DetectTab_Colors  extends JPanel implements ActionListener, ChangeListener {
 

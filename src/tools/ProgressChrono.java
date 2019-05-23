@@ -22,12 +22,13 @@ public class ProgressChrono extends ProgressFrame {
 	
 	public void initStuff(int nbframes) {
 		this.nbframes = nbframes;
+		setLength(nbframes);
 		startChrono();
 	}
 	
-	public void updatePositionAndTimeLeft (int t) {
-		int pos = (int)(100d * (double)t / nbframes);
-		setPosition( t );
+	public void updatePositionAndTimeLeft (int currentframe) {
+		int pos = (int)(100d * (double)currentframe / nbframes);
+		setPosition( currentframe );
 		int nbSeconds =  (int) (chrono.getNanos() / 1000000000f);
 		double timeleft = ((double)nbSeconds)* (100d-pos) /pos;
 		setMessage( "Processing: " + pos + "% - Estimated time left: " + (int) timeleft + " s");

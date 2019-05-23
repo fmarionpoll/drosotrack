@@ -1,10 +1,11 @@
-package plugins.fmp.sequencevirtual;
+package tools;
 
 import java.awt.Color;
 import icy.image.IcyBufferedImage;
 import icy.image.IcyBufferedImageUtil;
 import icy.type.DataType;
 import icy.type.collection.array.Array1DUtil;
+import plugins.fmp.sequencevirtual.SequenceVirtual;
 
 public class ImageTransformTools {
 
