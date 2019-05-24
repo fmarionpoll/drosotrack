@@ -108,7 +108,6 @@ public class ResultsTab_Excel extends JPanel implements ActionListener  {
 
 	private void xlsExportToWorkbook(WritableWorkbook xlsWorkBook, String title, int ioption, double ratio ) {
 		System.out.println("export worksheet "+title);
-		int ncols = parent0.kymographArrayList.size();
 		ArrayList <ArrayList<Integer >> arrayList = new ArrayList <ArrayList <Integer>> ();
 		for (SequencePlus seq: parent0.kymographArrayList) {
 			switch (ioption) {
@@ -145,11 +144,59 @@ public class ResultsTab_Excel extends JPanel implements ActionListener  {
 			return;
 
 		WritableSheet excelSheet = XLSUtil.createNewPage( xlsWorkBook , title );
+		int irow = writeGlobalInfos(excelSheet);
+		int ncols = parent0.kymographArrayList.size();
+		irow = writeColumnHeaders(excelSheet, irow, ncols);
 
-		// output last interval at which movement was detected over the whole period analyzed
+		// output data
+		int startFrame = (int) parent0.vSequence.analysisStart;
+		int t = startFrame;
+		for (int j=0; j<nrows; j++) {
+			int icol0 = 0;
+			if (parent0.vSequence.isFileStack()) {
+				String cs = parent0.vSequence.getFileName(j+startFrame);
+				int index = cs.lastIndexOf("\\");
+				String fileName = cs.substring(index + 1);
+				XLSUtil.setCellString( excelSheet , icol0, irow, fileName );
+				icol0++;
+			}
+
+			XLSUtil.setCellNumber( excelSheet , icol0, irow, t);
+			t  += parent0.vSequence.analyzeStep;
+			icol0++;
+			
+			switch (ioption) {
+			case 4: // TODO
+				for (int i=0; i< ncols; i+=2, icol0+=2) 
+				{
+					ArrayList<Integer> dataL = arrayList.get(i);
+					ArrayList<Integer> dataR = arrayList.get(i+1);
+					if (j < dataL.size())
+						XLSUtil.setCellNumber( excelSheet, icol0, irow, (dataL.get(j)+dataR.get(j))*ratio );
+				}
+				break;
+
+			case 1:
+			case 2: 
+			case 3:
+			case 0:
+			default:
+				for (int i=0; i< ncols; i++, icol0++) 
+				{
+					ArrayList<Integer> data = arrayList.get(i);
+					if (j < data.size())
+						XLSUtil.setCellNumber( excelSheet , icol0, irow, data.get(j)*ratio );
+				}
+				break;
+			}
+			
+			irow++;
+		}
+	}
+	
+	private int writeGlobalInfos(WritableSheet excelSheet) {
 		int irow = 0;
 		XLSUtil.setCellString( excelSheet , 0, irow, "name:" );
-		
 		File file = new File(parent0.vSequence.getFileName(0));
 		String path = file.getParent();
 		XLSUtil.setCellString( excelSheet , 1, irow, path );
@@ -162,50 +209,24 @@ public class ResultsTab_Excel extends JPanel implements ActionListener  {
 		XLSUtil.setCellNumber( excelSheet, icol00++, irow, 	parent0.vSequence.capillaryPixels);
 		irow++;
 		irow++;
-
-		// output column headers
+		return irow;
+	}
+	
+	private int writeColumnHeaders (WritableSheet excelSheet, int irow, int ncols) {
 		int icol0 = 0;
-
 		if (parent0.vSequence.isFileStack()) {
 			XLSUtil.setCellString( excelSheet , icol0, irow, "filename" );
 			icol0++;
 		}
-
 		XLSUtil.setCellString( excelSheet , icol0, irow, "i" );
 		icol0++;
-
-		// export data
 		for (int i=0; i< ncols; i++) {
 			SequencePlus kymographSeq = parent0.kymographArrayList.get(i);
 			String name = kymographSeq.getName();
 			XLSUtil.setCellString( excelSheet , icol0 + i, irow, name );
 		}
 		irow++;
-
-		// output data
-		int startFrame = (int) parent0.vSequence.analysisStart;
-		int t = startFrame;
-		for (int j=0; j<nrows; j++) {
-			icol0 = 0;
-			if (parent0.vSequence.isFileStack()) {
-				String cs = parent0.vSequence.getFileName(j+startFrame);
-				int index = cs.lastIndexOf("\\");
-				String fileName = cs.substring(index + 1);
-				XLSUtil.setCellString( excelSheet , icol0, irow, fileName );
-				icol0++;
-			}
-
-			XLSUtil.setCellNumber( excelSheet , icol0, irow, t);
-			t  += parent0.vSequence.analyzeStep;
-			
-			icol0++;
-			for (int i=0; i< ncols; i++, icol0++) {
-				ArrayList<Integer> data = arrayList.get(i);
-				if (j < data.size())
-					XLSUtil.setCellNumber( excelSheet , icol0, irow, data.get(j)*ratio );
-			}
-			irow++;
-		}
+		return irow;
 	}
 
 
