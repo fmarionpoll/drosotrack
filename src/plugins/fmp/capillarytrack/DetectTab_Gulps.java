@@ -72,7 +72,7 @@ public class DetectTab_Gulps  extends JPanel implements ActionListener {
 			getDetectGulpsThreshold();
 			final TransformOp transform = (TransformOp) transformForGulpsComboBox.getSelectedItem();
 			parent0.detectPane.kymosBuildFiltered(0, 2, transform, spanDiffTransf2);
-			Detect_Gulps detect = new Detect_Gulps();
+			BuildDetect_Gulps detect = new BuildDetect_Gulps();
 			detect.detectGulps(parent0);
 			firePropertyChange("KYMO_DETECT_GULP", false, true);
 		}

@@ -81,11 +81,7 @@ public class KymosTab_Build extends JPanel implements ActionListener, ThreadComp
 			kymosBuildStart();
 		}
 		else if ( o == kymosStopComputationButton) {
-//			kymosBuildStop();
-			sComputation = StatusComputation.START_COMPUTATION;
-			firePropertyChange( "KYMOS_CREATE", false, true);
-			setStartButton(true);
-//			firePropertyChange( "KYMOS_OK", false, true);
+			kymosBuildStop();
 		}
 	}
 	
@@ -103,6 +99,12 @@ public class KymosTab_Build extends JPanel implements ActionListener, ThreadComp
 		
 		Viewer v = parent0.vSequence.getFirstViewer();
 		v.toFront();
+	}
+	
+	private void kymosBuildStop() {
+		if (buildKymographsThread.isAlive()) {
+			buildKymographsThread.interrupt();
+		}
 	}
 	
 	private void kymosBuildKymographs() {
@@ -137,8 +139,10 @@ public class KymosTab_Build extends JPanel implements ActionListener, ThreadComp
 
 	@Override
 	public void notifyOfThreadComplete(Thread thread) {
-		kymosStopComputationButton.doClick();
-//		System.out.println("doClick" );
+		sComputation = StatusComputation.START_COMPUTATION;
+		firePropertyChange( "KYMOS_CREATE", false, true);
+		setStartButton(true);
+//		firePropertyChange( "KYMOS_OK", false, true);
 	}
 
 }

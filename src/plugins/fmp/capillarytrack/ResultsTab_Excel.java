@@ -34,6 +34,7 @@ public class ResultsTab_Excel extends JPanel implements ActionListener  {
 	public JCheckBox 	bottomLevelCheckbox = new JCheckBox("bottom level", true);
 	public JCheckBox 	derivativeCheckbox 	= new JCheckBox("derivative", true);
 	public JCheckBox 	consumptionCheckbox = new JCheckBox("consumption", true);
+	public JCheckBox 	sumCheckbox = new JCheckBox("sum L+R", true);
 
 	private Capillarytrack parent0 = null;
 	
@@ -42,7 +43,7 @@ public class ResultsTab_Excel extends JPanel implements ActionListener  {
 		setLayout(capLayout);
 		this.parent0 = parent0;
 		add(GuiUtil.besidesPanel( topLevelCheckbox, bottomLevelCheckbox, derivativeCheckbox, consumptionCheckbox));
-		add(GuiUtil.besidesPanel( exportToXLSButton, new JLabel(" "))); 
+		add(GuiUtil.besidesPanel( sumCheckbox, new JLabel(" "), exportToXLSButton)); 
 		defineActionListeners();
 	}
 	
@@ -56,6 +57,7 @@ public class ResultsTab_Excel extends JPanel implements ActionListener  {
 		bottomLevelCheckbox.setEnabled(enabled);
 		derivativeCheckbox.setEnabled(enabled);
 		consumptionCheckbox.setEnabled(enabled);
+		sumCheckbox.setEnabled(enabled);
 	}
 	
 	@Override
@@ -93,6 +95,8 @@ public class ResultsTab_Excel extends JPanel implements ActionListener  {
 				xlsExportToWorkbook(xlsWorkBook, "derivative", 1, ratio);
 			if (consumptionCheckbox.isSelected()) 
 				xlsExportToWorkbook(xlsWorkBook, "consumption", 2, ratio);
+			if (sumCheckbox.isSelected()) 
+				xlsExportToWorkbook(xlsWorkBook, "sumL+R", 4, ratio);
 			XLSUtil.saveAndClose( xlsWorkBook );
 		} catch (IOException e) {
 			e.printStackTrace();
@@ -118,6 +122,7 @@ public class ResultsTab_Excel extends JPanel implements ActionListener  {
 			case 3:
 				arrayList.add(seq.getArrayListFromRois(ArrayListType.bottomLevel));
 				break;
+			case 4: // TODO
 			case 0:
 			default:
 				arrayList.add(seq.getArrayListFromRois(ArrayListType.topLevel));

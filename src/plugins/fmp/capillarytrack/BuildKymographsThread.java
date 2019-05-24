@@ -40,8 +40,6 @@ public class BuildKymographsThread extends NotifyingThread
 	IcyBufferedImage workImage = null; 
 	Sequence s = new Sequence();
 	
-//		@Override
-//		public void run () 
 	@Override
 	public void doRun() {
 
@@ -64,21 +62,19 @@ public class BuildKymographsThread extends NotifyingThread
 		vSequence.beginUpdate();
 		sequenceViewer = Icy.getMainInterface().getFirstViewer(vSequence);
 		int ipixelcolumn = 0;
+		getImageAndUpdateViewer (startFrame);
+		s.addImage(workImage);
+		s.addImage(workImage);
 
-		for (int t = startFrame ; t <= endFrame && !isInterrupted(); t += analyzeStep, ipixelcolumn++ )
+		for (int t = startFrame ; t <= endFrame; t += analyzeStep, ipixelcolumn++ )
 		{
 			progressBar.updatePositionAndTimeLeft(t);
 			if (!getImageAndUpdateViewer (t))
 				continue;
 			
 			if (doRegistration ) {
-				if (t == startFrame) {
-					s.addImage(workImage);
-					s.addImage(workImage);
-				}
 				adjustImage();
 			}
-			
 			transferWorkImageToDoubleArrayList ();
 			
 			for (int iroi=0; iroi < vSequence.capillariesArrayList.size(); iroi++)
@@ -106,7 +102,9 @@ public class BuildKymographsThread extends NotifyingThread
 					}
 				}
 			}
-			
+			if (isInterrupted()) {
+				t = endFrame;
+			}
 		}
 		vSequence.endUpdate();
 		for (int iroi=0; iroi < vSequence.capillariesArrayList.size(); iroi++)
