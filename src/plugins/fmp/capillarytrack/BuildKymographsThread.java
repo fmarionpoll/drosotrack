@@ -10,20 +10,22 @@ import icy.main.Icy;
 import icy.sequence.Sequence;
 import icy.type.DataType;
 import icy.type.collection.array.Array1DUtil;
+import plugins.agaspard.rigidregistration.RigidRegistration;
 import plugins.fmp.sequencevirtual.SequencePlus;
 import plugins.fmp.sequencevirtual.SequenceVirtual;
 import plugins.fmp.tools.ProgressChrono;
-import plugins.fmp.tools.DufourRigidRegistration;
-import plugins.fmp.tools.NotifyingThread;
+import plugins.fmp.tools.ThreadNotifying;
 import plugins.fmp.tools.Tools;
 import plugins.kernel.roi.roi2d.ROI2DShape;
+//import plugins.fmp.tools.DufourRigidRegistration;
+
 import plugins.nchenouard.kymographtracker.Util;
 import plugins.nchenouard.kymographtracker.spline.CubicSmoothingSpline;
 
 
 //-------------------------------------------
 //	public class BuildKymographsThread extends Thread  
-public class BuildKymographsThread extends NotifyingThread 
+public class BuildKymographsThread extends ThreadNotifying 
 {
 	public SequenceVirtual vSequence = null;
 	public int analyzeStep = 1;
@@ -45,19 +47,15 @@ public class BuildKymographsThread extends NotifyingThread
 
 		if (vSequence == null)
 			return;
-
-		// loop over Rois attached to the current sequence
 		if (startFrame < 0) 
 			startFrame = 0;
 		if (endFrame >= (int) vSequence.nTotalFrames || endFrame < 0) 
 			endFrame = (int) vSequence.nTotalFrames-1;
-		initKymographs();
-
-		// send some info
 		int nbframes = endFrame - startFrame +1;
 		ProgressChrono progressBar = new ProgressChrono("Processing started");
 		progressBar.initStuff(nbframes);
 
+		initKymographs();
 		int vinputSizeX = vSequence.getSizeX();
 		vSequence.beginUpdate();
 		sequenceViewer = Icy.getMainInterface().getFirstViewer(vSequence);
@@ -71,7 +69,6 @@ public class BuildKymographsThread extends NotifyingThread
 			progressBar.updatePositionAndTimeLeft(t);
 			if (!getImageAndUpdateViewer (t))
 				continue;
-			
 			if (doRegistration ) {
 				adjustImage();
 			}
@@ -103,18 +100,26 @@ public class BuildKymographsThread extends NotifyingThread
 				}
 			}
 			if (isInterrupted()) {
+				if (doRegistration ) {
+					try {
+						sleep(1000);
+					} catch (InterruptedException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
+				}
 				t = endFrame;
 			}
 		}
 		vSequence.endUpdate();
+		System.out.println("Elapsed time (s):" + progressBar.getSecondsSinceStart());
+		progressBar.close();
+		
 		for (int iroi=0; iroi < vSequence.capillariesArrayList.size(); iroi++)
 		{
 			SequencePlus kymographSeq = kymographArrayList.get(iroi);
 			kymographSeq.dataChanged();
 		}
-
-		System.out.println("Elapsed time (s):" + progressBar.getSecondsSinceStart());
-		progressBar.close();
 	}
 	
 	// -------------------------------------------
@@ -139,7 +144,7 @@ public class BuildKymographsThread extends NotifyingThread
 	}
 	
 	private void initKymographs() {
-		
+
 		int sizex = vSequence.getSizeX();
 		int sizey = vSequence.getSizeY();
 		vSequence.keepOnly2DLines_CapillariesArrayList();
@@ -223,9 +228,12 @@ public class BuildKymographsThread extends NotifyingThread
 	
 	private void adjustImage() {
 		s.setImage(1, 0, workImage);
-		DufourRigidRegistration.correctTemporalTranslation2D(s, 0, 0);
-        boolean rotate = DufourRigidRegistration.correctTemporalRotation2D(s, 0, 0);
-        if (rotate) DufourRigidRegistration.correctTemporalTranslation2D(s, 0, 0);
+//		DufourRigidRegistration.correctTemporalTranslation2D(s, 0, 0);
+//        boolean rotate = DufourRigidRegistration.correctTemporalRotation2D(s, 0, 0);
+//        if (rotate) DufourRigidRegistration.correctTemporalTranslation2D(s, 0, 0);
+        RigidRegistration.correctTemporalTranslation2D(s, 0, 0);
+        boolean rotate = RigidRegistration.correctTemporalRotation2D(s, 0, 0);
+        if (rotate) RigidRegistration.correctTemporalTranslation2D(s, 0, 0);
         workImage = s.getLastImage(1);
 	}
 

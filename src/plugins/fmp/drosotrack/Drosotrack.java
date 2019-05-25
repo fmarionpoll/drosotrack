@@ -386,8 +386,7 @@ public class Drosotrack extends PluginActionable implements ActionListener, View
 	@Override
 	public void actionPerformed(ActionEvent e ) 
 	{
-		Object o = e.getSource();
-		// _______________________________________________
+//		Object o = e.getSource();
 	}
 	
 	private void closeAll() {
@@ -811,7 +810,7 @@ public class Drosotrack extends PluginActionable implements ActionListener, View
 			endFrameTextField.setText( Integer.toString(endFrame));
 			updateButtonsVisibility(StateD.INIT);
 			
-			boolean flag = cageRoisOpen(path+"\\drosotrack.xml");
+			cageRoisOpen(path+"\\drosotrack.xml");
 		}
 	}
 

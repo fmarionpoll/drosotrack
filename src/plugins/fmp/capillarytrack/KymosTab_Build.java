@@ -101,14 +101,16 @@ public class KymosTab_Build extends JPanel implements ActionListener, ThreadComp
 		v.toFront();
 	}
 	
-	private void kymosBuildStop() {
+	private void kymosBuildStop() {	
 		if (buildKymographsThread.isAlive()) {
 			buildKymographsThread.interrupt();
 		}
+		sComputation = StatusComputation.START_COMPUTATION;
+		firePropertyChange( "KYMOS_CREATE", false, true);
+		setStartButton(true);
 	}
 	
 	private void kymosBuildKymographs() {
-		// clear previous data
 		if (parent0.kymographArrayList.size() > 0) {
 			for (SequencePlus seq:parent0.kymographArrayList)
 				seq.close();
@@ -117,7 +119,7 @@ public class KymosTab_Build extends JPanel implements ActionListener, ThreadComp
 		
 		// start building kymos in a separate thread
 		buildKymographsThread = new BuildKymographsThread();
-		buildKymographsThread.vSequence  	= parent0.vSequence;
+		buildKymographsThread.vSequence 	= parent0.vSequence;
 		buildKymographsThread.analyzeStep 	= parent0.vSequence.analyzeStep;
 		buildKymographsThread.startFrame 	= (int) parent0.vSequence.analysisStart;
 		buildKymographsThread.endFrame 		= (int) parent0.vSequence.analysisEnd;
@@ -139,10 +141,7 @@ public class KymosTab_Build extends JPanel implements ActionListener, ThreadComp
 
 	@Override
 	public void notifyOfThreadComplete(Thread thread) {
-		sComputation = StatusComputation.START_COMPUTATION;
-		firePropertyChange( "KYMOS_CREATE", false, true);
-		setStartButton(true);
-//		firePropertyChange( "KYMOS_OK", false, true);
+		kymosStopComputationButton.doClick();
 	}
-
+	
 }
