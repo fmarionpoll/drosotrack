@@ -10,6 +10,7 @@ import javax.vecmath.Vector2d;
 
 import edu.emory.mathcs.jtransforms.fft.FloatFFT_2D;
 import flanagan.complex.Complex;
+
 import icy.image.IcyBufferedImage;
 import icy.image.IcyBufferedImageUtil;
 import icy.sequence.Sequence;
@@ -50,7 +51,6 @@ public class DufourRigidRegistration {
         }
     }
     
-
     /**
      * Register a sequence over time using a single frame as reference
      * 
@@ -70,7 +70,6 @@ public class DufourRigidRegistration {
     public static boolean correctTemporalTranslation2D(Sequence sequence, int referenceFrame, int referenceChannel, int referenceSlice)
     {
         Rectangle newBounds = correctTemporalTranslation2D(sequence, referenceFrame, referenceChannel, referenceSlice, ResizePolicy.PRESERVE_SIZE);
-        
         return newBounds.equals(sequence.getBounds2D());
     }
     
@@ -897,6 +896,5 @@ public class DufourRigidRegistration {
         
         return IcyBufferedImage.createFrom(Arrays.asList(newImages));
     }
-
 
 }

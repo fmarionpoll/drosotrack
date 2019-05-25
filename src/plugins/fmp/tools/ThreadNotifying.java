@@ -3,7 +3,7 @@ package plugins.fmp.tools;
 import java.util.Set;
 import java.util.concurrent.CopyOnWriteArraySet;
 
-public abstract class NotifyingThread extends Thread {
+public abstract class ThreadNotifying extends Thread {
 	  private final Set<ThreadCompleteListener> listeners
 	                   = new CopyOnWriteArraySet<ThreadCompleteListener>();
 	  
