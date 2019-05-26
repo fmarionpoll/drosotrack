@@ -65,21 +65,16 @@ public class DetectTab_Gulps  extends JPanel implements ActionListener {
 	public void actionPerformed(ActionEvent e) {
 		Object o = e.getSource();
 		if ( o == transformForGulpsComboBox)  {
-			getDetectGulpsThreshold();
 			kymosDisplayFiltered2();
 		}
 		else if (o == detectGulpsButton) {
 			getDetectGulpsThreshold();
-			final TransformOp transform = (TransformOp) transformForGulpsComboBox.getSelectedItem();
-			parent0.detectPane.kymosBuildFiltered(0, 2, transform, spanDiffTransf2);
+			kymosDisplayFiltered2();
 			BuildDetect_Gulps detect = new BuildDetect_Gulps();
 			detect.detectGulps(parent0);
 			firePropertyChange("KYMO_DETECT_GULP", false, true);
 		}
 		else if (o == displayTransform2Button) {
-			getDetectGulpsThreshold();
-			final TransformOp transform = (TransformOp) transformForGulpsComboBox.getSelectedItem();
-			parent0.detectPane.kymosBuildFiltered(0, 2, transform, spanDiffTransf2);
 			kymosDisplayFiltered2();
 			parent0.kymographsPane.optionsTab.viewKymosCheckBox.setSelected(true);
 		}

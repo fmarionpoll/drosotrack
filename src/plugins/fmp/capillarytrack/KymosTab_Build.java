@@ -108,6 +108,7 @@ public class KymosTab_Build extends JPanel implements ActionListener, ThreadComp
 		sComputation = StatusComputation.START_COMPUTATION;
 		firePropertyChange( "KYMOS_CREATE", false, true);
 		setStartButton(true);
+		firePropertyChange( "KYMOS_OK", false, true);
 	}
 	
 	private void kymosBuildKymographs() {

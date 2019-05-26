@@ -10,14 +10,15 @@ import icy.main.Icy;
 import icy.sequence.Sequence;
 import icy.type.DataType;
 import icy.type.collection.array.Array1DUtil;
-import plugins.agaspard.rigidregistration.RigidRegistration;
+
 import plugins.fmp.sequencevirtual.SequencePlus;
 import plugins.fmp.sequencevirtual.SequenceVirtual;
 import plugins.fmp.tools.ProgressChrono;
 import plugins.fmp.tools.ThreadNotifying;
 import plugins.fmp.tools.Tools;
 import plugins.kernel.roi.roi2d.ROI2DShape;
-//import plugins.fmp.tools.DufourRigidRegistration;
+//import plugins.agaspard.rigidregistration.RigidRegistration;
+import plugins.fmp.tools.DufourRigidRegistration;
 
 import plugins.nchenouard.kymographtracker.Util;
 import plugins.nchenouard.kymographtracker.spline.CubicSmoothingSpline;
@@ -99,17 +100,13 @@ public class BuildKymographsThread extends ThreadNotifying
 					}
 				}
 			}
-			if (isInterrupted()) {
-				if (doRegistration ) {
-					try {
-						sleep(1000);
-					} catch (InterruptedException e) {
-						// TODO Auto-generated catch block
-						e.printStackTrace();
-					}
-				}
-				t = endFrame;
-			}
+			 try {
+			      sleep(10);  // milliseconds
+			   } catch (InterruptedException ex) {
+//					if (doRegistration ) {
+//					}
+				   	t = endFrame;
+			   }
 		}
 		vSequence.endUpdate();
 		System.out.println("Elapsed time (s):" + progressBar.getSecondsSinceStart());
@@ -206,7 +203,6 @@ public class BuildKymographsThread extends ThreadNotifying
 		return length;
 	}
 	
-	// TODO
 	private IcyBufferedImage getImageFromSequence(int t) {
 		IcyBufferedImage workImage = vSequence.loadVImage(t);
 		vSequence.currentFrame = t;
@@ -228,12 +224,15 @@ public class BuildKymographsThread extends ThreadNotifying
 	
 	private void adjustImage() {
 		s.setImage(1, 0, workImage);
-//		DufourRigidRegistration.correctTemporalTranslation2D(s, 0, 0);
-//        boolean rotate = DufourRigidRegistration.correctTemporalRotation2D(s, 0, 0);
-//        if (rotate) DufourRigidRegistration.correctTemporalTranslation2D(s, 0, 0);
-        RigidRegistration.correctTemporalTranslation2D(s, 0, 0);
-        boolean rotate = RigidRegistration.correctTemporalRotation2D(s, 0, 0);
-        if (rotate) RigidRegistration.correctTemporalTranslation2D(s, 0, 0);
+		int referenceChannel = 1;
+		int referenceSlice = 0;
+		DufourRigidRegistration.correctTemporalTranslation2D(s, referenceChannel, referenceSlice);
+        boolean rotate = DufourRigidRegistration.correctTemporalRotation2D(s, referenceChannel, referenceSlice);
+        if (rotate) 
+        	DufourRigidRegistration.correctTemporalTranslation2D(s, referenceChannel, referenceSlice);
+//        RigidRegistration.correctTemporalTranslation2D(s, 0, 0);
+//        boolean rotate = RigidRegistration.correctTemporalRotation2D(s, 0, 0);
+//        if (rotate) RigidRegistration.correctTemporalTranslation2D(s, 0, 0);
         workImage = s.getLastImage(1);
 	}
 

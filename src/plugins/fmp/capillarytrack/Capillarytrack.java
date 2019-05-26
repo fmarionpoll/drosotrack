@@ -4,12 +4,9 @@ import java.awt.BorderLayout;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.util.ArrayList;
-
 import javax.swing.JPanel;
 
-
 import icy.gui.frame.IcyFrame;
-
 import icy.gui.util.GuiUtil;
 import icy.gui.viewer.Viewer;
 import icy.gui.viewer.ViewerEvent;
@@ -17,6 +14,7 @@ import icy.gui.viewer.ViewerEvent.ViewerEventType;
 import icy.gui.viewer.ViewerListener;
 
 import icy.plugin.abstract_.PluginActionable;
+
 import icy.sequence.DimensionId;
 import icy.sequence.Sequence;
 import icy.sequence.SequenceEvent;
@@ -29,11 +27,10 @@ import plugins.fmp.sequencevirtual.SequenceVirtual;
 // SequenceListener?
 public class Capillarytrack extends PluginActionable implements ViewerListener, PropertyChangeListener, SequenceListener
 {
-	
 	//------------------------------------------- global variables
 	SequenceVirtual vSequence = null;
 	ArrayList <SequencePlus> kymographArrayList	= new ArrayList <SequencePlus> ();	// list of kymograph sequences
-	IcyFrame 	mainFrame = new IcyFrame("CapillaryTrack 23-May-2019", true, true, true, true);
+	IcyFrame 	mainFrame = new IcyFrame("CapillaryTrack 26-May-2019", true, true, true, true);
 
 	//---------------------------------------------------------------------------
 	SequencePane sequencePane 		= null;
