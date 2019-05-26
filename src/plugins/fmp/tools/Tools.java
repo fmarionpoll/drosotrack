@@ -12,6 +12,7 @@ import javax.swing.filechooser.FileNameExtensionFilter;
 import icy.file.FileUtil;
 import icy.gui.dialog.ConfirmDialog;
 import icy.gui.frame.progress.AnnounceFrame;
+import icy.plugin.abstract_.Plugin;
 import icy.sequence.Sequence;
 import icy.roi.ROI;
 import icy.roi.ROI2D;
@@ -19,7 +20,7 @@ import plugins.kernel.roi.roi2d.ROI2DLine;
 
 
 // Your plugin class should extends \'icy.plugin.abstract_.Plugin\' class.
-public class Tools {
+public class Tools  extends Plugin {
 
 	public static String saveFileAs(String defaultName, String directory, String csExt)
 	{		
