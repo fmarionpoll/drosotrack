@@ -72,6 +72,7 @@ public class BuildKymos extends PluginActionable implements ActionListener, Chan
 	private StatusComputation 	sComputation = StatusComputation.START_COMPUTATION; 
 	private BuildKymographsThread buildKymographsThread = null;
 	private Viewer viewer1 = null;
+	private Thread thread = null;
 	
 	// -------------------------------------------
 	@Override
@@ -271,7 +272,9 @@ public class BuildKymos extends PluginActionable implements ActionListener, Chan
 		buildKymographsThread.endFrame 				= (int) vinputSequence.nTotalFrames-1;
 		buildKymographsThread.diskRadius 			= diskRadius;
 		buildKymographsThread.kymographArrayList 	= kymographArrayList;
-		buildKymographsThread.start();
+		
+		thread = new Thread(buildKymographsThread);
+		thread.start();
 
 		// change display status
 		sComputation = StatusComputation.STOP_COMPUTATION;
@@ -281,7 +284,7 @@ public class BuildKymos extends PluginActionable implements ActionListener, Chan
 		Thread waitcompletionThread = new Thread(new Runnable(){public void run()
 		{
 			try{ 
-				buildKymographsThread.join();
+				thread.join();
 				}
 			catch(Exception e){;} 
 			finally { 
@@ -306,10 +309,10 @@ public class BuildKymos extends PluginActionable implements ActionListener, Chan
 	private void stopComputation() {
 		
 		if (sComputation == StatusComputation.STOP_COMPUTATION) {
-			if (buildKymographsThread.isAlive()) {
-				buildKymographsThread.interrupt();
+			if (thread.isAlive()) {
+				thread.interrupt();
 				try {
-					buildKymographsThread.join();
+					thread.join();
 				} catch (InterruptedException e1) {
 					e1.printStackTrace();
 				}

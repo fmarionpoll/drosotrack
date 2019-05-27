@@ -4,6 +4,7 @@ import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
+import javax.swing.DefaultListModel;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JLabel;
@@ -16,11 +17,10 @@ import icy.gui.util.GuiUtil;
 import icy.gui.viewer.Viewer;
 import plugins.fmp.capillarytrack.Capillarytrack.StatusComputation;
 import plugins.fmp.sequencevirtual.SequencePlus;
-import plugins.fmp.tools.ThreadCompleteListener;
 import plugins.kernel.roi.roi2d.ROI2DShape;
 
 
-public class KymosTab_Build extends JPanel implements ActionListener, ThreadCompleteListener { 
+public class KymosTab_Build extends JPanel implements ActionListener { 
 
 	/**
 	 * 
@@ -37,6 +37,7 @@ public class KymosTab_Build extends JPanel implements ActionListener, ThreadComp
 	
 	private Capillarytrack parent0;
 	private BuildKymographsThread buildKymographsThread = null;
+	private Thread thread = null;
 		
 	public void init(GridLayout capLayout, Capillarytrack parent0) {
 		setLayout(capLayout);	
@@ -95,14 +96,18 @@ public class KymosTab_Build extends JPanel implements ActionListener, ThreadComp
 		parent0.sequencePane.UpdateItemsToSequence ( parent0.vSequence);
 		setStartButton(false);
 		kymosBuildKymographs();	
-		
 		Viewer v = parent0.vSequence.getFirstViewer();
 		v.toFront();
 	}
 	
 	private void kymosBuildStop() {	
-		if (buildKymographsThread.isAlive()) {
-			buildKymographsThread.interrupt();
+		if (thread.isAlive()) {
+			thread.interrupt();
+			try {
+				thread.join();
+			} catch (InterruptedException e1) {
+				e1.printStackTrace();
+			}
 		}
 		sComputation = StatusComputation.START_COMPUTATION;
 		firePropertyChange( "KYMOS_CREATE", false, true);
@@ -133,15 +138,22 @@ public class KymosTab_Build extends JPanel implements ActionListener, ThreadComp
 		}
 		parent0.kymographsPane.optionsTab.viewKymosCheckBox.setSelected(true);
 		parent0.kymographsPane.optionsTab.displayViews (true);
-		
 		buildKymographsThread.kymographArrayList = parent0.kymographArrayList;
-		buildKymographsThread.addListener(this);
-		buildKymographsThread.start();
+		
+		thread = new Thread(buildKymographsThread);
+		thread.start();
+		
+		Thread waitcompletionThread = new Thread(new Runnable(){public void run()
+		{
+			try{ 
+				thread.join();
+				}
+			catch(Exception e){;} 
+			finally { 
+				kymosBuildStop();
+			}
+		}});
+		waitcompletionThread.start();
 	}
 
-	@Override
-	public void notifyOfThreadComplete(Thread thread) {
-		kymosStopComputationButton.doClick();
-	}
-	
 }

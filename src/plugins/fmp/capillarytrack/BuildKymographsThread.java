@@ -26,7 +26,7 @@ import plugins.nchenouard.kymographtracker.spline.CubicSmoothingSpline;
 
 //-------------------------------------------
 //	public class BuildKymographsThread extends Thread  
-public class BuildKymographsThread extends ThreadNotifying 
+public class BuildKymographsThread implements Runnable 
 {
 	public SequenceVirtual vSequence = null;
 	public int analyzeStep = 1;
@@ -44,7 +44,7 @@ public class BuildKymographsThread extends ThreadNotifying
 	Sequence s = new Sequence();
 	
 	@Override
-	public void doRun() {
+	public void run() {
 
 		if (vSequence == null)
 			return;
@@ -65,49 +65,52 @@ public class BuildKymographsThread extends ThreadNotifying
 		s.addImage(workImage);
 		s.addImage(workImage);
 
-		for (int t = startFrame ; t <= endFrame; t += analyzeStep, ipixelcolumn++ )
-		{
-			progressBar.updatePositionAndTimeLeft(t);
-			if (!getImageAndUpdateViewer (t))
-				continue;
-			if (doRegistration ) {
-				adjustImage();
-			}
-			transferWorkImageToDoubleArrayList ();
-			
-			for (int iroi=0; iroi < vSequence.capillariesArrayList.size(); iroi++)
-			{
-				SequencePlus kymographSeq = kymographArrayList.get(iroi);
-				ArrayList<ArrayList<int[]>> masks = masksArrayList.get(iroi);	
-				ArrayList <double []> tabValuesList = rois_tabValuesList.get(iroi);
-				final int kymographSizeX = kymographSeq.getSizeX();
-				final int t_out = ipixelcolumn;
-
-				for (int chan = 0; chan < vSequence.getSizeC(); chan++) 
-				{ 
-					double [] tabValues = tabValuesList.get(chan); 
-					double [] sourceValues = sourceValuesList.get(chan);
-					int cnt = 0;
-					for (ArrayList<int[]> mask:masks)
-					{
-						double sum = 0;
-						for (int[] m:mask)
-							sum += sourceValues[m[0] + m[1]*vinputSizeX];
-						if (mask.size() > 1)
-							sum = sum/mask.size();
-						tabValues[cnt*kymographSizeX + t_out] = sum; 
-						cnt ++;
+		while (!Thread.currentThread().isInterrupted()) {
+			try {
+				for (int t = startFrame ; t <= endFrame; t += analyzeStep, ipixelcolumn++ )
+				{
+					progressBar.updatePositionAndTimeLeft(t);
+					if (!getImageAndUpdateViewer (t))
+						continue;
+					if (doRegistration ) {
+						adjustImage();
 					}
-				}
+					transferWorkImageToDoubleArrayList ();
+					
+					for (int iroi=0; iroi < vSequence.capillariesArrayList.size(); iroi++)
+					{
+							SequencePlus kymographSeq = kymographArrayList.get(iroi);
+							ArrayList<ArrayList<int[]>> masks = masksArrayList.get(iroi);	
+							ArrayList <double []> tabValuesList = rois_tabValuesList.get(iroi);
+							final int kymographSizeX = kymographSeq.getSizeX();
+							final int t_out = ipixelcolumn;
+			
+							for (int chan = 0; chan < vSequence.getSizeC(); chan++) 
+							{ 
+								double [] tabValues = tabValuesList.get(chan); 
+								double [] sourceValues = sourceValuesList.get(chan);
+								int cnt = 0;
+								for (ArrayList<int[]> mask:masks)
+								{
+									double sum = 0;
+									for (int[] m:mask)
+										sum += sourceValues[m[0] + m[1]*vinputSizeX];
+									if (mask.size() > 1)
+										sum = sum/mask.size();
+									tabValues[cnt*kymographSizeX + t_out] = sum; 
+									cnt ++;
+								}
+							}
+						}
+					}
+					Thread.sleep(10);
+					} catch (InterruptedException e) {
+						Thread.currentThread().interrupt();
+						progressBar.close();
+						return;
+					}
 			}
-			 try {
-			      sleep(10);  // milliseconds
-			   } catch (InterruptedException ex) {
-//					if (doRegistration ) {
-//					}
-				   	t = endFrame;
-			   }
-		}
+		
 		vSequence.endUpdate();
 		System.out.println("Elapsed time (s):" + progressBar.getSecondsSinceStart());
 		progressBar.close();

@@ -3,6 +3,7 @@ package plugins.fmp.capillarytrack;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.ArrayList;
 import java.util.Arrays;
 
 import javax.swing.JButton;
@@ -12,6 +13,7 @@ import javax.swing.JTextField;
 
 import icy.gui.util.GuiUtil;
 import icy.image.IcyBufferedImage;
+import icy.type.collection.array.Array1DUtil;
 import plugins.fmp.sequencevirtual.SequencePlus;
 
 public class KymosTab_Filter  extends JPanel implements ActionListener {
@@ -46,16 +48,17 @@ public class KymosTab_Filter  extends JPanel implements ActionListener {
 		if ( o == startButton)  {
 			int span = getSpan();
 			for (SequencePlus kymoSequence: parent0.kymographArrayList) {
-				crossCorrelatePixels(kymoSequence, span);
+				int c = 1;
+				crossCorrelatePixels(kymoSequence, span, c);
 			}
 		}
 	}
 
-	private void crossCorrelatePixels (SequencePlus kymographSeq, int span) {
+	private void crossCorrelatePixels (SequencePlus kymographSeq, int span, int c) {
 		IcyBufferedImage image = null;
-		int c = 0;
 		image = kymographSeq.getImage(0, 0, c);
-		double[] tabValues = image.getDataXYAsDouble(c);
+		double [] tabValues = Array1DUtil.arrayToDoubleArray(image.getDataXY(c), image.isSignedDataType()); 
+		
 		int xwidth = image.getSizeX();
 		int yheight = image.getSizeY();
 		double[] col0 = new double[yheight];
@@ -86,19 +89,30 @@ public class KymosTab_Filter  extends JPanel implements ActionListener {
 				}
 			}
 			ishift[ix] = imax-span;
-			shiftArray(ishift[ix], ix, tabValues, xwidth, yheight);
 		}
 		String cs = "image shifts: " + Arrays.toString(ishift);
 		System.out.println(cs);
+		shiftImageColumns(ishift, kymographSeq);
+
 	}
 	
-	private void shiftArray(int shift, int ix, double[] tabValues, int xwidth, int yheight) {
-		int iydest = shift;
-		for (int iy = 0; iy < yheight; iy++, iydest++) {
-			if (iydest >= 0 && iydest < yheight)
-				tabValues [ix + iydest* xwidth] = tabValues [ix + iy* xwidth];
+	private void shiftImageColumns(int [] shift, SequencePlus kymographSeq) {
+		
+		IcyBufferedImage image = null;
+		
+		for (int chan=0; chan < kymographSeq.getSizeC(); chan++) {
+			image = kymographSeq.getImage(0, 0, chan);
+			int xwidth = image.getSizeX();
+			int yheight = image.getSizeY();
+			double [] tabValues = Array1DUtil.arrayToDoubleArray(image.getDataXY(chan), image.isSignedDataType());
+			for (int ix=0; ix< xwidth; ix++) {
+				int iydest = shift[ix];
+				for (int iy = 0; iy < yheight; iy++, iydest++) {
+					if (iydest >= 0 && iydest < yheight)
+						tabValues [ix + iydest* xwidth] = tabValues [ix + iy* xwidth];
+				}
+			}
 		}
-
 	}
 	
 	private double correlationBetween2Arrays(double[] xs, double[] ys, int startx, int starty, int len) {
