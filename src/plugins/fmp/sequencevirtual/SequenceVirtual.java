@@ -465,14 +465,14 @@ public class SequenceVirtual extends Sequence
 			final Document doc = XMLUtil.loadDocument(csFileName);
 			if (doc != null) {
 				final List<ROI> rois = ROI.loadROIsFromXML(XMLUtil.getRootElement(doc));
-				Collections.sort(rois, new Tools.ROINameComparator()); 
+				xmlReadCapillaryTrackParameters(doc);
 				
+				Collections.sort(rois, new Tools.ROINameComparator()); 
 				beginUpdate();
 				try  {  
 					for (ROI roi : rois)  {
 						addROI(roi);
 					}
-					xmlReadCapillaryTrackParameters(doc);
 				}
 				finally {
 					endUpdate();

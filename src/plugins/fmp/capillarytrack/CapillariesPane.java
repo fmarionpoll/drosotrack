@@ -104,7 +104,8 @@ public class CapillariesPane extends JPanel implements PropertyChangeListener {
 		boolean flag = fileTab.capillaryRoisOpen(path+"\\capillarytrack.xml");
 		if (!flag)
 			flag = fileTab.capillaryRoisOpen(path+"\\roislines.xml");
-		UpdateInfosFromSequence();
+		if (flag)
+			UpdateInfosFromSequence();
 		// TODO update measure from to, etc (see "ROIS_OPEN")
 		return flag;
 	}

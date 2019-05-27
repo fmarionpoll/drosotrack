@@ -96,12 +96,14 @@ public class KymosPane extends JPanel implements PropertyChangeListener, ChangeL
 	public boolean loadDefaultKymos() {
 		String path = parent0.vSequence.getDirectory();
 		final String cs = path+"\\results";
+		int i = 0;
 		boolean flag = fileTab.openFiles(cs);
 		if (flag) {
 			optionsTab.transferFileNamesToComboBox();
 			optionsTab.viewKymosCheckBox.setSelected(true);
+			i = 2;
 		}
-		tabsPane.setSelectedIndex(1);
+		tabsPane.setSelectedIndex(i);
 		return flag;
 	}
 

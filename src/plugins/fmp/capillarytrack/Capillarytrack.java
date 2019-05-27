@@ -80,12 +80,12 @@ public class Capillarytrack extends PluginActionable implements ViewerListener, 
 	enum StatusPane { DISABLED, INIT, FULL};
 	private StatusPane [] [] flagsTable 		= new StatusPane [][] {
 		//0-capillariesPane	1-kymosgraphsPane	2-detectPane(0)		3-resultsPane
-		{StatusPane.DISABLED, StatusPane.DISABLED, StatusPane.DISABLED, StatusPane.DISABLED}, //, StatusPane.DISABLED}, // 0 - NODATA
-		{StatusPane.INIT, 	StatusPane.DISABLED, StatusPane.DISABLED, StatusPane.DISABLED}, //, StatusPane.DISABLED},	// 1 - SEQ_OK
-		{StatusPane.FULL, 	StatusPane.INIT, 	StatusPane.DISABLED, StatusPane.DISABLED}, //, StatusPane.DISABLED},	// 2 - ROIS_OK
-		{StatusPane.FULL, 	StatusPane.FULL, 	StatusPane.INIT, 	StatusPane.DISABLED}, //, StatusPane.DISABLED},		// 3 - KYMOS_OK
-		{StatusPane.FULL, 	StatusPane.FULL, 	StatusPane.FULL, 	StatusPane.INIT}, //, 	StatusPane.DISABLED},		// 4 - MEASURETOP_OK
-		{StatusPane.FULL, 	StatusPane.FULL, 	StatusPane.FULL, 	StatusPane.FULL} //,	StatusPane.FULL}			// 5 - MEASUREGULPS_OK
+		{StatusPane.DISABLED, StatusPane.DISABLED, StatusPane.DISABLED, StatusPane.DISABLED}, 	// 0 - NODATA
+		{StatusPane.INIT, 	StatusPane.DISABLED, StatusPane.DISABLED, StatusPane.DISABLED}, 	// 1 - SEQ_OK
+		{StatusPane.FULL, 	StatusPane.INIT, 	StatusPane.DISABLED, StatusPane.DISABLED}, 		// 2 - ROIS_OK
+		{StatusPane.FULL, 	StatusPane.FULL, 	StatusPane.INIT, 	StatusPane.DISABLED}, 		// 3 - KYMOS_OK
+		{StatusPane.FULL, 	StatusPane.FULL, 	StatusPane.FULL, 	StatusPane.INIT}, 			// 4 - MEASURETOP_OK
+		{StatusPane.FULL, 	StatusPane.FULL, 	StatusPane.FULL, 	StatusPane.FULL} 			// 5 - MEASUREGULPS_OK
 	};
 	
 	public void buttonsVisibilityUpdate(StatusAnalysis istate) {
@@ -135,9 +135,14 @@ public class Capillarytrack extends PluginActionable implements ViewerListener, 
 	}
 
 	private void loadPreviousMeasures(boolean flag) {
-		if (!flag) return;
-		if( !capillariesPane.loadDefaultCapillaries()) return;
-		if ( !kymographsPane.loadDefaultKymos()) return;
+		if (!flag) 
+			return;
+		if( !capillariesPane.loadDefaultCapillaries()) 
+			return;
+		if ( !kymographsPane.loadDefaultKymos()) {
+			buttonsVisibilityUpdate(StatusAnalysis.ROIS_OK);
+			return;
+		}
 		buttonsVisibilityUpdate(StatusAnalysis.KYMOS_OK);
 		if (detectPane.fileTab.measuresFileOpen())
 			buttonsVisibilityUpdate(StatusAnalysis.MEASUREGULPS_OK );

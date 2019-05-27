@@ -73,7 +73,7 @@ public class KymosTab_Filter  extends JPanel implements ActionListener {
 				col1[iy] = tabValues [ix + iy* xwidth];
 			}
 			for (int starty=0; starty<npoints; starty++) {
-				correl[starty] = Correlation (col0, col1, startx, starty, len);
+				correl[starty] = correlationBetween2Arrays (col0, col1, startx, starty, len);
 			}
 //			String cs = "col "+ix + ": " + Arrays.toString(correl);
 //			System.out.println(cs);
@@ -86,12 +86,22 @@ public class KymosTab_Filter  extends JPanel implements ActionListener {
 				}
 			}
 			ishift[ix] = imax-span;
+			shiftArray(ishift[ix], ix, tabValues, xwidth, yheight);
 		}
 		String cs = "image shifts: " + Arrays.toString(ishift);
 		System.out.println(cs);
 	}
 	
-	private static double Correlation(double[] xs, double[] ys, int startx, int starty, int len) {
+	private void shiftArray(int shift, int ix, double[] tabValues, int xwidth, int yheight) {
+		int iydest = shift;
+		for (int iy = 0; iy < yheight; iy++, iydest++) {
+			if (iydest >= 0 && iydest < yheight)
+				tabValues [ix + iydest* xwidth] = tabValues [ix + iy* xwidth];
+		}
+
+	}
+	
+	private double correlationBetween2Arrays(double[] xs, double[] ys, int startx, int starty, int len) {
 	    double sx = 0.0;
 	    double sy = 0.0;
 	    double sxx = 0.0;
