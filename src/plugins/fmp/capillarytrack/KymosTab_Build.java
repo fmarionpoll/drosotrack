@@ -66,7 +66,6 @@ public class KymosTab_Build extends JPanel implements ActionListener, ThreadComp
 	private void setStartButton(boolean enableStart) {
 		kymoStartComputationButton.setEnabled(enableStart );
 		kymosStopComputationButton.setEnabled(!enableStart);
-
 	}
 	
 	@Override

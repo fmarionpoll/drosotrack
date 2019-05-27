@@ -24,6 +24,7 @@ public class KymosPane extends JPanel implements PropertyChangeListener, ChangeL
 	public KymosTab_Options optionsTab 	= new KymosTab_Options();
 	public KymosTab_File fileTab 		= new KymosTab_File();
 	public KymosTab_Build buildTab 		= new KymosTab_Build();
+	public KymosTab_Filter filterTab 		= new KymosTab_Filter();
 
 	private Capillarytrack parent0 = null;
 
@@ -38,6 +39,10 @@ public class KymosPane extends JPanel implements PropertyChangeListener, ChangeL
 		buildTab.addPropertyChangeListener(this);
 		tabsPane.addTab("Build", null, buildTab, "Build kymographs from ROI lines placed over capillaries");
 		
+		filterTab.init(capLayout, parent0);
+		filterTab.addPropertyChangeListener(this);
+		tabsPane.addTab("Filter", null, filterTab, "Cross-correlate columns of pixels to reduce drift");
+
 		optionsTab.init(capLayout, parent0);
 		optionsTab.addPropertyChangeListener(this);
 		tabsPane.addTab("Display", null, optionsTab, "Display options of data & kymographs");
@@ -57,12 +62,12 @@ public class KymosPane extends JPanel implements PropertyChangeListener, ChangeL
 		if (arg0.getPropertyName().equals("KYMOS_OPEN")) {
 			optionsTab.viewKymosCheckBox.setSelected(true);
 			optionsTab.transferFileNamesToComboBox();
-			tabsPane.setSelectedIndex(1);
+			tabsPane.setSelectedIndex(2);
 		}	
 		else if (arg0.getPropertyName().equals("KYMOS_CREATE")) {
 			optionsTab.viewKymosCheckBox.setSelected(true);
 			optionsTab.transferRoisNamesToComboBox(parent0.vSequence.capillariesArrayList);
-			tabsPane.setSelectedIndex(1);
+			tabsPane.setSelectedIndex(2);
 		}
 		else if (arg0.getPropertyName() .equals("KYMOS_DISPLAY_UPDATE")) {
 			int ikymo = optionsTab.kymographNamesComboBox.getSelectedIndex();

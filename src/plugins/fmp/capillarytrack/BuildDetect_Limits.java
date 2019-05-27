@@ -86,7 +86,7 @@ public class BuildDetect_Limits {
 			boolean flagtop = true;
 			boolean flagbottom = true; 
 
-			// scan each image row
+			// scan each image column
 			for (ix = 0; ix < xwidth; ix++) 
 			{
 				// send some info
