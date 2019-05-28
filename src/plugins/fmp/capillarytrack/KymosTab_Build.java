@@ -4,7 +4,6 @@ import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
-import javax.swing.DefaultListModel;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JLabel;
@@ -102,7 +101,7 @@ public class KymosTab_Build extends JPanel implements ActionListener {
 	
 	private void kymosBuildStop() {	
 		if (thread.isAlive()) {
-			thread.interrupt();
+			buildKymographsThread.doStop = true;
 			try {
 				thread.join();
 			} catch (InterruptedException e1) {
@@ -140,10 +139,10 @@ public class KymosTab_Build extends JPanel implements ActionListener {
 		parent0.kymographsPane.optionsTab.displayViews (true);
 		buildKymographsThread.kymographArrayList = parent0.kymographArrayList;
 		
-		thread = new Thread(buildKymographsThread);
+		thread = new Thread(null, buildKymographsThread, "buildkymos");
 		thread.start();
 		
-		Thread waitcompletionThread = new Thread(new Runnable(){public void run()
+		Thread waitcompletionThread = new Thread(null, new Runnable() {public void run()
 		{
 			try{ 
 				thread.join();
@@ -152,7 +151,7 @@ public class KymosTab_Build extends JPanel implements ActionListener {
 			finally { 
 				kymosBuildStop();
 			}
-		}});
+		}}, "waitforcompletion");
 		waitcompletionThread.start();
 	}
 

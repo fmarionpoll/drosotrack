@@ -3,7 +3,9 @@ package plugins.fmp.capillarytrack;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.concurrent.Future;
 
+import edu.emory.mathcs.utils.ConcurrencyUtils;
 import icy.gui.viewer.Viewer;
 import icy.image.IcyBufferedImage;
 import icy.main.Icy;
@@ -14,7 +16,6 @@ import icy.type.collection.array.Array1DUtil;
 import plugins.fmp.sequencevirtual.SequencePlus;
 import plugins.fmp.sequencevirtual.SequenceVirtual;
 import plugins.fmp.tools.ProgressChrono;
-import plugins.fmp.tools.ThreadNotifying;
 import plugins.fmp.tools.Tools;
 import plugins.kernel.roi.roi2d.ROI2DShape;
 //import plugins.agaspard.rigidregistration.RigidRegistration;
@@ -35,6 +36,7 @@ public class BuildKymographsThread implements Runnable
 	public int diskRadius = 5;
 	public ArrayList <SequencePlus> kymographArrayList 	= null;
 	public boolean doRegistration = false;
+	public boolean doStop = false;
 	
 	private ArrayList<double []> sourceValuesList = null;
 	private ArrayList<ArrayList<ArrayList<int[]>>> masksArrayList = new ArrayList<ArrayList<ArrayList<int[]>>>();
@@ -55,6 +57,7 @@ public class BuildKymographsThread implements Runnable
 		int nbframes = endFrame - startFrame +1;
 		ProgressChrono progressBar = new ProgressChrono("Processing started");
 		progressBar.initStuff(nbframes);
+		doStop = false;
 
 		initKymographs();
 		int vinputSizeX = vSequence.getSizeX();
@@ -65,52 +68,47 @@ public class BuildKymographsThread implements Runnable
 		s.addImage(workImage);
 		s.addImage(workImage);
 
-		while (!Thread.currentThread().isInterrupted()) {
-			try {
-				for (int t = startFrame ; t <= endFrame; t += analyzeStep, ipixelcolumn++ )
-				{
-					progressBar.updatePositionAndTimeLeft(t);
-					if (!getImageAndUpdateViewer (t))
-						continue;
-					if (doRegistration ) {
-						adjustImage();
-					}
-					transferWorkImageToDoubleArrayList ();
-					
-					for (int iroi=0; iroi < vSequence.capillariesArrayList.size(); iroi++)
-					{
-							SequencePlus kymographSeq = kymographArrayList.get(iroi);
-							ArrayList<ArrayList<int[]>> masks = masksArrayList.get(iroi);	
-							ArrayList <double []> tabValuesList = rois_tabValuesList.get(iroi);
-							final int kymographSizeX = kymographSeq.getSizeX();
-							final int t_out = ipixelcolumn;
-			
-							for (int chan = 0; chan < vSequence.getSizeC(); chan++) 
-							{ 
-								double [] tabValues = tabValuesList.get(chan); 
-								double [] sourceValues = sourceValuesList.get(chan);
-								int cnt = 0;
-								for (ArrayList<int[]> mask:masks)
-								{
-									double sum = 0;
-									for (int[] m:mask)
-										sum += sourceValues[m[0] + m[1]*vinputSizeX];
-									if (mask.size() > 1)
-										sum = sum/mask.size();
-									tabValues[cnt*kymographSizeX + t_out] = sum; 
-									cnt ++;
-								}
-							}
-						}
-					}
-					Thread.sleep(10);
-					} catch (InterruptedException e) {
-						Thread.currentThread().interrupt();
-						progressBar.close();
-						return;
-					}
+		for (int t = startFrame ; t <= endFrame; t += analyzeStep, ipixelcolumn++ )
+		{
+			progressBar.updatePositionAndTimeLeft(t);
+			if (!getImageAndUpdateViewer (t))
+				continue;
+			if (doRegistration ) {
+				adjustImage();
 			}
-		
+			transferWorkImageToDoubleArrayList ();
+			
+			for (int iroi=0; iroi < vSequence.capillariesArrayList.size(); iroi++)
+			{
+				SequencePlus kymographSeq = kymographArrayList.get(iroi);
+				ArrayList<ArrayList<int[]>> masks = masksArrayList.get(iroi);	
+				ArrayList <double []> tabValuesList = rois_tabValuesList.get(iroi);
+				final int kymographSizeX = kymographSeq.getSizeX();
+				final int t_out = ipixelcolumn;
+
+				for (int chan = 0; chan < vSequence.getSizeC(); chan++) 
+				{ 
+					double [] tabValues = tabValuesList.get(chan); 
+					double [] sourceValues = sourceValuesList.get(chan);
+					int cnt = 0;
+					for (ArrayList<int[]> mask:masks)
+					{
+						double sum = 0;
+						for (int[] m:mask)
+							sum += sourceValues[m[0] + m[1]*vinputSizeX];
+						if (mask.size() > 1)
+							sum = sum/mask.size();
+						tabValues[cnt*kymographSizeX + t_out] = sum; 
+						cnt ++;
+					}
+				}
+			}
+			if (doStop) {
+					System.out.println("interrupt");
+					t=endFrame;
+				}
+			}
+
 		vSequence.endUpdate();
 		System.out.println("Elapsed time (s):" + progressBar.getSecondsSinceStart());
 		progressBar.close();

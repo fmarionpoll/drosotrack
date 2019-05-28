@@ -134,25 +134,34 @@ public class Capillarytrack extends PluginActionable implements ViewerListener, 
 		viewer.removeListener(this);
 	}
 
-	private void loadPreviousMeasures(boolean flag) {
-		if (!flag) 
+	private void loadPreviousMeasures(boolean flag1, boolean flag2, boolean flag3) {
+		if (!flag1 && !flag2 && !flag3) 
 			return;
-		if( !capillariesPane.loadDefaultCapillaries()) 
-			return;
-		if ( !kymographsPane.loadDefaultKymos()) {
-			buttonsVisibilityUpdate(StatusAnalysis.ROIS_OK);
-			return;
+		if (flag1) {
+			if( !capillariesPane.loadDefaultCapillaries()) 
+				return;
+		}
+		if (flag2) {
+			if ( !kymographsPane.loadDefaultKymos()) {
+				buttonsVisibilityUpdate(StatusAnalysis.ROIS_OK);
+				return;
+			}
 		}
 		buttonsVisibilityUpdate(StatusAnalysis.KYMOS_OK);
-		if (detectPane.fileTab.measuresFileOpen())
-			buttonsVisibilityUpdate(StatusAnalysis.MEASUREGULPS_OK );
+		if (flag2 && flag3) {
+			if (detectPane.fileTab.measuresFileOpen())
+				buttonsVisibilityUpdate(StatusAnalysis.MEASUREGULPS_OK );
+		}
 	}
 
 	@Override
 	public void propertyChange(PropertyChangeEvent arg0) {
 		if (arg0.getPropertyName().equals("SEQ_OPEN")) {
 			buttonsVisibilityUpdate(StatusAnalysis.SEQ_OK);
-			loadPreviousMeasures(sequencePane.fileTab.isCheckedLoadPreviousMeasures());
+			loadPreviousMeasures(
+					sequencePane.fileTab.isCheckedLoadPreviousProfiles(), 
+					sequencePane.fileTab.isCheckedLoadKymographs(),
+					sequencePane.fileTab.isCheckedLoadMeasures());
 		}
 		else if (arg0.getPropertyName().equals("SEQ_CLOSE")) {
 			buttonsVisibilityUpdate(StatusAnalysis.NODATA);
