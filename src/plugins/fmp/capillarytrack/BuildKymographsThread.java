@@ -3,9 +3,7 @@ package plugins.fmp.capillarytrack;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.concurrent.Future;
 
-import edu.emory.mathcs.utils.ConcurrencyUtils;
 import icy.gui.viewer.Viewer;
 import icy.image.IcyBufferedImage;
 import icy.main.Icy;
