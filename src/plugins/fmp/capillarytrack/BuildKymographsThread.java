@@ -101,11 +101,10 @@ public class BuildKymographsThread implements Runnable
 					}
 				}
 			}
-			if (doStop) {
-					System.out.println("interrupt");
-					t=endFrame;
-				}
+			if (doStop) { 
+				t=endFrame; 
 			}
+		}
 
 		vSequence.endUpdate();
 		System.out.println("Elapsed time (s):" + progressBar.getSecondsSinceStart());

@@ -12,6 +12,7 @@ import javax.swing.JTextField;
 
 import icy.gui.util.GuiUtil;
 import icy.image.IcyBufferedImage;
+import icy.image.IcyBufferedImageUtil;
 import icy.type.collection.array.Array1DUtil;
 import plugins.fmp.sequencevirtual.SequencePlus;
 
@@ -56,7 +57,7 @@ public class KymosTab_Filter  extends JPanel implements ActionListener {
 	private void crossCorrelatePixels (SequencePlus kymographSeq, int span, int c) {
 		IcyBufferedImage image = null;
 		image = kymographSeq.getImage(0, 0, c);
-		double [] tabValues = Array1DUtil.arrayToDoubleArray(image.getDataXY(c), image.isSignedDataType()); 
+		double [] tabValues = Array1DUtil.arrayToDoubleArray(image.getDataXY(0), image.isSignedDataType()); 
 		
 		int xwidth = image.getSizeX();
 		int yheight = image.getSizeY();
@@ -68,17 +69,17 @@ public class KymosTab_Filter  extends JPanel implements ActionListener {
 		double [] correl = new double [npoints];
 		int [] ishift = new int [xwidth];
 		ishift[0] = 0;
+		for (int iy = 0; iy < yheight; iy++) {
+			col0[iy] = tabValues [iy* xwidth];
+		}
 		
 		for (int ix = 1; ix<xwidth; ix++) {
 			for (int iy = 0; iy < yheight; iy++) {
-				col0[iy] = tabValues [ix-1 + iy* xwidth];
 				col1[iy] = tabValues [ix + iy* xwidth];
 			}
 			for (int starty=0; starty<npoints; starty++) {
 				correl[starty] = correlationBetween2Arrays (col0, col1, startx, starty, len);
 			}
-//			String cs = "col "+ix + ": " + Arrays.toString(correl);
-//			System.out.println(cs);
 			int imax = 0;
 			double vmax = correl[0];
 			for (int i=1; i<npoints; i++) {
@@ -87,30 +88,34 @@ public class KymosTab_Filter  extends JPanel implements ActionListener {
 					imax = i;
 				}
 			}
-			ishift[ix] = imax-span;
+			ishift[ix] = span - imax;
 		}
 		String cs = "image shifts: " + Arrays.toString(ishift);
 		System.out.println(cs);
-		shiftImageColumns(ishift, kymographSeq);
-
+		shiftColumnsOfPixels(ishift, kymographSeq);
 	}
 	
-	private void shiftImageColumns(int [] shift, SequencePlus kymographSeq) {
+	private void shiftColumnsOfPixels(int [] shift, SequencePlus kymographSeq) {
 		
-		IcyBufferedImage image = null;
+		IcyBufferedImage image0 = kymographSeq.getFirstImage();
+		IcyBufferedImage image1 = IcyBufferedImageUtil.getCopy(image0); 
+		int xwidth = image0.getSizeX();
+		int yheight = image0.getSizeY();
 		
 		for (int chan=0; chan < kymographSeq.getSizeC(); chan++) {
-			image = kymographSeq.getImage(0, 0, chan);
-			int xwidth = image.getSizeX();
-			int yheight = image.getSizeY();
-			double [] tabValues = Array1DUtil.arrayToDoubleArray(image.getDataXY(chan), image.isSignedDataType());
+			Object dataObject0 = image0.getDataXY(chan);
+			double[] dataArray0 = Array1DUtil.arrayToDoubleArray(dataObject0, image0.isSignedDataType());
+			Object dataObject1 = image1.getDataXY(chan);
+			double[] dataArray1 = Array1DUtil.arrayToDoubleArray(dataObject1, image1.isSignedDataType());
 			for (int ix=0; ix< xwidth; ix++) {
 				int iydest = shift[ix];
 				for (int iy = 0; iy < yheight; iy++, iydest++) {
 					if (iydest >= 0 && iydest < yheight)
-						tabValues [ix + iydest* xwidth] = tabValues [ix + iy* xwidth];
+						dataArray0 [ix + iydest* xwidth] = dataArray1 [ix + iy* xwidth];
 				}
 			}
+			Array1DUtil.doubleArrayToSafeArray(dataArray0, dataObject0, image0.isSignedDataType());
+			image0.setDataXY(chan, dataObject0);
 		}
 	}
 	
