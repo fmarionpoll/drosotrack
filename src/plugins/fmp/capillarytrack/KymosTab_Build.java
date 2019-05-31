@@ -108,6 +108,9 @@ public class KymosTab_Build extends JPanel implements ActionListener {
 				e1.printStackTrace();
 			}
 		}
+		
+	}
+	private void resetUserInterface() {
 		sComputation = StatusComputation.START_COMPUTATION;
 		firePropertyChange( "KYMOS_CREATE", false, true);
 		setStartButton(true);
@@ -150,6 +153,7 @@ public class KymosTab_Build extends JPanel implements ActionListener {
 			catch(Exception e){;} 
 			finally { 
 				kymosBuildStop();
+				resetUserInterface();
 			}
 		}}, "waitforcompletion");
 		waitcompletionThread.start();
