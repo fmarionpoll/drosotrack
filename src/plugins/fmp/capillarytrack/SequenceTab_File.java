@@ -18,14 +18,14 @@ public class SequenceTab_File extends JPanel implements ActionListener {
 	 */
 	private static final long serialVersionUID = 6565346204580890307L;
 	private JButton 	setVideoSourceButton 	= new JButton("Open...");
-	private JCheckBox	loadProfilesCheckBox	= new JCheckBox("capillaries", true);
-	private JCheckBox	loadKymosCheckBox		= new JCheckBox("kymographs", true);
-	private JCheckBox	loadMeasuresCheckBox	= new JCheckBox("measures", true);
+	private JCheckBox	capillariesCheckBox	= new JCheckBox("capillaries", true);
+	private JCheckBox	kymographsCheckBox		= new JCheckBox("kymographs", true);
+	private JCheckBox	measuresCheckBox	= new JCheckBox("measures", true);
 	
 	public void init(GridLayout capLayout) {
 		setLayout(capLayout);
 		add( GuiUtil.besidesPanel(setVideoSourceButton, new JLabel(" ")));
-		add( GuiUtil.besidesPanel(loadProfilesCheckBox, loadKymosCheckBox, loadMeasuresCheckBox));
+		add( GuiUtil.besidesPanel(capillariesCheckBox, kymographsCheckBox, measuresCheckBox));
 		setVideoSourceButton.addActionListener(this);
 	}
 	
@@ -38,15 +38,15 @@ public class SequenceTab_File extends JPanel implements ActionListener {
 	}
 
 	public boolean isCheckedLoadPreviousProfiles() {
-		return loadProfilesCheckBox.isSelected();
+		return capillariesCheckBox.isSelected();
 	}
 	
 	public boolean isCheckedLoadKymographs() {
-		return loadKymosCheckBox.isSelected();
+		return kymographsCheckBox.isSelected();
 	}
 	
 	public boolean isCheckedLoadMeasures() {
-		return loadMeasuresCheckBox.isSelected();
+		return measuresCheckBox.isSelected();
 	}
 	
 	

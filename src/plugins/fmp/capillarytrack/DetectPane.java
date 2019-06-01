@@ -97,6 +97,9 @@ public class DetectPane extends JPanel implements PropertyChangeListener, Change
 		else if (arg0.getPropertyName().equals("KYMO_DETECT_GULP")) {
 			firePropertyChange( "MEASUREGULPS_OK", false, true);
 		}
+		else if (arg0.getPropertyName().equals("MEASURES_SAVE")) {
+			tabsPane.setSelectedIndex(0);
+		}
 	}
 	
 	public void setDetectionParameters(int ikymo) {

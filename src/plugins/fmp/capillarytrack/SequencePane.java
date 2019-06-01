@@ -107,7 +107,8 @@ public class SequencePane extends JPanel implements PropertyChangeListener {
 		parent0.vSequence = new SequenceVirtual();
 		
 		String path = parent0.vSequence.loadInputVirtualStack(null);
-		if (path != null) {		
+		if (path != null) {
+			initSequenceParameters(parent0.vSequence);
 			XMLPreferences guiPrefs = parent0.getPreferences("gui");
 			guiPrefs.put("lastUsedPath", path);
 			parent0.addSequence(parent0.vSequence);
@@ -115,5 +116,13 @@ public class SequencePane extends JPanel implements PropertyChangeListener {
 			startstopBufferingThread();
 		}
 		return (path != null);
+	}
+	
+	private void initSequenceParameters(SequenceVirtual seq) {
+		if (seq.analysisEnd == 99999999) {
+			seq.analysisStart = 0;
+			seq.analysisEnd = seq.getSizeT()-1;
+			seq.analysisStep = 1;
+		}
 	}
 }

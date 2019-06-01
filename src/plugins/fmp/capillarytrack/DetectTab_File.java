@@ -60,16 +60,14 @@ public class DetectTab_File extends JPanel implements ActionListener {
 		}		
 	}
 	
-	// TODO: see if we can have different parameters for each kymograph
+	// ASSUME: same parameters for each kymograph
 	public boolean measuresFileOpen() {
 		String directory = parent0.vSequence.getDirectory();
 		boolean flag = true;
-		int start = (int) parent0.vSequence.analysisStart;
-		int end = (int) parent0.vSequence.analysisEnd;
 		for (int kymo=0; kymo < parent0.kymographArrayList.size(); kymo++) {	
 			SequencePlus seq = parent0.kymographArrayList.get(kymo);
 			seq.beginUpdate();
-			if (flag = seq.loadXMLCapillaryTrackResults(directory, start, end)) {
+			if (flag = seq.loadXMLCapillaryTrackResults(directory)) {
 				seq.validateRois();
 				seq.getArrayListFromRois(ArrayListType.cumSum);
 			}

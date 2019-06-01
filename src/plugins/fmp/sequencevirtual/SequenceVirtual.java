@@ -37,7 +37,6 @@ import plugins.kernel.roi.roi2d.ROI2DShape;
 
 public class SequenceVirtual extends Sequence 
 {
-
 	private XugglerAviFile 	aviFile = null;
 	private String [] 		listFiles = null;
 	private String 			csFileName = null;

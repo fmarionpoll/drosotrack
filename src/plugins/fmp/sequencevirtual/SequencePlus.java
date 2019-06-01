@@ -198,7 +198,7 @@ public class SequencePlus extends SequenceVirtual  {
         super.roiChanged(event.getSource(), SequenceEventType.CHANGED);
     }
 
-	public boolean loadXMLCapillaryTrackResults (String directory, int start, int end) {
+	public boolean loadXMLCapillaryTrackResults (String directory) {
 	
 		// check if directory is present. If not, create it
 		String resultsDirectory = directory+"\\results\\";
@@ -206,7 +206,7 @@ public class SequencePlus extends SequenceVirtual  {
 		if (Files.notExists(resultsPath)) 
 				return false; 
 		
-		setFilename(resultsDirectory+getName()+start+"_to_"+end+".xml");
+		setFilename(resultsDirectory+getName()+".xml");
 		Path filenamePath = Paths.get(filename);
 		if (Files.notExists(filenamePath)) 
 			return false; 
@@ -275,7 +275,7 @@ public class SequencePlus extends SequenceVirtual  {
 		XMLUtil.setElementIntValue(myNode, "analysisEnd", (int) analysisEnd);
 		XMLUtil.setElementIntValue(myNode, "analysisStep", analysisStep);
 		
-		setFilename(resultsDirectory+getName()+analysisStart+"_to_"+analysisEnd+".xml");
+		setFilename(resultsDirectory+getName()+".xml");
 		return saveXMLData();
 	}
 
