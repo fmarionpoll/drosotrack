@@ -17,14 +17,7 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 
 import icy.gui.util.GuiUtil;
-
-//import plugins.adufour.workbooks.Workbooks.WorkbookFormat;
-//import plugins.adufour.workbooks.IcySpreadSheet;
-//import plugins.adufour.workbooks.Workbooks;
-
-//import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
 import org.apache.poi.ss.usermodel.*;
-//import org.apache.poi.xssf.usermodel.XSSFRow;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
 import plugins.fmp.sequencevirtual.SequencePlus;
@@ -46,7 +39,6 @@ public class ResultsTab_Excel extends JPanel implements ActionListener  {
 	public JCheckBox 	derivativeCheckBox  = new JCheckBox("derivative", false);
 	public JCheckBox	t0CheckBox			= new JCheckBox("t-t0", true);
 	public JCheckBox	transposeCheckBox 	= new JCheckBox("transpose", false);
-	
 
 	private Capillarytrack parent0 = null;
 	
@@ -193,8 +185,6 @@ public class ResultsTab_Excel extends JPanel implements ActionListener  {
 		return pt;
 	}
 
-
-	
 	private Point writeColumnHeaders (Sheet sheet, Point pt, ExportXLS option, boolean transpose) {
 		pt = toColZero(pt, transpose);
 		if (parent0.vSequence.isFileStack()) {
