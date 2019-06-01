@@ -353,7 +353,7 @@ public class Drosotrack extends PluginActionable implements ActionListener, View
 			public void actionPerformed( final ActionEvent e ) { 
 				parseTextFields();
 				if (vSequence != null) {
-					vSequence.analyzeStep = analyzeStep;
+					vSequence.analysisStep = analyzeStep;
 					startStopBufferingThread();
 				}
 			} } );
@@ -844,7 +844,7 @@ public class Drosotrack extends PluginActionable implements ActionListener, View
 
 		vSequence.vImageBufferThread_STOP();
 		parseTextFields() ;
-		vSequence.analyzeStep = analyzeStep;
+		vSequence.analysisStep = analyzeStep;
 		vSequence.vImageBufferThread_START(100); 
 		checkBufferTimer.start();
 	}

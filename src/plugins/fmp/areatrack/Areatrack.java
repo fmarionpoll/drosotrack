@@ -721,7 +721,7 @@ public class Areatrack extends PluginActionable implements ActionListener, Chang
 		startFrame 	= Integer.parseInt( startFrameTextField.getText() );
 		endFrame 	= Integer.parseInt( endFrameTextField.getText() );
 		analyzeStep = Integer.parseInt( analyzeStepTextField.getText() );
-		vSequence.analyzeStep = analyzeStep;
+		vSequence.analysisStep = analyzeStep;
 		
 		TransformOp transformop = TransformOp.NONE;
 		if (rbFilterbyFunction.isSelected())
@@ -951,7 +951,7 @@ public class Areatrack extends PluginActionable implements ActionListener, Chang
 			return;
 
 		vSequence.vImageBufferThread_STOP();
-		vSequence.analyzeStep = analyzeStep;
+		vSequence.analysisStep = analyzeStep;
 		vSequence.vImageBufferThread_START(100); //numberOfImageForBuffer);
 		checkBufferTimer.start();
 	}

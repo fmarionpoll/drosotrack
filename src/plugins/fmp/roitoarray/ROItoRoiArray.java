@@ -1170,7 +1170,7 @@ public class ROItoRoiArray extends EzPlug implements ViewerListener {
 			return;
 
 		vSequence.vImageBufferThread_STOP();
-		vSequence.analyzeStep = 1;
+		vSequence.analysisStep = 1;
 		vSequence.vImageBufferThread_START(100); //numberOfImageForBuffer);
 	}
 	
