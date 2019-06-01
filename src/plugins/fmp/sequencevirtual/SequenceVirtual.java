@@ -59,7 +59,7 @@ public class SequenceVirtual extends Sequence
 	public int				capillariesGrouping = 1;
 	public long				analysisStart = 0;
 	public long 			analysisEnd	= 99999999;
-	public int 				analyzeStep = 1;
+	public int 				analysisStep = 1;
 	public int				threshold = -1;
 	public VImageBufferThread bufferThread = null;
 	public ArrayList <ROI2DShape> capillariesArrayList 	= new ArrayList <ROI2DShape>();			// list of ROIs describing objects in all images for ex. glass capillaries 
@@ -536,18 +536,18 @@ public class SequenceVirtual extends Sequence
 
 		public VImageBufferThread(SequenceVirtual vseq, int depth) {
 			fenetre = depth;
-			span = fenetre/2 * analyzeStep;
+			span = fenetre/2 * analysisStep;
 			bBufferON = true;
 		}
 		
 		public void setFenetre (int depth) {
 			fenetre = depth;
-			span = fenetre/2 * analyzeStep;
+			span = fenetre/2 * analysisStep;
 		}
 
 		public void getFenetre (int depth) {
 			fenetre = depth;
-			span = fenetre/2 * analyzeStep;
+			span = fenetre/2 * analysisStep;
 		}
 
 		public int getCurrentBufferLoadPercent()
@@ -562,7 +562,7 @@ public class SequenceVirtual extends Sequence
 
 			float nbImage = 1;
 			float nbImageLoaded = 1;
-			for (int t = frameStart; t <= frameEnd; t+= analyzeStep) {
+			for (int t = frameStart; t <= frameEnd; t+= analysisStep) {
 				nbImage++;
 				if (getImage(t, 0) != null)
 					nbImageLoaded++;
@@ -588,7 +588,7 @@ public class SequenceVirtual extends Sequence
 						frameEnd = nTotalFrames;
 			
 					// clean all images except those within the buffer 
-					for (int t = 0; t < nTotalFrames-1 ; t+= analyzeStep) { // t++) {
+					for (int t = 0; t < nTotalFrames-1 ; t+= analysisStep) { // t++) {
 						if (t < frameStart || t > frameEnd)
 							removeImage(t, 0);
 						
@@ -596,7 +596,7 @@ public class SequenceVirtual extends Sequence
 							return;
 					}
 					
-					for (int t = frameStart; t < frameEnd ; t+= analyzeStep) {	
+					for (int t = frameStart; t < frameEnd ; t+= analysisStep) {	
 						setVImage(t);
 						if (isInterrupted())
 							return;

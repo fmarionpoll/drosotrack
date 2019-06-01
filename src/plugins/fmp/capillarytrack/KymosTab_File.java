@@ -47,7 +47,7 @@ public class KymosTab_File  extends JPanel implements ActionListener {
 	
 	private void defineActionListeners() {
 		openButtonKymos.addActionListener(this);
-		saveButtonKymos.addActionListener (this);
+		saveButtonKymos.addActionListener(this);
 	}
 	
 	public void enableItems(boolean enabled) {

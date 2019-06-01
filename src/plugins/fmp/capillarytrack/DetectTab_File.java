@@ -55,6 +55,7 @@ public class DetectTab_File extends JPanel implements ActionListener {
 			}
 		}
 		else if ( o == saveMeasuresButton) {
+			measuresFileSave();
 			firePropertyChange("MEASURES_SAVE", false, true);	
 		}		
 	}
@@ -76,6 +77,11 @@ public class DetectTab_File extends JPanel implements ActionListener {
 				System.out.println("load measures -> failed or not found in directory: " + directory);
 			seq.endUpdate();
 		}
+		
+		SequencePlus seq = parent0.kymographArrayList.get(0);
+		parent0.vSequence.analysisStart = seq.analysisStart; 
+		parent0.vSequence.analysisEnd = seq.analysisEnd;
+		parent0.vSequence.analysisStep = seq.analysisStep;
 		return flag;
 	}
 	
@@ -84,11 +90,12 @@ public class DetectTab_File extends JPanel implements ActionListener {
 		String directory = parent0.vSequence.getDirectory();
 		for (int kymo=0; kymo < parent0.kymographArrayList.size(); kymo++) {
 			SequencePlus seq = parent0.kymographArrayList.get(kymo);
+			seq.analysisStart = parent0.vSequence.analysisStart; 
+			seq.analysisEnd = parent0.vSequence.analysisEnd;
+			seq.analysisStep = parent0.vSequence.analysisStep;
+			
 			System.out.println("saving "+seq.getName());
-			if (!seq.saveXMLCapillaryTrackResults(
-					directory, 
-					(int) parent0.vSequence.analysisStart, 
-					(int) parent0.vSequence.analysisEnd))
+			if (!seq.saveXMLCapillaryTrackResults(directory))
 				System.out.println(" -> failed - in directory: " + directory);
 		}
 	}

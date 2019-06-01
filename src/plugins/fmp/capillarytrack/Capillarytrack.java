@@ -30,7 +30,7 @@ public class Capillarytrack extends PluginActionable implements ViewerListener, 
 	//------------------------------------------- global variables
 	SequenceVirtual vSequence = null;
 	ArrayList <SequencePlus> kymographArrayList	= new ArrayList <SequencePlus> ();	// list of kymograph sequences
-	IcyFrame 	mainFrame = new IcyFrame("CapillaryTrack 31-May-2019", true, true, true, true);
+	IcyFrame mainFrame = new IcyFrame("CapillaryTrack 01-June-2019", true, true, true, true);
 
 	//---------------------------------------------------------------------------
 	SequencePane sequencePane 		= null;
@@ -149,8 +149,10 @@ public class Capillarytrack extends PluginActionable implements ViewerListener, 
 		}
 		buttonsVisibilityUpdate(StatusAnalysis.KYMOS_OK);
 		if (flag2 && flag3) {
-			if (detectPane.fileTab.measuresFileOpen())
+			if (detectPane.fileTab.measuresFileOpen()) {
 				buttonsVisibilityUpdate(StatusAnalysis.MEASUREGULPS_OK );
+				sequencePane.optionsTab.UpdateItemsFromSequence(vSequence);
+			}
 		}
 	}
 
@@ -180,7 +182,7 @@ public class Capillarytrack extends PluginActionable implements ViewerListener, 
 			buttonsVisibilityUpdate(StatusAnalysis.MEASURETOP_OK); 
 		}
 		else if (arg0.getPropertyName().equals("MEASUREGULPS_OK") 
-				|| arg0.getPropertyName().equals("MEASURE_OPEN")) {	
+				|| arg0.getPropertyName().equals("MEASURES_OPEN")) {	
 			kymographsPane.optionsTab.selectKymograph(0);
 			buttonsVisibilityUpdate(StatusAnalysis.MEASUREGULPS_OK );
 		}
@@ -193,7 +195,6 @@ public class Capillarytrack extends PluginActionable implements ViewerListener, 
 		else if (arg0.getPropertyName() .equals("EXPORT_TO_EXCEL")) {
 			detectPane.fileTab.measuresFileSave();
 		}
-		
 	} 
 	
 	@Override

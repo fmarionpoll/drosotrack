@@ -50,14 +50,14 @@ public class SequenceTab_Options extends JPanel implements ActionListener{
 	public void UpdateItemsFromSequence (SequenceVirtual vSequence) {
 		endFrameTextField.setText(Integer.toString((int) vSequence.analysisEnd));
 		startFrameTextField.setText(Integer.toString((int) vSequence.analysisStart));
-		analyzeStepTextField.setText(Integer.toString(vSequence.analyzeStep));
+		analyzeStepTextField.setText(Integer.toString(vSequence.analysisStep));
 	}
 	
 	public void UpdateItemsToSequence (SequenceVirtual vSequence) {
 		vSequence.analysisStart = Integer.parseInt( startFrameTextField.getText() );
 		vSequence.analysisEnd 	= Integer.parseInt( endFrameTextField.getText());
 		try { 
-			vSequence.analyzeStep = Integer.parseInt( analyzeStepTextField.getText() );
+			vSequence.analysisStep = Integer.parseInt( analyzeStepTextField.getText() );
 		} catch( Exception e ) { 
 			new AnnounceFrame("Can't interpret the analyze step value."); 
 		}

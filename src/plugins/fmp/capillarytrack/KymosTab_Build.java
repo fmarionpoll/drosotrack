@@ -127,7 +127,7 @@ public class KymosTab_Build extends JPanel implements ActionListener {
 		// start building kymos in a separate thread
 		buildKymographsThread = new BuildKymographsThread();
 		buildKymographsThread.vSequence 	= parent0.vSequence;
-		buildKymographsThread.analyzeStep 	= parent0.vSequence.analyzeStep;
+		buildKymographsThread.analyzeStep 	= parent0.vSequence.analysisStep;
 		buildKymographsThread.startFrame 	= (int) parent0.vSequence.analysisStart;
 		buildKymographsThread.endFrame 		= (int) parent0.vSequence.analysisEnd;
 		buildKymographsThread.diskRadius 	= diskRadius;

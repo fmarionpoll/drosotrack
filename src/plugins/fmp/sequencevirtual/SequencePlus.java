@@ -220,7 +220,6 @@ public class SequencePlus extends SequenceVirtual  {
 			}
 		}
 		
-		// save specific parameters to XML before
 		Node myNode = getNode(this.getName()+"_parameters");
 		detectTop = XMLUtil.getElementBooleanValue(myNode, "detectTop", true);
 		detectBottom = XMLUtil.getElementBooleanValue(myNode, "detectBottom", false);
@@ -228,7 +227,6 @@ public class SequencePlus extends SequenceVirtual  {
 		detectAllGulps = XMLUtil.getElementBooleanValue(myNode, "detectAllGulps", true); 
 		bStatusChanged = XMLUtil.getElementBooleanValue(myNode, "bStatusChanged", false);
 
-		//transformForLevels 
 		int dummy = XMLUtil.getElementIntValue(myNode, "transformForLevels", 0);
 		transformForLevels = TransformOp.values()[dummy];
 		direction = XMLUtil.getElementIntValue(myNode, "direction", 0);
@@ -236,11 +234,15 @@ public class SequencePlus extends SequenceVirtual  {
 		detectGulpsThreshold = XMLUtil.getElementIntValue(myNode, "detectGulpsThreshold", 75);
 		int dummy2 = XMLUtil.getElementIntValue(myNode, "transformForGulps", 3);
 		transformForGulps = TransformOp.values()[dummy2];
-				
+		
+		analysisStart = XMLUtil.getElementIntValue(myNode, "analysisStart", 0);
+		analysisEnd = XMLUtil.getElementIntValue(myNode, "analysisEnd", -1);
+		analysisStep = XMLUtil.getElementIntValue(myNode, "analysisStep", 1);
+
 		return flag;
 	}
 
-	public boolean saveXMLCapillaryTrackResults(String directory, int start, int end) {
+	public boolean saveXMLCapillaryTrackResults(String directory) {
 
 		// check if directory is present. If not, create it
 		String resultsDirectory = directory+"\\results\\";
@@ -249,13 +251,11 @@ public class SequencePlus extends SequenceVirtual  {
 			try {
 				resultsPath = Files.createDirectories(resultsPath);
 			} catch (IOException e) {
-				// Auto-generated catch block
 				e.printStackTrace();
 				return false;
 			}
 		}
 		
-		// save specific parameters to XML before
 		Node myNode = getNode(this.getName()+"_parameters");
 		XMLUtil.setElementBooleanValue(myNode, "detectTop", detectTop);
 		XMLUtil.setElementBooleanValue(myNode, "detectBottom", detectBottom);
@@ -271,8 +271,11 @@ public class SequencePlus extends SequenceVirtual  {
 		int dummy2 = transformForGulps.ordinal();
 		XMLUtil.setElementIntValue(myNode, "transformForGulps", dummy2);
 		
-		// save file
-		setFilename(resultsDirectory+getName()+start+"_to_"+end+".xml");
+		XMLUtil.setElementIntValue(myNode, "analysisStart", (int) analysisStart);
+		XMLUtil.setElementIntValue(myNode, "analysisEnd", (int) analysisEnd);
+		XMLUtil.setElementIntValue(myNode, "analysisStep", analysisStep);
+		
+		setFilename(resultsDirectory+getName()+analysisStart+"_to_"+analysisEnd+".xml");
 		return saveXMLData();
 	}
 

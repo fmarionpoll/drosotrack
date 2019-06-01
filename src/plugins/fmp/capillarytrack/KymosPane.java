@@ -78,6 +78,9 @@ public class KymosPane extends JPanel implements PropertyChangeListener, ChangeL
 			tabbedCapillariesAndKymosSelected();
 			firePropertyChange( "KYMOS_OK", false, true);
 		}
+		else if (arg0.getPropertyName().equals("KYMOS_SAVE")) {
+			tabsPane.setSelectedIndex(2);
+		}
 	}
 
 	
