@@ -42,9 +42,9 @@ public class MoveTab_BuildROIs extends JPanel implements ActionListener {
 	private int 	width_interval 			= 2;
 
 
-	private MultiCAFE parent0;
+	private Multicafe parent0;
 	
-	public void init(GridLayout capLayout, MultiCAFE parent0) {
+	public void init(GridLayout capLayout, Multicafe parent0) {
 		setLayout(capLayout);
 		this.parent0 = parent0;
 		

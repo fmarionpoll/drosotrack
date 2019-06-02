@@ -24,10 +24,10 @@ public class SequencePane extends JPanel implements PropertyChangeListener {
 	public SequenceTab_Open fileTab 		= new SequenceTab_Open();
 	public SequenceTab_Options optionsTab 	= new SequenceTab_Options();
 	public SequenceTab_Close closeTab 		= new SequenceTab_Close();
-	private MultiCAFE parent0 = null;
+	private Multicafe parent0 = null;
 	JPanel capPanel ;
 	
-	public void init (JPanel mainPanel, String string, MultiCAFE parent0) {
+	public void init (JPanel mainPanel, String string, Multicafe parent0) {
 		this.parent0 = parent0;
 		capPanel = GuiUtil.generatePanel(string);
 		mainPanel.add(GuiUtil.besidesPanel(capPanel));

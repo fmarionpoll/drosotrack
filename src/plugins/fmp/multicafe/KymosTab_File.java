@@ -24,7 +24,7 @@ import icy.gui.util.FontUtil;
 import icy.gui.util.GuiUtil;
 import icy.image.IcyBufferedImage;
 import loci.formats.FormatException;
-import plugins.fmp.multicafe.MultiCAFE.StatusAnalysis;
+import plugins.fmp.multicafe.Multicafe.StatusAnalysis;
 import plugins.fmp.sequencevirtual.SequencePlus;
 import plugins.fmp.sequencevirtual.SequencePlus.ArrayListType;
 
@@ -37,9 +37,9 @@ public class KymosTab_File  extends JPanel implements ActionListener {
 	private JButton		saveButtonKymos1	= new JButton("Save...");
 	private JButton		openMeasuresButton		= new JButton("Load");
 	private JButton		saveMeasuresButton		= new JButton("Save");
-	private MultiCAFE parent0 = null;
+	private Multicafe parent0 = null;
 	
-	public void init(GridLayout capLayout, MultiCAFE parent0) {
+	public void init(GridLayout capLayout, Multicafe parent0) {
 		setLayout(capLayout);
 		this.parent0 = parent0;
 		JLabel loadsaveText1 = new JLabel ("-> File (tiff) ", SwingConstants.RIGHT);

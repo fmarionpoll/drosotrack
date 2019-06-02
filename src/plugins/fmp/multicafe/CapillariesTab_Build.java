@@ -35,9 +35,9 @@ public class CapillariesTab_Build extends JPanel implements ActionListener {
 	private JTextField 	nbcapillariesTextField 	= new JTextField("20");
 	private JTextField 	width_between_capillariesTextField = new JTextField("30");
 	private JTextField 	width_intervalTextField = new JTextField("53");
-	private MultiCAFE parent0;
+	private Multicafe parent0;
 	
-	public void init(GridLayout capLayout, MultiCAFE parent0) {
+	public void init(GridLayout capLayout, Multicafe parent0) {
 		setLayout(capLayout);
 		
 		add( GuiUtil.besidesPanel( createROIsFromPolygonButton2));

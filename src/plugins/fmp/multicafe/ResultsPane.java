@@ -8,7 +8,7 @@ import javax.swing.JPanel;
 import javax.swing.JTabbedPane;
 
 import icy.gui.util.GuiUtil;
-import plugins.fmp.multicafe.MultiCAFE.StatusPane;
+import plugins.fmp.multicafe.Multicafe.StatusPane;
 
 public class ResultsPane extends JPanel implements PropertyChangeListener {
 
@@ -20,7 +20,7 @@ public class ResultsPane extends JPanel implements PropertyChangeListener {
 	public ResultsTab_Graphics graphicsTab 	= new ResultsTab_Graphics();
 	public ResultsTab_Excel excelTab 		= new ResultsTab_Excel();
 	
-	public void init (JPanel mainPanel, String string, MultiCAFE parent0) {
+	public void init (JPanel mainPanel, String string, Multicafe parent0) {
 		final JPanel capPanel = GuiUtil.generatePanel(string);
 		mainPanel.add(GuiUtil.besidesPanel(capPanel));
 		GridLayout capLayout = new GridLayout(2, 2);

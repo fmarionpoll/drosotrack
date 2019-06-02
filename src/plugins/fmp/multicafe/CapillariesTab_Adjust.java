@@ -33,13 +33,13 @@ public class CapillariesTab_Adjust extends JPanel implements ActionListener{
 	public JTextField	jitterTextField2	= new JTextField("10");
 	private JButton 	adjustButton 		= new JButton("Adjust");
 	public JCheckBox	displayYellowBarsCheckBox = new JCheckBox("display yellow bars", false);
-	private MultiCAFE parent0;
+	private Multicafe parent0;
 	private Line2D		refLineUpper 		= null;
 	private Line2D  	refLineLower 		= null;
 	private ROI2DLine	roiRefLineUpper 	= new ROI2DLine ();
 	private ROI2DLine	roiRefLineLower 	= new ROI2DLine ();
 
-	public void init(GridLayout capLayout, MultiCAFE parent0) {
+	public void init(GridLayout capLayout, Multicafe parent0) {
 		setLayout(capLayout);
 		add( GuiUtil.besidesPanel(
 				displayYellowBarsCheckBox, 

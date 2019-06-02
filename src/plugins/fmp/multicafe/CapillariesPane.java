@@ -8,7 +8,7 @@ import javax.swing.JPanel;
 import javax.swing.JTabbedPane;
 
 import icy.gui.util.GuiUtil;
-import plugins.fmp.multicafe.MultiCAFE.StatusPane;
+import plugins.fmp.multicafe.Multicafe.StatusPane;
 
 
 
@@ -24,9 +24,9 @@ public class CapillariesPane extends JPanel implements PropertyChangeListener {
 	public CapillariesTab_Adjust adjustTab 	= new CapillariesTab_Adjust();
 	public CapillariesTab_Properties propertiesTab = new CapillariesTab_Properties();
 	
-	private MultiCAFE parent0 = null;
+	private Multicafe parent0 = null;
 
-	public void init (JPanel mainPanel, String string, MultiCAFE parent0) {
+	public void init (JPanel mainPanel, String string, Multicafe parent0) {
 		
 		this.parent0 = parent0;
 		final JPanel capPanel = GuiUtil.generatePanel(string);

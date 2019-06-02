@@ -12,7 +12,7 @@ import javax.swing.event.ChangeListener;
 import icy.gui.util.GuiUtil;
 import icy.gui.viewer.Viewer;
 import icy.image.IcyBufferedImage;
-import plugins.fmp.multicafe.MultiCAFE.StatusPane;
+import plugins.fmp.multicafe.Multicafe.StatusPane;
 import plugins.fmp.sequencevirtual.SequencePlus;
 import plugins.fmp.tools.ImageTransformTools;
 import plugins.fmp.tools.ImageTransformTools.TransformOp;
@@ -32,9 +32,9 @@ public class KymosPane extends JPanel implements PropertyChangeListener, ChangeL
 	public KymosTab_DetectLimits limitsTab = new KymosTab_DetectLimits();
 	public KymosTab_DetectGulps gulpsTab = new KymosTab_DetectGulps();
 	ImageTransformTools tImg = null;
-	private MultiCAFE parent0 = null;
+	private Multicafe parent0 = null;
 
-	public void init (JPanel mainPanel, String string, MultiCAFE parent0) {
+	public void init (JPanel mainPanel, String string, Multicafe parent0) {
 		
 		this.parent0 = parent0;
 		final JPanel kymosPanel = GuiUtil.generatePanel(string);

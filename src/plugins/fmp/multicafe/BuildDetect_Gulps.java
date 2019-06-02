@@ -17,7 +17,7 @@ import plugins.kernel.roi.roi2d.ROI2DPolyLine;
 
 public class BuildDetect_Gulps {
 	
-	public void detectGulps(MultiCAFE parent0) {	
+	public void detectGulps(Multicafe parent0) {	
 		// send some info
 		ProgressFrame progress = new ProgressFrame("Gulp analysis started");
 		progress.setLength(parent0.kymographArrayList.size() * (parent0.vSequence.analysisEnd - parent0.vSequence.analysisStart +1));
@@ -134,7 +134,7 @@ public class BuildDetect_Gulps {
 		System.out.println("Elapsed time (s):" + nbSeconds);
 	}	
 
-	private void kymosInitForGulpsDetection(SequencePlus kymographSeq, MultiCAFE parent0) {
+	private void kymosInitForGulpsDetection(SequencePlus kymographSeq, Multicafe parent0) {
 		
 		getDialogBoxParametersForDetection(kymographSeq, false, true, parent0);
 		for (ROI roi:kymographSeq.getROIs()) {
@@ -144,7 +144,7 @@ public class BuildDetect_Gulps {
 		kymographSeq.derivedValuesArrayList.clear();
 	}
 	
-	private void getDialogBoxParametersForDetection(SequencePlus seq, boolean blevel, boolean bgulps, MultiCAFE parent0) {
+	private void getDialogBoxParametersForDetection(SequencePlus seq, boolean blevel, boolean bgulps, Multicafe parent0) {
 		if (blevel) {
 			seq.detectTop 				= true; 
 			seq.detectBottom 			= true; 

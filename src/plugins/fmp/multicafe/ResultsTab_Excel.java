@@ -40,10 +40,10 @@ public class ResultsTab_Excel extends JPanel implements ActionListener  {
 	public JCheckBox	t0CheckBox			= new JCheckBox("t-t0", true);
 	public JCheckBox	transposeCheckBox 	= new JCheckBox("transpose", false);
 
-	private MultiCAFE parent0 = null;
+	private Multicafe parent0 = null;
 	
 	
-	public void init(GridLayout capLayout, MultiCAFE parent0) {	
+	public void init(GridLayout capLayout, Multicafe parent0) {	
 		setLayout(capLayout);
 		this.parent0 = parent0;
 		add(GuiUtil.besidesPanel( topLevelCheckBox, bottomLevelCheckBox, consumptionCheckBox, sumCheckBox));

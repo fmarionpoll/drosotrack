@@ -4,18 +4,15 @@ import java.awt.GridLayout;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 
-import javax.swing.JComboBox;
+
 import javax.swing.JPanel;
 import javax.swing.JTabbedPane;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
 import icy.gui.util.GuiUtil;
-import icy.image.IcyBufferedImage;
-import plugins.fmp.multicafe.MultiCAFE.StatusPane;
-import plugins.fmp.sequencevirtual.SequencePlus;
-import plugins.fmp.tools.ImageTransformTools;
-import plugins.fmp.tools.ImageTransformTools.TransformOp;
+import plugins.fmp.multicafe.Multicafe.StatusPane;
+
 
 public class MovePane extends JPanel implements PropertyChangeListener, ChangeListener {
 	
@@ -29,10 +26,10 @@ public class MovePane extends JPanel implements PropertyChangeListener, ChangeLi
 	MoveTab_Options optionsTab = new MoveTab_Options();
 	MoveTab_Detect detectTab = new MoveTab_Detect();
 
-	MultiCAFE parent0 = null;
+	Multicafe parent0 = null;
 
 	
-	public void init (JPanel mainPanel, String string, MultiCAFE parent0) {
+	public void init (JPanel mainPanel, String string, Multicafe parent0) {
 		this.parent0 = parent0;
 		final JPanel panel = GuiUtil.generatePanel(string);
 		mainPanel.add(GuiUtil.besidesPanel(panel));
@@ -56,10 +53,10 @@ public class MovePane extends JPanel implements PropertyChangeListener, ChangeLi
 	}
 	
 	public void enableItems(StatusPane status) {
-		boolean enable1 = !(status == StatusPane.DISABLED);
+//		boolean enable1 = !(status == StatusPane.DISABLED);
 //		limitsTab.enableItems(enable1);
 //		fileTab.enableItems(enable1);
-		boolean enable2 = (status == StatusPane.FULL);
+//		boolean enable2 = (status == StatusPane.FULL);
 //		gulpsTab.enableItems(enable2);
 	}
 

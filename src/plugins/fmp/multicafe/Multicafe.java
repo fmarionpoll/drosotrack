@@ -25,7 +25,7 @@ import plugins.fmp.sequencevirtual.SequencePlus.ArrayListType;
 import plugins.fmp.sequencevirtual.SequenceVirtual;
 
 // SequenceListener?
-public class MultiCAFE extends PluginActionable implements ViewerListener, PropertyChangeListener, SequenceListener
+public class Multicafe extends PluginActionable implements ViewerListener, PropertyChangeListener, SequenceListener
 {
 	//------------------------------------------- global variables
 	SequenceVirtual vSequence = null;

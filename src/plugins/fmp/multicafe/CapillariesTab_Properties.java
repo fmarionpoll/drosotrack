@@ -29,9 +29,9 @@ public class CapillariesTab_Properties extends JPanel implements ActionListener 
 		private JTextField 	capillaryVolumeTextField= new JTextField("5");
 		private JTextField 	capillaryPixelsTextField= new JTextField("5");
 		public JCheckBox	visibleCheckBox			= new JCheckBox("ROIs visible", true);
-		private MultiCAFE parent0;
+		private Multicafe parent0;
 		
-		public void init(GridLayout capLayout, MultiCAFE parent0) {
+		public void init(GridLayout capLayout, Multicafe parent0) {
 			setLayout(capLayout);
 			add( GuiUtil.besidesPanel(
 					new JLabel("volume (µl) ", SwingConstants.RIGHT), 

@@ -26,12 +26,12 @@ public class ResultsTab_Graphics extends JPanel implements ActionListener  {
 	private XYMultiChart firstChart 		= null;
 	private XYMultiChart secondChart 		= null;
 	private XYMultiChart thirdChart 		= null;
-	private MultiCAFE parent0 = null;
+	private Multicafe parent0 = null;
 	public JCheckBox 	limitsCheckbox 	= new JCheckBox("top/bottom", true);
 	public JCheckBox 	derivativeCheckbox 	= new JCheckBox("derivative", true);
 	public JCheckBox 	consumptionCheckbox = new JCheckBox("consumption", true);
 	
-	public void init(GridLayout capLayout, MultiCAFE parent0) {	
+	public void init(GridLayout capLayout, Multicafe parent0) {	
 		setLayout(capLayout);
 		this.parent0 = parent0;
 		add(GuiUtil.besidesPanel(limitsCheckbox, derivativeCheckbox, consumptionCheckbox, new JLabel(" ")));

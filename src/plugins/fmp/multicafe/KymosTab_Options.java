@@ -43,10 +43,10 @@ public class KymosTab_Options extends JPanel implements ActionListener, ActiveVi
 	public JCheckBox 	viewLevelsCheckbox 		= new JCheckBox("capillary levels", true);
 	public JCheckBox 	viewGulpsCheckbox 		= new JCheckBox("gulps", true);
 
-	private MultiCAFE parent0 = null;
+	private Multicafe parent0 = null;
 	private int previousupfront  = -1;
 
-	public void init(GridLayout capLayout, MultiCAFE parent0) {	
+	public void init(GridLayout capLayout, Multicafe parent0) {	
 		setLayout(capLayout);
 		this.parent0 = parent0;
 		

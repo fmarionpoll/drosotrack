@@ -18,9 +18,9 @@ public class SequenceTab_Close  extends JPanel implements ActionListener {
 	 */
 	private static final long serialVersionUID = -7576474358794296471L;
 	private JButton		closeAllButton			= new JButton("Close views");
-	private MultiCAFE parent0 = null;
+	private Multicafe parent0 = null;
 	
-	public void init(GridLayout capLayout, MultiCAFE parent0) {
+	public void init(GridLayout capLayout, Multicafe parent0) {
 		setLayout(capLayout);
 		this.parent0  = parent0;
 		add( GuiUtil.besidesPanel(closeAllButton, new JLabel(" ")));

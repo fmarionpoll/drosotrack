@@ -14,7 +14,7 @@ import javax.swing.SwingConstants;
 import icy.gui.frame.progress.AnnounceFrame;
 import icy.gui.util.GuiUtil;
 import icy.gui.viewer.Viewer;
-import plugins.fmp.multicafe.MultiCAFE.StatusComputation;
+import plugins.fmp.multicafe.Multicafe.StatusComputation;
 import plugins.fmp.sequencevirtual.SequencePlus;
 import plugins.kernel.roi.roi2d.ROI2DShape;
 
@@ -34,11 +34,11 @@ public class KymosTab_Build extends JPanel implements ActionListener {
 	public StatusComputation sComputation = StatusComputation.START_COMPUTATION; 
 	public int diskRadius = 5;
 	
-	private MultiCAFE parent0;
+	private Multicafe parent0;
 	private BuildKymographsThread buildKymographsThread = null;
 	private Thread thread = null;
 		
-	public void init(GridLayout capLayout, MultiCAFE parent0) {
+	public void init(GridLayout capLayout, Multicafe parent0) {
 		setLayout(capLayout);	
 		this.parent0 = parent0;
 		add(GuiUtil.besidesPanel(

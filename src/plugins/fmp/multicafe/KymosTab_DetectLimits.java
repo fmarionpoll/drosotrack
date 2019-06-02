@@ -36,10 +36,10 @@ public class KymosTab_DetectLimits  extends JPanel implements ActionListener {
 	private JButton		displayTransform1Button	= new JButton("Display");
 	private JTextField	spanTopTextField		= new JTextField("3");
 	public JButton 		detectTopButton 		= new JButton("Detect");
-	MultiCAFE parent0 = null;
+	Multicafe parent0 = null;
 	
 	
-	public void init(GridLayout capLayout, MultiCAFE parent0) {
+	public void init(GridLayout capLayout, Multicafe parent0) {
 		setLayout(capLayout);
 		this.parent0 = parent0;
 		((JLabel) directionComboBox.getRenderer()).setHorizontalAlignment(JLabel.RIGHT);

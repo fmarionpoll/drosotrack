@@ -21,7 +21,7 @@ public class MoveTab_Options extends JPanel implements ActionListener {
 	 * 
 	 */
 	private static final long serialVersionUID = -5257698990389571518L;
-	private MultiCAFE parent0;
+	private Multicafe parent0;
 	
 	private JComboBox<String> colorChannelComboBox = new JComboBox<String> (new String[] {"Red", "Green", "Blue"});
 	private JComboBox<TransformOp> backgroundComboBox = new JComboBox<> (new TransformOp[]  {TransformOp.NONE, TransformOp.REF_PREVIOUS, TransformOp.REF_T0});
@@ -34,7 +34,7 @@ public class MoveTab_Options extends JPanel implements ActionListener {
 	private JCheckBox whiteMiceCheckBox 	= new JCheckBox("Track white on dark ");
 	private JCheckBox thresholdedImageCheckBox = new JCheckBox("Display as overlay");
 	
-	public void init(GridLayout capLayout, MultiCAFE parent0) {
+	public void init(GridLayout capLayout, Multicafe parent0) {
 		setLayout(capLayout);
 		this.parent0 = parent0;
 

@@ -33,9 +33,9 @@ public class KymosTab_DetectGulps extends JPanel implements ActionListener {
 			TransformOp.XDIFFN /*, TransformOp.YDIFFN, TransformOp.XYDIFFN	*/});
 	private	int	spanDiffTransf2 			= 3;
 	private double detectGulpsThreshold 	= 5.;
-	private MultiCAFE parent0;
+	private Multicafe parent0;
 	
-	public void init(GridLayout capLayout, MultiCAFE parent0) {
+	public void init(GridLayout capLayout, Multicafe parent0) {
 		setLayout(capLayout);
 		this.parent0 = parent0;
 		add( GuiUtil.besidesPanel( new JLabel("threshold ", SwingConstants.RIGHT), detectGulpsThresholdTextField, transformForGulpsComboBox, displayTransform2Button));

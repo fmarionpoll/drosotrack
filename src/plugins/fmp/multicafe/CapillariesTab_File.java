@@ -21,9 +21,9 @@ public class CapillariesTab_File extends JPanel implements ActionListener {
 	
 	private JButton		openButtonCapillaries	= new JButton("Load...");
 	private JButton		saveButtonCapillaries	= new JButton("Save...");
-	private MultiCAFE parent0 = null;
+	private Multicafe parent0 = null;
 	
-	public void init(GridLayout capLayout, MultiCAFE parent0) {
+	public void init(GridLayout capLayout, Multicafe parent0) {
 		setLayout(capLayout);
 		
 		JLabel loadsaveText1 = new JLabel ("-> File (xml) ", SwingConstants.RIGHT);

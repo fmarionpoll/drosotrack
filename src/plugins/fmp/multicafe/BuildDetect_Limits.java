@@ -15,7 +15,7 @@ import plugins.kernel.roi.roi2d.ROI2DPolyLine;
 
 public class BuildDetect_Limits {
 	
-	public void detectCapillaryLevels(MultiCAFE parent0) {
+	public void detectCapillaryLevels(Multicafe parent0) {
 
 		// send some info
 		ProgressFrame progress = new ProgressFrame("Processing started");
@@ -173,7 +173,7 @@ public class BuildDetect_Limits {
 		System.out.println("Elapsed time (s):" + nbSeconds);
 	}
 	
-	private void getDialogBoxParametersForDetection(SequencePlus seq, boolean blevel, boolean bgulps, MultiCAFE parent0) {
+	private void getDialogBoxParametersForDetection(SequencePlus seq, boolean blevel, boolean bgulps, Multicafe parent0) {
 		if (blevel) {
 			seq.detectTop 				= true; 
 			seq.detectBottom 			= true; 
