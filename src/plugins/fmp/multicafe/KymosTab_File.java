@@ -1,4 +1,4 @@
-package plugins.fmp.multiCAFE;
+package plugins.fmp.multicafe;
 
 import java.awt.Font;
 import java.awt.GridLayout;
@@ -24,7 +24,7 @@ import icy.gui.util.FontUtil;
 import icy.gui.util.GuiUtil;
 import icy.image.IcyBufferedImage;
 import loci.formats.FormatException;
-import plugins.fmp.multiCAFE.MultiCAFE.StatusAnalysis;
+import plugins.fmp.multicafe.MultiCAFE.StatusAnalysis;
 import plugins.fmp.sequencevirtual.SequencePlus;
 import plugins.fmp.sequencevirtual.SequencePlus.ArrayListType;
 

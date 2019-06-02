@@ -1,4 +1,4 @@
-package plugins.fmp.multiCAFE;
+package plugins.fmp.multicafe;
 
 import java.awt.GridLayout;
 import java.beans.PropertyChangeEvent;
@@ -12,7 +12,7 @@ import javax.swing.event.ChangeListener;
 import icy.gui.util.GuiUtil;
 import icy.gui.viewer.Viewer;
 import icy.image.IcyBufferedImage;
-import plugins.fmp.multiCAFE.MultiCAFE.StatusPane;
+import plugins.fmp.multicafe.MultiCAFE.StatusPane;
 import plugins.fmp.sequencevirtual.SequencePlus;
 import plugins.fmp.tools.ImageTransformTools;
 import plugins.fmp.tools.ImageTransformTools.TransformOp;

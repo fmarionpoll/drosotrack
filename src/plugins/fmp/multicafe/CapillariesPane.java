@@ -1,4 +1,4 @@
-package plugins.fmp.multiCAFE;
+package plugins.fmp.multicafe;
 
 import java.awt.GridLayout;
 import java.beans.PropertyChangeEvent;
@@ -8,7 +8,7 @@ import javax.swing.JPanel;
 import javax.swing.JTabbedPane;
 
 import icy.gui.util.GuiUtil;
-import plugins.fmp.multiCAFE.MultiCAFE.StatusPane;
+import plugins.fmp.multicafe.MultiCAFE.StatusPane;
 
 
 

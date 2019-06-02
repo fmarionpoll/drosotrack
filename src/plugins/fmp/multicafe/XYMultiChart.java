@@ -1,4 +1,4 @@
-package plugins.fmp.multiCAFE;
+package plugins.fmp.multicafe;
 
 import java.awt.Dimension;
 import java.awt.Point;

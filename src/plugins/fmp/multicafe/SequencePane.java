@@ -1,4 +1,4 @@
-package plugins.fmp.multiCAFE;
+package plugins.fmp.multicafe;
 
 import java.awt.GridLayout;
 import java.awt.Rectangle;

@@ -1,4 +1,4 @@
-package plugins.fmp.multiCAFE;
+package plugins.fmp.multicafe;
 
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
@@ -14,7 +14,7 @@ import javax.swing.SwingConstants;
 import icy.gui.frame.progress.AnnounceFrame;
 import icy.gui.util.GuiUtil;
 import icy.gui.viewer.Viewer;
-import plugins.fmp.multiCAFE.MultiCAFE.StatusComputation;
+import plugins.fmp.multicafe.MultiCAFE.StatusComputation;
 import plugins.fmp.sequencevirtual.SequencePlus;
 import plugins.kernel.roi.roi2d.ROI2DShape;
 
