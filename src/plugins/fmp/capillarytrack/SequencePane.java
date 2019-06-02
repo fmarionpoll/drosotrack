@@ -5,7 +5,6 @@ import java.awt.Rectangle;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.util.ArrayList;
-
 import javax.swing.JPanel;
 import javax.swing.JTabbedPane;
 
@@ -14,6 +13,7 @@ import icy.gui.viewer.Viewer;
 import icy.preferences.XMLPreferences;
 import plugins.fmp.sequencevirtual.SequenceVirtual;
 
+
 public class SequencePane extends JPanel implements PropertyChangeListener {
 	/**
 	 * 
@@ -21,14 +21,15 @@ public class SequencePane extends JPanel implements PropertyChangeListener {
 	private static final long serialVersionUID = -6826269677524125173L;
 	
 	public JTabbedPane tabsPane 			= new JTabbedPane();
-	public SequenceTab_File fileTab 		= new SequenceTab_File();
+	public SequenceTab_Open fileTab 		= new SequenceTab_Open();
 	public SequenceTab_Options optionsTab 	= new SequenceTab_Options();
 	public SequenceTab_Close closeTab 		= new SequenceTab_Close();
 	private Capillarytrack parent0 = null;
+	JPanel capPanel ;
 	
 	public void init (JPanel mainPanel, String string, Capillarytrack parent0) {
 		this.parent0 = parent0;
-		final JPanel capPanel = GuiUtil.generatePanel(string);
+		capPanel = GuiUtil.generatePanel(string);
 		mainPanel.add(GuiUtil.besidesPanel(capPanel));
 		GridLayout capLayout = new GridLayout(2, 2);
 		
@@ -37,7 +38,7 @@ public class SequencePane extends JPanel implements PropertyChangeListener {
 		fileTab.addPropertyChangeListener(this);
 		
 		optionsTab.init(capLayout);
-		tabsPane.addTab("Parameters", null, optionsTab, "change parameters reading file - beginning, end, step");
+		tabsPane.addTab("Options", null, optionsTab, "change parameters reading file - beginning, end, step");
 		optionsTab.addPropertyChangeListener(this);
 		
 		closeTab.init(capLayout, parent0);
@@ -56,7 +57,6 @@ public class SequencePane extends JPanel implements PropertyChangeListener {
 	public void UpdateItemsToSequence(SequenceVirtual vSequence) {
 		optionsTab.UpdateItemsToSequence ( vSequence);
 	}
-	
 	
 	@Override
 	public void propertyChange(PropertyChangeEvent event) {
@@ -125,4 +125,5 @@ public class SequencePane extends JPanel implements PropertyChangeListener {
 			seq.analysisStep = 1;
 		}
 	}
+
 }

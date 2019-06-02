@@ -10,7 +10,7 @@ import javax.swing.JTabbedPane;
 import icy.gui.util.GuiUtil;
 import plugins.fmp.capillarytrack.Capillarytrack.StatusPane;
 
-public class ResultsPane  extends JPanel implements PropertyChangeListener {
+public class ResultsPane extends JPanel implements PropertyChangeListener {
 
 	/**
 	 * 
@@ -48,7 +48,6 @@ public class ResultsPane  extends JPanel implements PropertyChangeListener {
 		boolean enable1 = !(status == StatusPane.DISABLED);
 		graphicsTab.enableItems(enable1);
 		excelTab.enableItems(enable1);
-//		boolean enable2 = (status == StatusPane.FULL);
 	}
 
 }

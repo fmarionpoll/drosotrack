@@ -12,14 +12,14 @@ import javax.swing.JPanel;
 import icy.gui.util.GuiUtil;
 
 
-public class SequenceTab_File extends JPanel implements ActionListener {
+public class SequenceTab_Open extends JPanel implements ActionListener {
 	/**
 	 * 
 	 */
 	private static final long serialVersionUID = 6565346204580890307L;
-	private JButton 	setVideoSourceButton 	= new JButton("Open...");
+	private JButton 	setVideoSourceButton= new JButton("Open...");
 	private JCheckBox	capillariesCheckBox	= new JCheckBox("capillaries", true);
-	private JCheckBox	kymographsCheckBox		= new JCheckBox("kymographs", true);
+	private JCheckBox	kymographsCheckBox	= new JCheckBox("kymographs", true);
 	private JCheckBox	measuresCheckBox	= new JCheckBox("measures", true);
 	
 	public void init(GridLayout capLayout) {
