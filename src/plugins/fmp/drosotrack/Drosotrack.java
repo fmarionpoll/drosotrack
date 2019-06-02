@@ -95,6 +95,7 @@ public class Drosotrack extends PluginActionable implements ActionListener, View
 	private JButton stopComputationButton	= new JButton("Stop");
 	private JTextField startFrameTextField	= new JTextField("0");
 	private JTextField endFrameTextField	= new JTextField("99999999");
+
 	private JComboBox<String> colorChannelComboBox = new JComboBox<String> (new String[] {"Red", "Green", "Blue"});
 	private JComboBox<TransformOp> backgroundComboBox = new JComboBox<> (new TransformOp[]  {TransformOp.NONE, TransformOp.REF_PREVIOUS, TransformOp.REF_T0});
 	private JSpinner thresholdSpinner		= new JSpinner(new SpinnerNumberModel(100, 0, 255, 10));
@@ -106,6 +107,7 @@ public class Drosotrack extends PluginActionable implements ActionListener, View
 	private JSpinner objectUpsizeSpinner	= new JSpinner(new SpinnerNumberModel(500, 0, 100000, 1));
 	private JCheckBox whiteMiceCheckBox 	= new JCheckBox("Track white object on dark background");
 	private JCheckBox thresholdedImageCheckBox = new JCheckBox("Display objects over threshold as overlay");
+
 	private JButton displayChartsButton		= new JButton("Display results");
 	private JButton exportToXLSButton 		= new JButton("Save XLS file..");
 	private JButton	closeAllButton			= new JButton("Close views");
@@ -216,6 +218,7 @@ public class Drosotrack extends PluginActionable implements ActionListener, View
 		stepLabel.setHorizontalAlignment(SwingConstants.RIGHT);
 		detectPanel.add( GuiUtil.besidesPanel( startLabel, startFrameTextField, endLabel, endFrameTextField ) );
 		detectPanel.add( GuiUtil.besidesPanel( stepLabel, analyzeStepTextField, new JLabel (" "), new JLabel (" ")));
+		
 		detectPanel.add( GuiUtil.besidesPanel(whiteMiceCheckBox));
 		detectPanel.add( GuiUtil.besidesPanel(thresholdedImageCheckBox));
 		JLabel videochannel = new JLabel("video channel ");

@@ -19,7 +19,7 @@ import plugins.adufour.ezplug.EzVarInteger;
 import plugins.adufour.ezplug.EzVarListener;
 
 public class SequenceTools extends EzPlug {
-	SequenceVirtual vSequence = null;
+	public SequenceVirtual vSequence = null;
 	ArrayList <SequencePlus> kymographArrayList	= new ArrayList <SequencePlus> ();	// list of kymograph sequences
 
 	boolean stopFlag = false;
