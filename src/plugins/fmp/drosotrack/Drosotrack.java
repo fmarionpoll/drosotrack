@@ -120,8 +120,6 @@ public class Drosotrack extends PluginActionable implements ActionListener, View
 	private StateD state = StateD.NORMAL;
 
 	private int 	threshold 				= 0;
-	private int 	jitter 					= 10;
-	private boolean btrackWhite 			= false;
 	private int		analyzeStep 			= 1;
 	private int 	startFrame 				= 0;
 	private int 	endFrame 				= 99999999;
@@ -140,7 +138,9 @@ public class Drosotrack extends PluginActionable implements ActionListener, View
 	private ArrayList<ArrayList<Point2D>> points2D_rois_then_t_ListArray = new ArrayList<ArrayList<Point2D>>();
 	
 	private int	ichanselected = 0;
-	private TrackFliesThread trackAllFliesThread = null;
+	private BuildTrackFliesThread trackAllFliesThread = null;
+	private int 	jitter 					= 10;
+	private boolean btrackWhite 			= false;
 	private boolean  blimitLow;
 	private boolean  blimitUp;
 	private int  limitLow;
@@ -261,7 +261,7 @@ public class Drosotrack extends PluginActionable implements ActionListener, View
 				parseTextFields();
 				updateButtonsVisibility(StateD.NORMAL);
 				ichanselected = colorChannelComboBox.getSelectedIndex();
-				trackAllFliesThread = new TrackFliesThread();
+				trackAllFliesThread = new BuildTrackFliesThread();
 				trackAllFliesThread.start();
 				startComputationButton.setEnabled( false );
 				stopComputationButton.setEnabled ( true );
@@ -956,7 +956,7 @@ public class Drosotrack extends PluginActionable implements ActionListener, View
 		viewer.removeListener(this);
 	}
 
-	class TrackFliesThread extends Thread
+	class BuildTrackFliesThread extends Thread
 	{
 		/*
 		 * (non-Javadoc)

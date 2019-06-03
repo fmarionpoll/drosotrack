@@ -12,11 +12,15 @@ import javax.swing.JSpinner;
 import javax.swing.JTextField;
 import javax.swing.SpinnerNumberModel;
 import javax.swing.SwingConstants;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
 
+import icy.gui.frame.progress.AnnounceFrame;
 import icy.gui.util.GuiUtil;
+import plugins.fmp.tools.OverlayThreshold;
 import plugins.fmp.tools.ImageTransformTools.TransformOp;
 
-public class MoveTab_Options extends JPanel implements ActionListener {
+public class MoveTab_Options extends JPanel implements ActionListener, ChangeListener {
 	/**
 	 * 
 	 */
@@ -33,6 +37,18 @@ public class MoveTab_Options extends JPanel implements ActionListener {
 	private JSpinner objectUpsizeSpinner	= new JSpinner(new SpinnerNumberModel(500, 0, 100000, 1));
 	private JCheckBox whiteMiceCheckBox 	= new JCheckBox("Track white on dark ");
 	private JCheckBox thresholdedImageCheckBox = new JCheckBox("Display as overlay");
+	
+	OverlayThreshold ov = null;
+	private int 	jitter 					= 10;
+	private boolean btrackWhite 			= false;
+	private boolean  blimitLow;
+	private boolean  blimitUp;
+	private int  limitLow;
+	private int  limitUp;
+	private int  ichanselected;
+	private BuildTrackFliesThread trackAllFliesThread = null;
+	
+
 	
 	public void init(GridLayout capLayout, Multicafe parent0) {
 		setLayout(capLayout);
@@ -55,9 +71,36 @@ public class MoveTab_Options extends JPanel implements ActionListener {
 		add( GuiUtil.besidesPanel( jitterlabel, jitterTextField , objectUpsizeCheckBox, objectUpsizeSpinner) );
 		
 		defineActionListeners();
+		thresholdSpinner.addChangeListener(this);
 	}
 	
 	private void defineActionListeners() {
+		colorChannelComboBox.addActionListener(new ActionListener () {
+			@Override
+			public void actionPerformed( final ActionEvent e ) { 
+				updateOverlay(); 
+			} } );
+		
+		backgroundComboBox.addActionListener(new ActionListener () {
+			@Override
+			public void actionPerformed( final ActionEvent e ) { 
+				updateOverlay(); 
+			} } );
+		
+		thresholdedImageCheckBox.addActionListener(new ActionListener () {
+			@Override
+			public void actionPerformed( final ActionEvent e ) { 
+				if (thresholdedImageCheckBox.isSelected()) {
+					if (ov == null)
+						ov = new OverlayThreshold(parent0.vSequence);
+					if (parent0.vSequence != null)
+						parent0.vSequence.addOverlay(ov);
+					updateOverlay();
+				}
+				else {
+					parent0.vSequence.removeOverlay(ov);
+				}
+			}});
 	}
 	
 	public void enableItems(boolean enabled) {
@@ -86,5 +129,59 @@ public class MoveTab_Options extends JPanel implements ActionListener {
 //		}
 	}
 	
+	private void updateOverlay () {
+		if (ov == null) 
+			ov = new OverlayThreshold(parent0.vSequence);
+		else {
+			parent0.vSequence.removeOverlay(ov);
+			ov.setSequence(parent0.vSequence);
+		}
+		parent0.vSequence.addOverlay(ov);	
+		ov.setTransform((TransformOp) backgroundComboBox.getSelectedItem());
+		ov.setThresholdSingle(parent0.vSequence.threshold);
+		if (ov != null) {
+			ov.painterChanged();
+		}
+	}
+
+	@Override
+	public void stateChanged(ChangeEvent e) {
+		if (e.getSource() == thresholdSpinner) {
+			parent0.vSequence.threshold = Integer.parseInt(thresholdSpinner.getValue().toString());
+			updateOverlay();
+		}
+	
+	}
+	
+	private void parseTextFields() {	
+		try { jitter = Integer.parseInt( jitterTextField.getText() );
+		}catch( Exception e ) { new AnnounceFrame("Can't interpret the jitter value."); }
+
+		btrackWhite = whiteMiceCheckBox.isSelected();
+		blimitLow = objectLowsizeCheckBox.isSelected();
+		blimitUp = objectUpsizeCheckBox.isSelected();
+		limitLow = (int) objectLowsizeSpinner.getValue();
+		limitUp = (int) objectUpsizeSpinner.getValue();
+		ichanselected = colorChannelComboBox.getSelectedIndex();
+	}
+
+	public void startComputation() {
+		parseTextFields();
+		// TODO transfer parameters to trackAllFliesThread
+		trackAllFliesThread = new BuildTrackFliesThread();
+		trackAllFliesThread.start();
+	}
+	
+	public void stopComputation() {
+		if (trackAllFliesThread != null && trackAllFliesThread.isAlive()) {
+			trackAllFliesThread.interrupt();
+			try {
+				trackAllFliesThread.join();
+			} catch (InterruptedException e1) {
+				e1.printStackTrace();
+			}
+		}
+		// TODO updateButtonsVisibility(StateD.STOP_COMPUTATION);
+	}
 
 }
