@@ -8,7 +8,7 @@ import javax.swing.JPanel;
 import javax.swing.JTabbedPane;
 
 import icy.gui.util.GuiUtil;
-import plugins.fmp.capillarytrack.Capillarytrack.StatusPane;
+import plugins.fmp.tools.StatusPane;
 
 
 public class CapillariesPane extends JPanel implements PropertyChangeListener {

@@ -12,10 +12,10 @@ import javax.swing.event.ChangeListener;
 import icy.gui.util.GuiUtil;
 import icy.gui.viewer.Viewer;
 import icy.image.IcyBufferedImage;
-import plugins.fmp.multicafe.Multicafe.StatusPane;
 import plugins.fmp.sequencevirtual.SequencePlus;
 import plugins.fmp.tools.ImageTransformTools;
 import plugins.fmp.tools.ImageTransformTools.TransformOp;
+import plugins.fmp.tools.StatusPane;
 
 
 public class KymosPane extends JPanel implements PropertyChangeListener, ChangeListener {

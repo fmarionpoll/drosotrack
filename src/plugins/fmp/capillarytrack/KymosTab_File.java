@@ -24,7 +24,8 @@ import icy.gui.util.FontUtil;
 import icy.gui.util.GuiUtil;
 import icy.image.IcyBufferedImage;
 import loci.formats.FormatException;
-import plugins.fmp.capillarytrack.Capillarytrack.StatusAnalysis;
+
+import plugins.fmp.tools.StatusAnalysis;
 import plugins.fmp.sequencevirtual.SequencePlus;
 
 public class KymosTab_File  extends JPanel implements ActionListener {

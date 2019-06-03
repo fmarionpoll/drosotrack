@@ -11,7 +11,7 @@ import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
 import icy.gui.util.GuiUtil;
-import plugins.fmp.multicafe.Multicafe.StatusPane;
+import plugins.fmp.tools.StatusPane;
 
 
 public class MovePane extends JPanel implements PropertyChangeListener, ChangeListener {
@@ -23,8 +23,7 @@ public class MovePane extends JPanel implements PropertyChangeListener, ChangeLi
 	
 	public JTabbedPane tabsPane	= new JTabbedPane();
 	MoveTab_BuildROIs buildROIsTab = new MoveTab_BuildROIs();
-	MoveTab_Options optionsTab = new MoveTab_Options();
-	MoveTab_Detect detectTab = new MoveTab_Detect();
+	MoveTab_DetectFlies optionsTab = new MoveTab_DetectFlies();
 
 	Multicafe parent0 = null;
 
@@ -33,7 +32,7 @@ public class MovePane extends JPanel implements PropertyChangeListener, ChangeLi
 		this.parent0 = parent0;
 		final JPanel panel = GuiUtil.generatePanel(string);
 		mainPanel.add(GuiUtil.besidesPanel(panel));
-		GridLayout capLayout = new GridLayout(4, 2);
+		GridLayout capLayout = new GridLayout(5, 2);
 		
 		buildROIsTab.init(capLayout, parent0);
 		buildROIsTab.addPropertyChangeListener(this);
@@ -41,11 +40,9 @@ public class MovePane extends JPanel implements PropertyChangeListener, ChangeLi
 
 		optionsTab.init(capLayout, parent0);
 		optionsTab.addPropertyChangeListener(this);
-		tabsPane.addTab("Options", null, optionsTab, "Define detection parameters");
+		tabsPane.addTab("Detect", null, optionsTab, "Detect flies position");
 
-		detectTab.init(capLayout, parent0);
-		detectTab.addPropertyChangeListener(this);
-		tabsPane.addTab("Detect", null, detectTab, "Detect movements of the flies");
+
 		
 		tabsPane.setTabLayoutPolicy(JTabbedPane.SCROLL_TAB_LAYOUT);
 		panel.add(GuiUtil.besidesPanel(tabsPane));

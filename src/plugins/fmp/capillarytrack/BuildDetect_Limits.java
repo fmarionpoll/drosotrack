@@ -9,7 +9,7 @@ import icy.image.IcyBufferedImage;
 import icy.roi.ROI;
 import icy.system.profile.Chronometer;
 import plugins.fmp.sequencevirtual.SequencePlus;
-import plugins.fmp.sequencevirtual.SequencePlus.ArrayListType;
+import plugins.fmp.tools.ArrayListType;
 import plugins.fmp.tools.ImageTransformTools.TransformOp;
 import plugins.kernel.roi.roi2d.ROI2DPolyLine;
 

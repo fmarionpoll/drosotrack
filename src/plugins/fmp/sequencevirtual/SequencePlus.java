@@ -26,6 +26,7 @@ import plugins.fmp.tools.OverlayTrapMouse;
 import plugins.fmp.tools.Tools;
 import plugins.fmp.tools.ImageTransformTools.TransformOp;
 import plugins.kernel.roi.roi2d.ROI2DPolyLine;
+import plugins.fmp.tools.ArrayListType;
 
 public class SequencePlus extends SequenceVirtual  {
 	
@@ -41,7 +42,6 @@ public class SequencePlus extends SequenceVirtual  {
 	public	int detectGulpsThreshold = 90;
 	public	TransformOp	transformForLevels = TransformOp.R2MINUS_GB;
 	public	TransformOp transformForGulps = TransformOp.XDIFFN;
-	public enum ArrayListType {topLevel, bottomLevel, derivedValues, cumSum, topAndBottom}
 
 	public OverlayThreshold thresholdOverlay = null;
 	public OverlayTrapMouse trapOverlay 	= null;

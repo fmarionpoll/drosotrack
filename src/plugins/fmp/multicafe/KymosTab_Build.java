@@ -14,7 +14,7 @@ import javax.swing.SwingConstants;
 import icy.gui.frame.progress.AnnounceFrame;
 import icy.gui.util.GuiUtil;
 import icy.gui.viewer.Viewer;
-import plugins.fmp.multicafe.Multicafe.StatusComputation;
+import plugins.fmp.tools.StatusComputation;
 import plugins.fmp.sequencevirtual.SequencePlus;
 import plugins.kernel.roi.roi2d.ROI2DShape;
 
@@ -101,7 +101,7 @@ public class KymosTab_Build extends JPanel implements ActionListener {
 	
 	private void kymosBuildStop() {	
 		if (thread.isAlive()) {
-			buildKymographsThread.doStop = true;
+			buildKymographsThread.stopFlag = true;
 			try {
 				thread.join();
 			} catch (InterruptedException e1) {

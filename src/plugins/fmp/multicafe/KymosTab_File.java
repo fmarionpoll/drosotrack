@@ -24,9 +24,9 @@ import icy.gui.util.FontUtil;
 import icy.gui.util.GuiUtil;
 import icy.image.IcyBufferedImage;
 import loci.formats.FormatException;
-import plugins.fmp.multicafe.Multicafe.StatusAnalysis;
+import plugins.fmp.tools.StatusAnalysis;
 import plugins.fmp.sequencevirtual.SequencePlus;
-import plugins.fmp.sequencevirtual.SequencePlus.ArrayListType;
+import plugins.fmp.tools.ArrayListType;
 
 public class KymosTab_File  extends JPanel implements ActionListener {
 	/**

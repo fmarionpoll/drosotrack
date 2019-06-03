@@ -18,7 +18,7 @@ import org.jfree.data.xy.XYSeriesCollection;
 import icy.gui.frame.IcyFrame;
 import icy.gui.util.GuiUtil;
 import plugins.fmp.sequencevirtual.SequencePlus;
-import plugins.fmp.sequencevirtual.SequencePlus.ArrayListType;
+import plugins.fmp.tools.ArrayListType;
 
 public class XYMultiChart extends IcyFrame  {
 

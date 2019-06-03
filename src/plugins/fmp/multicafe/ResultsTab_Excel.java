@@ -21,8 +21,9 @@ import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
 import plugins.fmp.sequencevirtual.SequencePlus;
-import plugins.fmp.sequencevirtual.SequencePlus.ArrayListType;
+import plugins.fmp.tools.ArrayListType;
 import plugins.fmp.tools.Tools;
+import plugins.fmp.tools.ExportXLS;
 
 public class ResultsTab_Excel extends JPanel implements ActionListener  {
 
@@ -30,7 +31,7 @@ public class ResultsTab_Excel extends JPanel implements ActionListener  {
 	 * 
 	 */
 	private static final long serialVersionUID = 1290058998782225526L;
-	enum ExportXLS {TOPLEVEL, BOTTOMLEVEL, DERIVEDVALUES, SUMGULPS, SUMLR};
+
 	public JButton 		exportToXLSButton 	= new JButton("save XLS");
 	public JCheckBox 	topLevelCheckBox 	= new JCheckBox("top", true);
 	public JCheckBox 	bottomLevelCheckBox = new JCheckBox("bottom", false);

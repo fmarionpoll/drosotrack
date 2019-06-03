@@ -4,6 +4,7 @@ import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
+import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
 import javax.swing.JLabel;
@@ -17,16 +18,20 @@ import javax.swing.event.ChangeListener;
 
 import icy.gui.frame.progress.AnnounceFrame;
 import icy.gui.util.GuiUtil;
+import icy.system.thread.ThreadUtil;
+
 import plugins.fmp.tools.OverlayThreshold;
 import plugins.fmp.tools.ImageTransformTools.TransformOp;
 
-public class MoveTab_Options extends JPanel implements ActionListener, ChangeListener {
+public class MoveTab_DetectFlies extends JPanel implements ActionListener, ChangeListener {
 	/**
 	 * 
 	 */
 	private static final long serialVersionUID = -5257698990389571518L;
 	private Multicafe parent0;
 	
+	private JButton startComputationButton 	= new JButton("Start");
+	private JButton stopComputationButton	= new JButton("Stop");
 	private JComboBox<String> colorChannelComboBox = new JComboBox<String> (new String[] {"Red", "Green", "Blue"});
 	private JComboBox<TransformOp> backgroundComboBox = new JComboBox<> (new TransformOp[]  {TransformOp.NONE, TransformOp.REF_PREVIOUS, TransformOp.REF_T0});
 	private JSpinner thresholdSpinner		= new JSpinner(new SpinnerNumberModel(100, 0, 255, 10));
@@ -38,22 +43,14 @@ public class MoveTab_Options extends JPanel implements ActionListener, ChangeLis
 	private JCheckBox whiteMiceCheckBox 	= new JCheckBox("Track white on dark ");
 	private JCheckBox thresholdedImageCheckBox = new JCheckBox("Display as overlay");
 	
-	OverlayThreshold ov = null;
-	private int 	jitter 					= 10;
-	private boolean btrackWhite 			= false;
-	private boolean  blimitLow;
-	private boolean  blimitUp;
-	private int  limitLow;
-	private int  limitUp;
-	private int  ichanselected;
+	private OverlayThreshold ov = null;
 	private BuildTrackFliesThread trackAllFliesThread = null;
-	
-
 	
 	public void init(GridLayout capLayout, Multicafe parent0) {
 		setLayout(capLayout);
 		this.parent0 = parent0;
 
+		add( GuiUtil.besidesPanel( startComputationButton, stopComputationButton ) );
 		add( GuiUtil.besidesPanel(whiteMiceCheckBox, thresholdedImageCheckBox));
 		JLabel videochannel = new JLabel("channel ");
 		videochannel.setHorizontalAlignment(SwingConstants.RIGHT);
@@ -101,6 +98,20 @@ public class MoveTab_Options extends JPanel implements ActionListener, ChangeLis
 					parent0.vSequence.removeOverlay(ov);
 				}
 			}});
+		
+		startComputationButton.addActionListener(new ActionListener () {
+			@Override
+			public void actionPerformed( final ActionEvent e ) { 
+				startComputation();
+			}});
+		
+		stopComputationButton.addActionListener(new ActionListener () {
+			@Override
+			public void actionPerformed( final ActionEvent e ) { 
+				stopComputation();
+				// TODO updateButtonsVisibility(StateD.STOP_COMPUTATION);
+			}});
+
 	}
 	
 	public void enableItems(boolean enabled) {
@@ -116,17 +127,6 @@ public class MoveTab_Options extends JPanel implements ActionListener, ChangeLis
 	
 	@Override
 	public void actionPerformed(ActionEvent e) {
-//		Object o = e.getSource();
-//		if ( o == createROIsFromPolygonButton2)  {
-//			roisGenerateFromPolygon();
-//			parent0.vSequence.keepOnly2DLines_CapillariesArrayList();
-//			firePropertyChange("CAPILLARIES_NEW", false, true);	
-//		}
-//		else if ( o == selectRegularButton) {
-//			boolean status = false;
-//			width_between_capillariesTextField.setEnabled(status);
-//			width_intervalTextField.setEnabled(status);	
-//		}
 	}
 	
 	private void updateOverlay () {
@@ -153,35 +153,46 @@ public class MoveTab_Options extends JPanel implements ActionListener, ChangeLis
 	
 	}
 	
-	private void parseTextFields() {	
-		try { jitter = Integer.parseInt( jitterTextField.getText() );
-		}catch( Exception e ) { new AnnounceFrame("Can't interpret the jitter value."); }
-
-		btrackWhite = whiteMiceCheckBox.isSelected();
-		blimitLow = objectLowsizeCheckBox.isSelected();
-		blimitUp = objectUpsizeCheckBox.isSelected();
-		limitLow = (int) objectLowsizeSpinner.getValue();
-		limitUp = (int) objectUpsizeSpinner.getValue();
-		ichanselected = colorChannelComboBox.getSelectedIndex();
+	private boolean initTrackParameters() {
+		if (trackAllFliesThread == null)
+			return false;
+		
+		trackAllFliesThread.vSequence = parent0.vSequence;		
+		trackAllFliesThread.stopFlag = false;
+		trackAllFliesThread.btrackWhite = whiteMiceCheckBox.isSelected();
+		trackAllFliesThread.ichanselected = colorChannelComboBox.getSelectedIndex();
+		trackAllFliesThread.blimitLow = objectLowsizeCheckBox.isSelected();
+		trackAllFliesThread.blimitUp = objectUpsizeCheckBox.isSelected();
+		trackAllFliesThread.limitLow = (int) objectLowsizeSpinner.getValue();
+		trackAllFliesThread.limitUp = (int) objectUpsizeSpinner.getValue();
+		try { trackAllFliesThread.jitter = Integer.parseInt( jitterTextField.getText() );
+		}catch( Exception e ) { new AnnounceFrame("Can't interpret the jitter value."); return false; }
+		trackAllFliesThread.transformop = (TransformOp) backgroundComboBox.getSelectedItem();
+		
+		return true;
 	}
 
 	public void startComputation() {
-		parseTextFields();
+		
 		// TODO transfer parameters to trackAllFliesThread
 		trackAllFliesThread = new BuildTrackFliesThread();
-		trackAllFliesThread.start();
+		initTrackParameters();
+		ThreadUtil.bgRun(trackAllFliesThread);
+		
 	}
 	
 	public void stopComputation() {
-		if (trackAllFliesThread != null && trackAllFliesThread.isAlive()) {
-			trackAllFliesThread.interrupt();
-			try {
-				trackAllFliesThread.join();
-			} catch (InterruptedException e1) {
-				e1.printStackTrace();
-			}
-		}
+		if (trackAllFliesThread != null)
+			trackAllFliesThread.stopFlag = true;
+			
 		// TODO updateButtonsVisibility(StateD.STOP_COMPUTATION);
+//		if (trackAllFliesThread != null && trackAllFliesThread.isAlive()) {
+//			trackAllFliesThread.interrupt();
+//			try {
+//				trackAllFliesThread.join();
+//			} catch (InterruptedException e1) {
+//				e1.printStackTrace();
+//			}
 	}
 
 }

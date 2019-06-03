@@ -21,8 +21,10 @@ import icy.sequence.SequenceEvent;
 import icy.sequence.SequenceListener;
 
 import plugins.fmp.sequencevirtual.SequencePlus;
-import plugins.fmp.sequencevirtual.SequencePlus.ArrayListType;
+import plugins.fmp.tools.ArrayListType;
 import plugins.fmp.sequencevirtual.SequenceVirtual;
+import plugins.fmp.tools.StatusAnalysis;
+import plugins.fmp.tools.StatusPane;
 
 // SequenceListener?
 public class Multicafe extends PluginActionable implements ViewerListener, PropertyChangeListener, SequenceListener
@@ -36,7 +38,7 @@ public class Multicafe extends PluginActionable implements ViewerListener, Prope
 	SequencePane sequencePane 		= null;
 	CapillariesPane capillariesPane = null;
 	KymosPane kymographsPane 		= null;
-	MovePane movePane 			= null;
+	MovePane movePane 				= null;
 	ResultsPane resultsPane 		= null;
 	
 	//-------------------------------------------------------------------
@@ -75,9 +77,7 @@ public class Multicafe extends PluginActionable implements ViewerListener, Prope
 	}
 
 	// -------------------------------------------
-	enum StatusAnalysis { NODATA, SEQ_OK, ROIS_OK, KYMOS_OK, MEASURETOP_OK, MEASUREGULPS_OK};
-	enum StatusComputation {START_COMPUTATION, STOP_COMPUTATION};
-	enum StatusPane { DISABLED, INIT, FULL};
+
 	private StatusPane [] [] flagsTable 		= new StatusPane [][] {
 		//0-capillariesPane	1-kymosgraphsPane	2-detectPane(0)		3-resultsPane
 		{StatusPane.DISABLED, StatusPane.DISABLED, StatusPane.DISABLED, StatusPane.DISABLED}, 	// 0 - NODATA

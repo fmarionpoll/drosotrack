@@ -8,7 +8,7 @@ import javax.swing.JPanel;
 import javax.swing.JTabbedPane;
 
 import icy.gui.util.GuiUtil;
-import plugins.fmp.multicafe.Multicafe.StatusPane;
+import plugins.fmp.tools.StatusPane;
 
 public class ResultsPane extends JPanel implements PropertyChangeListener {
 

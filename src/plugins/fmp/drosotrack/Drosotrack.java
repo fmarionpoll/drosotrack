@@ -67,6 +67,7 @@ import plugins.fmp.sequencevirtual.SequenceVirtual;
 import plugins.fmp.tools.OverlayThreshold;
 import plugins.fmp.tools.Tools;
 import plugins.fmp.tools.ImageTransformTools.TransformOp;
+import plugins.fmp.tools.StateD;
 import plugins.kernel.roi.roi2d.ROI2DArea;
 import plugins.kernel.roi.roi2d.ROI2DPolygon;
 import plugins.kernel.roi.roi2d.ROI2DRectangle;
@@ -116,7 +117,6 @@ public class Drosotrack extends PluginActionable implements ActionListener, View
 
 	private SequenceVirtual vSequence 	= null;
 	private Timer 		checkBufferTimer 	= new Timer(1000, this);
-	enum StateD { NORMAL, STOP_COMPUTATION, INIT, NO_FILE };
 	private StateD state = StateD.NORMAL;
 
 	private int 	threshold 				= 0;

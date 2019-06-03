@@ -11,7 +11,7 @@ import javax.swing.event.ChangeListener;
 
 import icy.gui.util.GuiUtil;
 import icy.gui.viewer.Viewer;
-import plugins.fmp.capillarytrack.Capillarytrack.StatusPane;
+import plugins.fmp.tools.StatusPane;
 import plugins.fmp.sequencevirtual.SequencePlus;
 import plugins.fmp.tools.ImageTransformTools.TransformOp;
 

@@ -19,10 +19,11 @@ import icy.sequence.DimensionId;
 import icy.sequence.Sequence;
 import icy.sequence.SequenceEvent;
 import icy.sequence.SequenceListener;
-
 import plugins.fmp.sequencevirtual.SequencePlus;
-import plugins.fmp.sequencevirtual.SequencePlus.ArrayListType;
-import plugins.fmp.sequencevirtual.SequenceVirtual;
+import plugins.fmp.tools.ArrayListType;
+import plugins.fmp.tools.StatusAnalysis;
+import plugins.fmp.tools.StatusPane;
+import plugins.fmp.sequencevirtual.SequenceVirtual; 
 
 // SequenceListener?
 public class Capillarytrack extends PluginActionable implements ViewerListener, PropertyChangeListener, SequenceListener
@@ -75,9 +76,6 @@ public class Capillarytrack extends PluginActionable implements ViewerListener, 
 	}
 
 	// -------------------------------------------
-	enum StatusAnalysis { NODATA, SEQ_OK, ROIS_OK, KYMOS_OK, MEASURETOP_OK, MEASUREGULPS_OK};
-	enum StatusComputation {START_COMPUTATION, STOP_COMPUTATION};
-	enum StatusPane { DISABLED, INIT, FULL};
 	private StatusPane [] [] flagsTable 		= new StatusPane [][] {
 		//0-capillariesPane	1-kymosgraphsPane	2-detectPane(0)		3-resultsPane
 		{StatusPane.DISABLED, StatusPane.DISABLED, StatusPane.DISABLED, StatusPane.DISABLED}, 	// 0 - NODATA

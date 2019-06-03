@@ -34,7 +34,7 @@ public class BuildKymographsThread implements Runnable
 	public int diskRadius = 5;
 	public ArrayList <SequencePlus> kymographArrayList 	= null;
 	public boolean doRegistration = false;
-	public boolean doStop = false;
+	public boolean stopFlag = false;
 	
 	private ArrayList<double []> sourceValuesList = null;
 	private ArrayList<ArrayList<ArrayList<int[]>>> masksArrayList = new ArrayList<ArrayList<ArrayList<int[]>>>();
@@ -55,7 +55,7 @@ public class BuildKymographsThread implements Runnable
 		int nbframes = endFrame - startFrame +1;
 		ProgressChrono progressBar = new ProgressChrono("Processing started");
 		progressBar.initStuff(nbframes);
-		doStop = false;
+		stopFlag = false;
 
 		initKymographs();
 		int vinputSizeX = vSequence.getSizeX();
@@ -66,7 +66,7 @@ public class BuildKymographsThread implements Runnable
 		s.addImage(workImage);
 		s.addImage(workImage);
 
-		for (int t = startFrame ; t <= endFrame; t += analyzeStep, ipixelcolumn++ )
+		for (int t = startFrame ; t <= endFrame && !stopFlag; t += analyzeStep, ipixelcolumn++ )
 		{
 			progressBar.updatePositionAndTimeLeft(t);
 			if (!getImageAndUpdateViewer (t))
@@ -101,9 +101,7 @@ public class BuildKymographsThread implements Runnable
 					}
 				}
 			}
-			if (doStop) { 
-				t=endFrame; 
-			}
+
 		}
 
 		vSequence.endUpdate();

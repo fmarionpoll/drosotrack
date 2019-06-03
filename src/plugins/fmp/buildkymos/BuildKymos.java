@@ -41,9 +41,11 @@ import icy.sequence.DimensionId;
 //import icy.system.profile.Chronometer;
 import icy.system.thread.ThreadUtil;
 import loci.formats.FormatException;
+
 import plugins.fmp.capillarytrack.BuildKymographsThread;
 import plugins.fmp.sequencevirtual.*;
 import plugins.fmp.tools.Tools;
+import plugins.fmp.tools.StatusComputation;
 
 public class BuildKymos extends PluginActionable implements ActionListener, ChangeListener, ViewerListener
 {
@@ -68,8 +70,7 @@ public class BuildKymos extends PluginActionable implements ActionListener, Chan
 	
 	// results arrays
 	private ArrayList <SequencePlus> 	kymographArrayList 		= new ArrayList <SequencePlus> ();		// list of kymograph sequences
-	enum StatusComputation {START_COMPUTATION, STOP_COMPUTATION};
-	private StatusComputation 	sComputation = StatusComputation.START_COMPUTATION; 
+	private StatusComputation sComputation = StatusComputation.START_COMPUTATION; 
 	private BuildKymographsThread buildKymographsThread = null;
 	private Viewer viewer1 = null;
 	private Thread thread = null;
