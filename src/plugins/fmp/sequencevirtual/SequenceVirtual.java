@@ -31,6 +31,7 @@ import plugins.fab.MiceProfiler.XugglerAviFile;
 import plugins.fmp.tools.ImageOperationsStruct;
 import plugins.fmp.tools.StringSorter;
 import plugins.fmp.tools.Tools;
+import plugins.fmp.tools.ImageTransformTools.TransformOp;
 import plugins.kernel.roi.roi2d.ROI2DLine;
 import plugins.kernel.roi.roi2d.ROI2DPolyLine;
 import plugins.kernel.roi.roi2d.ROI2DShape;
@@ -172,19 +173,19 @@ public class SequenceVirtual extends Sequence
 		return image;
 	}
 	
-	public IcyBufferedImage getImageTransf(int t, int z, int c, int transform) 
+	public IcyBufferedImage getImageTransf(int t, int z, int c, TransformOp transformop) 
 	{
-		IcyBufferedImage image =  loadVImageTransf(t, transform);
+		IcyBufferedImage image =  loadVImageAndSubtractReference(t, transformop);
 		if (image != null && c != -1)
 			image = IcyBufferedImageUtil.extractChannel(image, c);
 		return image;
 	}
 	
-	public IcyBufferedImage loadVImageTransf(int t, int transform)
+	public IcyBufferedImage loadVImageAndSubtractReference(int t, TransformOp transformop)
 	{
 		IcyBufferedImage ibufImage = loadVImage(t);
-		switch (transform) {
-			case 1: // subtract image n-1
+		switch (transformop) {
+			case REF_PREVIOUS: // subtract image n-1
 			{
 				int t0 = t-1;
 				if (t0 <0)
@@ -193,13 +194,14 @@ public class SequenceVirtual extends Sequence
 				ibufImage = subtractImages (ibufImage, ibufImage0);
 			}	
 				break;
-			case 2: // subtract reference image
+			case REF_T0: // subtract reference image
 			{
 				if (refImage == null)
 					refImage = loadVImage(0);
 				ibufImage = subtractImages (ibufImage, refImage);
 			}
 				break;
+			case NONE:
 			default:
 				break;
 		}

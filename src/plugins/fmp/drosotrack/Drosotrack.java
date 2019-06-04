@@ -364,7 +364,7 @@ public class Drosotrack extends PluginActionable implements ActionListener, View
 		displayChartsButton.addActionListener ( new ActionListener() {
 			@Override
 			public void actionPerformed( final ActionEvent e ) { 
-				displayGraphs(); 
+				displayYpositionGraphs(); 
 			} } );
 		
 		closeAllButton.addActionListener ( new ActionListener() {
@@ -478,7 +478,7 @@ public class Drosotrack extends PluginActionable implements ActionListener, View
 		Collections.sort(list, new Tools.ROI2DNameComparator());
 	}
 
-	private void displayGraphs() {
+	private void displayYpositionGraphs() {
 
 		if (mainChartFrame != null) {
 			mainChartFrame.removeAll();
@@ -1035,19 +1035,6 @@ public class Drosotrack extends PluginActionable implements ActionListener, View
 			ROI [][] resultFlyPositionArrayList = new ROI[nbframes][nbcages];
 			int lastFrameAnalyzed = endFrame;
 			TransformOp transformop = (TransformOp) backgroundComboBox.getSelectedItem();
-			int transf = 0;
-			switch (transformop) {
-			case REF_PREVIOUS:
-				transf = 1;
-				break;
-			case REF_T0:
-				transf = 2;
-				break;
-			case NONE:
-			default:
-				transf = 0;
-				break;
-			}
 
 			try {
 				final Viewer v = Icy.getMainInterface().getFirstViewer(vSequence);	
@@ -1066,7 +1053,7 @@ public class Drosotrack extends PluginActionable implements ActionListener, View
 						progress.setMessage( "Processing: " + pos + " % - Elapsed time: " + nbSeconds + " s - Estimated time left: " + timeleft + " s");
 
 						// load next image and compute threshold
-						IcyBufferedImage workImage = vSequence.loadVImageTransf(t, transf); 
+						IcyBufferedImage workImage = vSequence.loadVImageAndSubtractReference(t, transformop); 
 						
 						vSequence.currentFrame = t;
 						v.setPositionT(t);
@@ -1075,7 +1062,7 @@ public class Drosotrack extends PluginActionable implements ActionListener, View
 							// try another time
 							System.out.println("Error reading image: " + t + " ... trying again"  );
 							vSequence.removeImage(t, 0);
-							workImage = vSequence.loadVImageTransf(t, transf); 
+							workImage = vSequence.loadVImageAndSubtractReference(t, transformop); 
 							if (workImage == null) {
 								System.out.println("Fatal error occurred while reading image: " + t + " : Procedure stopped"  );
 								return;

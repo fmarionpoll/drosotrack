@@ -17,6 +17,7 @@ import icy.system.profile.Chronometer;
 import plugins.fmp.sequencevirtual.SequenceVirtual;
 import plugins.fmp.tools.Tools;
 import plugins.fmp.tools.ImageTransformTools.TransformOp;
+import plugins.fmp.tools.ROI2DUtilities;
 import plugins.kernel.roi.roi2d.ROI2DArea;
 import plugins.kernel.roi.roi2d.ROI2DPolygon;
 import plugins.kernel.roi.roi2d.ROI2DRectangle;
@@ -25,7 +26,6 @@ class BuildTrackFliesThread implements Runnable {
 	
 	public SequenceVirtual vSequence 	= null;	
 //	private StateD state = StateD.NORMAL;
-	public ArrayList<ROI2D> roiList = null;
 	public ArrayList<Integer>			lastTime_it_MovedList 	= new ArrayList<Integer>(); 	// last time a fly moved
 	public ArrayList<ArrayList<Point2D>> points2D_rois_then_t_ListArray = new ArrayList<ArrayList<Point2D>>();
 	public ArrayList<ROI2D> 			cageLimitROIList		= new ArrayList<ROI2D>();
@@ -59,7 +59,6 @@ class BuildTrackFliesThread implements Runnable {
 	@Override
 	public void run()
 	{
-		roiList = vSequence.getROI2Ds();
 		int	analyzeStep 			= vSequence.analysisStep;
 		int startFrame 				= (int) vSequence.analysisStart;
 		int endFrame 				= (int) vSequence.analysisEnd;
@@ -79,26 +78,8 @@ class BuildTrackFliesThread implements Runnable {
 		cageMaskList.clear();
 	
 		// find ROI describing cage areas - remove all others
-		vSequence.beginUpdate();
-		Collections.sort(roiList, new Tools.ROI2DNameComparator());
-		for ( ROI2D roi : roiList )
-		{
-			String csName = roi.getName();
-			if ( csName.contains( "cage") || csName.contains("Polygon2D"))
-			{
-				if ( ! ( roi instanceof ROI2DPolygon ) )
-				{
-					new AnnounceFrame("The cage must be a ROI 2D POLYGON");
-					progress.canRemove();
-					continue;
-				}
-				cageLimitROIList.add(roi);
-				cageMaskList.add(roi.getBooleanMask2D( 0 , 0, 1, true ));
-			}
-			else
-				vSequence.removeROI(roi);
-		}
-		vSequence.endUpdate();
+		cageLimitROIList = ROI2DUtilities.getListofCagesFromSequence(vSequence);
+		cageMaskList = ROI2DUtilities.getMask2DFromRoiList(cageLimitROIList);
 		Collections.sort(cageLimitROIList, new Tools.ROI2DNameComparator());
 
 		// create arrays for storing position and init their value to zero
@@ -114,7 +95,7 @@ class BuildTrackFliesThread implements Runnable {
 			tempRectROI[i] = new ROI2DRectangle(0, 0, 10, 10);
 			tempRectROI[i].setName("fly_"+i);
 			vSequence.addROI(tempRectROI[i]);
-			ArrayList<Point2D> 	points2DList 	= new ArrayList<Point2D>();
+			ArrayList<Point2D> 	points2DList = new ArrayList<Point2D>();
 			points2DList.ensureCapacity(minCapacity);
 			points2D_rois_then_t_ListArray.add(points2DList);
 		}
@@ -123,25 +104,10 @@ class BuildTrackFliesThread implements Runnable {
 		ROI [][] resultFlyPositionArrayList = new ROI[nbframes][nbcages];
 		int lastFrameAnalyzed = endFrame;
 		
-		int transf = 0;
-		switch (transformop) {
-		case REF_PREVIOUS:
-			transf = 1;
-			break;
-		case REF_T0:
-			transf = 2;
-			break;
-		case NONE:
-		default:
-			transf = 0;
-			break;
-		}
-
 		try {
 			final Viewer v = Icy.getMainInterface().getFirstViewer(vSequence);	
 			vSequence.beginUpdate();
 
-		
 			// ----------------- loop over all images of the stack
 			int it = 0;
 			for (int t = startFrame ; t <= endFrame && !stopFlag; t  += analyzeStep, it++ )
@@ -154,32 +120,19 @@ class BuildTrackFliesThread implements Runnable {
 				progress.setMessage( "Processing: " + pos + " % - Elapsed time: " + nbSeconds + " s - Estimated time left: " + timeleft + " s");
 
 				// load next image and compute threshold
-				IcyBufferedImage workImage = vSequence.loadVImageTransf(t, transf); 
-				
+				IcyBufferedImage workImage = vSequence.loadVImageAndSubtractReference(t, transformop); 			
 				vSequence.currentFrame = t;
 				v.setPositionT(t);
 				v.setTitle(vSequence.getVImageName(t));
-				if (workImage == null) {
-					// try another time
-					System.out.println("Error reading image: " + t + " ... trying again"  );
-					vSequence.removeImage(t, 0);
-					workImage = vSequence.loadVImageTransf(t, transf); 
-					if (workImage == null) {
-						System.out.println("Fatal error occurred while reading image: " + t + " : Procedure stopped"  );
-						return;
-					}
-				}
+
 				ROI2DArea roiAll = findFly ( workImage, vSequence.threshold, ichanselected, btrackWhite );
 
 				// ------------------------ loop over all the cages of the stack
 				for ( int iroi = 0; iroi < cageLimitROIList.size(); iroi++ )
 				{
 					ROI cageLimitROI = cageLimitROIList.get(iroi);
-					// skip cage if limits are not set
 					if ( cageLimitROI == null )
 						continue;
-
-					// test if fly can be found using threshold 
 					BooleanMask2D cageMask = cageMaskList.get(iroi);
 					if (cageMask == null)
 						continue;
