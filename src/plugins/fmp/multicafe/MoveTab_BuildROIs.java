@@ -77,7 +77,7 @@ public class MoveTab_BuildROIs extends JPanel implements ActionListener {
 		openROIsButton.addActionListener(new ActionListener () {
 			@Override
 			public void actionPerformed( final ActionEvent e ) { 
-				parent0.vSequence.xmlReadROIsAndData();	
+				parent0.vSequence.capillaries.xmlReadROIsAndData(parent0.vSequence);	
 				ArrayList<ROI2D> list = parent0.vSequence.getROI2Ds();
 				Collections.sort(list, new Tools.ROI2DNameComparator());
 				int nrois = list.size();
@@ -88,7 +88,7 @@ public class MoveTab_BuildROIs extends JPanel implements ActionListener {
 		saveROIsButton.addActionListener(new ActionListener () {
 			@Override
 			public void actionPerformed( final ActionEvent e ) { 
-				parent0.vSequence.threshold = threshold;
+				parent0.vSequence.cages.detect.threshold = threshold;
 				List<ROI> roisList = parent0.vSequence.getROIs(true);
 				List<ROI> roisCages = new ArrayList<ROI>();
 				for (ROI roi : roisList) {
@@ -97,7 +97,7 @@ public class MoveTab_BuildROIs extends JPanel implements ActionListener {
 				}
 				parent0.vSequence.removeAllROI();
 				parent0.vSequence.addROIs(roisCages, false);
-				parent0.vSequence.xmlWriteROIsAndData("drosotrack.xml");
+				parent0.vSequence.capillaries.xmlWriteROIsAndData("drosotrack.xml", parent0.vSequence);
 				parent0.vSequence.removeAllROI();
 				parent0.vSequence.addROIs(roisList, false);
 			}});
@@ -199,14 +199,14 @@ public class MoveTab_BuildROIs extends JPanel implements ActionListener {
 		
 		boolean flag = false;
 		if (csFileName == null)
-			flag = parent0.vSequence.xmlReadROIsAndData();
+			flag = parent0.vSequence.capillaries.xmlReadROIsAndData(parent0.vSequence);
 		else
-			flag = parent0.vSequence.xmlReadROIsAndData(csFileName);
+			flag = parent0.vSequence.capillaries.xmlReadROIsAndData(csFileName, parent0.vSequence);
 		return flag;
 	}
 	
 	public boolean cageRoisSave() {
-		return parent0.vSequence.xmlWriteROIsAndData("drosotrack.xml");
+		return parent0.vSequence.capillaries.xmlWriteROIsAndData("drosotrack.xml", parent0.vSequence);
 	}
 
 }

@@ -519,7 +519,7 @@ public class Areatrack extends PluginActionable implements ActionListener, Chang
 	private void openROIs() {
 		if (vSequence != null) {
 			vSequence.removeAllROI();
-			vSequence.xmlReadROIsAndData();
+			vSequence.capillaries.xmlReadROIsAndData(vSequence);
 			endFrameTextField.setText( Integer.toString(endFrame));
 			startFrameTextField.setText( Integer.toString(startFrame));
 		}
@@ -528,12 +528,12 @@ public class Areatrack extends PluginActionable implements ActionListener, Chang
 	private void saveROIs() {
 		vSequence.analysisStart = startFrame;
 		vSequence.analysisEnd = endFrame;
-		vSequence.xmlWriteROIsAndData("areatrack.xml");
+		vSequence.capillaries.xmlWriteROIsAndData("areatrack.xml", vSequence);
 	}
 	
 	private void addROIs( ) {
 		if (vSequence != null) {
-			vSequence.xmlReadROIsAndData();
+			vSequence.capillaries.xmlReadROIsAndData(vSequence);
 			endFrameTextField.setText( Integer.toString(endFrame));
 			startFrameTextField.setText( Integer.toString(startFrame));
 		}
@@ -941,7 +941,7 @@ public class Areatrack extends PluginActionable implements ActionListener, Chang
 		
 		endFrame = vSequence.getSizeT()-1;
 		endFrameTextField.setText( Integer.toString(endFrame));
-		vSequence.capillariesArrayList.clear();
+		vSequence.capillaries.capillariesArrayList.clear();
 	}
 	
 	private void startstopBufferingThread() {

@@ -76,7 +76,7 @@ public class BuildKymographsThread implements Runnable
 			}
 			transferWorkImageToDoubleArrayList ();
 			
-			for (int iroi=0; iroi < vSequence.capillariesArrayList.size(); iroi++)
+			for (int iroi=0; iroi < vSequence.capillaries.capillariesArrayList.size(); iroi++)
 			{
 				SequencePlus kymographSeq = kymographArrayList.get(iroi);
 				ArrayList<ArrayList<int[]>> masks = masksArrayList.get(iroi);	
@@ -108,7 +108,7 @@ public class BuildKymographsThread implements Runnable
 		System.out.println("Elapsed time (s):" + progressBar.getSecondsSinceStart());
 		progressBar.close();
 		
-		for (int iroi=0; iroi < vSequence.capillariesArrayList.size(); iroi++)
+		for (int iroi=0; iroi < vSequence.capillaries.capillariesArrayList.size(); iroi++)
 		{
 			SequencePlus kymographSeq = kymographArrayList.get(iroi);
 			kymographSeq.dataChanged();
@@ -140,14 +140,14 @@ public class BuildKymographsThread implements Runnable
 
 		int sizex = vSequence.getSizeX();
 		int sizey = vSequence.getSizeY();
-		vSequence.keepOnly2DLines_CapillariesArrayList();
+		vSequence.capillaries.keepOnly2DLines_CapillariesArrayList(vSequence);
 		int numC = vSequence.getSizeC();
 		double fimagewidth =  1 + (endFrame - startFrame )/analyzeStep;
 		int imagewidth = (int) fimagewidth;
 	
-		for (int iroi=0; iroi < vSequence.capillariesArrayList.size(); iroi++)
+		for (int iroi=0; iroi < vSequence.capillaries.capillariesArrayList.size(); iroi++)
 		{
-			ROI2DShape roi = vSequence.capillariesArrayList.get(iroi);
+			ROI2DShape roi = vSequence.capillaries.capillariesArrayList.get(iroi);
 			ArrayList<ArrayList<int[]>> mask = new ArrayList<ArrayList<int[]>>();
 			masksArrayList.add(mask);
 			initExtractionParametersfromROI(roi, mask, diskRadius, sizex, sizey);

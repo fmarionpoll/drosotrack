@@ -76,7 +76,7 @@ public class CapillariesTab_Adjust extends JPanel implements ActionListener{
 	// -------------------------------------------------------
 	private void roisCenterLinestoCapillaries() {
 		
-		if (parent0.vSequence.capillariesArrayList == null || parent0.vSequence.capillariesArrayList.size() == 0)
+		if (parent0.vSequence.capillaries.capillariesArrayList == null || parent0.vSequence.capillaries.capillariesArrayList.size() == 0)
 			return;
 		
 		if (!displayYellowBarsCheckBox.isSelected()) 
@@ -97,8 +97,8 @@ public class CapillariesTab_Adjust extends JPanel implements ActionListener{
 		double [] sourceValues = Array1DUtil.arrayToDoubleArray(vinputImage.getDataXY(0), vinputImage.isSignedDataType());
 		
 		// loop through all lines
-		for (int i=0; i< parent0.vSequence.capillariesArrayList.size(); i++) {
-			ROI2D roi = parent0.vSequence.capillariesArrayList.get(i);
+		for (int i=0; i< parent0.vSequence.capillaries.capillariesArrayList.size(); i++) {
+			ROI2D roi = parent0.vSequence.capillaries.capillariesArrayList.get(i);
 			if (roi instanceof ROI2DLine) 			{
 				Line2D line = roisCenterLinetoCapillary(sourceValues, xwidth, (ROI2DLine) roi, jitter);
 	//			((ROI2DLine) roi).setLine(line); // replace with the 5 following lines 
@@ -236,8 +236,8 @@ public class CapillariesTab_Adjust extends JPanel implements ActionListener{
 				refLineUpper = new Line2D.Double (0, seqheight/3, seqwidth, seqheight/3);
 				refLineLower = new Line2D.Double (0, 2*seqheight/3, seqwidth, 2*seqheight/3);
 				
-				Rectangle extRect = new Rectangle (parent0.vSequence.capillariesArrayList.get(0).getBounds());
-				for (ROI2D roi: parent0.vSequence.capillariesArrayList)
+				Rectangle extRect = new Rectangle (parent0.vSequence.capillaries.capillariesArrayList.get(0).getBounds());
+				for (ROI2D roi: parent0.vSequence.capillaries.capillariesArrayList)
 				{
 					Rectangle rect = roi.getBounds();
 					extRect.add(rect);

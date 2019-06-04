@@ -44,7 +44,7 @@ public class SequenceTab_Close  extends JPanel implements ActionListener {
 		if (parent0.vSequence != null) {
 			parent0.vSequence.removeListener(parent0);
 			parent0.vSequence.close();
-			parent0.vSequence.capillariesArrayList.clear();
+			parent0.vSequence.capillaries.capillariesArrayList.clear();
 		}
 
 		// clean kymographs & results

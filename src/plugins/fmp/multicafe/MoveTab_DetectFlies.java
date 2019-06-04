@@ -21,6 +21,7 @@ import icy.gui.util.GuiUtil;
 import icy.system.thread.ThreadUtil;
 
 import plugins.fmp.tools.OverlayThreshold;
+import plugins.fmp.sequencevirtual.DetectFliesParameters;
 import plugins.fmp.tools.ImageTransformTools.TransformOp;
 
 public class MoveTab_DetectFlies extends JPanel implements ActionListener, ChangeListener {
@@ -138,7 +139,7 @@ public class MoveTab_DetectFlies extends JPanel implements ActionListener, Chang
 		}
 		parent0.vSequence.addOverlay(ov);	
 		ov.setTransform((TransformOp) backgroundComboBox.getSelectedItem());
-		ov.setThresholdSingle(parent0.vSequence.threshold);
+		ov.setThresholdSingle(parent0.vSequence.cages.detect.threshold);
 		if (ov != null) {
 			ov.painterChanged();
 		}
@@ -147,7 +148,7 @@ public class MoveTab_DetectFlies extends JPanel implements ActionListener, Chang
 	@Override
 	public void stateChanged(ChangeEvent e) {
 		if (e.getSource() == thresholdSpinner) {
-			parent0.vSequence.threshold = Integer.parseInt(thresholdSpinner.getValue().toString());
+			parent0.vSequence.cages.detect.threshold = Integer.parseInt(thresholdSpinner.getValue().toString());
 			updateOverlay();
 		}
 	
@@ -159,15 +160,19 @@ public class MoveTab_DetectFlies extends JPanel implements ActionListener, Chang
 		
 		trackAllFliesThread.vSequence = parent0.vSequence;		
 		trackAllFliesThread.stopFlag = false;
-		trackAllFliesThread.btrackWhite = whiteMiceCheckBox.isSelected();
-		trackAllFliesThread.ichanselected = colorChannelComboBox.getSelectedIndex();
-		trackAllFliesThread.blimitLow = objectLowsizeCheckBox.isSelected();
-		trackAllFliesThread.blimitUp = objectUpsizeCheckBox.isSelected();
-		trackAllFliesThread.limitLow = (int) objectLowsizeSpinner.getValue();
-		trackAllFliesThread.limitUp = (int) objectUpsizeSpinner.getValue();
-		try { trackAllFliesThread.jitter = Integer.parseInt( jitterTextField.getText() );
+		DetectFliesParameters detect = new DetectFliesParameters();
+		detect.btrackWhite = whiteMiceCheckBox.isSelected();
+		detect.ichanselected = colorChannelComboBox.getSelectedIndex();
+		detect.blimitLow = objectLowsizeCheckBox.isSelected();
+		detect.blimitUp = objectUpsizeCheckBox.isSelected();
+		detect.limitLow = (int) objectLowsizeSpinner.getValue();
+		detect.limitUp = (int) objectUpsizeSpinner.getValue();
+		try { detect.jitter = Integer.parseInt( jitterTextField.getText() );
 		}catch( Exception e ) { new AnnounceFrame("Can't interpret the jitter value."); return false; }
-		trackAllFliesThread.transformop = (TransformOp) backgroundComboBox.getSelectedItem();
+		detect.transformop = (TransformOp) backgroundComboBox.getSelectedItem();
+		
+		trackAllFliesThread.detect = detect;
+		
 		
 		return true;
 	}

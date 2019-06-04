@@ -950,7 +950,7 @@ public class ROItoRoiArray extends EzPlug implements ViewerListener {
 				thresholdOverlay = new OverlayThreshold(vSequence);
 				vSequence.addOverlay(thresholdOverlay);
 			}
-			vSequence.threshold = thresholdOv.getValue();
+			vSequence.cages.detect.threshold = thresholdOv.getValue();
 			vSequence.addOverlay(thresholdOverlay);
 			updateOverlay();
 		}
@@ -967,7 +967,7 @@ public class ROItoRoiArray extends EzPlug implements ViewerListener {
 		if (vSequence == null)
 			return;
 		
-		vSequence.threshold = thresholdOv.getValue();
+		vSequence.cages.detect.threshold = thresholdOv.getValue();
 		updateOverlay();
 	}
 	
@@ -982,7 +982,7 @@ public class ROItoRoiArray extends EzPlug implements ViewerListener {
 
 		thresholdOverlay.setSequence (vSequence);
 		thresholdOverlay.setTransform(transformop);
-		thresholdOverlay.setThresholdSingle(vSequence.threshold);
+		thresholdOverlay.setThresholdSingle(vSequence.cages.detect.threshold);
 			
 		if (thresholdOverlay != null) {
 			thresholdOverlay.painterChanged();
@@ -1188,12 +1188,12 @@ public class ROItoRoiArray extends EzPlug implements ViewerListener {
 	
 	private void openXMLFile() {
 		vSequence.removeAllROI();
-		vSequence.xmlReadROIsAndData();
+		vSequence.capillaries.xmlReadROIsAndData(vSequence);
 	}
 	
 	private void saveXMLFile() {
-		vSequence.capillariesGrouping = 1;
-		vSequence.xmlWriteROIsAndData("roisarray.xml");
+		vSequence.capillaries.capillariesGrouping = 1;
+		vSequence.capillaries.xmlWriteROIsAndData("roisarray.xml", vSequence);
 	}
 	
 	private void changeGridName() {

@@ -60,14 +60,14 @@ public class CapillariesTab_File extends JPanel implements ActionListener {
 		
 		boolean flag = false;
 		if (csFileName == null)
-			flag = parent0.vSequence.xmlReadROIsAndData();
+			flag = parent0.vSequence.capillaries.xmlReadROIsAndData(parent0.vSequence);
 		else
-			flag = parent0.vSequence.xmlReadROIsAndData(csFileName);
+			flag = parent0.vSequence.capillaries.xmlReadROIsAndData(csFileName, parent0.vSequence);
 		return flag;
 	}
 	
 	public boolean capillaryRoisSave() {
-		return parent0.vSequence.xmlWriteROIsAndData("capillarytrack.xml");
+		return parent0.vSequence.capillaries.xmlWriteROIsAndData("capillarytrack.xml", parent0.vSequence);
 	}
 
 }

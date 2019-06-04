@@ -308,14 +308,14 @@ public class Drosotrack extends PluginActionable implements ActionListener, View
 		openROIsButton.addActionListener(new ActionListener () {
 			@Override
 			public void actionPerformed( final ActionEvent e ) { 
-				vSequence.xmlReadROIsAndData();	
+				vSequence.capillaries.xmlReadROIsAndData(vSequence);	
 				ArrayList<ROI2D> list = vSequence.getROI2Ds();
 				Collections.sort(list, new Tools.ROI2DNameComparator());
 				int nrois = list.size();
 				if (nrois > 0)
 					nbcagesTextField.setText(Integer.toString(nrois));
-				if (vSequence.threshold != -1) {
-					threshold = vSequence.threshold;
+				if (vSequence.cages.detect.threshold != -1) {
+					threshold = vSequence.cages.detect.threshold;
 					thresholdSpinner.setValue(threshold);
 				}
 			}});
@@ -323,7 +323,7 @@ public class Drosotrack extends PluginActionable implements ActionListener, View
 		saveROIsButton.addActionListener(new ActionListener () {
 			@Override
 			public void actionPerformed( final ActionEvent e ) { 
-				vSequence.threshold = threshold;
+				vSequence.cages.detect.threshold = threshold;
 				List<ROI> roisList = vSequence.getROIs(true);
 				List<ROI> roisCages = new ArrayList<ROI>();
 				for (ROI roi : roisList) {
@@ -332,7 +332,7 @@ public class Drosotrack extends PluginActionable implements ActionListener, View
 				}
 				vSequence.removeAllROI();
 				vSequence.addROIs(roisCages, false);
-				vSequence.xmlWriteROIsAndData("drosotrack.xml");
+				vSequence.capillaries.xmlWriteROIsAndData("drosotrack.xml", vSequence);
 				vSequence.removeAllROI();
 				vSequence.addROIs(roisList, false);
 			}});
@@ -916,9 +916,9 @@ public class Drosotrack extends PluginActionable implements ActionListener, View
 		vSequence.removeAllROI();
 		boolean flag = false;
 		if (csFileName == null)
-			flag = vSequence.xmlReadROIsAndData();
+			flag = vSequence.capillaries.xmlReadROIsAndData(vSequence);
 		else
-			flag = vSequence.xmlReadROIsAndData(csFileName);
+			flag = vSequence.capillaries.xmlReadROIsAndData(csFileName, vSequence);
 		if (!flag)
 			return false;
 		
@@ -935,8 +935,8 @@ public class Drosotrack extends PluginActionable implements ActionListener, View
 		int nrois = list.size();
 		if (nrois > 0)
 			nbcagesTextField.setText(Integer.toString(nrois));
-		if (vSequence.threshold != -1) {
-			threshold = vSequence.threshold;
+		if (vSequence.cages.detect.threshold != -1) {
+			threshold = vSequence.cages.detect.threshold;
 			thresholdSpinner.setValue(threshold);
 		}
 		

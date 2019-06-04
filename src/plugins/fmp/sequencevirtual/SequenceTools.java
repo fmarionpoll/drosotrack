@@ -27,8 +27,6 @@ public class SequenceTools extends EzPlug {
 	EzButton openFile;
 	EzVarBoolean loadCapillaries = new EzVarBoolean("load capillaries", true);
 	EzVarBoolean loadCages = new EzVarBoolean("load cages", true);
-//	EzVarBoolean loadKymographs;
-//	EzVarBoolean loadMeasures;
 	
 	EzGroup groupViewMode;
 	EzVarInteger start = new EzVarInteger("start", 0, 9999999, 1);
@@ -223,9 +221,9 @@ public class SequenceTools extends EzPlug {
 	public boolean capillaryRoisOpen(String csFileName) {
 		boolean flag = false;
 		if (csFileName == null)
-			flag = vSequence.xmlReadROIsAndData();
+			flag = vSequence.capillaries.xmlReadROIsAndData(vSequence);
 		else
-			flag = vSequence.xmlReadROIsAndData(csFileName);
+			flag = vSequence.capillaries.xmlReadROIsAndData(csFileName, vSequence);
 		return flag;
 	}
 }

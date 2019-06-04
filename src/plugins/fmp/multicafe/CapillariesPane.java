@@ -56,11 +56,11 @@ public class CapillariesPane extends JPanel implements PropertyChangeListener {
 	}
 	
 	public void UpdateInfosFromSequence() {
-		propertiesTab.setCapillaryVolume(parent0.vSequence.capillaryVolume);
-		propertiesTab.setCapillaryPixelLength(parent0.vSequence.capillaryPixels);
-		parent0.vSequence.keepOnly2DLines_CapillariesArrayList();
-		buildTab.setNbCapillaries(parent0.vSequence.capillariesArrayList.size());
-		buildTab.setGroupedBy2(parent0.vSequence.capillariesGrouping == 2);
+		propertiesTab.setCapillaryVolume(parent0.vSequence.capillaries.capillaryVolume);
+		propertiesTab.setCapillaryPixelLength(parent0.vSequence.capillaries.capillaryPixels);
+		parent0.vSequence.capillaries.keepOnly2DLines_CapillariesArrayList(parent0.vSequence);
+		buildTab.setNbCapillaries(parent0.vSequence.capillaries.capillariesArrayList.size());
+		buildTab.setGroupedBy2(parent0.vSequence.capillaries.capillariesGrouping == 2);
 	}
 	
 	public void enableItems(StatusPane status) {
@@ -85,9 +85,9 @@ public class CapillariesPane extends JPanel implements PropertyChangeListener {
 		 else if (event.getPropertyName().equals("CAP_ROIS_SAVE")) {
 			propertiesTab.updateSequenceFromDialog();
 			if (buildTab.getGroupedBy2())
-				parent0.vSequence.capillariesGrouping = 2;
+				parent0.vSequence.capillaries.capillariesGrouping = 2;
 			else
-				parent0.vSequence.capillariesGrouping = 1;
+				parent0.vSequence.capillaries.capillariesGrouping = 1;
 			fileTab.capillaryRoisSave();
 			tabsPane.setSelectedIndex(2);
 		 }

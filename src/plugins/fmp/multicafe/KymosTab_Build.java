@@ -133,7 +133,7 @@ public class KymosTab_Build extends JPanel implements ActionListener {
 		buildKymographsThread.diskRadius 	= diskRadius;
 		buildKymographsThread.doRegistration= doRegistrationCheckBox.isSelected();
 		
-		for (ROI2DShape roi:parent0.vSequence.capillariesArrayList) {
+		for (ROI2DShape roi:parent0.vSequence.capillaries.capillariesArrayList) {
 			SequencePlus kymographSeq = new SequencePlus();	
 			kymographSeq.setName(roi.getName());
 			parent0.kymographArrayList.add(kymographSeq);

@@ -2,13 +2,6 @@ package plugins.fmp.sequencevirtual;
 
 import java.awt.image.BufferedImage;
 import java.io.File;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-
-import org.w3c.dom.Document;
-import org.w3c.dom.Node;
-import org.w3c.dom.Element;
 
 import icy.canvas.Canvas2D;
 import icy.gui.dialog.LoaderDialog;
@@ -19,22 +12,17 @@ import icy.image.IcyBufferedImageUtil;
 import icy.image.ImageUtil;
 import icy.main.Icy;
 import icy.math.ArrayMath;
-import icy.roi.ROI;
-import icy.roi.ROI2D;
+
 import icy.sequence.Sequence;
-import icy.sequence.edit.ROIAddsSequenceEdit;
 import icy.system.thread.ThreadUtil;
 import icy.type.collection.array.Array1DUtil;
-import icy.util.XMLUtil;
 
 import plugins.fab.MiceProfiler.XugglerAviFile;
 import plugins.fmp.tools.ImageOperationsStruct;
 import plugins.fmp.tools.StringSorter;
-import plugins.fmp.tools.Tools;
+
 import plugins.fmp.tools.ImageTransformTools.TransformOp;
-import plugins.kernel.roi.roi2d.ROI2DLine;
-import plugins.kernel.roi.roi2d.ROI2DPolyLine;
-import plugins.kernel.roi.roi2d.ROI2DShape;
+
 
 public class SequenceVirtual extends Sequence 
 {
@@ -43,26 +31,21 @@ public class SequenceVirtual extends Sequence
 	private String 			csFileName = null;
 	private final static String[] acceptedTypes = {".jpg", ".jpeg", ".bmp"};
 	private String			directory = null;
-	private static final String XML_KEY_ID = "ID";
 	private IcyBufferedImage refImage = null;
-		
-	public String			sourceFile = null;
-	public enum 			Status { AVIFILE, FILESTACK, REGULAR, FAILURE };
-	public boolean			bBufferON = false;
-	public Status 			status;
-	public int 				currentFrame = 0;
-	public int				nTotalFrames = 0;
-	public boolean 			flag = false;
-	public String			comment = null;
-	public double 			capillaryVolume = 1.;
-	public double 			capillaryPixels = 1.;
-	public int				capillariesGrouping = 1;
+	
 	public long				analysisStart = 0;
 	public long 			analysisEnd	= 99999999;
 	public int 				analysisStep = 1;
-	public int				threshold = -1;
+	public int 				currentFrame = 0;
+	public int				nTotalFrames = 0;
+	
 	public VImageBufferThread bufferThread = null;
-	public ArrayList <ROI2DShape> capillariesArrayList 	= new ArrayList <ROI2DShape>();			// list of ROIs describing objects in all images for ex. glass capillaries 
+	public boolean			bBufferON = false;
+	public Status 			status;
+	
+	public Capillaries 		capillaries = new Capillaries();
+	public Cages			cages = new Cages();
+	
 	public String [] 		seriesname = null;
 	public int [][] 		data_raw = null;
 	public double [][] 		data_filtered = null;
@@ -270,62 +253,7 @@ public class SequenceVirtual extends Sequence
 	public boolean isFileStack() {
 		return (status == Status.FILESTACK);
 	}
-	
-	public String loadInputVirtualStack(String path) {
-
-		LoaderDialog dialog = new LoaderDialog(false);
-		if (path != null) 
-			dialog.setCurrentDirectory(new File(path));
-	    File[] selectedFiles = dialog.getSelectedFiles();
-	    if (selectedFiles.length == 0)
-	    	return null;
-	    
-	    if (selectedFiles[0].isDirectory())
-	    	directory = selectedFiles[0].getAbsolutePath();
-	    else
-	    	directory = selectedFiles[0].getParentFile().getAbsolutePath();
-		if (directory == null )
-			return null;
-
-		String [] list;
-		if (selectedFiles.length == 1) {
-			list = (new File(directory)).list();
-			if (list ==null)
-				return null;
-			
-			if (!(selectedFiles[0].isDirectory()) && selectedFiles[0].getName().toLowerCase().contains(".avi")) {
-				loadSequenceVirtualAVI(selectedFiles[0].getAbsolutePath());
-				return directory;
-			}
-		}
-		else
-		{
-			list = new String[selectedFiles.length];
-			  for (int i = 0; i < selectedFiles.length; i++) {
-				if (selectedFiles[i].getName().toLowerCase().contains(".avi"))
-					continue;
-			    list[i] = selectedFiles[i].getAbsolutePath();
-			}
-		}
-		loadSequenceVirtual(list, directory);
-		return directory;
-	}
-
-	public String loadInputVirtualFromNameSavedInRoiXML()
-	{
-		if (sourceFile != null)
-			loadInputVirtualFromName(sourceFile);
-		return sourceFile;
-	}
-	
-	public void loadInputVirtualFromName(String name)
-	{
-		if (name.toLowerCase().contains(".avi"))
-			loadSequenceVirtualAVI(name);
-		else
-			loadSequenceVirtualFromName(name);
-	}
-	
+		
 	public IcyBufferedImage loadVImage(int t, int z)
 	{
 		IcyBufferedImage ibufImage = super.getImage(t, z);
@@ -446,82 +374,6 @@ public class SequenceVirtual extends Sequence
 		// TODO clean buffer by removing images?
 	}
 
-	public boolean xmlReadROIsAndData() {
-
-		String [] filedummy = null;
-		filedummy = Tools.selectFiles(directory,"xml");
-		boolean wasOk = false;
-		if (filedummy != null) {
-			for (int i= 0; i< filedummy.length; i++) {
-				String csFile = filedummy[i];
-				wasOk &= xmlReadROIsAndData(csFile);
-			}
-		}
-		return wasOk;
-	}
-	
-	public boolean xmlReadROIsAndData(String csFileName) {
-		
-		if (csFileName != null)  {
-			final Document doc = XMLUtil.loadDocument(csFileName);
-			if (doc != null) {
-				final List<ROI> rois = ROI.loadROIsFromXML(XMLUtil.getRootElement(doc));
-				xmlReadCapillaryTrackParameters(doc);
-				
-				Collections.sort(rois, new Tools.ROINameComparator()); 
-				beginUpdate();
-				try  {  
-					for (ROI roi : rois)  {
-						addROI(roi);
-					}
-				}
-				finally {
-					endUpdate();
-				}
-				// add to undo manager
-				addUndoableEdit(new ROIAddsSequenceEdit(this, rois) {
-					@Override
-					public String getPresentationName() {
-						if (getROIs().size() > 1)
-							return "ROIs loaded from XML file";
-						return "ROI loaded from XML file"; };
-				});
-				return true;
-			}
-		}
-		return false;
-	}
-
-	public boolean xmlWriteROIsAndData(String name) {
-
-		String csFile = Tools.saveFileAs(name, this.getDirectory(), "xml");
-		csFile.toLowerCase();
-		if (!csFile.contains(".xml")) {
-			csFile += ".xml";
-		}
-		return xmlWriteROIsAndDataNoQuestion(csFile);
-	}
-	
-	public boolean xmlWriteROIsAndDataNoQuestion(String csFile) {
-
-		if (csFile != null) 
-		{
-			final List<ROI> rois = getROIs(true);
-			if (rois.size() > 0)
-			{
-				final Document doc = XMLUtil.createDocument(true);
-				if (doc != null)
-				{
-					ROI.saveROIsToXML(XMLUtil.getRootElement(doc), rois);
-					xmlWriteCapillaryTrackParameters (doc);
-					XMLUtil.saveDocument(doc, csFile);
-					return true;
-				}
-			}
-		}
-		return false;
-	}
-
 	public class VImageBufferThread extends Thread {
 
 		/**
@@ -609,23 +461,6 @@ public class SequenceVirtual extends Sequence
 		}
 	}
 
-	public void keepOnly2DLines_CapillariesArrayList() {
-
-		capillariesArrayList.clear();
-		ArrayList<ROI2D> list = getROI2Ds();
-		 
-		for (ROI2D roi:list)
-		{
-			if ((roi instanceof ROI2DShape) == false)
-				continue;
-			if (!roi.getName().contains("line"))
-				continue;
-			if (roi instanceof ROI2DLine || roi instanceof ROI2DPolyLine)
-				capillariesArrayList.add((ROI2DShape)roi);
-		}
-		Collections.sort(capillariesArrayList, new Tools.ROI2DNameComparator()); 
-	}
-	
 	// -----------------------------------------------------------
 	private IcyBufferedImage subtractImages (IcyBufferedImage image1, IcyBufferedImage image2) {
 		/* algorithm borrowed from  Perrine.Paul-Gilloteaux@univ-nantes.fr in  EC-CLEM
@@ -647,6 +482,61 @@ public class SequenceVirtual extends Sequence
 		return result;
 	}
 	
+	public String loadInputVirtualStack(String path) {
+
+		LoaderDialog dialog = new LoaderDialog(false);
+		if (path != null) 
+			dialog.setCurrentDirectory(new File(path));
+	    File[] selectedFiles = dialog.getSelectedFiles();
+	    if (selectedFiles.length == 0)
+	    	return null;
+	    
+	    if (selectedFiles[0].isDirectory())
+	    	directory = selectedFiles[0].getAbsolutePath();
+	    else
+	    	directory = selectedFiles[0].getParentFile().getAbsolutePath();
+		if (directory == null )
+			return null;
+
+		String [] list;
+		if (selectedFiles.length == 1) {
+			list = (new File(directory)).list();
+			if (list ==null)
+				return null;
+			
+			if (!(selectedFiles[0].isDirectory()) && selectedFiles[0].getName().toLowerCase().contains(".avi")) {
+				loadSequenceVirtualAVI(selectedFiles[0].getAbsolutePath());
+				return directory;
+			}
+		}
+		else
+		{
+			list = new String[selectedFiles.length];
+			  for (int i = 0; i < selectedFiles.length; i++) {
+				if (selectedFiles[i].getName().toLowerCase().contains(".avi"))
+					continue;
+			    list[i] = selectedFiles[i].getAbsolutePath();
+			}
+		}
+		loadSequenceVirtual(list, directory);
+		return directory;
+	}
+
+	public String loadInputVirtualFromNameSavedInRoiXML()
+	{
+		if (csFileName != null)
+			loadInputVirtualFromName(csFileName);
+		return csFileName;
+	}
+	
+	public void loadInputVirtualFromName(String name)
+	{
+		if (name.toLowerCase().contains(".avi"))
+			loadSequenceVirtualAVI(name);
+		else
+			loadSequenceVirtualFromName(name);
+	}
+
 	private void loadSequenceVirtualFromName(String name) 
 	{
 		File filename = new File (name);
@@ -708,69 +598,17 @@ public class SequenceVirtual extends Sequence
 			setName(getVImageName(t));
 	}
 
-	private boolean xmlReadCapillaryTrackParameters (Document doc) {
-
-		String nodeName = "capillaryTrack";
-		// read local parameters
-		Node node = XMLUtil.getElement(XMLUtil.getRootElement(doc), nodeName);
-		if (node == null)
-			return false;
-
-		Element xmlElement = XMLUtil.getElement(node, "Parameters");
-		if (xmlElement == null) 
-			return false;
-
-		Element xmlVal = XMLUtil.getElement(xmlElement, "file");
-		sourceFile = XMLUtil.getAttributeValue(xmlVal, XML_KEY_ID, null);
-		
-		xmlVal = XMLUtil.getElement(xmlElement, "Grouping");
-		capillariesGrouping = XMLUtil.getAttributeIntValue(xmlVal, "n", 2);
-		
-		xmlVal = XMLUtil.getElement(xmlElement, "capillaryVolume");
-		capillaryVolume = XMLUtil.getAttributeDoubleValue(xmlVal, "volume_ul", Double.NaN);
-
-		xmlVal = XMLUtil.getElement(xmlElement, "capillaryPixels");
-		capillaryPixels = XMLUtil.getAttributeDoubleValue(xmlVal, "npixels", Double.NaN);
-
-		xmlVal = XMLUtil.getElement(xmlElement, "analysis");
-		analysisStart =  XMLUtil.getAttributeLongValue(xmlVal, "start", 0);
-		analysisEnd = XMLUtil.getAttributeLongValue(xmlVal, "end", -1);
-		threshold =  XMLUtil.getAttributeIntValue(xmlVal, "threshold", -1);
-
-		return true;
+	public String getFileName() {
+		String fileName;
+		if (status == Status.FILESTACK) 
+			fileName = listFiles[0];
+		else //  if ((status == Status.AVIFILE))
+			fileName = csFileName;
+		return fileName;		
 	}
 	
-	private boolean xmlWriteCapillaryTrackParameters (Document doc) {
-
-		// save local parameters
-		String nodeName = "capillaryTrack";
-		Node node = XMLUtil.addElement(XMLUtil.getRootElement(doc), nodeName);
-		if (node == null)
-			return false;
-		
-		Element xmlElement = XMLUtil.addElement(node, "Parameters");
-		
-		Element xmlVal = XMLUtil.addElement(xmlElement, "file");
-		if (status == Status.FILESTACK) 
-			XMLUtil.setAttributeValue(xmlVal, XML_KEY_ID, listFiles[0]);
-		else //  if ((status == Status.AVIFILE))
-			XMLUtil.setAttributeValue(xmlVal, XML_KEY_ID, csFileName);
-		
-		xmlVal = XMLUtil.addElement(xmlElement, "Grouping");
-		XMLUtil.setAttributeIntValue(xmlVal, "n", capillariesGrouping);
-		
-		xmlVal = XMLUtil.addElement(xmlElement, "capillaryVolume");
-		XMLUtil.setAttributeDoubleValue(xmlVal, "volume_ul", capillaryVolume);
-
-		xmlVal = XMLUtil.addElement(xmlElement, "capillaryPixels");
-		XMLUtil.setAttributeDoubleValue(xmlVal, "npixels", capillaryPixels);
-
-		xmlVal = XMLUtil.addElement(xmlElement, "analysis");
-		XMLUtil.setAttributeLongValue(xmlVal, "start", analysisStart);
-		XMLUtil.setAttributeLongValue(xmlVal, "end", analysisEnd);
-		XMLUtil.setAttributeIntValue(xmlVal, "threshold", threshold); 
-
-		return true;
+	public void setFileName(String name) {
+		csFileName = name;		
 	}
 	
 }

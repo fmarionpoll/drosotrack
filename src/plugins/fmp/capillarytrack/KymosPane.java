@@ -12,8 +12,6 @@ import javax.swing.event.ChangeListener;
 import icy.gui.util.GuiUtil;
 import icy.gui.viewer.Viewer;
 import plugins.fmp.tools.StatusPane;
-import plugins.fmp.sequencevirtual.SequencePlus;
-import plugins.fmp.tools.ImageTransformTools.TransformOp;
 
 
 public class KymosPane extends JPanel implements PropertyChangeListener, ChangeListener {
@@ -68,7 +66,7 @@ public class KymosPane extends JPanel implements PropertyChangeListener, ChangeL
 		}	
 		else if (arg0.getPropertyName().equals("KYMOS_CREATE")) {
 			optionsTab.viewKymosCheckBox.setSelected(true);
-			optionsTab.transferRoisNamesToComboBox(parent0.vSequence.capillariesArrayList);
+			optionsTab.transferRoisNamesToComboBox(parent0.vSequence.capillaries.capillariesArrayList);
 			tabsPane.setSelectedIndex(2);
 		}
 		else if (arg0.getPropertyName() .equals("KYMOS_DISPLAY_UPDATE")) {

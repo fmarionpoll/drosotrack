@@ -11,92 +11,78 @@ import icy.image.IcyBufferedImage;
 import icy.main.Icy;
 import icy.roi.BooleanMask2D;
 import icy.roi.ROI;
-import icy.roi.ROI2D;
 import icy.system.profile.Chronometer;
 
+import plugins.fmp.sequencevirtual.Cages;
+import plugins.fmp.sequencevirtual.DetectFliesParameters;
+import plugins.fmp.sequencevirtual.PositionsXYT;
 import plugins.fmp.sequencevirtual.SequenceVirtual;
 import plugins.fmp.tools.Tools;
-import plugins.fmp.tools.ImageTransformTools.TransformOp;
 import plugins.fmp.tools.ROI2DUtilities;
+
 import plugins.kernel.roi.roi2d.ROI2DArea;
 import plugins.kernel.roi.roi2d.ROI2DRectangle;
+
 
 class BuildTrackFliesThread implements Runnable {
 	
 	public SequenceVirtual vSequence 	= null;	
-//	private StateD state = StateD.NORMAL;
-	public ArrayList<Integer>			lastTime_it_MovedList 	= new ArrayList<Integer>(); 	// last time a fly moved
-	public ArrayList<ArrayList<Point2D>> points2D_rois_then_t_ListArray = new ArrayList<ArrayList<Point2D>>();
-	public ArrayList<ROI2D> 			cageLimitROIList		= new ArrayList<ROI2D>();
-	public ArrayList<BooleanMask2D> 	cageMaskList 			= new ArrayList<BooleanMask2D>();
-	
+
+	public ArrayList<BooleanMask2D> cageMaskList = new ArrayList<BooleanMask2D>();
 	public boolean stopFlag = false;
-	public boolean btrackWhite = false;
-	public int		ichanselected = 0;
-	public boolean  blimitLow = false;
-	public boolean  blimitUp = false;
-	public int  	limitLow;
-	public int  	limitUp;
-	public int 		jitter = 10;
-	public TransformOp transformop; // = (TransformOp) backgroundComboBox.getSelectedItem();
-	
+	public DetectFliesParameters detect = new DetectFliesParameters();
+	public Cages cages = new Cages();
+
 
 	/*
 	 * (non-Javadoc)
 	 * @see java.lang.Thread#run()
 	 * parameters:
-	 * 		threshold 
-	 * 		jitter
-	 * 		ichanselected
-	 * 		btrackWhite
-	 *  *  blimitLow
-	 *  blimitUp
-	 *  limitLow
-	 *  limitUp
+	 * 		vSequence
+	 * 		detect
+	 *
+	 * change stopFlag to stop process
 	 */
 	
 	@Override
 	public void run()
 	{
-		int	analyzeStep 			= vSequence.analysisStep;
-		int startFrame 				= (int) vSequence.analysisStart;
-		int endFrame 				= (int) vSequence.analysisEnd;
+		int	analyzeStep = vSequence.analysisStep;
+		int startFrame 	= (int) vSequence.analysisStart;
+		int endFrame 	= (int) vSequence.analysisEnd;
 		
 		if ( vSequence.nTotalFrames < endFrame+1 )
 			endFrame = (int) vSequence.nTotalFrames - 1;
-		int nbframes = endFrame - startFrame +1;
+		int nbframes = (endFrame - startFrame +1)/analyzeStep +1;
 
 		System.out.println("Computation over frames: " + startFrame + " - " + endFrame );
 		Chronometer chrono = new Chronometer("Tracking computation" );
 		ProgressFrame progress = new ProgressFrame("Checking ROIs...");
 
-		// clear old data
-		lastTime_it_MovedList.clear();
-		points2D_rois_then_t_ListArray.clear();
-		cageLimitROIList.clear();
-		cageMaskList.clear();
+		cages.clear();
+
 	
 		// find ROI describing cage areas - remove all others
-		cageLimitROIList = ROI2DUtilities.getListofCagesFromSequence(vSequence);
-		cageMaskList = ROI2DUtilities.getMask2DFromRoiList(cageLimitROIList);
-		Collections.sort(cageLimitROIList, new Tools.ROI2DNameComparator());
+		cages.cageLimitROIList = ROI2DUtilities.getListofCagesFromSequence(vSequence);
+		cageMaskList = ROI2DUtilities.getMask2DFromRoiList(cages.cageLimitROIList);
+		Collections.sort(cages.cageLimitROIList, new Tools.ROI2DNameComparator());
 
 		// create arrays for storing position and init their value to zero
-		int nbcages = cageLimitROIList.size();
+		int nbcages = cages.cageLimitROIList.size();
 		System.out.println("nb cages = " + nbcages);
-		lastTime_it_MovedList.ensureCapacity(nbcages); 		// t of slice where fly moved the last time
+		cages.lastTime_it_MovedList.ensureCapacity(nbcages); 		// t of slice where fly moved the last time
 		ROI2DRectangle [] tempRectROI = new ROI2DRectangle [nbcages];
 		int minCapacity = (endFrame - startFrame + 1) / analyzeStep;
 
 		for (int i=0; i < nbcages; i++)
 		{
-			lastTime_it_MovedList.add(0);
+			cages.lastTime_it_MovedList.add(0);
 			tempRectROI[i] = new ROI2DRectangle(0, 0, 10, 10);
 			tempRectROI[i].setName("fly_"+i);
 			vSequence.addROI(tempRectROI[i]);
-			ArrayList<Point2D> 	points2DList = new ArrayList<Point2D>();
-			points2DList.ensureCapacity(minCapacity);
-			points2D_rois_then_t_ListArray.add(points2DList);
+			PositionsXYT positions = new PositionsXYT();
+			positions.ensureCapacity(minCapacity);
+			cages.cagePositionsList.add(positions);
 		}
 
 		// create array for the results - 1 point = 1 slice
@@ -119,17 +105,17 @@ class BuildTrackFliesThread implements Runnable {
 				progress.setMessage( "Processing: " + pos + " % - Elapsed time: " + nbSeconds + " s - Estimated time left: " + timeleft + " s");
 
 				// load next image and compute threshold
-				IcyBufferedImage workImage = vSequence.loadVImageAndSubtractReference(t, transformop); 			
+				IcyBufferedImage workImage = vSequence.loadVImageAndSubtractReference(t, detect.transformop); 			
 				vSequence.currentFrame = t;
 				v.setPositionT(t);
 				v.setTitle(vSequence.getVImageName(t));
 
-				ROI2DArea roiAll = findFly ( workImage, vSequence.threshold, ichanselected, btrackWhite );
+				ROI2DArea roiAll = findFly ( workImage, vSequence.cages.detect.threshold, detect.ichanselected, detect.btrackWhite );
 
 				// ------------------------ loop over all the cages of the stack
-				for ( int iroi = 0; iroi < cageLimitROIList.size(); iroi++ )
+				for ( int iroi = 0; iroi < cages.cageLimitROIList.size(); iroi++ )
 				{
-					ROI cageLimitROI = cageLimitROIList.get(iroi);
+					ROI cageLimitROI = cages.cageLimitROIList.get(iroi);
 					if ( cageLimitROI == null )
 						continue;
 					BooleanMask2D cageMask = cageMaskList.get(iroi);
@@ -144,9 +130,9 @@ class BuildTrackFliesThread implements Runnable {
 					for ( BooleanMask2D mask : roi.getBooleanMask( true ).getComponents() )
 					{
 						int len = mask.getPoints().length;
-						if (blimitLow && len < limitLow)
+						if (detect.blimitLow && len < detect.limitLow)
 							len = 0;
-						if (blimitUp && len > limitUp)
+						if (detect.blimitUp && len > detect.limitUp)
 							len = 0;
 							
 						if ( len > max )
@@ -176,11 +162,11 @@ class BuildTrackFliesThread implements Runnable {
 					// compute center and distance (square of)
 					Point2D flyPosition = new Point2D.Double(rect.getCenterX(), rect.getCenterY());
 					if (it > 0) {
-						double distance = flyPosition.distance(points2D_rois_then_t_ListArray.get(iroi).get(it-1));
-						if (distance > jitter)
-							lastTime_it_MovedList.set(iroi, t);
+						double distance = flyPosition.distance(cages.cagePositionsList.get(iroi).get(it-1));
+						if (distance > detect.jitter)
+							cages.lastTime_it_MovedList.set(iroi, t);
 					}
-					points2D_rois_then_t_ListArray.get(iroi).add(flyPosition);
+					cages.cagePositionsList.get(iroi).add(flyPosition);
 				}
 			}
 		
@@ -198,7 +184,7 @@ class BuildTrackFliesThread implements Runnable {
 		try
 		{
 			vSequence.beginUpdate();
-			int nrois = cageLimitROIList.size();
+			int nrois = cages.cageLimitROIList.size();
 			for ( int t = startFrame ; t <= lastFrameAnalyzed ; t  += analyzeStep )
 				for (int iroi=0; iroi < nrois; iroi++) 
 					vSequence.addROI( resultFlyPositionArrayList[t-startFrame][iroi] );

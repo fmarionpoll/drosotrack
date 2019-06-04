@@ -183,8 +183,6 @@ public class BuildKymos extends PluginActionable implements ActionListener, Chan
 	public void actionPerformed(ActionEvent e ) 
 	{
 		Object o = e.getSource();
-
-		// _______________________________________________
 		if (o == findButton) {
 			getListofFiles();	
 			startComputationButton.setEnabled(true);
@@ -201,12 +199,10 @@ public class BuildKymos extends PluginActionable implements ActionListener, Chan
 			startComputationButton.setEnabled(false);
 		}
 		
-		// _______________________________________________
 		else if (o == startComputationButton) {		
 			startComputation();
 		}
 
-		// _______________________________________________
 		else if ( o == stopComputationButton ) {
 			stopComputation();
 		}
@@ -220,18 +216,18 @@ public class BuildKymos extends PluginActionable implements ActionListener, Chan
 		
 		vinputSequence = new SequenceVirtual();
 		vinputSequence.loadInputVirtualFromName(csdummy);
-		vinputSequence.sourceFile = csdummy;
-		if (vinputSequence.status == SequenceVirtual.Status.FAILURE) {
+		vinputSequence.setFileName(csdummy);
+		if (vinputSequence.status == Status.FAILURE) {
 			XMLPreferences guiPrefs = this.getPreferences("gui");
 			String lastUsedPath = guiPrefs.get("lastUsedPath", "");
 			String path = vinputSequence.loadInputVirtualStack(lastUsedPath);
 			if (path.isEmpty())
 				return false;
-			vinputSequence.sourceFile = path;
+			vinputSequence.setFileName(path);
 			guiPrefs.put("lastUsedPath", path);
-			vinputSequence.loadInputVirtualFromName(vinputSequence.sourceFile);
+			vinputSequence.loadInputVirtualFromName(vinputSequence.getFileName());
 		}
-		System.out.println("sequence openened: "+ vinputSequence.sourceFile);
+		System.out.println("sequence openened: "+ vinputSequence.getFileName());
 
 		return true;
 	}
@@ -240,8 +236,8 @@ public class BuildKymos extends PluginActionable implements ActionListener, Chan
 	
 		System.out.println("add rois: "+ oo);
 		vinputSequence.removeAllROI();
-		vinputSequence.xmlReadROIsAndData(oo);
-		vinputSequence.keepOnly2DLines_CapillariesArrayList();
+		vinputSequence.capillaries.xmlReadROIsAndData(oo, vinputSequence);
+		vinputSequence.capillaries.keepOnly2DLines_CapillariesArrayList(vinputSequence);
 	}
 	
 	private void startComputation() {
@@ -359,7 +355,7 @@ public class BuildKymos extends PluginActionable implements ActionListener, Chan
 		for (SequencePlus seq:kymographArrayList)
 			seq.close();
 		kymographArrayList.clear();
-		vinputSequence.capillariesArrayList.clear();
+		vinputSequence.capillaries.capillariesArrayList.clear();
 		vinputSequence.close();
 	}
 	
