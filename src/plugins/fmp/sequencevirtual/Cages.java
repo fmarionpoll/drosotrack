@@ -1,20 +1,15 @@
 package plugins.fmp.sequencevirtual;
 
-import java.io.File;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
 
+import java.util.ArrayList;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
-
 import icy.roi.BooleanMask2D;
-import icy.roi.ROI;
 import icy.roi.ROI2D;
-import icy.sequence.edit.ROIAddsSequenceEdit;
 import icy.util.XMLUtil;
 import plugins.fmp.tools.Tools;
+import plugins.kernel.roi.roi2d.ROI2DPolyLine;
 
 
 public class Cages {
@@ -41,8 +36,8 @@ public class Cages {
 
 		detect.loadFromXML(node);
 		xmlLoadCagesLimits(node);
-		// TODO - other parms
-
+		xmlLoadLastTimeList(node);
+		xmlLoadCagePositionsList(node);
 		return true;
 	}
 	
@@ -54,17 +49,8 @@ public class Cages {
 		
 		detect.saveToXML(node);
 		xmlSaveCagesLimits(node);
-		// TODO other parms
-		
-//		Element xmlElement = XMLUtil.addElement(node, "Parameters");
-//		Element xmlVal = XMLUtil.addElement(xmlElement, "file");
-//		sourceName = seq.getFileName();
-//		XMLUtil.setAttributeValue(xmlVal, "ID", sourceName);
-//		xmlVal = XMLUtil.addElement(xmlElement, "analysis");
-//		XMLUtil.setAttributeLongValue(xmlVal, "start", seq.analysisStart);
-//		XMLUtil.setAttributeLongValue(xmlVal, "end", seq.analysisEnd);
-//		XMLUtil.setAttributeIntValue(xmlVal, "threshold", detect.threshold); 
-
+		xmlSaveLastTimeList(node);
+		xmlSaveCagePositionsList(node);
 		return true;
 	}
 	
@@ -73,8 +59,8 @@ public class Cages {
 			return false;
 		Element xmlVal = XMLUtil.addElement(node, "CagesLimits");
 		XMLUtil.setAttributeIntValue(xmlVal, "nb_items", cageLimitROIList.size());
-		for (ROI2D roi: cageLimitROIList)
-			roi.saveToXML(xmlVal);
+		for (PositionsXYT pos: cagePositionsList)
+			pos.saveToXML(xmlVal);
 		return true;
 	}
 	
@@ -84,11 +70,68 @@ public class Cages {
 		Element xmlVal = XMLUtil.getElement(node, "CagesLimits");
 		if (xmlVal == null) 
 			return false;
+		
+		cageLimitROIList.clear();
 		int nb_items =  XMLUtil.getAttributeIntValue(xmlVal, "nb_items", 0);
 		for (int i=0; i< nb_items; i++) {
-			ROI2D roi = new ROI2D();
-		for (ROI2D roi: cageLimitROIList)
-			roi.saveToXML(node);
+			PositionsXYT pos = new PositionsXYT();
+			pos.loadFromXML(node);
+			cagePositionsList.add(pos);
+		}
+		return true;
+	}
+	
+	private boolean xmlSaveLastTimeList(Node node) {
+		if (node == null)
+			return false;
+		Element xmlVal = XMLUtil.addElement(node, "LastTimes");
+		XMLUtil.setAttributeIntValue(xmlVal, "nb_items", lastTime_it_MovedList.size());
+		for (int lastTime: lastTime_it_MovedList) {
+			XMLUtil.setAttributeIntValue(xmlVal, "val", lastTime);
+		}
+		return true;
+	}
+	
+	private boolean xmlLoadLastTimeList(Node node) {
+		if (node == null)
+			return false;
+		Element xmlVal = XMLUtil.getElement(node, "LastTimes");
+		if (xmlVal == null) 
+			return false;
+		
+		lastTime_it_MovedList.clear();
+		int nb_items =  XMLUtil.getAttributeIntValue(xmlVal, "nb_items", 0);
+		for (int i=0; i< nb_items; i++) {
+			int lastTime = XMLUtil.getAttributeIntValue(xmlVal, "val", 0);
+			lastTime_it_MovedList.add(lastTime);
+		}
+		return true;
+	}
+	
+	
+	private boolean xmlSaveCagePositionsList(Node node) {
+		if (node == null)
+			return false;
+		Element xmlVal = XMLUtil.addElement(node, "PositionsInCages");
+		XMLUtil.setAttributeIntValue(xmlVal, "nb_items", lastTime_it_MovedList.size());
+		for (int lastTime: lastTime_it_MovedList) {
+			XMLUtil.setAttributeIntValue(xmlVal, "val", lastTime);
+		}
+		return true;
+	}
+	
+	private boolean xmlLoadCagePositionsList(Node node) {
+		if (node == null)
+			return false;
+		Element xmlVal = XMLUtil.getElement(node, "PositionsInCages");
+		if (xmlVal == null) 
+			return false;
+		
+		lastTime_it_MovedList.clear();
+		int nb_items =  XMLUtil.getAttributeIntValue(xmlVal, "nb_items", 0);
+		for (int i=0; i< nb_items; i++) {
+			int lastTime = XMLUtil.getAttributeIntValue(xmlVal, "val", 0);
+			lastTime_it_MovedList.add(lastTime);
 		}
 		return true;
 	}
