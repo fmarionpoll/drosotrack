@@ -134,33 +134,6 @@ public class Multicafe extends PluginActionable implements ViewerListener, Prope
 		viewer.removeListener(this);
 	}
 
-	private void loadPreviousMeasures(boolean flag1, boolean flag2, boolean flag4, boolean flag3) {
-		if (!flag1 && !flag2 && !flag3) 
-			return;
-		vSequence.removeAllROI();
-		if (flag1) {
-			if( !capillariesPane.loadDefaultCapillaries()) 
-				return;
-		}
-		if (flag2) {
-			if ( !kymographsPane.loadDefaultKymos()) {
-				buttonsVisibilityUpdate(StatusAnalysis.ROIS_OK);
-				return;
-			}
-		}
-		buttonsVisibilityUpdate(StatusAnalysis.KYMOS_OK);
-		if (flag2 && flag3) {
-			if (kymographsPane.fileTab.measuresFileOpen()) {
-				buttonsVisibilityUpdate(StatusAnalysis.MEASUREGULPS_OK );
-				sequencePane.optionsTab.UpdateItemsFromSequence(vSequence);
-			}
-		}
-		
-		if (flag4) {
-			movePane.loadDefaultCages();
-		}
-	}
-
 	@Override
 	public void propertyChange(PropertyChangeEvent arg0) {
 		if (arg0.getPropertyName().equals("SEQ_OPEN")) {
@@ -235,6 +208,32 @@ public class Multicafe extends PluginActionable implements ViewerListener, Prope
 	@Override
 	public void sequenceClosed(Sequence sequence) {
 		sequencePane.closeTab.closeAll();
+	}
+	
+	private void loadPreviousMeasures(boolean loadCapillaries, boolean loadKymographs, boolean loadCages, boolean loadMeasures) {
+		vSequence.removeAllROI();
+		if (loadCapillaries) {
+			if( !capillariesPane.loadDefaultCapillaries()) 
+				return;
+		}
+		if (loadKymographs) {
+			if ( !kymographsPane.loadDefaultKymos()) {
+				buttonsVisibilityUpdate(StatusAnalysis.ROIS_OK);
+				return;
+			}
+			buttonsVisibilityUpdate(StatusAnalysis.KYMOS_OK);
+		}
+		
+		if (loadKymographs && loadMeasures) {
+			if (kymographsPane.fileTab.measuresFileOpen()) {
+				buttonsVisibilityUpdate(StatusAnalysis.MEASUREGULPS_OK );
+				sequencePane.optionsTab.UpdateItemsFromSequence(vSequence);
+			}
+		}
+		
+		if (loadCages) {
+			movePane.loadDefaultCages();
+		}
 	}
 
 }

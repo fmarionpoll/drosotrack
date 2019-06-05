@@ -1,12 +1,16 @@
 package plugins.fmp.multicafe;
 
+import java.awt.BorderLayout;
+import java.awt.Dimension;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.swing.JButton;
 import javax.swing.JCheckBox;
+import javax.swing.JComboBox;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
@@ -29,6 +33,13 @@ public class CapillariesTab_Properties extends JPanel implements ActionListener 
 		private JTextField 	capillaryVolumeTextField= new JTextField("5");
 		private JTextField 	capillaryPixelsTextField= new JTextField("5");
 		public JCheckBox	visibleCheckBox			= new JCheckBox("ROIs visible", true);
+		
+		public JCheckBox 	selectCapillaryCheckBox = new JCheckBox("select capillary");
+		public JComboBox<String> kymographNamesComboBox = new JComboBox<String> (new String[] {"none"});
+		public JButton 		updateButton 			= new JButton("Update");
+		public JButton  	previousButton		 	= new JButton("<");
+		public JButton		nextButton				= new JButton(">");
+		
 		private Multicafe parent0;
 		
 		public void init(GridLayout capLayout, Multicafe parent0) {
@@ -41,6 +52,18 @@ public class CapillariesTab_Properties extends JPanel implements ActionListener 
 			add( GuiUtil.besidesPanel(
 					visibleCheckBox,  
 					new JLabel(" ", SwingConstants.RIGHT)));
+			
+			JPanel k2Panel = new JPanel();
+			k2Panel.setLayout(new BorderLayout());
+			k2Panel.add(previousButton, BorderLayout.WEST); 
+			int bWidth = 30;
+			int height = 10;
+			previousButton.setPreferredSize(new Dimension(bWidth, height));
+			k2Panel.add(kymographNamesComboBox, BorderLayout.CENTER);
+			nextButton.setPreferredSize(new Dimension(bWidth, height)); 
+			k2Panel.add(nextButton, BorderLayout.EAST);
+			
+			add(GuiUtil.besidesPanel( selectCapillaryCheckBox, k2Panel));
 			
 			this.parent0 = parent0;
 			defineActionListeners();

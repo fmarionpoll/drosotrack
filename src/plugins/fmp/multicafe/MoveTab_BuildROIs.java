@@ -30,14 +30,14 @@ public class MoveTab_BuildROIs extends JPanel implements ActionListener {
 	 */
 	private static final long serialVersionUID = -5257698990389571518L;
 	private JButton createROIsFromPolygonButton = new JButton("Create/add cage limits (from Polygon 2D)");
-	private JTextField nbcagesTextField 	= new JTextField("8");
+	private JTextField nbcagesTextField 	= new JTextField("10");
 	private JTextField width_cageTextField 	= new JTextField("10");
 	private JTextField width_intervalTextField = new JTextField("2");
 	private JButton	openROIsButton			= new JButton("Load...");
 	private JButton	saveROIsButton			= new JButton("Save...");
 	
 	private int 	threshold 				= 0;
-	private int 	nbcages 				= 8;
+	private int 	nbcages 				= 10;
 	private int 	width_cage 				= 10;
 	private int 	width_interval 			= 2;
 
@@ -71,13 +71,13 @@ public class MoveTab_BuildROIs extends JPanel implements ActionListener {
 		createROIsFromPolygonButton.addActionListener(new ActionListener () {
 			@Override
 			public void actionPerformed( final ActionEvent e ) { 
-				createROISfromPolygon();
+				addROISCreatedFromSelectedPolygon();
 			}});
 		
 		openROIsButton.addActionListener(new ActionListener () {
 			@Override
 			public void actionPerformed( final ActionEvent e ) { 
-				parent0.vSequence.capillaries.xmlReadROIsAndData(parent0.vSequence);	
+				parent0.vSequence.cages.xmlReadCagesFromFile(parent0.vSequence);	
 				ArrayList<ROI2D> list = parent0.vSequence.getROI2Ds();
 				Collections.sort(list, new Tools.ROI2DNameComparator());
 				int nrois = list.size();
@@ -95,11 +95,8 @@ public class MoveTab_BuildROIs extends JPanel implements ActionListener {
 					if (roi.getName().contains("cage"))
 						roisCages.add(roi);
 				}
-				parent0.vSequence.removeAllROI();
-				parent0.vSequence.addROIs(roisCages, false);
-				parent0.vSequence.capillaries.xmlWriteROIsAndData("drosotrack.xml", parent0.vSequence);
-				parent0.vSequence.removeAllROI();
-				parent0.vSequence.addROIs(roisList, false);
+				parent0.vSequence.cages.xmlWriteCagesToFile("drosotrack.xml", parent0.vSequence.getDirectory());
+
 			}});
 	}
 	
@@ -130,7 +127,7 @@ public class MoveTab_BuildROIs extends JPanel implements ActionListener {
 	}
 	
 
-	private void createROISfromPolygon() {
+	private void addROISCreatedFromSelectedPolygon() {
 		// read values from text boxes
 		try { 
 			nbcages = Integer.parseInt( nbcagesTextField.getText() );
@@ -143,7 +140,6 @@ public class MoveTab_BuildROIs extends JPanel implements ActionListener {
 			new AnnounceFrame("The frame for the cages must be a ROI2D POLYGON");
 			return;
 		}
-
 		Polygon roiPolygon = Tools.orderVerticesofPolygon (((ROI2DPolygon) roi).getPolygon());
 		parent0.vSequence.removeROI(roi);
 
@@ -152,7 +148,7 @@ public class MoveTab_BuildROIs extends JPanel implements ActionListener {
 		String cageRoot = "cage";
 		int iRoot = 0;
 		for (ROI iRoi: parent0.vSequence.getROIs()) {
-			if (iRoi.getName().contains("cage")) {
+			if (iRoi.getName().contains(cageRoot)) {
 				String left = iRoi.getName().substring(4);
 				int item = Integer.parseInt(left);
 				iRoot = Math.max(iRoot, item);
@@ -176,7 +172,7 @@ public class MoveTab_BuildROIs extends JPanel implements ActionListener {
 			double span1 = span0 + width_cage ;
 
 			xup = roiPolygon.xpoints[1]+ (roiPolygon.xpoints[2]-roiPolygon.xpoints[1]) *span1 /span;
-			yup = roiPolygon.ypoints[1]+  (roiPolygon.ypoints[2]-roiPolygon.ypoints[1]) *span1 /span;;
+			yup = roiPolygon.ypoints[1]+  (roiPolygon.ypoints[2]-roiPolygon.ypoints[1]) *span1 /span;
 			Point2D.Double point4 = new Point2D.Double (xup, yup);
 			points.add(point4);
 
@@ -191,8 +187,7 @@ public class MoveTab_BuildROIs extends JPanel implements ActionListener {
 			parent0.vSequence.addROI(roiP);
 		}
 
-		ArrayList<ROI2D> list = parent0.vSequence.getROI2Ds();
-		Collections.sort(list, new Tools.ROI2DNameComparator());
+		parent0.vSequence.cages.getCagesFromSequence(parent0.vSequence);
 	}
 	
 	public boolean cageRoisOpen(String csFileName) {

@@ -28,15 +28,15 @@ public class DetectFliesParameters implements XMLPersistent {
 		if (xmlVal == null) 
 			return false;
 		
-		threshold =  XMLUtil.getAttributeIntValue(xmlVal, "threshold", -1);
-		btrackWhite = XMLUtil.getAttributeBooleanValue(xmlVal, "btrackWhite", false);
-		ichanselected = XMLUtil.getAttributeIntValue(xmlVal, "ichanselected", 0);
-		blimitLow = XMLUtil.getAttributeBooleanValue(xmlVal, "blimitLow",false);
-		blimitUp = XMLUtil.getAttributeBooleanValue(xmlVal, "blimitUp", false);
-		limitLow =  XMLUtil.getAttributeIntValue(xmlVal, "limitLow", -1);
-		limitUp =  XMLUtil.getAttributeIntValue(xmlVal, "limitUp", -1);
-		jitter =  XMLUtil.getAttributeIntValue(xmlVal, "jitter", 10); 
-		String op = XMLUtil.getAttributeValue(xmlVal, "transformOp", null);
+		threshold =  XMLUtil.getElementIntValue(xmlVal, "threshold", -1);
+		btrackWhite = XMLUtil.getElementBooleanValue(xmlVal, "btrackWhite", false);
+		ichanselected = XMLUtil.getElementIntValue(xmlVal, "ichanselected", 0);
+		blimitLow = XMLUtil.getElementBooleanValue(xmlVal, "blimitLow",false);
+		blimitUp = XMLUtil.getElementBooleanValue(xmlVal, "blimitUp", false);
+		limitLow =  XMLUtil.getElementIntValue(xmlVal, "limitLow", -1);
+		limitUp =  XMLUtil.getElementIntValue(xmlVal, "limitUp", -1);
+		jitter =  XMLUtil.getElementIntValue(xmlVal, "jitter", 10); 
+		String op = XMLUtil.getElementValue(xmlVal, "transformOp", null);
 		transformop = TransformOp.findByText(op);
 
 		return true;
@@ -50,17 +50,18 @@ public class DetectFliesParameters implements XMLPersistent {
 
 		Element xmlVal = XMLUtil.addElement(node, "DetectFliesParameters");
 		
-		XMLUtil.setAttributeIntValue(xmlVal, "threshold", threshold);
-		XMLUtil.setAttributeBooleanValue(xmlVal, "btrackWhite", btrackWhite);
-		XMLUtil.setAttributeIntValue(xmlVal, "ichanselected", ichanselected);
-		XMLUtil.setAttributeBooleanValue(xmlVal, "blimitLow", blimitLow);
-		XMLUtil.setAttributeBooleanValue(xmlVal, "blimitUp", blimitUp);
-		XMLUtil.setAttributeIntValue(xmlVal, "limitLow", limitLow);
-		XMLUtil.setAttributeIntValue(xmlVal, "limitUp", limitUp);
-		XMLUtil.setAttributeIntValue(xmlVal, "jitter", jitter); 
-		String transform = transformop.toString();
-		XMLUtil.setAttributeValue(xmlVal, "transformOp", transform);
-
+		XMLUtil.setElementIntValue(xmlVal, "threshold", threshold);
+		XMLUtil.setElementBooleanValue(xmlVal, "btrackWhite", btrackWhite);
+		XMLUtil.setElementIntValue(xmlVal, "ichanselected", ichanselected);
+		XMLUtil.setElementBooleanValue(xmlVal, "blimitLow", blimitLow);
+		XMLUtil.setElementBooleanValue(xmlVal, "blimitUp", blimitUp);
+		XMLUtil.setElementIntValue(xmlVal, "limitLow", limitLow);
+		XMLUtil.setElementIntValue(xmlVal, "limitUp", limitUp);
+		XMLUtil.setElementIntValue(xmlVal, "jitter", jitter); 
+		if (transformop != null) {
+			String transform = transformop.toString();
+			XMLUtil.setElementValue(xmlVal, "transformOp", transform);
+		}
 		return true;
 	}
 	

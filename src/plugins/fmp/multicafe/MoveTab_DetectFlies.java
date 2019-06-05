@@ -168,12 +168,9 @@ public class MoveTab_DetectFlies extends JPanel implements ActionListener, Chang
 		detect.limitLow = (int) objectLowsizeSpinner.getValue();
 		detect.limitUp = (int) objectUpsizeSpinner.getValue();
 		try { detect.jitter = Integer.parseInt( jitterTextField.getText() );
-		}catch( Exception e ) { new AnnounceFrame("Can't interpret the jitter value."); return false; }
+		} catch( Exception e ) { new AnnounceFrame("Can't interpret the jitter value."); return false; }
 		detect.transformop = (TransformOp) backgroundComboBox.getSelectedItem();
-		
 		trackAllFliesThread.detect = detect;
-		
-		
 		return true;
 	}
 

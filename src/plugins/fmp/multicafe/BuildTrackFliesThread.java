@@ -26,9 +26,9 @@ import plugins.kernel.roi.roi2d.ROI2DRectangle;
 
 class BuildTrackFliesThread implements Runnable {
 	
-	public SequenceVirtual vSequence 	= null;	
+	public SequenceVirtual vSequence = null;	
 
-	public ArrayList<BooleanMask2D> cageMaskList = new ArrayList<BooleanMask2D>();
+	private ArrayList<BooleanMask2D> cageMaskList = new ArrayList<BooleanMask2D>();
 	public boolean stopFlag = false;
 	public DetectFliesParameters detect = new DetectFliesParameters();
 	public Cages cages = new Cages();
@@ -184,10 +184,12 @@ class BuildTrackFliesThread implements Runnable {
 		try
 		{
 			vSequence.beginUpdate();
+			vSequence.cages = cages;
 			int nrois = cages.cageLimitROIList.size();
-			for ( int t = startFrame ; t <= lastFrameAnalyzed ; t  += analyzeStep )
+			int it = 0;
+			for ( int t = startFrame ; t <= lastFrameAnalyzed ; t  += analyzeStep, it++ )
 				for (int iroi=0; iroi < nrois; iroi++) 
-					vSequence.addROI( resultFlyPositionArrayList[t-startFrame][iroi] );
+					vSequence.addROI( resultFlyPositionArrayList[it][iroi] );
 		}
 		finally
 		{
