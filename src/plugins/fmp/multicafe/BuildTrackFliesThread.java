@@ -198,7 +198,6 @@ class BuildTrackFliesThread implements Runnable {
 
 		chrono.displayInSeconds();
 		System.out.println("Computation finished.");
-		// TODO updateButtonsVisibility(StateD.STOP_COMPUTATION);
 	}
 
 	private ROI2DArea findFly(IcyBufferedImage img, int threshold , int chan, boolean white ) {

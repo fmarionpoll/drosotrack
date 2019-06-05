@@ -37,10 +37,10 @@ public class PositionsXYT  implements XMLPersistent  {
 		pointsList.clear();
 		int nb_items =  XMLUtil.getAttributeIntValue(xmlVal, "nb_items", 0);
 		for (int i=0; i< nb_items; i++) {
-			// todo add node for each point?
+			Element subnode = XMLUtil.getElement(node, "i"+i);
 			Point2D point = new Point2D.Double(0,0);
-			double x =  XMLUtil.getAttributeDoubleValue( xmlVal, "x", 0);
-			double y =  XMLUtil.getAttributeDoubleValue( xmlVal, "y", 0);
+			double x =  XMLUtil.getAttributeDoubleValue( subnode, "x", 0);
+			double y =  XMLUtil.getAttributeDoubleValue( subnode, "y", 0);
 			point.setLocation(x, y);
 			pointsList.add(point);
 		}
@@ -54,11 +54,14 @@ public class PositionsXYT  implements XMLPersistent  {
 			return false;
 		Element xmlVal = XMLUtil.addElement(node, "PositionsList");
 		XMLUtil.setAttributeIntValue(xmlVal, "nb_items", pointsList.size());
+		int i = 0;
 		for (Point2D point: pointsList) {
+			Element subnode = XMLUtil.addElement(xmlVal, "i"+i);
 			double x = point.getX();
 			double y = point.getY();
-			XMLUtil.setAttributeDoubleValue(xmlVal, "x", x);
-			XMLUtil.setAttributeDoubleValue(xmlVal, "y", y);
+			XMLUtil.setAttributeDoubleValue(subnode, "x", x);
+			XMLUtil.setAttributeDoubleValue(subnode, "y", y);
+			i++;
 		}
 		return true;
 	}
