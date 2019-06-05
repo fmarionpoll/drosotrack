@@ -1,7 +1,8 @@
 package plugins.fmp.sequencevirtual;
 
-
+import java.io.File;
 import java.util.ArrayList;
+
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -9,7 +10,8 @@ import icy.roi.BooleanMask2D;
 import icy.roi.ROI2D;
 import icy.util.XMLUtil;
 import plugins.fmp.tools.Tools;
-import plugins.kernel.roi.roi2d.ROI2DPolyLine;
+
+import plugins.kernel.roi.roi2d.ROI2DShape;
 
 
 public class Cages {
@@ -19,7 +21,6 @@ public class Cages {
 	public ArrayList<BooleanMask2D> 	cageMaskList 			= new ArrayList<BooleanMask2D>();
 	public ArrayList<Integer>			lastTime_it_MovedList 	= new ArrayList<Integer>();
 	public ArrayList<PositionsXYT> 		cagePositionsList 		= new ArrayList<PositionsXYT>();
-	private String sourceName;
 	
 
 	public void clear() {
@@ -28,7 +29,7 @@ public class Cages {
 		cageMaskList.clear();
 	}
 	
-	private boolean xmlReadCages (Document doc) {
+	private boolean xmlLoadCages (Document doc) {
 		String nodeName = "drosoTrack";
 		Node node = XMLUtil.getElement(XMLUtil.getRootElement(doc), nodeName);
 		if (node == null)
@@ -108,7 +109,6 @@ public class Cages {
 		return true;
 	}
 	
-	
 	private boolean xmlSaveCagePositionsList(Node node) {
 		if (node == null)
 			return false;
@@ -136,34 +136,17 @@ public class Cages {
 		return true;
 	}
 	
-	public void keepOnly2DLines_CapillariesArrayList(SequenceVirtual seq) {
-
-//		capillariesArrayList.clear();
-//		ArrayList<ROI2D> list = seq.getROI2Ds();
-//		 
-//		for (ROI2D roi:list)
-//		{
-//			if ((roi instanceof ROI2DShape) == false)
-//				continue;
-//			if (!roi.getName().contains("line"))
-//				continue;
-//			if (roi instanceof ROI2DLine || roi instanceof ROI2DPolyLine)
-//				capillariesArrayList.add((ROI2DShape)roi);
-//		}
-//		Collections.sort(capillariesArrayList, new Tools.ROI2DNameComparator()); 
-	}
-	
-	public boolean xmlWriteROIsAndData(String name, String directory) {
+	public boolean xmlWriteCagesToFile(String name, String directory) {
 
 		String csFile = Tools.saveFileAs(name, directory, "xml");
 		csFile.toLowerCase();
 		if (!csFile.contains(".xml")) {
 			csFile += ".xml";
 		}
-		return xmlWriteROIsAndDataNoQuestion(csFile);
+		return xmlWriteCagesToFileNoQuestion(csFile);
 	}
 	
-	public boolean xmlWriteROIsAndDataNoQuestion(String csFile) {
+	public boolean xmlWriteCagesToFileNoQuestion(String csFile) {
 
 		if (csFile == null) 
 			return false;
@@ -177,55 +160,47 @@ public class Cages {
 		return true;
 	}
 	
-	public boolean xmlReadROIsAndData(SequenceVirtual seq) {
+	public boolean xmlReadCagesFromFile(SequenceVirtual seq) {
 
-		// TODO
-//		String [] filedummy = null;
-//		String filename = seq.getFileName();
-//		File file = new File(filename);
-//		String directory = file.getParentFile().getAbsolutePath();
-//		filedummy = Tools.selectFiles(directory, "xml");
-//		boolean wasOk = false;
-//		if (filedummy != null) {
-//			for (int i= 0; i< filedummy.length; i++) {
-//				String csFile = filedummy[i];
-//				wasOk &= xmlReadROIsAndData(csFile, seq);
-//			}
-//		}
-//		return wasOk;
+		String [] filedummy = null;
+		String filename = seq.getFileName();
+		File file = new File(filename);
+		String directory = file.getParentFile().getAbsolutePath();
+		filedummy = Tools.selectFiles(directory, "xml");
+		boolean wasOk = false;
+		if (filedummy != null) {
+			for (int i= 0; i< filedummy.length; i++) {
+				String csFile = filedummy[i];
+				wasOk &= xmlReadCagesFromFileNoQuestion(csFile, seq);
+			}
+		}
+		return wasOk;
+
+	}
+	
+	public boolean xmlReadCagesFromFileNoQuestion(String csFileName, SequenceVirtual seq) {
+
+		if (csFileName != null)  {
+			final Document doc = XMLUtil.loadDocument(csFileName);
+			if (doc != null) {
+				xmlLoadCages(doc);
+				replaceROIsInSequence(seq);
+				return true;
+			}
+		}
 		return false;
 	}
 	
-	public boolean xmlReadROIsAndData(String csFileName, SequenceVirtual seq) {
-
-		//TODO
-//		if (csFileName != null)  {
-//			final Document doc = XMLUtil.loadDocument(csFileName);
-//			if (doc != null) {
-//				final List<ROI> rois = ROI.loadROIsFromXML(XMLUtil.getRootElement(doc));
-//				xmlReadCapillaryTrackParameters(doc, seq);
-//				
-//				Collections.sort(rois, new Tools.ROINameComparator()); 
-//
-//				try  {  
-//					for (ROI roi : rois)  {
-//						seq.addROI(roi);
-//					}
-//				}
-//				finally {
-//				}
-//				// add to undo manager
-//				seq.addUndoableEdit(new ROIAddsSequenceEdit(seq, rois) {
-//					@Override
-//					public String getPresentationName() {
-//						if (getROIs().size() > 1)
-//							return "ROIs loaded from XML file";
-//						return "ROI loaded from XML file"; };
-//				});
-//				return true;
-//			}
-//		}
-		return false;
+	private void replaceROIsInSequence(SequenceVirtual seq) {
+		ArrayList<ROI2D> list = seq.getROI2Ds();
+		for (ROI2D roi: list) {
+			if (!(roi instanceof ROI2DShape))
+			continue;
+		if (!roi.getName().contains("cage"))
+			continue;
+		seq.removeROI(roi);
+		}
+		seq.addROIs(cageLimitROIList, true);
 	}
 
 

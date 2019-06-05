@@ -37,7 +37,7 @@ public class PositionsXYT  implements XMLPersistent  {
 		pointsList.clear();
 		int nb_items =  XMLUtil.getAttributeIntValue(xmlVal, "nb_items", 0);
 		for (int i=0; i< nb_items; i++) {
-			// todo add node for each point
+			// todo add node for each point?
 			Point2D point = new Point2D.Double(0,0);
 			double x =  XMLUtil.getAttributeDoubleValue( xmlVal, "x", 0);
 			double y =  XMLUtil.getAttributeDoubleValue( xmlVal, "y", 0);
@@ -47,38 +47,21 @@ public class PositionsXYT  implements XMLPersistent  {
 		return true;
 	}
 
-//	private boolean xmlLoadCagesLimits(Node node) {
-//	if (node == null)
-//		return false;
-//	Element xmlVal = XMLUtil.getElement(node, "CagesLimits");
-//	if (xmlVal == null) 
-//		return false;
-//	
-//	cageLimitROIList.clear();
-//	int nb_items =  XMLUtil.getAttributeIntValue(xmlVal, "nb_items", 0);
-//	for (int i=0; i< nb_items; i++) {
-//		PositionsXYT pos = new PositionsXYT();
-//		pos.loadFromXML(node);
-//		cagePositionsList.add(pos);
-//	}
-//	return true;
-//}
-	
+
 	@Override
 	public boolean saveToXML(Node node) {
-		// TODO Auto-generated method stub
-		return false;
+		if (node == null)
+			return false;
+		Element xmlVal = XMLUtil.addElement(node, "PositionsList");
+		XMLUtil.setAttributeIntValue(xmlVal, "nb_items", pointsList.size());
+		for (Point2D point: pointsList) {
+			double x = point.getX();
+			double y = point.getY();
+			XMLUtil.setAttributeDoubleValue(xmlVal, "x", x);
+			XMLUtil.setAttributeDoubleValue(xmlVal, "y", y);
+		}
+		return true;
 	}
-	
-//	private boolean xmlSaveCagesLimits(Node node) {
-//		if (node == null)
-//			return false;
-//		Element xmlVal = XMLUtil.addElement(node, "CagesLimits");
-//		XMLUtil.setAttributeIntValue(xmlVal, "nb_items", cageLimitROIList.size());
-//		for (PositionsXYT pos: cagePositionsList)
-//			pos.saveToXML(xmlVal);
-//		return true;
-//	}
 	
 
 }

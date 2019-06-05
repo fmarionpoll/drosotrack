@@ -199,14 +199,14 @@ public class MoveTab_BuildROIs extends JPanel implements ActionListener {
 		
 		boolean flag = false;
 		if (csFileName == null)
-			flag = parent0.vSequence.capillaries.xmlReadROIsAndData(parent0.vSequence);
+			flag = parent0.vSequence.cages.xmlReadCagesFromFile(parent0.vSequence);
 		else
-			flag = parent0.vSequence.capillaries.xmlReadROIsAndData(csFileName, parent0.vSequence);
+			flag = parent0.vSequence.cages.xmlReadCagesFromFileNoQuestion(csFileName, parent0.vSequence);
 		return flag;
 	}
 	
 	public boolean cageRoisSave() {
-		return parent0.vSequence.capillaries.xmlWriteROIsAndData("drosotrack.xml", parent0.vSequence);
+		return parent0.vSequence.cages.xmlWriteCagesToFile("drosotrack.xml", parent0.vSequence.getDirectory());
 	}
 
 }
