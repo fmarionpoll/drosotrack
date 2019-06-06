@@ -49,7 +49,7 @@ public class SequenceTab_Close  extends JPanel implements ActionListener {
 
 		// clean kymographs & results
 		parent0.kymographArrayList.clear();
-		parent0.kymographsPane.optionsTab.kymographNamesComboBox.removeAllItems();
+		parent0.capillariesPane.optionsTab.kymographNamesComboBox.removeAllItems();
 	}
 
 }

@@ -1,5 +1,5 @@
 package plugins.fmp.tools;
 
-public enum ExportXLS {
+public enum XLSExportItems {
 	TOPLEVEL, BOTTOMLEVEL, DERIVEDVALUES, SUMGULPS, SUMLR
 }

@@ -76,7 +76,7 @@ public class KymosTab_DetectGulps extends JPanel implements ActionListener {
 		}
 		else if (o == displayTransform2Button) {
 			kymosDisplayFiltered2();
-			parent0.kymographsPane.optionsTab.viewKymosCheckBox.setSelected(true);
+			parent0.capillariesPane.optionsTab.viewKymosCheckBox.setSelected(true);
 		}
 	}
 	

@@ -49,7 +49,6 @@ public class XYMultiChart extends IcyFrame  {
 		mainChartFrame.add(mainChartPanel);
 	}
 
-	//----------------------------------------
 	public void displayData(ArrayList <SequencePlus> kymographArrayList, ArrayListType option, int kmax, int startFrame) {
 
 		// copy data into charts
@@ -110,12 +109,10 @@ public class XYMultiChart extends IcyFrame  {
 		mainChartFrame.setVisible(true);
 	}
 
-	//----------------------------------------
 	public void fetchNewData(ArrayList <SequencePlus> kymographArrayList, ArrayListType option, int kmax, int startFrame) {
 		
 		int ixy = 0;
 		flagMaxMinSet = false;
-//		flagMaxMinSet2 = false;
 		XYSeriesCollection xyDataset = null;
 		XYSeriesCollection xyDataset2 = null;
 		
@@ -169,7 +166,6 @@ public class XYMultiChart extends IcyFrame  {
 		}
 	}
 
-	// --------------------------------------
 	private void getMaxMin() {
 		if (!flagMaxMinSet) {
 			globalYMax = ymax;
@@ -181,8 +177,7 @@ public class XYMultiChart extends IcyFrame  {
 			if (globalYMin >= ymin) globalYMin = ymin;
 		}
 	}
-		
-	// --------------------------------------
+
 	private XYSeries getXYSeries(ArrayList<Integer> data, String name, int startFrame) {
 		
 		XYSeries seriesXY = new XYSeries(name, false);
@@ -222,7 +217,6 @@ public class XYMultiChart extends IcyFrame  {
 		}
 	}
 	
-	//----------------------------------------
 	public void setLocationRelativeToRectangle(Rectangle rectv, Point deltapt) {
 
 		pt = new Point(rectv.x + deltapt.x, rectv.y + deltapt.y);

@@ -64,7 +64,6 @@ class BuildTrackFliesThread implements Runnable {
 
 		cages.clear();
 
-	
 		// find ROI describing cage areas - remove all others
 		cages.cageLimitROIList = ROI2DUtilities.getListofCagesFromSequence(vSequence);
 		cageMaskList = ROI2DUtilities.getMask2DFromRoiList(cages.cageLimitROIList);
@@ -73,19 +72,17 @@ class BuildTrackFliesThread implements Runnable {
 		// create arrays for storing position and init their value to zero
 		int nbcages = cages.cageLimitROIList.size();
 		System.out.println("nb cages = " + nbcages);
-		cages.lastTime_it_MovedList.ensureCapacity(nbcages); 		// t of slice where fly moved the last time
 		ROI2DRectangle [] tempRectROI = new ROI2DRectangle [nbcages];
 		int minCapacity = (endFrame - startFrame + 1) / analyzeStep;
 
 		for (int i=0; i < nbcages; i++)
 		{
-			cages.lastTime_it_MovedList.add(0);
 			tempRectROI[i] = new ROI2DRectangle(0, 0, 10, 10);
 			tempRectROI[i].setName("fly_"+i);
 			vSequence.addROI(tempRectROI[i]);
-			PositionsXYT positions = new PositionsXYT();
+			PositionsXYT positions = new PositionsXYT(cages.cageLimitROIList.get(i));
 			positions.ensureCapacity(minCapacity);
-			cages.cagePositionsList.add(positions);
+			cages.flyPositionsList.add(positions);
 		}
 
 		// create array for the results - 1 point = 1 slice
@@ -165,11 +162,11 @@ class BuildTrackFliesThread implements Runnable {
 					// compute center and distance (square of)
 					Point2D flyPosition = new Point2D.Double(rect.getCenterX(), rect.getCenterY());
 					if (it > 0) {
-						double distance = flyPosition.distance(cages.cagePositionsList.get(iroi).get(it-1));
+						double distance = flyPosition.distance(cages.flyPositionsList.get(iroi).getPoint(it-1));
 						if (distance > detect.jitter)
-							cages.lastTime_it_MovedList.set(iroi, t);
+							cages.flyPositionsList.get(iroi).lastTime = t;
 					}
-					cages.cagePositionsList.get(iroi).add(flyPosition);
+					cages.flyPositionsList.get(iroi).add(flyPosition, t);
 				}
 			}
 		

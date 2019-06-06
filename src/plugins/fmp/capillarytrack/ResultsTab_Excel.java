@@ -23,7 +23,7 @@ import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import plugins.fmp.sequencevirtual.SequencePlus;
 import plugins.fmp.tools.ArrayListType;
 import plugins.fmp.tools.Tools;
-import plugins.fmp.tools.ExportXLS;
+import plugins.fmp.tools.XLSExportItems;
 
 public class ResultsTab_Excel extends JPanel implements ActionListener  {
 
@@ -93,15 +93,15 @@ public class ResultsTab_Excel extends JPanel implements ActionListener  {
 			workbook.setMissingCellPolicy(Row.MissingCellPolicy.CREATE_NULL_AS_BLANK);
 
 			if (topLevelCheckBox.isSelected()) 
-				xlsExportToWorkbook(workbook, "toplevel", ExportXLS.TOPLEVEL);
+				xlsExportToWorkbook(workbook, "toplevel", XLSExportItems.TOPLEVEL);
 			if (bottomLevelCheckBox.isSelected()) 
-				xlsExportToWorkbook(workbook, "bottomlevel", ExportXLS.BOTTOMLEVEL);
+				xlsExportToWorkbook(workbook, "bottomlevel", XLSExportItems.BOTTOMLEVEL);
 			if (derivativeCheckBox.isSelected()) 
-				xlsExportToWorkbook(workbook, "derivative", ExportXLS.DERIVEDVALUES);
+				xlsExportToWorkbook(workbook, "derivative", XLSExportItems.DERIVEDVALUES);
 			if (consumptionCheckBox.isSelected()) 
-				xlsExportToWorkbook(workbook, "sumGulps", ExportXLS.SUMGULPS);
+				xlsExportToWorkbook(workbook, "sumGulps", XLSExportItems.SUMGULPS);
 			if (sumCheckBox.isSelected()) 
-				xlsExportToWorkbook(workbook, "sumL+R", ExportXLS.SUMLR);
+				xlsExportToWorkbook(workbook, "sumL+R", XLSExportItems.SUMLR);
 			
 			FileOutputStream fileOut = new FileOutputStream(filename);
 			workbook.write(fileOut);
@@ -113,7 +113,7 @@ public class ResultsTab_Excel extends JPanel implements ActionListener  {
 		System.out.println("XLS output finished");
 	}
 
-	private ArrayList <ArrayList<Integer >> getDataFromRois(ExportXLS option, boolean relative) {
+	private ArrayList <ArrayList<Integer >> getDataFromRois(XLSExportItems option, boolean relative) {
 		ArrayList <ArrayList<Integer >> arrayList = new ArrayList <ArrayList <Integer>> ();
 		for (SequencePlus seq: parent0.kymographArrayList) {
 			switch (option) {
@@ -148,7 +148,7 @@ public class ResultsTab_Excel extends JPanel implements ActionListener  {
 		return arrayList;
 	}
 	
-	private void xlsExportToWorkbook(Workbook workBook, String title, ExportXLS option) {
+	private void xlsExportToWorkbook(Workbook workBook, String title, XLSExportItems option) {
 		System.out.println("export worksheet "+title);
 		ArrayList <ArrayList<Integer >> arrayList = getDataFromRois(option, t0CheckBox.isSelected());		
 		if (arrayList.size() == 0)
@@ -185,7 +185,7 @@ public class ResultsTab_Excel extends JPanel implements ActionListener  {
 		return pt;
 	}
 
-	private Point writeColumnHeaders (Sheet sheet, Point pt, ExportXLS option, boolean transpose) {
+	private Point writeColumnHeaders (Sheet sheet, Point pt, XLSExportItems option, boolean transpose) {
 		pt = toColZero(pt, transpose);
 		if (parent0.vSequence.isFileStack()) {
 			setValue(sheet,  pt.x, pt.y, "filename" );
@@ -221,7 +221,7 @@ public class ResultsTab_Excel extends JPanel implements ActionListener  {
 		return pt;
 	}
 
-	private Point writeData (Sheet sheet, Point pt, ExportXLS option, ArrayList <ArrayList<Integer >> arrayList, boolean transpose) {
+	private Point writeData (Sheet sheet, Point pt, XLSExportItems option, ArrayList <ArrayList<Integer >> arrayList, boolean transpose) {
 		int maxelements = 0;
 		for (int i=0; i< arrayList.size(); i++) {
 			ArrayList<Integer> datai = arrayList.get(i);

@@ -30,7 +30,7 @@ public class BuildDetect_Gulps {
 		int firstkymo = 0;
 		int lastkymo = parent0.kymographArrayList.size() -1;
 		if (! parent0.kymographsPane.gulpsTab.detectAllGulpsCheckBox.isSelected()) {
-			firstkymo = parent0.kymographsPane.optionsTab.kymographNamesComboBox.getSelectedIndex();
+			firstkymo = parent0.capillariesPane.optionsTab.kymographNamesComboBox.getSelectedIndex();
 			lastkymo = firstkymo;
 		}
 		

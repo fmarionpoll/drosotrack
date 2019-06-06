@@ -25,7 +25,7 @@ import icy.system.thread.ThreadUtil;
 import plugins.fmp.tools.OverlayThreshold;
 import plugins.fmp.sequencevirtual.DetectFliesParameters;
 import plugins.fmp.tools.ImageTransformTools.TransformOp;
-import plugins.kernel.roi.roi2d.ROI2DShape;
+
 
 public class MoveTab_DetectFlies extends JPanel implements ActionListener, ChangeListener {
 	/**

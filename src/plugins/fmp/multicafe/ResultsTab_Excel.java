@@ -17,13 +17,17 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 
 import icy.gui.util.GuiUtil;
-import org.apache.poi.ss.usermodel.*;
+
+import org.apache.poi.ss.usermodel.Row;
+import org.apache.poi.ss.usermodel.Sheet;
+import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
 import plugins.fmp.sequencevirtual.SequencePlus;
 import plugins.fmp.tools.ArrayListType;
 import plugins.fmp.tools.Tools;
-import plugins.fmp.tools.ExportXLS;
+import plugins.fmp.tools.XLSExportItems;
+import plugins.fmp.tools.XLSUtils;
 
 public class ResultsTab_Excel extends JPanel implements ActionListener  {
 
@@ -94,15 +98,15 @@ public class ResultsTab_Excel extends JPanel implements ActionListener  {
 			workbook.setMissingCellPolicy(Row.MissingCellPolicy.CREATE_NULL_AS_BLANK);
 
 			if (topLevelCheckBox.isSelected()) 
-				xlsExportToWorkbook(workbook, "toplevel", ExportXLS.TOPLEVEL);
+				xlsExportToWorkbook(workbook, "toplevel", XLSExportItems.TOPLEVEL);
 			if (bottomLevelCheckBox.isSelected()) 
-				xlsExportToWorkbook(workbook, "bottomlevel", ExportXLS.BOTTOMLEVEL);
+				xlsExportToWorkbook(workbook, "bottomlevel", XLSExportItems.BOTTOMLEVEL);
 			if (derivativeCheckBox.isSelected()) 
-				xlsExportToWorkbook(workbook, "derivative", ExportXLS.DERIVEDVALUES);
+				xlsExportToWorkbook(workbook, "derivative", XLSExportItems.DERIVEDVALUES);
 			if (consumptionCheckBox.isSelected()) 
-				xlsExportToWorkbook(workbook, "sumGulps", ExportXLS.SUMGULPS);
+				xlsExportToWorkbook(workbook, "sumGulps", XLSExportItems.SUMGULPS);
 			if (sumCheckBox.isSelected()) 
-				xlsExportToWorkbook(workbook, "sumL+R", ExportXLS.SUMLR);
+				xlsExportToWorkbook(workbook, "sumL+R", XLSExportItems.SUMLR);
 			
 			FileOutputStream fileOut = new FileOutputStream(filename);
 			workbook.write(fileOut);
@@ -114,7 +118,7 @@ public class ResultsTab_Excel extends JPanel implements ActionListener  {
 		System.out.println("XLS output finished");
 	}
 
-	private ArrayList <ArrayList<Integer >> getDataFromRois(ExportXLS option, boolean relative) {
+	private ArrayList <ArrayList<Integer >> getDataFromRois(XLSExportItems option, boolean relative) {
 		ArrayList <ArrayList<Integer >> arrayList = new ArrayList <ArrayList <Integer>> ();
 		for (SequencePlus seq: parent0.kymographArrayList) {
 			switch (option) {
@@ -149,7 +153,7 @@ public class ResultsTab_Excel extends JPanel implements ActionListener  {
 		return arrayList;
 	}
 	
-	private void xlsExportToWorkbook(Workbook workBook, String title, ExportXLS option) {
+	private void xlsExportToWorkbook(Workbook workBook, String title, XLSExportItems option) {
 		System.out.println("export worksheet "+title);
 		ArrayList <ArrayList<Integer >> arrayList = getDataFromRois(option, t0CheckBox.isSelected());		
 		if (arrayList.size() == 0)
@@ -160,40 +164,39 @@ public class ResultsTab_Excel extends JPanel implements ActionListener  {
 		Point pt = writeGlobalInfos(sheet, transpose);
 		pt = writeColumnHeaders(sheet, pt, option, transpose);
 		pt = writeData(sheet, pt, option, arrayList, transpose);
-
 	}
 	
 	private Point writeGlobalInfos(Sheet sheet, boolean transpose) {
 		Point pt = new Point(0, 0);
 
-		setValue(sheet,  pt.x, pt.y, "name:" );
+		XLSUtils.setValue(sheet,  pt.x, pt.y, "name:" );
 		File file = new File(parent0.vSequence.getFileName(0));
 		String path = file.getParent();
-		pt = nextCol(pt, transpose);
-		setValue(sheet,  pt.x, pt.y, path );
-		pt= nextRow(pt, transpose);
-		pt = toColZero(pt, transpose);
+		pt = XLSUtils.nextCol(pt, transpose);
+		XLSUtils.setValue(sheet,  pt.x, pt.y, path );
+		pt= XLSUtils.nextRow(pt, transpose);
+		pt = XLSUtils.toColZero(pt, transpose);
 		Point pt1 = pt;
-		setValue(sheet,  pt1.x, pt1.y, "capillary (µl):" );
-		pt1 = nextCol(pt1, transpose);
-		setValue(sheet,  pt1.x, pt1.y, 	parent0.vSequence.capillaries.capillaryVolume);
-		pt1 = nextCol(pt1, transpose);
-		setValue(sheet,  pt1.x, pt1.y, "capillary (pixels):" );
-		pt1 = nextCol(pt1, transpose);
-		setValue(sheet,  pt1.x, pt1.y, 	parent0.vSequence.capillaries.capillaryPixels);
-		pt = nextRow(pt, transpose);
-		pt = nextRow(pt, transpose);
+		XLSUtils.setValue(sheet,  pt1.x, pt1.y, "capillary (µl):" );
+		pt1 = XLSUtils.nextCol(pt1, transpose);
+		XLSUtils.setValue(sheet,  pt1.x, pt1.y, 	parent0.vSequence.capillaries.capillaryVolume);
+		pt1 = XLSUtils.nextCol(pt1, transpose);
+		XLSUtils.setValue(sheet,  pt1.x, pt1.y, "capillary (pixels):" );
+		pt1 = XLSUtils.nextCol(pt1, transpose);
+		XLSUtils.setValue(sheet,  pt1.x, pt1.y, 	parent0.vSequence.capillaries.capillaryPixels);
+		pt = XLSUtils.nextRow(pt, transpose);
+		pt = XLSUtils.nextRow(pt, transpose);
 		return pt;
 	}
 
-	private Point writeColumnHeaders (Sheet sheet, Point pt, ExportXLS option, boolean transpose) {
-		pt = toColZero(pt, transpose);
+	private Point writeColumnHeaders (Sheet sheet, Point pt, XLSExportItems option, boolean transpose) {
+		pt = XLSUtils.toColZero(pt, transpose);
 		if (parent0.vSequence.isFileStack()) {
-			setValue(sheet,  pt.x, pt.y, "filename" );
-			pt = nextCol(pt, transpose);
+			XLSUtils.setValue(sheet,  pt.x, pt.y, "filename" );
+			pt = XLSUtils.nextCol(pt, transpose);
 		}
-		setValue(sheet,  pt.x, pt.y, "i" );
-		pt = nextCol(pt, transpose);
+		XLSUtils.setValue(sheet,  pt.x, pt.y, "i" );
+		pt = XLSUtils.nextCol(pt, transpose);
 		
 		switch (option) {
 		case SUMLR:
@@ -202,27 +205,27 @@ public class ResultsTab_Excel extends JPanel implements ActionListener  {
 				String name0 = kymographSeq0.getName();
 				SequencePlus kymographSeq1 = parent0.kymographArrayList.get(i+1);
 				String name1 = kymographSeq1.getName();
-				setValue(sheet,  pt.x, pt.y, name0+"+"+name1 );
-				pt = nextCol(pt, transpose);
-				setValue(sheet,  pt.x, pt.y, "." );
-				pt = nextCol(pt, transpose);
+				XLSUtils.setValue(sheet,  pt.x, pt.y, name0+"+"+name1 );
+				pt = XLSUtils.nextCol(pt, transpose);
+				XLSUtils.setValue(sheet,  pt.x, pt.y, "." );
+				pt = XLSUtils.nextCol(pt, transpose);
 			}
 			break;
 		default:
 			for (int i=0; i< parent0.kymographArrayList.size(); i++) {
 				SequencePlus kymographSeq = parent0.kymographArrayList.get(i);
 				String name = kymographSeq.getName();
-				setValue(sheet,  pt.x, pt.y, name );
-				pt = nextCol(pt, transpose);
+				XLSUtils.setValue(sheet,  pt.x, pt.y, name );
+				pt = XLSUtils.nextCol(pt, transpose);
 			}
 			break;
 		}
-		pt = toColZero(pt, transpose);
-		pt = nextRow(pt, transpose);
+		pt = XLSUtils.toColZero(pt, transpose);
+		pt = XLSUtils.nextRow(pt, transpose);
 		return pt;
 	}
 
-	private Point writeData (Sheet sheet, Point pt, ExportXLS option, ArrayList <ArrayList<Integer >> arrayList, boolean transpose) {
+	private Point writeData (Sheet sheet, Point pt, XLSExportItems option, ArrayList <ArrayList<Integer >> arrayList, boolean transpose) {
 		int maxelements = 0;
 		for (int i=0; i< arrayList.size(); i++) {
 			ArrayList<Integer> datai = arrayList.get(i);
@@ -238,18 +241,18 @@ public class ResultsTab_Excel extends JPanel implements ActionListener  {
 		int startFrame = (int) parent0.vSequence.analysisStart;
 		int t = startFrame;
 		for (int j=0; j< nelements; j++) {
-			Point pt2 = toColZero(pt, transpose);
+			Point pt2 = XLSUtils.toColZero(pt, transpose);
 			if (parent0.vSequence.isFileStack()) {
 				String cs = parent0.vSequence.getFileName(j+startFrame);
 				int index = cs.lastIndexOf("\\");
 				String fileName = cs.substring(index + 1);
-				setValue(sheet,  pt2.x, pt2.y, fileName );
-				pt2 = nextCol(pt2, transpose);
+				XLSUtils.setValue(sheet,  pt2.x, pt2.y, fileName );
+				pt2 = XLSUtils.nextCol(pt2, transpose);
 			}
 
-			setValue(sheet,  pt2.x, pt2.y, t);
+			XLSUtils.setValue(sheet,  pt2.x, pt2.y, t);
 			t  += parent0.vSequence.analysisStep;
-			pt2 = nextCol(pt2, transpose);
+			pt2 = XLSUtils.nextCol(pt2, transpose);
 			
 			switch (option) {
 			case SUMLR:
@@ -258,9 +261,9 @@ public class ResultsTab_Excel extends JPanel implements ActionListener  {
 					ArrayList<Integer> dataL = arrayList.get(i);
 					ArrayList<Integer> dataR = arrayList.get(i+1);
 					if (j < dataL.size())
-						setValue(sheet,  pt2.x, pt2.y, (dataL.get(j)+dataR.get(j))*ratio );
-					pt2 = nextCol(pt2, transpose);
-					pt2 = nextCol(pt2, transpose);
+						XLSUtils.setValue(sheet,  pt2.x, pt2.y, (dataL.get(j)+dataR.get(j))*ratio );
+					pt2 = XLSUtils.nextCol(pt2, transpose);
+					pt2 = XLSUtils.nextCol(pt2, transpose);
 				}
 				break;
 
@@ -269,69 +272,15 @@ public class ResultsTab_Excel extends JPanel implements ActionListener  {
 				{
 					ArrayList<Integer> data = arrayList.get(i);
 					if (j < data.size())
-						setValue(sheet, pt2.x, pt2.y, data.get(j)*ratio );
-					pt2 = nextCol (pt2, transpose);
+						XLSUtils.setValue(sheet, pt2.x, pt2.y, data.get(j)*ratio );
+					pt2 = XLSUtils.nextCol (pt2, transpose);
 				}
 				break;
 			}
 			
-			pt = nextRow (pt, transpose);
+			pt = XLSUtils.nextRow (pt, transpose);
 		}
 		return pt;
-	}
-	
-	private Point nextRow (Point pt, boolean transpose) {
-		if (!transpose)
-			pt.y ++;
-		else
-			pt.x++;
-		return pt;
-	}
-	private Point nextCol (Point pt, boolean transpose) {
-		if (!transpose) 
-			pt.x ++;
-		else 
-			pt.y++;
-		return pt;
-	}	
-	private Point toColZero (Point pt, boolean transpose) {
-		if (!transpose) 
-			pt.x = 0;
-		else
-			pt.y = 0;
-		return pt;
-	}
-
-	private void setValue (Sheet sheet, int column, int row, int ivalue) {
-		Cell cell = getCell (sheet, row, column);
-		cell.setCellValue(ivalue);
-	}
-	private void setValue (Sheet sheet, int column, int row, String string) {
-		Cell cell = getCell (sheet, row, column);
-		cell.setCellValue(string);
-	}
-	
-	private void setValue (Sheet sheet, int column, int row, double value) {
-		Cell cell = getCell (sheet, row, column);
-		cell.setCellValue(value);
-	}
-	
-	private Cell getCell (Sheet sheet, int rownum, int colnum) {
-		Row row = getRow(sheet, rownum);
-		Cell cell = getCol (row, colnum);
-		return cell;
-	}
-	private Row getRow (Sheet sheet, int rownum) {
-		Row row = sheet.getRow(rownum);
-		if (row == null)
-			row = sheet.createRow(rownum);
-		return row;
-	}
-	private Cell getCol (Row row, int cellnum) {
-		Cell cell = row.getCell(cellnum);
-		if (cell == null)
-			cell = row.createCell(cellnum);
-		return cell;
 	}
 	
 }

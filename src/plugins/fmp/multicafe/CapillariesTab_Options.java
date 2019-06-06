@@ -29,7 +29,7 @@ import plugins.fmp.sequencevirtual.SequencePlus;
 import plugins.kernel.roi.roi2d.ROI2DShape;
 
 
-public class KymosTab_Options extends JPanel implements ActionListener, ActiveViewerListener {
+public class CapillariesTab_Options extends JPanel implements ActionListener, ActiveViewerListener {
 
 	/**
 	 * 

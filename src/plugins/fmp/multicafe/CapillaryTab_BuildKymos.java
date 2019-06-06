@@ -19,7 +19,7 @@ import plugins.fmp.sequencevirtual.SequencePlus;
 import plugins.kernel.roi.roi2d.ROI2DShape;
 
 
-public class KymosTab_Build extends JPanel implements ActionListener { 
+public class CapillaryTab_BuildKymos extends JPanel implements ActionListener { 
 
 	/**
 	 * 
@@ -138,8 +138,8 @@ public class KymosTab_Build extends JPanel implements ActionListener {
 			kymographSeq.setName(roi.getName());
 			parent0.kymographArrayList.add(kymographSeq);
 		}
-		parent0.kymographsPane.optionsTab.viewKymosCheckBox.setSelected(true);
-		parent0.kymographsPane.optionsTab.displayViews (true);
+		parent0.capillariesPane.optionsTab.viewKymosCheckBox.setSelected(true);
+		parent0.capillariesPane.optionsTab.displayViews (true);
 		buildKymographsThread.kymographArrayList = parent0.kymographArrayList;
 		
 		thread = new Thread(null, buildKymographsThread, "buildkymos");

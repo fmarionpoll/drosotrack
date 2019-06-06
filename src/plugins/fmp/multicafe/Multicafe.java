@@ -32,7 +32,7 @@ public class Multicafe extends PluginActionable implements ViewerListener, Prope
 	//------------------------------------------- global variables
 	SequenceVirtual vSequence = null;
 	ArrayList <SequencePlus> kymographArrayList	= new ArrayList <SequencePlus> ();	// list of kymograph sequences
-	IcyFrame mainFrame = new IcyFrame("MultiCAFE analysis 05-June-2019", true, true, true, true);
+	IcyFrame mainFrame = new IcyFrame("MultiCAFE analysis 06-June-2019", true, true, true, true);
 
 	//---------------------------------------------------------------------------
 	SequencePane sequencePane 		= null;
@@ -58,11 +58,11 @@ public class Multicafe extends PluginActionable implements ViewerListener, Prope
 		capillariesPane.addPropertyChangeListener(this);	
 				
 		kymographsPane = new KymosPane();
-		kymographsPane.init(mainPanel, "KYMOGRAPHS", this);
+		kymographsPane.init(mainPanel, "MEASURE LEVELS", this);
 		kymographsPane.addPropertyChangeListener(this);
 		
 		movePane = new MovePane();
-		movePane.init(mainPanel, "MOVEMENTS", this);
+		movePane.init(mainPanel, "DETECT FLIES", this);
 		movePane.addPropertyChangeListener(this);
 		
 		resultsPane = new ResultsPane();
@@ -162,14 +162,14 @@ public class Multicafe extends PluginActionable implements ViewerListener, Prope
 		}
 		else if (arg0.getPropertyName().equals("MEASUREGULPS_OK") 
 				|| arg0.getPropertyName().equals("MEASURES_OPEN")) {	
-			kymographsPane.optionsTab.selectKymograph(0);
+			capillariesPane.optionsTab.selectKymograph(0);
 			buttonsVisibilityUpdate(StatusAnalysis.MEASUREGULPS_OK );
 		}
 		else if (arg0.getPropertyName() .equals("KYMO_DISPLAYFILTERED")) {
 //			int ikymo = paneKymos.optionsTab.kymographNamesComboBox.getSelectedIndex();
 //			paneKymos.optionsTab.selectKymograph(ikymo);
-			kymographsPane.optionsTab.displayUpdate();
-			kymographsPane.optionsTab.viewKymosCheckBox.setSelected(true);
+			capillariesPane.optionsTab.displayUpdate();
+			capillariesPane.optionsTab.viewKymosCheckBox.setSelected(true);
 		}
 		else if (arg0.getPropertyName() .equals("EXPORT_TO_EXCEL")) {
 			kymographsPane.fileTab.measuresFileSave();
@@ -217,7 +217,7 @@ public class Multicafe extends PluginActionable implements ViewerListener, Prope
 				return;
 		}
 		if (loadKymographs) {
-			if ( !kymographsPane.loadDefaultKymos()) {
+			if ( !capillariesPane.fileTab.loadDefaultKymos()) {
 				buttonsVisibilityUpdate(StatusAnalysis.ROIS_OK);
 				return;
 			}
@@ -233,6 +233,8 @@ public class Multicafe extends PluginActionable implements ViewerListener, Prope
 		
 		if (loadCages) {
 			movePane.loadDefaultCages();
+			resultsPane.graphicsTab.moveCheckbox.setEnabled(true);
+			resultsPane.graphicsTab.displayResultsButton.setEnabled(true);
 		}
 	}
 

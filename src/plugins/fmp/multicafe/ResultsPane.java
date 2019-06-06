@@ -16,9 +16,10 @@ public class ResultsPane extends JPanel implements PropertyChangeListener {
 	 * 
 	 */
 	private static final long serialVersionUID = 3841093170110565530L;
-	public JTabbedPane tabsPane 			= new JTabbedPane();
-	public ResultsTab_Graphics graphicsTab 	= new ResultsTab_Graphics();
-	public ResultsTab_Excel excelTab 		= new ResultsTab_Excel();
+	public JTabbedPane 			tabsPane 		= new JTabbedPane();
+	public ResultsTab_Graphics 	graphicsTab 	= new ResultsTab_Graphics();
+	public ResultsTab_Excel 	excelTab  		= new ResultsTab_Excel();
+	public ResultsTab_Excel2 	excel2Tab  		= new ResultsTab_Excel2();
 	
 	public void init (JPanel mainPanel, String string, Multicafe parent0) {
 		final JPanel capPanel = GuiUtil.generatePanel(string);
@@ -30,8 +31,12 @@ public class ResultsPane extends JPanel implements PropertyChangeListener {
 		graphicsTab.addPropertyChangeListener(this);
 		
 		excelTab.init(capLayout, parent0);
-		tabsPane.addTab("Export", null, excelTab, "Export results to Excel");
+		tabsPane.addTab("Export levels", null, excelTab, "Export capillary levels to Excel");
 		excelTab.addPropertyChangeListener(this);
+		
+		excel2Tab.init(capLayout, parent0);
+		tabsPane.addTab("Export fly positions", null, excel2Tab, "Export fly positions to Excel");
+		excel2Tab.addPropertyChangeListener(this);
 
 		tabsPane.setTabLayoutPolicy(JTabbedPane.SCROLL_TAB_LAYOUT);
 		capPanel.add(GuiUtil.besidesPanel(tabsPane));
