@@ -35,6 +35,7 @@ public class BuildKymographsThread implements Runnable
 	public ArrayList <SequencePlus> kymographArrayList 	= null;
 	public boolean doRegistration = false;
 	public boolean doStop = false;
+	public boolean threadRunning = false;
 	
 	private ArrayList<double []> sourceValuesList = null;
 	private ArrayList<ArrayList<ArrayList<int[]>>> masksArrayList = new ArrayList<ArrayList<ArrayList<int[]>>>();
@@ -56,6 +57,7 @@ public class BuildKymographsThread implements Runnable
 		ProgressChrono progressBar = new ProgressChrono("Processing started");
 		progressBar.initStuff(nbframes);
 		doStop = false;
+		threadRunning = true;
 
 		initKymographs();
 		int vinputSizeX = vSequence.getSizeX();
@@ -115,6 +117,7 @@ public class BuildKymographsThread implements Runnable
 			SequencePlus kymographSeq = kymographArrayList.get(iroi);
 			kymographSeq.dataChanged();
 		}
+		threadRunning = false;
 	}
 	
 	// -------------------------------------------

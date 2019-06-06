@@ -21,9 +21,9 @@ public class MovePane extends JPanel implements PropertyChangeListener, ChangeLi
 	private static final long serialVersionUID = 3457738144388946607L;
 	
 	public JTabbedPane tabsPane	= new JTabbedPane();
-	MoveTab_BuildROIs buildROIsTab = new MoveTab_BuildROIs();
+	MoveTab_BuildROIs 	buildROIsTab = new MoveTab_BuildROIs();
 	MoveTab_DetectFlies optionsTab = new MoveTab_DetectFlies();
-
+	MoveTab_File 		filesTab = new MoveTab_File();
 	Multicafe parent0 = null;
 
 	
@@ -41,7 +41,9 @@ public class MovePane extends JPanel implements PropertyChangeListener, ChangeLi
 		optionsTab.addPropertyChangeListener(this);
 		tabsPane.addTab("Detect", null, optionsTab, "Detect flies position");
 
-
+		filesTab.init(capLayout, parent0);
+		filesTab.addPropertyChangeListener(this);
+		tabsPane.addTab("Load/Save", null, filesTab, "Load/save cages and flies position");
 		
 		tabsPane.setTabLayoutPolicy(JTabbedPane.SCROLL_TAB_LAYOUT);
 		panel.add(GuiUtil.besidesPanel(tabsPane));
@@ -58,10 +60,9 @@ public class MovePane extends JPanel implements PropertyChangeListener, ChangeLi
 
 	@Override
 	public void propertyChange(PropertyChangeEvent arg0) {
-//		if (arg0.getPropertyName().equals("MEASURES_OPEN")) {
-//			if (parent0.kymographArrayList.size() > 0) 		
-//				firePropertyChange("MEASURES_OPEN", false, true);
-//		}
+		if (arg0.getPropertyName().equals("LOAD_DATA")) {
+			buildROIsTab.updateFromSequence();
+		}
 
 	}
 	
@@ -73,7 +74,7 @@ public class MovePane extends JPanel implements PropertyChangeListener, ChangeLi
 	
 	public boolean loadDefaultCages() {
 		String path = parent0.vSequence.getDirectory();
-		boolean flag = buildROIsTab.cageRoisOpen(path+"\\drosotrack.xml");
+		boolean flag = filesTab.cageRoisOpen(path+"\\drosotrack.xml");
 		return flag;
 	}
 }

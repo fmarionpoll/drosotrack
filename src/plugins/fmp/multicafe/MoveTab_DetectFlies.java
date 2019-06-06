@@ -3,6 +3,7 @@ package plugins.fmp.multicafe;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.ArrayList;
 
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
@@ -18,11 +19,13 @@ import javax.swing.event.ChangeListener;
 
 import icy.gui.frame.progress.AnnounceFrame;
 import icy.gui.util.GuiUtil;
+import icy.roi.ROI2D;
 import icy.system.thread.ThreadUtil;
 
 import plugins.fmp.tools.OverlayThreshold;
 import plugins.fmp.sequencevirtual.DetectFliesParameters;
 import plugins.fmp.tools.ImageTransformTools.TransformOp;
+import plugins.kernel.roi.roi2d.ROI2DShape;
 
 public class MoveTab_DetectFlies extends JPanel implements ActionListener, ChangeListener {
 	/**
@@ -173,28 +176,30 @@ public class MoveTab_DetectFlies extends JPanel implements ActionListener, Chang
 		trackAllFliesThread.detect = detect;
 		return true;
 	}
+	
+	private void cleanPreviousDetections() {
+		parent0.vSequence.cages.clear();
+		ArrayList<ROI2D> list = parent0.vSequence.getROI2Ds();
+		for (ROI2D roi: list) {
+			if (roi.getName().contains("det")) {
+				parent0.vSequence.removeROI(roi);
+			}
+		}
+	}
 
 	public void startComputation() {
-		
-		// TODO transfer parameters to trackAllFliesThread
-		trackAllFliesThread = new BuildTrackFliesThread();
+		if (trackAllFliesThread == null)
+			trackAllFliesThread = new BuildTrackFliesThread();
+		if (trackAllFliesThread.threadRunning)
+			return;
 		initTrackParameters();
+		cleanPreviousDetections();
 		ThreadUtil.bgRun(trackAllFliesThread);
-		
 	}
 	
 	public void stopComputation() {
 		if (trackAllFliesThread != null)
 			trackAllFliesThread.stopFlag = true;
-			
-		// TODO updateButtonsVisibility(StateD.STOP_COMPUTATION);
-//		if (trackAllFliesThread != null && trackAllFliesThread.isAlive()) {
-//			trackAllFliesThread.interrupt();
-//			try {
-//				trackAllFliesThread.join();
-//			} catch (InterruptedException e1) {
-//				e1.printStackTrace();
-//			}
 	}
 
 }

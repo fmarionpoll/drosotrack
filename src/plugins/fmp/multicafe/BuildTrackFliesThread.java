@@ -30,6 +30,8 @@ class BuildTrackFliesThread implements Runnable {
 
 	private ArrayList<BooleanMask2D> cageMaskList = new ArrayList<BooleanMask2D>();
 	public boolean stopFlag = false;
+	public boolean threadRunning = false;
+	
 	public DetectFliesParameters detect = new DetectFliesParameters();
 	public Cages cages = new Cages();
 
@@ -47,6 +49,7 @@ class BuildTrackFliesThread implements Runnable {
 	@Override
 	public void run()
 	{
+		threadRunning = true;
 		int	analyzeStep = vSequence.analysisStep;
 		int startFrame 	= (int) vSequence.analysisStart;
 		int endFrame 	= (int) vSequence.analysisEnd;
@@ -195,7 +198,7 @@ class BuildTrackFliesThread implements Runnable {
 		{
 			vSequence.endUpdate();
 		}
-
+		threadRunning = false;
 		chrono.displayInSeconds();
 		System.out.println("Computation finished.");
 	}

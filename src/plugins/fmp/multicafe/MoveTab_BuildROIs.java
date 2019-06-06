@@ -1,13 +1,11 @@
 package plugins.fmp.multicafe;
 
-import java.awt.Font;
 import java.awt.GridLayout;
 import java.awt.Polygon;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.geom.Point2D;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 import javax.swing.JButton;
@@ -17,7 +15,6 @@ import javax.swing.JTextField;
 import javax.swing.SwingConstants;
 
 import icy.gui.frame.progress.AnnounceFrame;
-import icy.gui.util.FontUtil;
 import icy.gui.util.GuiUtil;
 import icy.roi.ROI;
 import icy.roi.ROI2D;
@@ -33,10 +30,6 @@ public class MoveTab_BuildROIs extends JPanel implements ActionListener {
 	private JTextField nbcagesTextField 	= new JTextField("10");
 	private JTextField width_cageTextField 	= new JTextField("10");
 	private JTextField width_intervalTextField = new JTextField("2");
-	private JButton	openROIsButton			= new JButton("Load...");
-	private JButton	saveROIsButton			= new JButton("Save...");
-	
-	private int 	threshold 				= 0;
 	private int 	nbcages 				= 10;
 	private int 	width_cage 				= 10;
 	private int 	width_interval 			= 2;
@@ -57,11 +50,6 @@ public class MoveTab_BuildROIs extends JPanel implements ActionListener {
 		btwcagesLabel.setHorizontalAlignment(SwingConstants.RIGHT);
 		add( GuiUtil.besidesPanel( ncagesLabel, nbcagesTextField, cagewidthLabel,  width_cageTextField));
 		add( GuiUtil.besidesPanel( btwcagesLabel, width_intervalTextField, new JLabel(" "), new JLabel(" ") ));
-		JLabel 	loadsaveText1 = new JLabel ("-> File (xml) ");
-		loadsaveText1.setHorizontalAlignment(SwingConstants.RIGHT); 
-		loadsaveText1.setFont(FontUtil.setStyle(loadsaveText1.getFont(), Font.ITALIC));
-		JLabel emptyText1	= new JLabel (" ");
-		add(GuiUtil.besidesPanel( emptyText1, loadsaveText1, openROIsButton, saveROIsButton));
 		
 		defineActionListeners();
 	}
@@ -72,31 +60,6 @@ public class MoveTab_BuildROIs extends JPanel implements ActionListener {
 			@Override
 			public void actionPerformed( final ActionEvent e ) { 
 				addROISCreatedFromSelectedPolygon();
-			}});
-		
-		openROIsButton.addActionListener(new ActionListener () {
-			@Override
-			public void actionPerformed( final ActionEvent e ) { 
-				parent0.vSequence.cages.xmlReadCagesFromFile(parent0.vSequence);	
-				ArrayList<ROI2D> list = parent0.vSequence.getROI2Ds();
-				Collections.sort(list, new Tools.ROI2DNameComparator());
-				int nrois = list.size();
-				if (nrois > 0)
-					nbcagesTextField.setText(Integer.toString(nrois));
-			}});
-		
-		saveROIsButton.addActionListener(new ActionListener () {
-			@Override
-			public void actionPerformed( final ActionEvent e ) { 
-				parent0.vSequence.cages.detect.threshold = threshold;
-				List<ROI> roisList = parent0.vSequence.getROIs(true);
-				List<ROI> roisCages = new ArrayList<ROI>();
-				for (ROI roi : roisList) {
-					if (roi.getName().contains("cage"))
-						roisCages.add(roi);
-				}
-				parent0.vSequence.cages.xmlWriteCagesToFile("drosotrack.xml", parent0.vSequence.getDirectory());
-
 			}});
 	}
 	
@@ -126,6 +89,13 @@ public class MoveTab_BuildROIs extends JPanel implements ActionListener {
 //		}
 	}
 	
+	public void updateFromSequence() {
+		int nrois = parent0.vSequence.cages.cageLimitROIList.size();	
+		if (nrois > 0) {
+			nbcagesTextField.setText(Integer.toString(nrois));
+			nbcages = nrois;
+		}
+	}
 
 	private void addROISCreatedFromSelectedPolygon() {
 		// read values from text boxes
@@ -188,20 +158,6 @@ public class MoveTab_BuildROIs extends JPanel implements ActionListener {
 		}
 
 		parent0.vSequence.cages.getCagesFromSequence(parent0.vSequence);
-	}
-	
-	public boolean cageRoisOpen(String csFileName) {
-		
-		boolean flag = false;
-		if (csFileName == null)
-			flag = parent0.vSequence.cages.xmlReadCagesFromFile(parent0.vSequence);
-		else
-			flag = parent0.vSequence.cages.xmlReadCagesFromFileNoQuestion(csFileName, parent0.vSequence);
-		return flag;
-	}
-	
-	public boolean cageRoisSave() {
-		return parent0.vSequence.cages.xmlWriteCagesToFile("drosotrack.xml", parent0.vSequence.getDirectory());
 	}
 
 }
