@@ -2,6 +2,7 @@ package plugins.fmp.sequencevirtual;
 
 import java.awt.geom.Point2D;
 import java.util.ArrayList;
+import java.util.Collections;
 
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -9,6 +10,7 @@ import org.w3c.dom.Node;
 import icy.file.xml.XMLPersistent;
 import icy.roi.ROI2D;
 import icy.util.XMLUtil;
+import plugins.fmp.tools.ArrayListType;
 import plugins.kernel.roi.roi2d.*;
 
 public class PositionsXYT  implements XMLPersistent  {
@@ -34,6 +36,7 @@ public class PositionsXYT  implements XMLPersistent  {
 	public Point2D getPoint(int i) {
 		return pointsList.get(i);
 	}
+	
 	public int getTime(int i) {
 		return timeList.get(i);
 	}
@@ -75,7 +78,6 @@ public class PositionsXYT  implements XMLPersistent  {
 		return true;
 	}
 
-
 	@Override
 	public boolean saveToXML(Node node) {
 		if (node == null)
@@ -102,5 +104,63 @@ public class PositionsXYT  implements XMLPersistent  {
 		return true;
 	}
 	
+	public ArrayList<Double> getDoubleArrayList (ArrayListType option) {
+		
+		if (pointsList.size() == 0)
+			return null;
+		ArrayList<Double> datai = null;
+		
+		switch (option) {
+		case distance:
+			datai = getDistanceBetweenPoints();
+			break;
+		case isalive:
+			datai = getDistanceBetweenPoints();
+			datai = getIsAlive(datai, 0.0);
+			break;
+		case xyPosition:
+		default:
+			datai = getXYPositions();
+			break;
+		}
+		return datai;
+	}
+	
+	private ArrayList<Double> getDistanceBetweenPoints() {
+		ArrayList<Double> dataArray = new ArrayList<Double>();
+		dataArray.ensureCapacity(pointsList.size());
+		Point2D previous = new Point2D.Double();
+		previous = pointsList.get(0);
+		for (Point2D point: pointsList) {
+			double distance = point.distance(previous); 
+			dataArray.add(distance);
+			previous = point;
+		}
+		return dataArray;
+	}
+	
+	public ArrayList<Double> getIsAlive(ArrayList<Double> data, Double threshold) {
+		double isalive = 1;
+		if (data.get(data.size()-1) < threshold)
+			isalive = 0;
+		for (int i= data.size() - 1; i >= 0; i--) {
+			if (data.get(i) < threshold)
+				isalive = 0;
+			data.set(i, isalive);
+		}
+		return data;
+	}
+	
+	private ArrayList<Double> getXYPositions() {
+		ArrayList<Double> dataArray = new ArrayList<Double>();
+		dataArray.ensureCapacity(pointsList.size()*2);
 
+		for (Point2D point: pointsList) {
+			double x = point.getX(); 
+			double y = point.getY();
+			dataArray.add(x);
+			dataArray.add(y);
+		}
+		return dataArray;
+	}
 }

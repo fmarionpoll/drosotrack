@@ -126,7 +126,6 @@ public class ResultsTab_Excel extends JPanel implements ActionListener  {
 				arrayList.add(seq.getArrayListFromRois(ArrayListType.derivedValues));
 				break;
 			case SUMGULPS: 
-				seq.getArrayListFromRois(ArrayListType.cumSum);
 				arrayList.add(seq.getArrayListFromRois(ArrayListType.cumSum));
 				break;
 			case BOTTOMLEVEL:
@@ -179,11 +178,11 @@ public class ResultsTab_Excel extends JPanel implements ActionListener  {
 		Point pt1 = pt;
 		XLSUtils.setValue(sheet,  pt1.x, pt1.y, "capillary (µl):" );
 		pt1 = XLSUtils.nextCol(pt1, transpose);
-		XLSUtils.setValue(sheet,  pt1.x, pt1.y, 	parent0.vSequence.capillaries.capillaryVolume);
+		XLSUtils.setValue(sheet,  pt1.x, pt1.y, parent0.vSequence.capillaries.capillaryVolume);
 		pt1 = XLSUtils.nextCol(pt1, transpose);
 		XLSUtils.setValue(sheet,  pt1.x, pt1.y, "capillary (pixels):" );
 		pt1 = XLSUtils.nextCol(pt1, transpose);
-		XLSUtils.setValue(sheet,  pt1.x, pt1.y, 	parent0.vSequence.capillaries.capillaryPixels);
+		XLSUtils.setValue(sheet,  pt1.x, pt1.y, parent0.vSequence.capillaries.capillaryPixels);
 		pt = XLSUtils.nextRow(pt, transpose);
 		pt = XLSUtils.nextRow(pt, transpose);
 		return pt;

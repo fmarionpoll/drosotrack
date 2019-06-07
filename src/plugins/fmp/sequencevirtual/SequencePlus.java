@@ -52,7 +52,6 @@ public class SequencePlus extends SequenceVirtual  {
 		super ();
 	}
 	
-	
 	public SequencePlus(String name, IcyBufferedImage image) {
 		super (name, image);
 	}
@@ -65,17 +64,17 @@ public class SequencePlus extends SequenceVirtual  {
 		ArrayList<Integer> datai = null;
 		
 		switch (option) {
-		case derivedValues:	// 1
+		case derivedValues:
 			datai = derivedValuesArrayList;
 			break;
-		case cumSum:		// 2
+		case cumSum:
 			datai = new ArrayList<Integer>(Collections.nCopies(this.getWidth(), 0));
 			addRoisMatchingFilterToCumSumDataArray("gulp", datai);
 			break;
-		case bottomLevel: 	// 4
+		case bottomLevel:
 			datai = copyFirstRoiMatchingFilterToDataArray("bottomlevel");
 			break;
-		case topLevel:		// 0
+		case topLevel:
 		default:
 			datai = copyFirstRoiMatchingFilterToDataArray("toplevel");
 			break;

@@ -41,6 +41,9 @@ public class ResultsTab_Excel2  extends JPanel implements ActionListener  {
 	 */
 	private static final long serialVersionUID = 1290058998782225526L;
 
+	public JCheckBox 	xyCenterCheckBox 	= new JCheckBox("XY position", true);
+	public JCheckBox 	distanceCheckBox = new JCheckBox("distance", false);
+	public JCheckBox 	aliveCheckBox = new JCheckBox("alive or not", true);
 	public JButton 		exportToXLSButton 	= new JButton("save XLS");
 	public JCheckBox	transposeCheckBox 	= new JCheckBox("transpose", false);
 
@@ -49,8 +52,8 @@ public class ResultsTab_Excel2  extends JPanel implements ActionListener  {
 	public void init(GridLayout capLayout, Multicafe parent0) {	
 		setLayout(capLayout);
 		this.parent0 = parent0;
-		add(GuiUtil.besidesPanel( transposeCheckBox, new JLabel(" ")));
-		add(GuiUtil.besidesPanel( new JLabel(" "), exportToXLSButton)); 
+		add(GuiUtil.besidesPanel( xyCenterCheckBox, distanceCheckBox, aliveCheckBox, new JLabel(" ")));
+		add(GuiUtil.besidesPanel( transposeCheckBox, new JLabel(" "), new JLabel(" "), exportToXLSButton)); 
 		defineActionListeners();
 	}
 	
@@ -91,9 +94,12 @@ public class ResultsTab_Excel2  extends JPanel implements ActionListener  {
 			Workbook workbook = new XSSFWorkbook(); 
 			workbook.setMissingCellPolicy(Row.MissingCellPolicy.CREATE_NULL_AS_BLANK);
 			
-			xlsExportWorkSheetDistance(workbook);
-			xlsExportWorkSheetXY(workbook);
-			xlsExportWorkSheetAliveOrNot(workbook);
+			if (xyCenterCheckBox.isSelected()) 
+				xlsExportToWorkbook(workbook, "xypos", XLSExportItems.XYCENTER);
+			if (distanceCheckBox.isSelected()) 
+				xlsExportToWorkbook(workbook, "distance", XLSExportItems.DISTANCE);
+			if (aliveCheckBox.isSelected()) 
+				xlsExportToWorkbook(workbook, "alive", XLSExportItems.ISALIVE);
 			
 			FileOutputStream fileOut = new FileOutputStream(filename);
 			workbook.write(fileOut);
@@ -106,231 +112,156 @@ public class ResultsTab_Excel2  extends JPanel implements ActionListener  {
 		System.out.println("XLS output finished");
 	}
 
-	private void xlsExportWorkSheetAliveOrNot(Workbook workBook) {
-		
-		String title = "alive";
+	private ArrayList <ArrayList<Double>> getDataFromRois(XLSExportItems option) {
+		ArrayList <ArrayList<Double >> arrayList = new ArrayList <ArrayList <Double>> ();
+		for (PositionsXYT posxyt: parent0.vSequence.cages.flyPositionsList) {
+			switch (option) {
+			case DISTANCE: 
+				arrayList.add(posxyt.getDoubleArrayList(ArrayListType.distance));
+				break;
+			case ISALIVE:
+				arrayList.add(posxyt.getDoubleArrayList(ArrayListType.isalive));
+				// TODO add threshold to cleanup data
+				break;
+			case XYCENTER:
+			default:
+				arrayList.add(posxyt.getDoubleArrayList(ArrayListType.xyPosition));
+				break;
+			}
+		}
+		return arrayList;
+	}
+
+	//-----------------------------------------------------------------------------------
+	private void xlsExportToWorkbook(Workbook workBook, String title, XLSExportItems option) {
 		System.out.println("export worksheet "+title);
-		ArrayList<PositionsXYT> flyPositionsList = parent0.vSequence.cages.flyPositionsList;		
-		if (flyPositionsList.size() == 0)
+		ArrayList <ArrayList<Double >> arrayList = getDataFromRois(option);		
+		if (arrayList.size() == 0)
 			return;
 
 		Sheet sheet = workBook.createSheet(title );
 		boolean transpose = transposeCheckBox.isSelected(); 
 		Point pt = writeGlobalInfos(sheet, transpose);
 		pt = writeColumnHeaders(sheet, pt, option, transpose);
-		pt = writeData(sheet, pt, option, arrayList, transpose);
+//		pt = writeData(sheet, pt, option, arrayList, transpose);
 	}
 	
-	private Point writeData (Sheet sheet, Point pt, XLSExportItems option, ArrayList <ArrayList<Integer >> arrayList, boolean transpose) {	
-		ArrayList<PositionsXYT> flyPositionsList = parent0.vSequence.cages.flyPositionsList;
-		
-		// local variables used for exporting the work sheet
-		int irow = 0;
-		int nrois = flyPositionsList.size();
-		int icol0 = 0;
+	private Point writeGlobalInfos(Sheet sheet, boolean transpose) {
+		Point pt = new Point(0, 0);
 
-		// xls output - distances
-		// --------------
-		WritableSheet alivePage = XLSUtil.createNewPage( workBook , "alive" );
-		XLSUtil.setCellString( alivePage , 0, irow, "name:" );
-		XLSUtil.setCellString( alivePage , 1, irow, vSequence.getName() );
-		irow++;;
-		
-		XLSUtil.setCellString( alivePage , 0, irow, "Last movement (index):" );
-		int icol = 1;
-		if (blistofFiles)
-			icol ++;
-		for (int iroi=0; iroi < nrois; iroi++, icol++) {
-			XLSUtil.setCellNumber( alivePage , icol, irow,  lastTime_it_MovedList.get(iroi) );
-		}
-		irow=2;
-		// table header
-		icol0 = 0;
-		if (blistofFiles) {
-			XLSUtil.setCellString( alivePage , icol0,   irow, "filename" );
-			icol0++;
-		}
-		XLSUtil.setCellString( alivePage , icol0, irow, "index" );
-		icol0++;
-		for (int iroi=0; iroi < nrois; iroi++, icol0++) {
-			XLSUtil.setCellString( alivePage , icol0, irow, roiList.get(iroi).getName() );
-		}
-		irow++;
+		XLSUtils.setValue(sheet,  pt.x, pt.y, "name:" );
+		File file = new File(parent0.vSequence.getFileName(0));
+		String path = file.getParent();
+		pt = XLSUtils.nextCol(pt, transpose);
+		XLSUtils.setValue(sheet,  pt.x, pt.y, path );
+		pt= XLSUtils.nextRow(pt, transpose);
+		pt = XLSUtils.toColZero(pt, transpose);
+		Point pt1 = pt;
+		XLSUtils.setValue(sheet,  pt1.x, pt1.y, "capillary (µl):" );
+		pt1 = XLSUtils.nextCol(pt1, transpose);
+		XLSUtils.setValue(sheet,  pt1.x, pt1.y, parent0.vSequence.capillaries.capillaryVolume);
+		pt1 = XLSUtils.nextCol(pt1, transpose);
+		XLSUtils.setValue(sheet,  pt1.x, pt1.y, "capillary (pixels):" );
+		pt1 = XLSUtils.nextCol(pt1, transpose);
+		XLSUtils.setValue(sheet,  pt1.x, pt1.y, parent0.vSequence.capillaries.capillaryPixels);
+		pt = XLSUtils.nextRow(pt, transpose);
+		pt = XLSUtils.nextRow(pt, transpose);
+		return pt;
+	}
 
-		// data
-		for ( int t = startFrame+1 ; t < endFrame;  t  += analyzeStep )
-		{
+	private Point writeColumnHeaders (Sheet sheet, Point pt, XLSExportItems option, boolean transpose) {
+		pt = XLSUtils.toColZero(pt, transpose);
+		if (parent0.vSequence.isFileStack()) {
+			XLSUtils.setValue(sheet,  pt.x, pt.y, "filename" );
+			pt = XLSUtils.nextCol(pt, transpose);
+		}
+		XLSUtils.setValue(sheet,  pt.x, pt.y, "i" );
+		pt = XLSUtils.nextCol(pt, transpose);
+		
+		switch (option) {
+		case SUMLR:
+			for (int i=0; i< parent0.kymographArrayList.size(); i+= 2) {
+				SequencePlus kymographSeq0 = parent0.kymographArrayList.get(i);
+				String name0 = kymographSeq0.getName();
+				SequencePlus kymographSeq1 = parent0.kymographArrayList.get(i+1);
+				String name1 = kymographSeq1.getName();
+				XLSUtils.setValue(sheet,  pt.x, pt.y, name0+"+"+name1 );
+				pt = XLSUtils.nextCol(pt, transpose);
+				XLSUtils.setValue(sheet,  pt.x, pt.y, "." );
+				pt = XLSUtils.nextCol(pt, transpose);
+			}
+			break;
+		default:
+			for (int i=0; i< parent0.kymographArrayList.size(); i++) {
+				SequencePlus kymographSeq = parent0.kymographArrayList.get(i);
+				String name = kymographSeq.getName();
+				XLSUtils.setValue(sheet,  pt.x, pt.y, name );
+				pt = XLSUtils.nextCol(pt, transpose);
+			}
+			break;
+		}
+		pt = XLSUtils.toColZero(pt, transpose);
+		pt = XLSUtils.nextRow(pt, transpose);
+		return pt;
+	}
+
+	private Point writeData (Sheet sheet, Point pt, XLSExportItems option, ArrayList <ArrayList<Integer >> arrayList, boolean transpose) {
+		int maxelements = 0;
+		for (int i=0; i< arrayList.size(); i++) {
+			ArrayList<Integer> datai = arrayList.get(i);
+			if (datai.size() > maxelements)
+				maxelements = datai.size();
+		}
+		int nelements = maxelements-1;
+		if (nelements <= 0)
+			return pt;
+		
+		double ratio = parent0.vSequence.capillaries.capillaryVolume / parent0.vSequence.capillaries.capillaryPixels;
+		
+		int startFrame = (int) parent0.vSequence.analysisStart;
+		int t = startFrame;
+		for (int j=0; j< nelements; j++) {
+			Point pt2 = XLSUtils.toColZero(pt, transpose);
+			if (parent0.vSequence.isFileStack()) {
+				String cs = parent0.vSequence.getFileName(j+startFrame);
+				int index = cs.lastIndexOf("\\");
+				String fileName = cs.substring(index + 1);
+				XLSUtils.setValue(sheet,  pt2.x, pt2.y, fileName );
+				pt2 = XLSUtils.nextCol(pt2, transpose);
+			}
+
+			XLSUtils.setValue(sheet,  pt2.x, pt2.y, t);
+			t  += parent0.vSequence.analysisStep;
+			pt2 = XLSUtils.nextCol(pt2, transpose);
 			
-				icol0 = 0;
-				if (blistofFiles) {
-					XLSUtil.setCellString( alivePage , icol0,   irow, listofFiles[t] );
-					icol0++;
+			switch (option) {
+			case SUMLR:
+				for (int i=0; i< parent0.kymographArrayList.size(); i+=2) 
+				{
+					ArrayList<Integer> dataL = arrayList.get(i);
+					ArrayList<Integer> dataR = arrayList.get(i+1);
+					if (j < dataL.size())
+						XLSUtils.setValue(sheet,  pt2.x, pt2.y, (dataL.get(j)+dataR.get(j))*ratio );
+					pt2 = XLSUtils.nextCol(pt2, transpose);
+					pt2 = XLSUtils.nextCol(pt2, transpose);
 				}
-				XLSUtil.setCellNumber( alivePage, icol0 , irow , t ); // frame number
-				icol0++;
-				
-				for (int iroi=0; iroi < nrois; iroi++) {
-					int alive = 1;
-					if (t > lastTime_it_MovedList.get(iroi))
-						alive = 0;
-					XLSUtil.setCellNumber( alivePage, icol0 , irow , alive ); 
-					icol0++;
+				break;
+
+			default:
+				for (int i=0; i< parent0.kymographArrayList.size(); i++) 
+				{
+					ArrayList<Integer> data = arrayList.get(i);
+					if (j < data.size())
+						XLSUtils.setValue(sheet, pt2.x, pt2.y, data.get(j)*ratio );
+					pt2 = XLSUtils.nextCol (pt2, transpose);
 				}
-				
-				irow++;
+				break;
 			}
-		}
-
-	
-	
-	private void xlsExportWorkSheetXY(Workbook workBook) {
-		
-		String[] listofFiles = null;
-		boolean blistofFiles = false;
-		if (selectInputStack2Button.isSelected() )
-		{
-			listofFiles = vSequence.getListofFiles();
-			blistofFiles = true;
-		}
-		// local variables used for exporting the 2 worksheets
-		int it = 0;
-		int irow = 0;
-		int nrois = cageLimitROIList.size();
-		int icol0 = 0;
-
-		// --------------
-		WritableSheet xyMousePositionPage = XLSUtil.createNewPage( workBook , "xy" );
-		// output last interval at which movement was detected over the whole period analyzed
-		irow = 0;
-		XLSUtil.setCellString( xyMousePositionPage , 0, irow, "name:" );
-		XLSUtil.setCellString( xyMousePositionPage , 1, irow, vSequence.getName() );
-		irow++;
-		nrois = cageLimitROIList.size();
-		
-		// output points detected
-		irow= 2;
-		icol0 = 0;
-		if (selectInputStack2Button.isSelected() )
-		{
-			XLSUtil.setCellString( xyMousePositionPage , 0,   irow, "filename");
-			icol0++;
-		}
-		XLSUtil.setCellString( xyMousePositionPage , icol0,   irow, "interval");
-		icol0++;
-
-		for (int iroi=0; iroi < nrois; iroi++) {
-			XLSUtil.setCellString( xyMousePositionPage , icol0,   irow, "x"+ iroi );
-			icol0++;
-			XLSUtil.setCellString( xyMousePositionPage , icol0, irow, "y"+ iroi );
-			icol0++;
-		}
-
-		// reset the previous point array
-		ArrayList<Point2D> XYPoints_of_Row_t = new ArrayList<Point2D>();
-		for (int iroi = 0; iroi < nrois; iroi++)
-			XYPoints_of_Row_t.add(points2D_rois_then_t_ListArray.get(iroi).get(0));
-
-		it = 0;
-		for ( int t = startFrame ; t < endFrame;  t  += analyzeStep, it++ )
-		{
-			try
-			{
-				irow++;
-				icol0 = 0;
-				if (blistofFiles) {
-					XLSUtil.setCellString( xyMousePositionPage , icol0,   irow, listofFiles[t] );
-					icol0++;
-				}
-				XLSUtil.setCellNumber( xyMousePositionPage, icol0 , irow , t ); // frame number
-				icol0++;
-
-				for (int iroi=0; iroi < nrois; iroi++) {
-
-					Point2D mousePosition = points2D_rois_then_t_ListArray.get(iroi).get(it);
-					XLSUtil.setCellNumber( xyMousePositionPage, icol0 , 	irow , mousePosition.getX() ); // x location
-					icol0++;
-					XLSUtil.setCellNumber( xyMousePositionPage, icol0 ,irow , mousePosition.getY() ); // y location
-					icol0++;
-					XYPoints_of_Row_t.set(iroi, mousePosition);
-				}
-			}catch( IndexOutOfBoundsException e)
-			{
-				// no mouse Position
-			}
-		}
-	}
-	
-	private void xlsExportWorkSheetDistance(Workbook workBook) {
-		
-		String[] listofFiles = null;
-		boolean blistofFiles = false;
-		if (selectInputStack2Button.isSelected() )
-		{
-			listofFiles = vSequence.getListofFiles();
-			blistofFiles = true;
-		}
-		// local variables used for exporting the 2 worksheets
-		int it = 0;
-		int irow = 0;
-		int nrois = cageLimitROIList.size();
-		int icol0 = 0;
-
-		// xls output - distances
-		// --------------
-		WritableSheet distancePage = XLSUtil.createNewPage( workBook , "distance" );
-		XLSUtil.setCellString( distancePage , 0, irow, "name:" );
-		XLSUtil.setCellString( distancePage , 1, irow, vSequence.getName() );
-		irow++;;
-		
-		XLSUtil.setCellString( distancePage , 0, irow, "Last movement (index):" );
-		int icol = 1;
-		if (blistofFiles)
-			icol ++;
-		for (int iroi=0; iroi < nrois; iroi++, icol++) {
-			XLSUtil.setCellNumber( distancePage , icol, irow,  lastTime_it_MovedList.get(iroi) );
-		}
-		irow=2;
-		nrois = cageLimitROIList.size();
-		irow++;
-		
-		// table header
-		icol0 = 0;
-		if (blistofFiles) {
-			XLSUtil.setCellString( distancePage , icol0,   irow, "filename" );
-			icol0++;
-		}
-		XLSUtil.setCellString( distancePage , icol0, irow, "index" );
-		icol0++;
-		for (int iroi=0; iroi < nrois; iroi++, icol0++) {
-			XLSUtil.setCellString( distancePage , icol0, irow, roiList.get(iroi).getName() );
-		}
-		irow++;
-
-		// data
-		it = 0;
-		for ( int t = startFrame+1 ; t < endFrame;  t  += analyzeStep, it++ )
-		{
-
-			icol0 = 0;
-			if (blistofFiles) {
-				XLSUtil.setCellString( distancePage , icol0,   irow, listofFiles[t] );
-				icol0++;
-			}
-			XLSUtil.setCellNumber( distancePage, icol0 , irow , t ); // frame number
-			icol0++;
 			
-			for (int iroi=0; iroi < nrois; iroi++) {
-
-				Point2D mousePosition = points2D_rois_then_t_ListArray.get(iroi).get(it);
-				double distance = mousePosition.distance(points2D_rois_then_t_ListArray.get(iroi).get(it-1)); 
-				XLSUtil.setCellNumber( distancePage, icol0 , irow , distance ); 
-				icol0++;
-
-			}
-			irow++;
+			pt = XLSUtils.nextRow (pt, transpose);
 		}
+		return pt;
 	}
-		
 
 
 }

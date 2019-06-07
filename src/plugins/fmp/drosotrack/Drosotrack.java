@@ -75,7 +75,7 @@ import plugins.kernel.roi.roi2d.ROI2DRectangle;
 public class Drosotrack extends PluginActionable implements ActionListener, ViewerListener, ChangeListener
 {
 	// -------------------------------------- interface 
-	private IcyFrame mainFrame = new IcyFrame ("DrosoTrack 02-11-2018", true, true, true, true);
+	private IcyFrame mainFrame = new IcyFrame ("DrosoTrack 05-06-2019", true, true, true, true);
 
 	// ---------------------------------------- video
 	private JButton setVideoSourceButton 	= new JButton("Open...");
