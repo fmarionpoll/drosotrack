@@ -32,7 +32,7 @@ public class Multicafe extends PluginActionable implements ViewerListener, Prope
 	//------------------------------------------- global variables
 	SequenceVirtual vSequence = null;
 	ArrayList <SequencePlus> kymographArrayList	= new ArrayList <SequencePlus> ();	// list of kymograph sequences
-	IcyFrame mainFrame = new IcyFrame("MultiCAFE analysis 06-June-2019", true, true, true, true);
+	IcyFrame mainFrame = new IcyFrame("MultiCAFE analysis 07-June-2019", true, true, true, true);
 
 	//---------------------------------------------------------------------------
 	SequencePane sequencePane 		= null;

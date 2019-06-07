@@ -9,7 +9,7 @@ import plugins.fmp.tools.ImageTransformTools.TransformOp;
 
 public class DetectFliesParameters implements XMLPersistent {
 	
-	public int threshold = -1;
+	public int 		threshold = -1;
 	public boolean 	btrackWhite = false;
 	public int		ichanselected = 0;
 	public boolean  blimitLow = false;

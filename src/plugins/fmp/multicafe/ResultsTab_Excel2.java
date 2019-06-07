@@ -4,7 +4,6 @@ import java.awt.GridLayout;
 import java.awt.Point;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.geom.Point2D;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -23,12 +22,7 @@ import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
 import icy.gui.util.GuiUtil;
-import icy.util.XLSUtil;
-import jxl.write.WritableSheet;
-import jxl.write.WritableWorkbook;
-import jxl.write.WriteException;
-import plugins.fmp.sequencevirtual.PositionsXYT;
-import plugins.fmp.sequencevirtual.SequencePlus;
+import plugins.fmp.sequencevirtual.XYTaSeries;
 import plugins.fmp.tools.ArrayListType;
 import plugins.fmp.tools.XLSExportItems;
 import plugins.fmp.tools.XLSUtils;
@@ -73,7 +67,7 @@ public class ResultsTab_Excel2  extends JPanel implements ActionListener  {
 			parent0.roisSaveEdits();
 			Path directory = Paths.get(parent0.vSequence.getFileName(0)).getParent();
 			Path subpath = directory.getName(directory.getNameCount()-1);
-			String tentativeName = subpath.toString()+"_feeding.xlsx";
+			String tentativeName = subpath.toString()+"_move.xlsx";
 			String file = Tools.saveFileAs(tentativeName, directory.getParent().toString(), "xlsx");
 			if (file != null) {
 				final String filename = file;
@@ -112,9 +106,9 @@ public class ResultsTab_Excel2  extends JPanel implements ActionListener  {
 		System.out.println("XLS output finished");
 	}
 
-	private ArrayList <ArrayList<Double>> getDataFromRois(XLSExportItems option) {
+	private ArrayList <ArrayList<Double>> getDataFromCages(XLSExportItems option) {
 		ArrayList <ArrayList<Double >> arrayList = new ArrayList <ArrayList <Double>> ();
-		for (PositionsXYT posxyt: parent0.vSequence.cages.flyPositionsList) {
+		for (XYTaSeries posxyt: parent0.vSequence.cages.flyPositionsList) {
 			switch (option) {
 			case DISTANCE: 
 				arrayList.add(posxyt.getDoubleArrayList(ArrayListType.distance));
@@ -135,18 +129,18 @@ public class ResultsTab_Excel2  extends JPanel implements ActionListener  {
 	//-----------------------------------------------------------------------------------
 	private void xlsExportToWorkbook(Workbook workBook, String title, XLSExportItems option) {
 		System.out.println("export worksheet "+title);
-		ArrayList <ArrayList<Double >> arrayList = getDataFromRois(option);		
+		ArrayList <ArrayList<Double >> arrayList = getDataFromCages(option);		
 		if (arrayList.size() == 0)
 			return;
 
 		Sheet sheet = workBook.createSheet(title );
 		boolean transpose = transposeCheckBox.isSelected(); 
-		Point pt = writeGlobalInfos(sheet, transpose);
+		Point pt = writeGlobalInfos(sheet, option, transpose);
 		pt = writeColumnHeaders(sheet, pt, option, transpose);
-//		pt = writeData(sheet, pt, option, arrayList, transpose);
+		pt = writeData(sheet, pt, option, arrayList, transpose);
 	}
 	
-	private Point writeGlobalInfos(Sheet sheet, boolean transpose) {
+	private Point writeGlobalInfos(Sheet sheet, XLSExportItems option, boolean transpose) {
 		Point pt = new Point(0, 0);
 
 		XLSUtils.setValue(sheet,  pt.x, pt.y, "name:" );
@@ -157,13 +151,24 @@ public class ResultsTab_Excel2  extends JPanel implements ActionListener  {
 		pt= XLSUtils.nextRow(pt, transpose);
 		pt = XLSUtils.toColZero(pt, transpose);
 		Point pt1 = pt;
-		XLSUtils.setValue(sheet,  pt1.x, pt1.y, "capillary (µl):" );
+		XLSUtils.setValue(sheet,  pt1.x, pt1.y, "n cages" );
 		pt1 = XLSUtils.nextCol(pt1, transpose);
-		XLSUtils.setValue(sheet,  pt1.x, pt1.y, parent0.vSequence.capillaries.capillaryVolume);
-		pt1 = XLSUtils.nextCol(pt1, transpose);
-		XLSUtils.setValue(sheet,  pt1.x, pt1.y, "capillary (pixels):" );
-		pt1 = XLSUtils.nextCol(pt1, transpose);
-		XLSUtils.setValue(sheet,  pt1.x, pt1.y, parent0.vSequence.capillaries.capillaryPixels);
+		XLSUtils.setValue(sheet,  pt1.x, pt1.y, parent0.vSequence.cages.flyPositionsList.size());
+		
+		switch (option) {
+		case DISTANCE:
+			break;
+		case ISALIVE:
+			pt1 = XLSUtils.nextCol(pt1, transpose);
+			XLSUtils.setValue(sheet,  pt1.x, pt1.y, "threshold" );
+			pt1 = XLSUtils.nextCol(pt1, transpose);
+			XLSUtils.setValue(sheet,  pt1.x, pt1.y, parent0.vSequence.cages.detect.threshold);
+			break;
+		case XYCENTER:
+		default:
+			break;
+		}
+
 		pt = XLSUtils.nextRow(pt, transpose);
 		pt = XLSUtils.nextRow(pt, transpose);
 		return pt;
@@ -179,23 +184,21 @@ public class ResultsTab_Excel2  extends JPanel implements ActionListener  {
 		pt = XLSUtils.nextCol(pt, transpose);
 		
 		switch (option) {
-		case SUMLR:
-			for (int i=0; i< parent0.kymographArrayList.size(); i+= 2) {
-				SequencePlus kymographSeq0 = parent0.kymographArrayList.get(i);
-				String name0 = kymographSeq0.getName();
-				SequencePlus kymographSeq1 = parent0.kymographArrayList.get(i+1);
-				String name1 = kymographSeq1.getName();
-				XLSUtils.setValue(sheet,  pt.x, pt.y, name0+"+"+name1 );
-				pt = XLSUtils.nextCol(pt, transpose);
-				XLSUtils.setValue(sheet,  pt.x, pt.y, "." );
+		case DISTANCE:
+		case ISALIVE:
+			for (XYTaSeries posxyt: parent0.vSequence.cages.flyPositionsList) {
+				String name0 = posxyt.getName();
+				XLSUtils.setValue(sheet,  pt.x, pt.y, name0 );
 				pt = XLSUtils.nextCol(pt, transpose);
 			}
 			break;
+		case XYCENTER:
 		default:
-			for (int i=0; i< parent0.kymographArrayList.size(); i++) {
-				SequencePlus kymographSeq = parent0.kymographArrayList.get(i);
-				String name = kymographSeq.getName();
-				XLSUtils.setValue(sheet,  pt.x, pt.y, name );
+			for (XYTaSeries posxyt: parent0.vSequence.cages.flyPositionsList) {
+				String name0 = posxyt.getName();
+				XLSUtils.setValue(sheet,  pt.x, pt.y, name0+".x" );
+				pt = XLSUtils.nextCol(pt, transpose);
+				XLSUtils.setValue(sheet,  pt.x, pt.y, name0+".y" );
 				pt = XLSUtils.nextCol(pt, transpose);
 			}
 			break;
@@ -205,59 +208,48 @@ public class ResultsTab_Excel2  extends JPanel implements ActionListener  {
 		return pt;
 	}
 
-	private Point writeData (Sheet sheet, Point pt, XLSExportItems option, ArrayList <ArrayList<Integer >> arrayList, boolean transpose) {
-		int maxelements = 0;
-		for (int i=0; i< arrayList.size(); i++) {
-			ArrayList<Integer> datai = arrayList.get(i);
-			if (datai.size() > maxelements)
-				maxelements = datai.size();
-		}
-		int nelements = maxelements-1;
-		if (nelements <= 0)
-			return pt;
+	private Point writeData (Sheet sheet, Point pt, XLSExportItems option, ArrayList <ArrayList<Double >> arrayList, boolean transpose) {
+	
+		ArrayList<XYTaSeries> flyPositionsList = parent0.vSequence.cages.flyPositionsList; 
+		int n_time_intervals = flyPositionsList.get(0).pointsList.size();
+		int n_series = flyPositionsList.size();
 		
-		double ratio = parent0.vSequence.capillaries.capillaryVolume / parent0.vSequence.capillaries.capillaryPixels;
-		
-		int startFrame = (int) parent0.vSequence.analysisStart;
-		int t = startFrame;
-		for (int j=0; j< nelements; j++) {
+		for (int time_interval=0; time_interval< n_time_intervals; time_interval++) {
+			int time_absolute = flyPositionsList.get(0).pointsList.get(time_interval).time;
 			Point pt2 = XLSUtils.toColZero(pt, transpose);
 			if (parent0.vSequence.isFileStack()) {
-				String cs = parent0.vSequence.getFileName(j+startFrame);
+				String cs = parent0.vSequence.getFileName(time_absolute);
 				int index = cs.lastIndexOf("\\");
 				String fileName = cs.substring(index + 1);
 				XLSUtils.setValue(sheet,  pt2.x, pt2.y, fileName );
 				pt2 = XLSUtils.nextCol(pt2, transpose);
 			}
-
-			XLSUtils.setValue(sheet,  pt2.x, pt2.y, t);
-			t  += parent0.vSequence.analysisStep;
+			XLSUtils.setValue(sheet,  pt2.x, pt2.y, time_absolute);
+			time_absolute  += parent0.vSequence.analysisStep;
 			pt2 = XLSUtils.nextCol(pt2, transpose);
 			
 			switch (option) {
-			case SUMLR:
-				for (int i=0; i< parent0.kymographArrayList.size(); i+=2) 
+			case DISTANCE:
+			case ISALIVE:
+				for (int i=0; i < n_series; i++ ) 
 				{
-					ArrayList<Integer> dataL = arrayList.get(i);
-					ArrayList<Integer> dataR = arrayList.get(i+1);
-					if (j < dataL.size())
-						XLSUtils.setValue(sheet,  pt2.x, pt2.y, (dataL.get(j)+dataR.get(j))*ratio );
-					pt2 = XLSUtils.nextCol(pt2, transpose);
+					XLSUtils.setValue(sheet,  pt2.x, pt2.y, arrayList.get(i).get(time_interval) );
 					pt2 = XLSUtils.nextCol(pt2, transpose);
 				}
 				break;
 
+			case XYCENTER:
 			default:
-				for (int i=0; i< parent0.kymographArrayList.size(); i++) 
+				for (int i=0; i < n_series; i++ ) 
 				{
-					ArrayList<Integer> data = arrayList.get(i);
-					if (j < data.size())
-						XLSUtils.setValue(sheet, pt2.x, pt2.y, data.get(j)*ratio );
-					pt2 = XLSUtils.nextCol (pt2, transpose);
+					int iarray = time_interval*2;
+					XLSUtils.setValue(sheet,  pt2.x, pt2.y, arrayList.get(i).get(iarray) );
+					pt2 = XLSUtils.nextCol(pt2, transpose);
+					XLSUtils.setValue(sheet,  pt2.x, pt2.y, arrayList.get(i).get(iarray+1) );
+					pt2 = XLSUtils.nextCol(pt2, transpose);
 				}
 				break;
 			}
-			
 			pt = XLSUtils.nextRow (pt, transpose);
 		}
 		return pt;

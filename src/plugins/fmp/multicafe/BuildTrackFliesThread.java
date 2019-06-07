@@ -15,7 +15,7 @@ import icy.system.profile.Chronometer;
 
 import plugins.fmp.sequencevirtual.Cages;
 import plugins.fmp.sequencevirtual.DetectFliesParameters;
-import plugins.fmp.sequencevirtual.PositionsXYT;
+import plugins.fmp.sequencevirtual.XYTaSeries;
 import plugins.fmp.sequencevirtual.SequenceVirtual;
 import plugins.fmp.tools.Tools;
 import plugins.fmp.tools.ROI2DUtilities;
@@ -80,7 +80,7 @@ class BuildTrackFliesThread implements Runnable {
 			tempRectROI[i] = new ROI2DRectangle(0, 0, 10, 10);
 			tempRectROI[i].setName("fly_"+i);
 			vSequence.addROI(tempRectROI[i]);
-			PositionsXYT positions = new PositionsXYT(cages.cageLimitROIList.get(i));
+			XYTaSeries positions = new XYTaSeries(cages.cageLimitROIList.get(i));
 			positions.ensureCapacity(minCapacity);
 			cages.flyPositionsList.add(positions);
 		}
@@ -164,7 +164,7 @@ class BuildTrackFliesThread implements Runnable {
 					if (it > 0) {
 						double distance = flyPosition.distance(cages.flyPositionsList.get(iroi).getPoint(it-1));
 						if (distance > detect.jitter)
-							cages.flyPositionsList.get(iroi).lastTime = t;
+							cages.flyPositionsList.get(iroi).lastTimeAlive = t;
 					}
 					cages.flyPositionsList.get(iroi).add(flyPosition, t);
 				}

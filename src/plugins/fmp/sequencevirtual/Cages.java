@@ -20,7 +20,7 @@ public class Cages {
 	
 	public DetectFliesParameters 		detect 					= new DetectFliesParameters();
 	public ArrayList<ROI2D> 			cageLimitROIList		= new ArrayList<ROI2D>();
-	public ArrayList<PositionsXYT> 		flyPositionsList 		= new ArrayList<PositionsXYT>();
+	public ArrayList<XYTaSeries> flyPositionsList 		= new ArrayList<XYTaSeries>();
 	
 
 	public void clear() {
@@ -142,7 +142,7 @@ public class Cages {
 		Element xmlVal = XMLUtil.addElement(node, "Fly_Detected");
 		XMLUtil.setAttributeIntValue(xmlVal, "nb_items", flyPositionsList.size());
 		int i=0;
-		for (PositionsXYT pos: flyPositionsList) {
+		for (XYTaSeries pos: flyPositionsList) {
 			Element subnode = XMLUtil.addElement(xmlVal, "cage"+i);
 			pos.saveToXML(subnode);
 			i++;
@@ -162,7 +162,7 @@ public class Cages {
 		int ielement = 0;
 		for (int i=0; i< nb_items; i++) {
 			Element subnode = XMLUtil.getElement(xmlVal, "cage"+ielement);
-			PositionsXYT pos = new PositionsXYT();
+			XYTaSeries pos = new XYTaSeries();
 			pos.loadFromXML(subnode);
 			flyPositionsList.add(pos);
 			ielement++;

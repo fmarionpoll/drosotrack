@@ -19,7 +19,7 @@ import org.jfree.data.xy.XYSeriesCollection;
 
 import icy.gui.frame.IcyFrame;
 import icy.gui.util.GuiUtil;
-import plugins.fmp.sequencevirtual.PositionsXYT;
+import plugins.fmp.sequencevirtual.XYTaSeries;
 
 
 public class YPosMultiChart extends IcyFrame {
@@ -45,7 +45,7 @@ public class YPosMultiChart extends IcyFrame {
 		pt = new Point(rectv.x + deltapt.x, rectv.y + deltapt.y);
 	}
 	
-	public void displayData(ArrayList<PositionsXYT> flyPositionsList) {
+	public void displayData(ArrayList<XYTaSeries> flyPositionsList) {
 
 		double xmax = 0;
 		double xmin = 0;
@@ -57,7 +57,7 @@ public class YPosMultiChart extends IcyFrame {
 		for (int icage = 0; icage < ncages; icage++) 
 		{
 			XYSeriesCollection xyDataset = new XYSeriesCollection();
-			PositionsXYT positionxyt = flyPositionsList.get(icage);
+			XYTaSeries positionxyt = flyPositionsList.get(icage);
 			
 			String name = positionxyt.roi.getName();
 			XYSeries seriesXY = new XYSeries(name);
@@ -73,9 +73,9 @@ public class YPosMultiChart extends IcyFrame {
 			double yOrigin = rect.getY()+rect.getHeight();
 			for ( int it = 0; it < itmax;  it++)
 			{
-				Point2D point = positionxyt.pointsList.get(it);
+				Point2D point = positionxyt.pointsList.get(it).point;
 				double ypos = yOrigin - point.getY();
-				double t = positionxyt.timeList.get(it);
+				double t = positionxyt.pointsList.get(it).time;
 				seriesXY.add( t, ypos );
 			}
 			xyDataset.addSeries( seriesXY );

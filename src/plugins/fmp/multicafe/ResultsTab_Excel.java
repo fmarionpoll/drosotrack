@@ -239,6 +239,7 @@ public class ResultsTab_Excel extends JPanel implements ActionListener  {
 		
 		int startFrame = (int) parent0.vSequence.analysisStart;
 		int t = startFrame;
+		// TODO check if name of files is correct
 		for (int j=0; j< nelements; j++) {
 			Point pt2 = XLSUtils.toColZero(pt, transpose);
 			if (parent0.vSequence.isFileStack()) {
