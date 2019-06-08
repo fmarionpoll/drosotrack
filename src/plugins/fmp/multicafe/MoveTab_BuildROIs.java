@@ -116,7 +116,7 @@ public class MoveTab_BuildROIs extends JPanel implements ActionListener {
 		// generate cage frames
 		int span = nbcages*width_cage + (nbcages-1)*width_interval;
 		String cageRoot = "cage";
-		int iRoot = 0;
+		int iRoot = -1;
 		for (ROI iRoi: parent0.vSequence.getROIs()) {
 			if (iRoi.getName().contains(cageRoot)) {
 				String left = iRoi.getName().substring(4);

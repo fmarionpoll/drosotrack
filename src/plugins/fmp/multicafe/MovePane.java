@@ -21,9 +21,11 @@ public class MovePane extends JPanel implements PropertyChangeListener, ChangeLi
 	private static final long serialVersionUID = 3457738144388946607L;
 	
 	public JTabbedPane tabsPane	= new JTabbedPane();
-	MoveTab_BuildROIs 	buildROIsTab = new MoveTab_BuildROIs();
-	MoveTab_DetectFlies optionsTab = new MoveTab_DetectFlies();
-	MoveTab_File 		filesTab = new MoveTab_File();
+	public MoveTab_BuildROIs 	buildROIsTab = new MoveTab_BuildROIs();
+	public MoveTab_DetectFlies 	optionsTab 	= new MoveTab_DetectFlies();
+	public MoveTab_File 		filesTab 	= new MoveTab_File();
+	public MoveTab_Graphs 		graphicsTab = new MoveTab_Graphs();
+	public MoveTab_Excel 		excelTab  	= new MoveTab_Excel();
 	Multicafe parent0 = null;
 
 	
@@ -44,6 +46,14 @@ public class MovePane extends JPanel implements PropertyChangeListener, ChangeLi
 		filesTab.init(capLayout, parent0);
 		filesTab.addPropertyChangeListener(this);
 		tabsPane.addTab("Load/Save", null, filesTab, "Load/save cages and flies position");
+		graphicsTab.init(capLayout, parent0);
+		
+		tabsPane.addTab("Graphs", null, graphicsTab, "Display results as graphics");
+		graphicsTab.addPropertyChangeListener(this);
+
+		excelTab.init(capLayout, parent0);
+		tabsPane.addTab("Excel", null, excelTab, "Export fly positions to Excel");
+		excelTab.addPropertyChangeListener(this);
 		
 		tabsPane.setTabLayoutPolicy(JTabbedPane.SCROLL_TAB_LAYOUT);
 		panel.add(GuiUtil.besidesPanel(tabsPane));
@@ -56,12 +66,16 @@ public class MovePane extends JPanel implements PropertyChangeListener, ChangeLi
 //		fileTab.enableItems(enable1);
 //		boolean enable2 = (status == StatusPane.FULL);
 //		gulpsTab.enableItems(enable2);
+//		graphicsTab.enableItems(enable1);
 	}
 
 	@Override
 	public void propertyChange(PropertyChangeEvent arg0) {
 		if (arg0.getPropertyName().equals("LOAD_DATA")) {
 			buildROIsTab.updateFromSequence();
+		}
+		else if (arg0.getPropertyName().equals("EXPORT_TO_EXCEL")) {
+			firePropertyChange("EXPORT_TO_EXCEL", false, true);	
 		}
 
 	}

@@ -29,7 +29,7 @@ import plugins.fmp.tools.Tools;
 import plugins.fmp.tools.XLSExportItems;
 import plugins.fmp.tools.XLSUtils;
 
-public class ResultsTab_Excel extends JPanel implements ActionListener  {
+public class KymosTab_Excel extends JPanel implements ActionListener  {
 
 	/**
 	 * 

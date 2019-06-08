@@ -37,9 +37,9 @@ public class Multicafe extends PluginActionable implements ViewerListener, Prope
 	//---------------------------------------------------------------------------
 	SequencePane sequencePane 		= null;
 	CapillariesPane capillariesPane = null;
-	KymosPane kymographsPane 		= null;
-	MovePane movePane 				= null;
-	ResultsPane resultsPane 		= null;
+	KymosPane 	kymographsPane 		= null;
+	MovePane 	movePane 			= null;
+
 	
 	//-------------------------------------------------------------------
 	
@@ -64,9 +64,6 @@ public class Multicafe extends PluginActionable implements ViewerListener, Prope
 		movePane = new MovePane();
 		movePane.init(mainPanel, "DETECT FLIES", this);
 		movePane.addPropertyChangeListener(this);
-		
-		resultsPane = new ResultsPane();
-		resultsPane.init(mainPanel, "RESULTS", this);
 		
 		buttonsVisibilityUpdate(StatusAnalysis.NODATA);
 		
@@ -104,7 +101,6 @@ public class Multicafe extends PluginActionable implements ViewerListener, Prope
 		capillariesPane.enableItems(flagsTable[analysisStep][0]);
 		kymographsPane.enableItems(flagsTable[analysisStep][1]);
 		movePane.enableItems(flagsTable[analysisStep][2]);
-		resultsPane.enableItems(flagsTable[analysisStep][3]);
 	}
 	
 	public void roisSaveEdits() {
@@ -233,8 +229,8 @@ public class Multicafe extends PluginActionable implements ViewerListener, Prope
 		
 		if (loadCages) {
 			movePane.loadDefaultCages();
-			resultsPane.graphicsTab.moveCheckbox.setEnabled(true);
-			resultsPane.graphicsTab.displayResultsButton.setEnabled(true);
+			movePane.graphicsTab.moveCheckbox.setEnabled(true);
+			movePane.graphicsTab.displayResultsButton.setEnabled(true);
 		}
 	}
 

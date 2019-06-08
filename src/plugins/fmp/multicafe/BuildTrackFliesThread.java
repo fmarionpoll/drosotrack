@@ -26,9 +26,8 @@ import plugins.kernel.roi.roi2d.ROI2DRectangle;
 
 class BuildTrackFliesThread implements Runnable {
 	
-	public SequenceVirtual vSequence = null;	
-
 	private ArrayList<BooleanMask2D> cageMaskList = new ArrayList<BooleanMask2D>();
+	public SequenceVirtual vSequence = null;	
 	public boolean stopFlag = false;
 	public boolean threadRunning = false;
 	

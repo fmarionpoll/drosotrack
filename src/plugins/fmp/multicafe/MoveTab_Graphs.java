@@ -17,21 +17,16 @@ import plugins.fmp.sequencevirtual.SequencePlus;
 import plugins.fmp.tools.ArrayListType;
 
 
-public class ResultsTab_Graphics extends JPanel implements ActionListener  {
+public class MoveTab_Graphs extends JPanel implements ActionListener  {
 
 	/**
 	 * 
 	 */
 	private static final long serialVersionUID = -7079184380174992501L;
-	private XYMultiChart firstChart 		= null;
-	private XYMultiChart secondChart 		= null;
-	private XYMultiChart thirdChart 		= null;
+
 	private YPosMultiChart fourthChart		= null;
 	private Multicafe parent0 = null;
 	
-	public JCheckBox 	limitsCheckbox 		= new JCheckBox("top/bottom", true);
-	public JCheckBox 	derivativeCheckbox 	= new JCheckBox("derivative", false);
-	public JCheckBox 	consumptionCheckbox = new JCheckBox("consumption", false);
 	public JCheckBox	moveCheckbox		= new JCheckBox("movements", false);
 	public JButton displayResultsButton 	= new JButton("Display results");
 	
@@ -39,7 +34,7 @@ public class ResultsTab_Graphics extends JPanel implements ActionListener  {
 	public void init(GridLayout capLayout, Multicafe parent0) {	
 		setLayout(capLayout);
 		this.parent0 = parent0;
-		add(GuiUtil.besidesPanel(limitsCheckbox, derivativeCheckbox, consumptionCheckbox, moveCheckbox));
+		add(GuiUtil.besidesPanel(moveCheckbox));
 		add(GuiUtil.besidesPanel(displayResultsButton, new JLabel(" "))); 
 		defineActionListeners();
 	}
@@ -61,9 +56,7 @@ public class ResultsTab_Graphics extends JPanel implements ActionListener  {
 	}
 	
 	public void enableItems(boolean enabled) {
-		limitsCheckbox.setEnabled(enabled);
-		derivativeCheckbox.setEnabled(enabled);
-		consumptionCheckbox.setEnabled(enabled);
+
 		displayResultsButton.setEnabled(enabled);
 		moveCheckbox.setEnabled(enabled);
 	}
@@ -75,52 +68,13 @@ public class ResultsTab_Graphics extends JPanel implements ActionListener  {
 			names.add(seq.getName());
 		}
 
-		int kmax = 1;
-		if (parent0.capillariesPane.buildarrayTab.getGroupedBy2())
-			kmax = 2;
 		final Rectangle rectv = parent0.vSequence.getFirstViewer().getBounds();
 		Point ptRelative = new Point(0,30);
-		final int deltay = 230;
-
-		if (limitsCheckbox.isSelected()) {
-			firstChart = xyDisplayGraphsItem("top + bottom levels", 
-					ArrayListType.topAndBottom, 
-					firstChart, rectv, ptRelative, kmax);
-			ptRelative.y += deltay;
-		}
-		if (derivativeCheckbox.isSelected()) {
-			secondChart = xyDisplayGraphsItem("Derivative", 
-					ArrayListType.derivedValues, 
-					secondChart, rectv, ptRelative, kmax);
-			ptRelative.y += deltay; 
-		}
-		if (consumptionCheckbox.isSelected()) {
-			thirdChart = xyDisplayGraphsItem("Cumulated gulps", 
-					ArrayListType.cumSum, 
-					thirdChart, rectv, ptRelative, kmax);
-			ptRelative.y += deltay; 
-		}
-		
+	
 		if (moveCheckbox.isSelected() ) {
 			fourthChart = displayYPos("flies Y positions", fourthChart, rectv, ptRelative);
 		}
 
-	}
-
-	private XYMultiChart xyDisplayGraphsItem(String title, ArrayListType option, XYMultiChart iChart, Rectangle rectv, Point ptRelative, int kmax) {
-		
-		if (iChart != null && iChart.mainChartPanel.isValid()) {
-			iChart.fetchNewData(parent0.kymographArrayList, option, kmax, (int) parent0.vSequence.analysisStart);
-
-		}
-		else {
-			iChart = new XYMultiChart();
-			iChart.createPanel(title);
-			iChart.setLocationRelativeToRectangle(rectv, ptRelative);
-			iChart.displayData(parent0.kymographArrayList, option, kmax, (int) parent0.vSequence.analysisStart);
-		}
-		iChart.mainChartFrame.toFront();
-		return iChart;
 	}
 
 	
@@ -137,18 +91,10 @@ public class ResultsTab_Graphics extends JPanel implements ActionListener  {
 
 	
 	public void closeAll() {
-		if (firstChart != null) 
-			firstChart.mainChartFrame.dispose();
-		if (secondChart != null) 
-			secondChart.mainChartFrame.close();
-		if (thirdChart != null) 
-			thirdChart.mainChartFrame.close();
 		if (fourthChart != null) {
 			fourthChart.mainChartFrame.close();
 		}
-		firstChart  = null;
-		secondChart = null;
-		thirdChart  = null;
+
 		fourthChart = null;
 	}
 }

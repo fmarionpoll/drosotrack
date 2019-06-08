@@ -28,7 +28,7 @@ import plugins.fmp.tools.XLSExportItems;
 import plugins.fmp.tools.XLSUtils;
 import plugins.fmp.tools.Tools;
 
-public class ResultsTab_Excel2  extends JPanel implements ActionListener  {
+public class MoveTab_Excel  extends JPanel implements ActionListener  {
 
 	/**
 	 * 

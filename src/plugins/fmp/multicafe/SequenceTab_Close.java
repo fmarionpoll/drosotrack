@@ -39,7 +39,8 @@ public class SequenceTab_Close  extends JPanel implements ActionListener {
 		for (SequencePlus seq:parent0.kymographArrayList)
 			seq.close();
 		
-		parent0.resultsPane.graphicsTab.closeAll();
+		parent0.movePane.graphicsTab.closeAll();
+		parent0.kymographsPane.graphsTab.closeAll();
 
 		if (parent0.vSequence != null) {
 			parent0.vSequence.removeListener(parent0);

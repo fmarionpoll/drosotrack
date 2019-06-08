@@ -24,10 +24,12 @@ public class KymosPane extends JPanel implements PropertyChangeListener, ChangeL
 	 */
 	private static final long serialVersionUID = -7339633966002954720L;
 	
-	public JTabbedPane tabsPane 			= new JTabbedPane();
-	public KymosTab_File fileTab 			= new KymosTab_File();
+	public JTabbedPane 			tabsPane 	= new JTabbedPane();
+	public KymosTab_File 		fileTab 	= new KymosTab_File();
 	public KymosTab_DetectLimits limitsTab 	= new KymosTab_DetectLimits();
 	public KymosTab_DetectGulps gulpsTab 	= new KymosTab_DetectGulps();
+	public KymosTab_Graphs 		graphsTab 	= new KymosTab_Graphs();
+	public KymosTab_Excel		excelTab	= new KymosTab_Excel();
 	ImageTransformTools tImg = null;
 	private Multicafe parent0 = null;
 
@@ -49,6 +51,14 @@ public class KymosPane extends JPanel implements PropertyChangeListener, ChangeL
 		fileTab.init(capLayout, parent0);
 		fileTab.addPropertyChangeListener(this);
 		tabsPane.addTab("Load/Save", null, fileTab, "Load/Save kymographs");
+		
+		graphsTab.init(capLayout, parent0);
+		graphsTab.addPropertyChangeListener(this);
+		tabsPane.addTab("Graphs", null, graphsTab, "Display results as a graph");
+		
+		excelTab.init(capLayout, parent0);
+		tabsPane.addTab("Excel", null, excelTab, "Export capillary levels to Excel");
+		excelTab.addPropertyChangeListener(this);
 		
 		tabsPane.setTabLayoutPolicy(JTabbedPane.SCROLL_TAB_LAYOUT);
 		tabsPane.addChangeListener(this);
@@ -112,6 +122,8 @@ public class KymosPane extends JPanel implements PropertyChangeListener, ChangeL
 		boolean enable2 = (status == StatusPane.FULL);
 		limitsTab.enableItems(enable2);
 		gulpsTab.enableItems(enable2);
+		graphsTab.enableItems(enable2);
+		excelTab.enableItems(enable2);
 	}
 
 	public void setDetectionParameters(int ikymo) {

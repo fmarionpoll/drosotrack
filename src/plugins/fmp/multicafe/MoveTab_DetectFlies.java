@@ -178,7 +178,7 @@ public class MoveTab_DetectFlies extends JPanel implements ActionListener, Chang
 	}
 	
 	private void cleanPreviousDetections() {
-		parent0.vSequence.cages.clear();
+		parent0.vSequence.cages.flyPositionsList.clear();
 		ArrayList<ROI2D> list = parent0.vSequence.getROI2Ds();
 		for (ROI2D roi: list) {
 			if (roi.getName().contains("det")) {
