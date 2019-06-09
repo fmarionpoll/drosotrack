@@ -55,17 +55,7 @@ public class KymosTab_DetectLimits  extends JPanel implements ActionListener {
 		detectTopButton.addActionListener(this);		
 		displayTransform1Button.addActionListener(this);
 	}
-	
-	public void enableItems(boolean enabled) {
-		detectAllLevelCheckBox.setEnabled(enabled);
-		detectTopButton.setEnabled(enabled);
-		transformForLevelsComboBox.setEnabled(enabled);
-		displayTransform1Button.setEnabled(enabled);
-		directionComboBox.setEnabled(enabled);
-		detectTopTextField.setEnabled(enabled);
-		spanTopTextField.setEnabled(enabled);
-	}
-	
+
 	@Override
 	public void actionPerformed(ActionEvent e) {
 		Object o = e.getSource();

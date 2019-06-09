@@ -76,17 +76,6 @@ public class CapillariesTab_Options extends JPanel implements ActionListener, Ac
 		previousButton.addActionListener(this);
 	}
 	
-	public void enableItems(boolean enabled) {
-		viewKymosCheckBox.setEnabled(enabled);
-		boolean benabled =  (enabled && viewKymosCheckBox.isSelected());
-		kymographNamesComboBox.setEnabled(benabled);
-		updateButton.setEnabled(benabled);
-		previousButton.setEnabled(benabled);
-		nextButton.setEnabled(benabled);
-		viewLevelsCheckbox.setEnabled(benabled);
-		viewGulpsCheckbox.setEnabled(benabled);
-	}
-	
 	@Override
 	public void actionPerformed(ActionEvent e) {
 		Object o = e.getSource();

@@ -59,15 +59,6 @@ public class MovePane extends JPanel implements PropertyChangeListener, ChangeLi
 		panel.add(GuiUtil.besidesPanel(tabsPane));
 		tabsPane.setSelectedIndex(0);
 	}
-	
-	public void enableItems(StatusPane status) {
-//		boolean enable1 = !(status == StatusPane.DISABLED);
-//		limitsTab.enableItems(enable1);
-//		fileTab.enableItems(enable1);
-//		boolean enable2 = (status == StatusPane.FULL);
-//		gulpsTab.enableItems(enable2);
-//		graphicsTab.enableItems(enable1);
-	}
 
 	@Override
 	public void propertyChange(PropertyChangeEvent arg0) {

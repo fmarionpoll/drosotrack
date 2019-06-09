@@ -61,13 +61,6 @@ public class CapillariesTab_File extends JPanel implements ActionListener {
 		saveButtonKymos1.addActionListener(this);
 	}
 	
-	public void enableItems(boolean enabled) {
-		openButtonCapillaries.setEnabled(enabled);
-		saveButtonCapillaries.setEnabled(enabled);
-		openButtonKymos1.setEnabled(enabled);
-		saveButtonKymos1.setEnabled(enabled);
-	}
-	
 	@Override
 	public void actionPerformed(ActionEvent e) {
 		Object o = e.getSource();
@@ -78,20 +71,15 @@ public class CapillariesTab_File extends JPanel implements ActionListener {
 			firePropertyChange("CAP_ROIS_SAVE", false, true);	
 		}
 		else if ( o == openButtonKymos1)  {
-			enableItems(false);
 			String path = parent0.vSequence.getDirectory()+ "\\results";
 			boolean flag = openFiles(path); 
-			enableItems(true);
 			if (flag) {
-				parent0.buttonsVisibilityUpdate(StatusAnalysis.KYMOS_OK);
 				firePropertyChange("KYMOS_OPEN", false, true);	
 			}
 		}
 		else if ( o == saveButtonKymos1) {
-			enableItems(false);
 			String path = parent0.vSequence.getDirectory() + "\\results";
 			saveFiles(path);
-			enableItems(true);
 			firePropertyChange("KYMOS_SAVE", false, true);	
 		}
 	}

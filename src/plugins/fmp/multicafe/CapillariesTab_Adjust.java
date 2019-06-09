@@ -56,12 +56,6 @@ public class CapillariesTab_Adjust extends JPanel implements ActionListener{
 		displayYellowBarsCheckBox.addActionListener(this);
 	}
 	
-	public void enableItems(boolean enabled) {
-		jitterTextField2.setEnabled(enabled);
-		adjustButton.setEnabled(enabled);
-		displayYellowBarsCheckBox.setEnabled(enabled);
-	}
-	
 	@Override
 	public void actionPerformed(ActionEvent e) {
 		Object o = e.getSource();

@@ -52,15 +52,6 @@ public class KymosTab_DetectGulps extends JPanel implements ActionListener {
 		displayTransform2Button.addActionListener(this);
 	}
 	
-	public void enableItems(boolean enabled) {
-		detectGulpsButton.setEnabled(enabled);
-		detectAllGulpsCheckBox.setEnabled(enabled);
-		transformForGulpsComboBox.setEnabled(enabled);
-		detectGulpsThresholdTextField.setEnabled(enabled);
-		displayTransform2Button.setEnabled(enabled);
-		spanTransf2TextField.setEnabled(enabled);
-	}
-	
 	@Override
 	public void actionPerformed(ActionEvent e) {
 		Object o = e.getSource();

@@ -42,11 +42,6 @@ public class KymosTab_File  extends JPanel implements ActionListener {
 		saveMeasuresButton.addActionListener(this);	
 	}
 	
-	public void enableItems(boolean enabled) {
-		openMeasuresButton.setEnabled(enabled);
-		saveMeasuresButton.setEnabled(enabled);
-	}
-	
 	@Override
 	public void actionPerformed(ActionEvent e) {
 		Object o = e.getSource();
@@ -78,11 +73,13 @@ public class KymosTab_File  extends JPanel implements ActionListener {
 			seq.endUpdate();
 		}
 		
-		if (parent0.kymographArrayList.size() >0) {
+		if (parent0.kymographArrayList.size() >0 ) {
 			SequencePlus seq = parent0.kymographArrayList.get(0);
-			parent0.vSequence.analysisStart = seq.analysisStart; 
-			parent0.vSequence.analysisEnd = seq.analysisEnd;
-			parent0.vSequence.analysisStep = seq.analysisStep;
+			if (seq.analysisEnd > seq.analysisStart) {
+				parent0.vSequence.analysisStart = seq.analysisStart; 
+				parent0.vSequence.analysisEnd = seq.analysisEnd;
+				parent0.vSequence.analysisStep = seq.analysisStep;
+			}
 		}
 		return flag;
 	}
@@ -93,7 +90,7 @@ public class KymosTab_File  extends JPanel implements ActionListener {
 		for (int kymo=0; kymo < parent0.kymographArrayList.size(); kymo++) {
 			SequencePlus seq = parent0.kymographArrayList.get(kymo);
 			seq.analysisStart = parent0.vSequence.analysisStart; 
-			seq.analysisEnd = parent0.vSequence.analysisEnd;
+			seq.analysisEnd  = parent0.vSequence.analysisEnd;
 			seq.analysisStep = parent0.vSequence.analysisStep;
 			
 			System.out.println("saving "+seq.getName());

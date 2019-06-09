@@ -1,4 +1,4 @@
-package plugins.fmp.multicafe;
+package plugins.fmp.tools;
 
 import java.awt.Dimension;
 import java.awt.Point;
@@ -18,7 +18,6 @@ import org.jfree.data.xy.XYSeriesCollection;
 import icy.gui.frame.IcyFrame;
 import icy.gui.util.GuiUtil;
 import plugins.fmp.sequencevirtual.SequencePlus;
-import plugins.fmp.tools.ArrayListType;
 
 public class XYMultiChart extends IcyFrame  {
 
@@ -49,6 +48,10 @@ public class XYMultiChart extends IcyFrame  {
 		mainChartFrame.add(mainChartPanel);
 	}
 
+	public void setLocationRelativeToRectangle(Rectangle rectv, Point deltapt) {
+		pt = new Point(rectv.x + deltapt.x, rectv.y + deltapt.y);
+	}
+	
 	public void displayData(ArrayList <SequencePlus> kymographArrayList, ArrayListType option, int kmax, int startFrame) {
 
 		// copy data into charts
@@ -64,7 +67,6 @@ public class XYMultiChart extends IcyFrame  {
 		{
 			XYSeriesCollection xyDataset = new XYSeriesCollection();
 			XYSeriesCollection xyDataset2 = new XYSeriesCollection();
-
 			for (int k=0; k <kmax; k++) 
 			{
 				SequencePlus seq = kymographArrayList.get(i+k);
@@ -216,10 +218,5 @@ public class XYMultiChart extends IcyFrame  {
 			}
 		}
 	}
-	
-	public void setLocationRelativeToRectangle(Rectangle rectv, Point deltapt) {
-
-		pt = new Point(rectv.x + deltapt.x, rectv.y + deltapt.y);
-	}
-	
+		
 }

@@ -47,7 +47,6 @@ public class SequencePane extends JPanel implements PropertyChangeListener {
 
 		tabsPane.setTabLayoutPolicy(JTabbedPane.SCROLL_TAB_LAYOUT);
 		capPanel.add(GuiUtil.besidesPanel(tabsPane));
-		optionsTab.enableItems(false);
 	}
 	
 	public void UpdateItemsFromSequence(SequenceVirtual vSequence) {
@@ -70,8 +69,6 @@ public class SequencePane extends JPanel implements PropertyChangeListener {
 				Rectangle rect0 = parent0.mainFrame.getBoundsInternal();
 				rectv.setLocation(rect0.x+ rect0.width, rect0.y);
 				v.setBounds(rectv);
-				
-				optionsTab.enableItems(true);
 				firePropertyChange("SEQ_OPEN", false, true);
 			}
 		 }			  
@@ -84,7 +81,6 @@ public class SequencePane extends JPanel implements PropertyChangeListener {
 		 }
 		 else if (event.getPropertyName().equals("SEQ_CLOSE")) {
 			tabsPane.setSelectedIndex(0);
-			optionsTab.enableItems(false);
 			firePropertyChange("SEQ_CLOSE", false, true);
 			
 		 }

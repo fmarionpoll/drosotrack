@@ -32,7 +32,7 @@ public class Multicafe extends PluginActionable implements ViewerListener, Prope
 	//------------------------------------------- global variables
 	SequenceVirtual vSequence = null;
 	ArrayList <SequencePlus> kymographArrayList	= new ArrayList <SequencePlus> ();	// list of kymograph sequences
-	IcyFrame mainFrame = new IcyFrame("MultiCAFE analysis 07-June-2019", true, true, true, true);
+	IcyFrame mainFrame = new IcyFrame("MultiCAFE analysis 09-June-2019", true, true, true, true);
 
 	//---------------------------------------------------------------------------
 	SequencePane sequencePane 		= null;
@@ -40,7 +40,6 @@ public class Multicafe extends PluginActionable implements ViewerListener, Prope
 	KymosPane 	kymographsPane 		= null;
 	MovePane 	movePane 			= null;
 
-	
 	//-------------------------------------------------------------------
 	
 	@Override
@@ -65,8 +64,6 @@ public class Multicafe extends PluginActionable implements ViewerListener, Prope
 		movePane.init(mainPanel, "DETECT FLIES", this);
 		movePane.addPropertyChangeListener(this);
 		
-		buttonsVisibilityUpdate(StatusAnalysis.NODATA);
-		
 		mainFrame.pack();
 		mainFrame.center();
 		mainFrame.setVisible(true);
@@ -75,34 +72,7 @@ public class Multicafe extends PluginActionable implements ViewerListener, Prope
 
 	// -------------------------------------------
 
-	private StatusPane [] [] flagsTable 		= new StatusPane [][] {
-		//0-capillariesPane	1-kymosgraphsPane	2-detectPane(0)		3-resultsPane
-		{StatusPane.DISABLED, StatusPane.DISABLED, StatusPane.DISABLED, StatusPane.DISABLED}, 	// 0 - NODATA
-		{StatusPane.INIT, 	StatusPane.DISABLED, StatusPane.DISABLED, StatusPane.DISABLED}, 	// 1 - SEQ_OK
-		{StatusPane.FULL, 	StatusPane.INIT, 	StatusPane.DISABLED, StatusPane.DISABLED}, 		// 2 - ROIS_OK
-		{StatusPane.FULL, 	StatusPane.FULL, 	StatusPane.INIT, 	StatusPane.DISABLED}, 		// 3 - KYMOS_OK
-		{StatusPane.FULL, 	StatusPane.FULL, 	StatusPane.FULL, 	StatusPane.INIT}, 			// 4 - MEASURETOP_OK
-		{StatusPane.FULL, 	StatusPane.FULL, 	StatusPane.FULL, 	StatusPane.FULL} 			// 5 - MEASUREGULPS_OK
-	};
-	
-	public void buttonsVisibilityUpdate(StatusAnalysis istate) {
 
-		int analysisStep = 0;
-		switch (istate ) {
-		case NODATA: 		analysisStep = 0; break;
-		case SEQ_OK: 		analysisStep = 1; break;
-		case ROIS_OK: 		analysisStep = 2; break;
-		case KYMOS_OK: 		analysisStep = 3; break;
-		case MEASURETOP_OK: analysisStep = 4; break;
-		case MEASUREGULPS_OK: 
-		default: 			analysisStep = 5; break;
-		}
-
-		capillariesPane.enableItems(flagsTable[analysisStep][0]);
-		kymographsPane.enableItems(flagsTable[analysisStep][1]);
-		movePane.enableItems(flagsTable[analysisStep][2]);
-	}
-	
 	public void roisSaveEdits() {
 
 		for (SequencePlus seq: kymographArrayList) {
@@ -133,33 +103,18 @@ public class Multicafe extends PluginActionable implements ViewerListener, Prope
 	@Override
 	public void propertyChange(PropertyChangeEvent arg0) {
 		if (arg0.getPropertyName().equals("SEQ_OPEN")) {
-			buttonsVisibilityUpdate(StatusAnalysis.SEQ_OK);
 			loadPreviousMeasures(
 					sequencePane.fileTab.isCheckedLoadPreviousProfiles(), 
 					sequencePane.fileTab.isCheckedLoadKymographs(),
 					sequencePane.fileTab.isCheckedLoadCages(),
 					sequencePane.fileTab.isCheckedLoadMeasures());
 		}
-		else if (arg0.getPropertyName().equals("SEQ_CLOSE")) {
-			buttonsVisibilityUpdate(StatusAnalysis.NODATA);
-		}
-		else if (arg0.getPropertyName().equals("CAPILLARIES_NEW")) {
-			buttonsVisibilityUpdate(StatusAnalysis.ROIS_OK);	
-		}
 		else if (arg0.getPropertyName().equals("CAPILLARIES_OPEN")) {
 		  	sequencePane.UpdateItemsFromSequence(vSequence);
-			buttonsVisibilityUpdate(StatusAnalysis.ROIS_OK);
-		}
-		else if (arg0.getPropertyName().equals("KYMOS_OK")) {
-			buttonsVisibilityUpdate(StatusAnalysis.KYMOS_OK); 
-		}
-		else if (arg0.getPropertyName().equals("MEASURETOP_OK")) {
-			buttonsVisibilityUpdate(StatusAnalysis.MEASURETOP_OK); 
 		}
 		else if (arg0.getPropertyName().equals("MEASUREGULPS_OK") 
 				|| arg0.getPropertyName().equals("MEASURES_OPEN")) {	
 			capillariesPane.optionsTab.selectKymograph(0);
-			buttonsVisibilityUpdate(StatusAnalysis.MEASUREGULPS_OK );
 		}
 		else if (arg0.getPropertyName() .equals("KYMO_DISPLAYFILTERED")) {
 //			int ikymo = paneKymos.optionsTab.kymographNamesComboBox.getSelectedIndex();
@@ -211,18 +166,17 @@ public class Multicafe extends PluginActionable implements ViewerListener, Prope
 		if (loadCapillaries) {
 			if( !capillariesPane.loadDefaultCapillaries()) 
 				return;
+			sequencePane.UpdateItemsFromSequence(vSequence);
+//			buttonsVisibilityUpdate(StatusAnalysis.ROIS_OK);
 		}
 		if (loadKymographs) {
 			if ( !capillariesPane.fileTab.loadDefaultKymos()) {
-				buttonsVisibilityUpdate(StatusAnalysis.ROIS_OK);
 				return;
 			}
-			buttonsVisibilityUpdate(StatusAnalysis.KYMOS_OK);
 		}
 		
 		if (loadKymographs && loadMeasures) {
 			if (kymographsPane.fileTab.measuresFileOpen()) {
-				buttonsVisibilityUpdate(StatusAnalysis.MEASUREGULPS_OK );
 				sequencePane.optionsTab.UpdateItemsFromSequence(vSequence);
 			}
 		}

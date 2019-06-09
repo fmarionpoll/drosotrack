@@ -117,18 +117,7 @@ public class MoveTab_DetectFlies extends JPanel implements ActionListener, Chang
 			}});
 
 	}
-	
-	public void enableItems(boolean enabled) {
-//		createROIsFromPolygonButton2.setEnabled(enabled);
-//		selectGroupedby2Button.setEnabled(enabled);
-//		selectRegularButton.setEnabled(enabled);
-//		nbcapillariesTextField.setEnabled(enabled);
-//		selectRegularButton.setEnabled(enabled);
-//		selectGroupedby2Button .setEnabled(enabled);
-//		width_between_capillariesTextField.setEnabled(enabled );
-//		width_intervalTextField.setEnabled(enabled);
-	}
-	
+
 	@Override
 	public void actionPerformed(ActionEvent e) {
 	}

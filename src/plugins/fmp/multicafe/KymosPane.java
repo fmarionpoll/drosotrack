@@ -71,7 +71,6 @@ public class KymosPane extends JPanel implements PropertyChangeListener, ChangeL
 	@Override
 	public void propertyChange(PropertyChangeEvent arg0) {
 		if (arg0.getPropertyName().equals("KYMOS_OK")) {
-			fileTab.enableItems(true);
 			tabbedCapillariesAndKymosSelected();
 			firePropertyChange( "KYMOS_OK", false, true);
 		}
@@ -114,16 +113,6 @@ public class KymosPane extends JPanel implements PropertyChangeListener, ChangeL
 	public void stateChanged(ChangeEvent event) {
 		if (event.getSource() == tabsPane)
 			tabbedCapillariesAndKymosSelected();
-	}
-		
-	public void enableItems(StatusPane status) {
-		boolean enable1 = !(status == StatusPane.DISABLED);
-		fileTab.enableItems(enable1);
-		boolean enable2 = (status == StatusPane.FULL);
-		limitsTab.enableItems(enable2);
-		gulpsTab.enableItems(enable2);
-		graphsTab.enableItems(enable2);
-		excelTab.enableItems(enable2);
 	}
 
 	public void setDetectionParameters(int ikymo) {

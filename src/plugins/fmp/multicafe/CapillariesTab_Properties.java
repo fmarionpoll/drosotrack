@@ -49,12 +49,6 @@ public class CapillariesTab_Properties extends JPanel implements ActionListener 
 		private void defineActionListeners() {
 			visibleCheckBox.addActionListener(this);
 		}
-
-		public void enableItems(boolean enabled) {
-			capillaryVolumeTextField.setEnabled(enabled);
-			capillaryPixelsTextField.setEnabled(enabled);
-			visibleCheckBox.setEnabled(enabled);
-		}
 		
 		@Override
 		public void actionPerformed(ActionEvent e) {
@@ -90,7 +84,7 @@ public class CapillariesTab_Properties extends JPanel implements ActionListener 
 			double capillaryVolume = 0;
 			try { 
 				capillaryVolume = Double.parseDouble(capillaryVolumeTextField.getText());
-			}catch( Exception e ) { new AnnounceFrame("Can't interpret capillary volume value."); }
+			} catch( Exception e ) { new AnnounceFrame("Can't interpret capillary volume value."); }
 			return capillaryVolume;
 		}
 		

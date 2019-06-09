@@ -144,7 +144,7 @@ public class BuildKymographsThread implements Runnable
 
 		int sizex = vSequence.getSizeX();
 		int sizey = vSequence.getSizeY();
-		vSequence.capillaries.keepOnly2DLines_CapillariesArrayList(vSequence);
+		vSequence.capillaries.extractLinesFromSequence(vSequence);
 		int numC = vSequence.getSizeC();
 		double fimagewidth =  1 + (endFrame - startFrame )/analyzeStep;
 		int imagewidth = (int) fimagewidth;

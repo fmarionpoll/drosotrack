@@ -5,7 +5,6 @@ import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.util.ArrayList;
 
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
@@ -13,8 +12,8 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 
 import icy.gui.util.GuiUtil;
-import plugins.fmp.sequencevirtual.SequencePlus;
 import plugins.fmp.tools.ArrayListType;
+import plugins.fmp.tools.XYMultiChart;
 
 public class KymosTab_Graphs extends JPanel implements ActionListener  {
 
@@ -22,9 +21,9 @@ public class KymosTab_Graphs extends JPanel implements ActionListener  {
 	 * 
 	 */
 	private static final long serialVersionUID = -7079184380174992501L;
-	private XYMultiChart firstChart 		= null;
-	private XYMultiChart secondChart 		= null;
-	private XYMultiChart thirdChart 		= null;
+	private XYMultiChart topandbottomChart 		= null;
+	private XYMultiChart drivativeChart 		= null;
+	private XYMultiChart sumgulpsChart 		= null;
 	private Multicafe parent0 = null;
 	
 	public JCheckBox 	limitsCheckbox 		= new JCheckBox("top/bottom", true);
@@ -57,19 +56,7 @@ public class KymosTab_Graphs extends JPanel implements ActionListener  {
 		}
 	}
 	
-	public void enableItems(boolean enabled) {
-		limitsCheckbox.setEnabled(enabled);
-		derivativeCheckbox.setEnabled(enabled);
-		consumptionCheckbox.setEnabled(enabled);
-		displayResultsButton.setEnabled(enabled);
-	}
-	
 	private void xyDisplayGraphs() {
-		final ArrayList <String> names = new ArrayList <String> ();
-		for (int iKymo=0; iKymo < parent0.kymographArrayList.size(); iKymo++) {
-			SequencePlus seq = parent0.kymographArrayList.get(iKymo);
-			names.add(seq.getName());
-		}
 
 		int kmax = 1;
 		if (parent0.capillariesPane.buildarrayTab.getGroupedBy2())
@@ -79,21 +66,21 @@ public class KymosTab_Graphs extends JPanel implements ActionListener  {
 		final int deltay = 230;
 
 		if (limitsCheckbox.isSelected()) {
-			firstChart = xyDisplayGraphsItem("top + bottom levels", 
+			topandbottomChart = xyDisplayGraphsItem("top + bottom levels", 
 					ArrayListType.topAndBottom, 
-					firstChart, rectv, ptRelative, kmax);
+					topandbottomChart, rectv, ptRelative, kmax);
 			ptRelative.y += deltay;
 		}
 		if (derivativeCheckbox.isSelected()) {
-			secondChart = xyDisplayGraphsItem("Derivative", 
+			drivativeChart = xyDisplayGraphsItem("Derivative", 
 					ArrayListType.derivedValues, 
-					secondChart, rectv, ptRelative, kmax);
+					drivativeChart, rectv, ptRelative, kmax);
 			ptRelative.y += deltay; 
 		}
 		if (consumptionCheckbox.isSelected()) {
-			thirdChart = xyDisplayGraphsItem("Cumulated gulps", 
+			sumgulpsChart = xyDisplayGraphsItem("Cumulated gulps", 
 					ArrayListType.cumSum, 
-					thirdChart, rectv, ptRelative, kmax);
+					sumgulpsChart, rectv, ptRelative, kmax);
 			ptRelative.y += deltay; 
 		}
 	}
@@ -113,21 +100,18 @@ public class KymosTab_Graphs extends JPanel implements ActionListener  {
 		iChart.mainChartFrame.toFront();
 		return iChart;
 	}
-
-
-
 	
 	public void closeAll() {
-		if (firstChart != null) 
-			firstChart.mainChartFrame.dispose();
-		if (secondChart != null) 
-			secondChart.mainChartFrame.close();
-		if (thirdChart != null) 
-			thirdChart.mainChartFrame.close();
+		if (topandbottomChart != null) 
+			topandbottomChart.mainChartFrame.dispose();
+		if (drivativeChart != null) 
+			drivativeChart.mainChartFrame.close();
+		if (sumgulpsChart != null) 
+			sumgulpsChart.mainChartFrame.close();
 
-		firstChart  = null;
-		secondChart = null;
-		thirdChart  = null;
+		topandbottomChart  = null;
+		drivativeChart = null;
+		sumgulpsChart  = null;
 	}
 }
 

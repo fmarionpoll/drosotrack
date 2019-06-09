@@ -65,23 +65,12 @@ public class CapillariesTab_Build extends JPanel implements ActionListener {
 		selectRegularButton.addActionListener(this);
 	}
 	
-	public void enableItems(boolean enabled) {
-		createROIsFromPolygonButton2.setEnabled(enabled);
-		selectGroupedby2Button.setEnabled(enabled);
-		selectRegularButton.setEnabled(enabled);
-		nbcapillariesTextField.setEnabled(enabled);
-		selectRegularButton.setEnabled(enabled);
-		selectGroupedby2Button .setEnabled(enabled);
-		width_between_capillariesTextField.setEnabled(enabled );
-		width_intervalTextField.setEnabled(enabled);
-	}
-	
 	@Override
 	public void actionPerformed(ActionEvent e) {
 		Object o = e.getSource();
 		if ( o == createROIsFromPolygonButton2)  {
 			roisGenerateFromPolygon();
-			parent0.vSequence.capillaries.keepOnly2DLines_CapillariesArrayList(parent0.vSequence);
+			parent0.vSequence.capillaries.extractLinesFromSequence(parent0.vSequence);
 			firePropertyChange("CAPILLARIES_NEW", false, true);	
 		}
 		else if ( o == selectRegularButton) {

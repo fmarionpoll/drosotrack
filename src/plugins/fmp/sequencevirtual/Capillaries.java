@@ -26,7 +26,7 @@ public class Capillaries {
 	public String 	sourceName = null;
 	public ArrayList <ROI2DShape> capillariesArrayList 	= new ArrayList <ROI2DShape>();			// list of ROIs describing objects in all images for ex. glass capillaries 
 	
-	private boolean xmlReadCapillaryTrackParameters (Document doc, SequenceVirtual seq) {
+	private boolean xmlReadCapillaryParameters (Document doc, SequenceVirtual seq) {
 		String nodeName = "capillaryTrack";
 		// read local parameters
 		Node node = XMLUtil.getElement(XMLUtil.getRootElement(doc), nodeName);
@@ -52,11 +52,12 @@ public class Capillaries {
 		xmlVal = XMLUtil.getElement(xmlElement, "analysis");
 		seq.analysisStart =  XMLUtil.getAttributeLongValue(xmlVal, "start", 0);
 		seq.analysisEnd = XMLUtil.getAttributeLongValue(xmlVal, "end", -1);
+		seq.analysisStep = XMLUtil.getAttributeIntValue(xmlVal, "step", 1);
 
 		return true;
 	}
 	
-	private boolean xmlWriteCapillaryTrackParameters (Document doc, SequenceVirtual seq) {
+	private boolean xmlWriteCapillaryParameters (Document doc, SequenceVirtual seq) {
 		String nodeName = "capillaryTrack";
 		Node node = XMLUtil.addElement(XMLUtil.getRootElement(doc), nodeName);
 		if (node == null)
@@ -81,11 +82,12 @@ public class Capillaries {
 		xmlVal = XMLUtil.addElement(xmlElement, "analysis");
 		XMLUtil.setAttributeLongValue(xmlVal, "start", seq.analysisStart);
 		XMLUtil.setAttributeLongValue(xmlVal, "end", seq.analysisEnd); 
+		XMLUtil.setAttributeIntValue(xmlVal, "step", seq.analysisStep); 
 
 		return true;
 	}
 	
-	public void keepOnly2DLines_CapillariesArrayList(SequenceVirtual seq) {
+	public void extractLinesFromSequence(SequenceVirtual seq) {
 
 		capillariesArrayList.clear();
 		ArrayList<ROI2D> list = seq.getROI2Ds();
@@ -115,15 +117,18 @@ public class Capillaries {
 	public boolean xmlWriteROIsAndDataNoQuestion(String csFile, SequenceVirtual seq) {
 
 		if (csFile != null) 
-		{
-			final List<ROI> rois = seq.getROIs(true);
-			if (rois.size() > 0)
+		{;
+			extractLinesFromSequence(seq);
+			if (capillariesArrayList.size() > 0)
 			{
 				final Document doc = XMLUtil.createDocument(true);
 				if (doc != null)
 				{
-					ROI.saveROIsToXML(XMLUtil.getRootElement(doc), rois);
-					xmlWriteCapillaryTrackParameters (doc, seq);
+					List<ROI> roisList = new ArrayList<ROI>();
+					for (ROI roi: capillariesArrayList)
+						roisList.add(roi);
+					ROI.saveROIsToXML(XMLUtil.getRootElement(doc), roisList);
+					xmlWriteCapillaryParameters (doc, seq);
 					XMLUtil.saveDocument(doc, csFile);
 					return true;
 				}
@@ -155,7 +160,7 @@ public class Capillaries {
 			final Document doc = XMLUtil.loadDocument(csFileName);
 			if (doc != null) {
 				final List<ROI> rois = ROI.loadROIsFromXML(XMLUtil.getRootElement(doc));
-				xmlReadCapillaryTrackParameters(doc, seq);
+				xmlReadCapillaryParameters(doc, seq);
 				
 				Collections.sort(rois, new Tools.ROINameComparator()); 
 

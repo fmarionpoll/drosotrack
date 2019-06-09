@@ -5,7 +5,6 @@ import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.util.ArrayList;
 
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
@@ -13,8 +12,7 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 
 import icy.gui.util.GuiUtil;
-import plugins.fmp.sequencevirtual.SequencePlus;
-import plugins.fmp.tools.ArrayListType;
+import plugins.fmp.tools.YPosMultiChart;
 
 
 public class MoveTab_Graphs extends JPanel implements ActionListener  {
@@ -24,17 +22,21 @@ public class MoveTab_Graphs extends JPanel implements ActionListener  {
 	 */
 	private static final long serialVersionUID = -7079184380174992501L;
 
-	private YPosMultiChart fourthChart		= null;
+	private YPosMultiChart ypositionsChart	= null;
+	private YPosMultiChart distanceChart	= null;
+	private YPosMultiChart aliveChart		= null;
 	private Multicafe parent0 = null;
 	
-	public JCheckBox	moveCheckbox		= new JCheckBox("movements", false);
-	public JButton displayResultsButton 	= new JButton("Display results");
-	
+	public JCheckBox	moveCheckbox		= new JCheckBox("y position", false);	
+	public JCheckBox	distanceCheckbox	= new JCheckBox("distance t/t+1", true);
+	public JCheckBox	aliveCheckbox		= new JCheckBox("fly alive", true);
+	public JButton 		displayResultsButton= new JButton("Display results");
+
 	
 	public void init(GridLayout capLayout, Multicafe parent0) {	
 		setLayout(capLayout);
 		this.parent0 = parent0;
-		add(GuiUtil.besidesPanel(moveCheckbox));
+		add(GuiUtil.besidesPanel(moveCheckbox, distanceCheckbox, aliveCheckbox, new JLabel(" ")));
 		add(GuiUtil.besidesPanel(displayResultsButton, new JLabel(" "))); 
 		defineActionListeners();
 	}
@@ -51,35 +53,33 @@ public class MoveTab_Graphs extends JPanel implements ActionListener  {
 			parent0.roisSaveEdits();
 			xyDisplayGraphs();
 			displayResultsButton.setEnabled(true);
-//			firePropertyChange("DISPLAY_RESULTS", false, true);	
+			firePropertyChange("DISPLAY_RESULTS", false, true);	
 		}
 	}
-	
-	public void enableItems(boolean enabled) {
 
-		displayResultsButton.setEnabled(enabled);
-		moveCheckbox.setEnabled(enabled);
-	}
-	
 	private void xyDisplayGraphs() {
-		final ArrayList <String> names = new ArrayList <String> ();
-		for (int iKymo=0; iKymo < parent0.kymographArrayList.size(); iKymo++) {
-			SequencePlus seq = parent0.kymographArrayList.get(iKymo);
-			names.add(seq.getName());
-		}
 
 		final Rectangle rectv = parent0.vSequence.getFirstViewer().getBounds();
 		Point ptRelative = new Point(0,30);
+		final int deltay = 230;
 	
 		if (moveCheckbox.isSelected() ) {
-			fourthChart = displayYPos("flies Y positions", fourthChart, rectv, ptRelative);
+			ypositionsChart = displayYPos("flies Y positions", ypositionsChart, rectv, ptRelative);
+			ptRelative.y += deltay;
 		}
-
+		if (distanceCheckbox.isSelected()) {
+			distanceChart = displayYPos("distance between positions at t+1 and t", distanceChart, rectv, ptRelative);
+			ptRelative.y += deltay;
+		}
+		if (aliveCheckbox.isSelected()) {
+			aliveChart = displayYPos("flies alive", aliveChart, rectv, ptRelative);	
+			ptRelative.y += deltay;
+		}
 	}
 
 	
 	private YPosMultiChart displayYPos(String title, YPosMultiChart iChart, Rectangle rectv, Point ptRelative) {
-		if (iChart == null ) {
+		if (iChart == null || !iChart.mainChartPanel.isValid()) {
 			iChart = new YPosMultiChart();
 			iChart.createPanel(title);
 			iChart.setLocationRelativeToRectangle(rectv, ptRelative);
@@ -91,10 +91,20 @@ public class MoveTab_Graphs extends JPanel implements ActionListener  {
 
 	
 	public void closeAll() {
-		if (fourthChart != null) {
-			fourthChart.mainChartFrame.close();
+		if (ypositionsChart != null) {
+			ypositionsChart.mainChartFrame.close();
+			ypositionsChart = null;
+		}
+		
+		if (distanceChart != null) {
+			distanceChart.mainChartFrame.close();
+			distanceChart = null;
 		}
 
-		fourthChart = null;
+		if (aliveChart != null) {
+			aliveChart.mainChartFrame.close();
+			aliveChart = null;
+		}
+		
 	}
 }

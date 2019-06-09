@@ -57,12 +57,6 @@ public class CapillaryTab_BuildKymos extends JPanel implements ActionListener {
 		kymosStopComputationButton.addActionListener(this);	
 	}
 	
-	public void enableItems(boolean enabled) {
-		kymoStartComputationButton.setEnabled(enabled && (sComputation == StatusComputation.START_COMPUTATION));
-		kymosStopComputationButton.setEnabled (enabled && (sComputation == StatusComputation.STOP_COMPUTATION));
-		diskRadiusTextField.setEnabled(enabled);
-	}
-	
 	private void setStartButton(boolean enableStart) {
 		kymoStartComputationButton.setEnabled(enableStart );
 		kymosStopComputationButton.setEnabled(!enableStart);
@@ -90,8 +84,6 @@ public class CapillaryTab_BuildKymos extends JPanel implements ActionListener {
 			return;
 		
 		sComputation = StatusComputation.STOP_COMPUTATION;
-		enableItems(false);
-		
 		parent0.sequencePane.UpdateItemsToSequence ( parent0.vSequence);
 		setStartButton(false);
 		kymosBuildKymographs();	
