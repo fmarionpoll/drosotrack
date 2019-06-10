@@ -25,7 +25,7 @@ import icy.gui.util.GuiUtil;
 import icy.image.IcyBufferedImage;
 import loci.formats.FormatException;
 import plugins.fmp.sequencevirtual.SequencePlus;
-import plugins.fmp.tools.StatusAnalysis;
+
 
 public class CapillariesTab_File extends JPanel implements ActionListener {
 	/**
@@ -46,7 +46,7 @@ public class CapillariesTab_File extends JPanel implements ActionListener {
 		loadsaveText1.setFont(FontUtil.setStyle(loadsaveText1.getFont(), Font.ITALIC));
 		add(GuiUtil.besidesPanel( new JLabel (" "), loadsaveText1, openButtonCapillaries, saveButtonCapillaries));
 		
-		JLabel loadsaveText1b = new JLabel ("-> File (tiff) ", SwingConstants.RIGHT);
+		JLabel loadsaveText1b = new JLabel ("-> Kymographs (tiff) ", SwingConstants.RIGHT);
 		loadsaveText1b.setFont(FontUtil.setStyle(loadsaveText1b.getFont(), Font.ITALIC));	
 		add(GuiUtil.besidesPanel( new JLabel (" "), loadsaveText1b, openButtonKymos1, saveButtonKymos1));
 		

@@ -27,12 +27,12 @@ public class KymosTab_Excel extends JPanel implements ActionListener  {
 	public JButton 		exportToXLSButton 	= new JButton("save XLS");
 	public JCheckBox 	topLevelCheckBox 	= new JCheckBox("top", true);
 	public JCheckBox 	bottomLevelCheckBox = new JCheckBox("bottom", false);
-	public JCheckBox 	consumptionCheckBox = new JCheckBox("gulps", true);
+	public JCheckBox 	consumptionCheckBox = new JCheckBox("gulps", false);
 	public JCheckBox 	sumCheckBox 		= new JCheckBox("L+R", true);
 	public JCheckBox 	derivativeCheckBox  = new JCheckBox("derivative", false);
 	public JCheckBox	t0CheckBox			= new JCheckBox("t-t0", true);
-	public JCheckBox	transposeCheckBox 	= new JCheckBox("transpose", false);
-
+	public JCheckBox	transposeCheckBox 	= new JCheckBox("transpose", true);
+	public JCheckBox	combinewithaliveCheckBox = new JCheckBox("dead=empty", false);
 	private Multicafe parent0 = null;
 	
 	
@@ -40,7 +40,9 @@ public class KymosTab_Excel extends JPanel implements ActionListener  {
 		setLayout(capLayout);
 		this.parent0 = parent0;
 		add(GuiUtil.besidesPanel( topLevelCheckBox, bottomLevelCheckBox, consumptionCheckBox, sumCheckBox));
-		add(GuiUtil.besidesPanel( t0CheckBox, transposeCheckBox, new JLabel(" "), exportToXLSButton)); 
+		add(GuiUtil.besidesPanel( t0CheckBox, transposeCheckBox, combinewithaliveCheckBox, new JLabel(" "))); 
+//		add(GuiUtil.besidesPanel( t0CheckBox, transposeCheckBox, new JLabel(" "), new JLabel(" "))); 
+		add(GuiUtil.besidesPanel( new JLabel(" "), new JLabel(" "), new JLabel(" "), exportToXLSButton)); 
 		defineActionListeners();
 	}
 	
@@ -77,6 +79,7 @@ public class KymosTab_Excel extends JPanel implements ActionListener  {
 		options.sum = sumCheckBox.isSelected(); 
 		options.transpose = transposeCheckBox.isSelected(); 
 		options.t0 = t0CheckBox.isSelected();
+		options.onlyalive = combinewithaliveCheckBox.isSelected();
 		return options;
 	}
 	

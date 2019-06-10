@@ -4,9 +4,7 @@ import java.awt.Dimension;
 import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.geom.Point2D;
-import java.awt.geom.Rectangle2D;
 import java.util.ArrayList;
-import java.util.List;
 
 import javax.swing.BoxLayout;
 import javax.swing.JPanel;
@@ -27,7 +25,7 @@ public class YPosMultiChart extends IcyFrame {
 
 	public JPanel 	mainChartPanel = null;
 	private ArrayList<ChartPanel> chartsInMainChartPanel = null;
-	XYSeriesCollection xyDataset ;
+	ArrayList<XYSeriesCollection> xyDataSetList = null;
 	
 	public IcyFrame mainChartFrame = null;
 	private String 	title;
@@ -49,25 +47,31 @@ public class YPosMultiChart extends IcyFrame {
 		pt = new Point(rectv.x + deltapt.x, rectv.y + deltapt.y);
 	}
 	
-	public void displayData(ArrayList<XYTaSeries> flyPositionsList) {
+	public void displayData(ArrayList<XYTaSeries> flyPositionsList, ArrayListType option) {
 
-		MinMaxInt valMinMax = new MinMaxInt();
+		if (xyDataSetList == null)
+			displayNewData(flyPositionsList, option);
+		else
+			fetchNewData(flyPositionsList, option);
+	}
+	
+	private void displayNewData(ArrayList<XYTaSeries> flyPositionsList, ArrayListType option) {
+
+		xyDataSetList = new ArrayList <XYSeriesCollection>();
+		MinMaxDouble valMinMax = new MinMaxDouble();
 		int count = 0;
 		
-		ArrayList<XYSeriesCollection> xyDataSetList = new ArrayList <XYSeriesCollection>();
 		for (XYTaSeries posSeries: flyPositionsList) 
 		{
-			XYSeriesCollection xyDataset = getDataSet(posSeries);
-			Rectangle rect = posSeries.roi.getBounds();
-			MinMaxInt xyMinMax = new MinMaxInt(0, rect.height); //getMinMax (xyDataset);
+			YPosMultiChartStructure struct = getDataSet(posSeries, option);
+			XYSeriesCollection xyDataset = struct.xyDataset;
 			if (count == 0)
-				valMinMax = xyMinMax;
+				valMinMax = struct.minmax;
 			else
-				valMinMax.getMaxMin(xyMinMax);
+				valMinMax.getMaxMin(struct.minmax);
 			count++;
 			xyDataSetList.add(xyDataset);
 		}
-//		valMinMax.max = (valMinMax.max - valMinMax.min) * 110 / 100 + valMinMax.min; 
 		cleanChartsPanel(chartsInMainChartPanel);
 		
 		for (XYSeriesCollection xyDataset: xyDataSetList) {
@@ -85,62 +89,92 @@ public class YPosMultiChart extends IcyFrame {
 		mainChartFrame.setVisible(true);
 	}
 	
-	private XYSeriesCollection getDataSet(XYTaSeries positionxyt) {
-		
-		XYSeriesCollection xyDataset = new XYSeriesCollection();
+	private void fetchNewData (ArrayList<XYTaSeries> flyPositionsList, ArrayListType option) {
+
+		for (XYTaSeries positionxyt: flyPositionsList) 
+		{
+			String name = positionxyt.roi.getName();
+			for (XYSeriesCollection xySeriesList: xyDataSetList) {
+				int countseries = xySeriesList.getSeriesCount();
+				for (int i = 0; i< countseries; i++) {
+					XYSeries xySeries = xySeriesList.getSeries(i);
+					if (name .equals(xySeries.getDescription())) {
+						xySeries.clear();
+						addPointsToXYSeries(positionxyt, option, xySeries);
+						break;
+					}
+				}
+			}
+		}
+	}
+	
+	private MinMaxDouble addPointsToXYSeries(XYTaSeries positionxyt, ArrayListType option, XYSeries seriesXY) {
+		int itmax = positionxyt.pointsList.size();
+		MinMaxDouble minmax =null;
+		switch (option) {
+		case distance:
+			{
+				double previousY = positionxyt.pointsList.get(0).point.getY();
+				for ( int it = 0; it < itmax;  it++)
+				{
+					double currentY = positionxyt.pointsList.get(it).point.getY();
+					double ypos = currentY - previousY;
+					double t = positionxyt.pointsList.get(it).time;
+					seriesXY.add( t, ypos );
+					previousY = currentY;
+				}
+				Rectangle rect = positionxyt.roi.getBounds();
+				double length_diagonal = Math.sqrt((rect.height*rect.height) + (rect.width*rect.width));
+				minmax = new MinMaxDouble(0.0, length_diagonal);
+			}
+			break;
 			
+		case isalive:
+			for ( int it = 0; it < itmax;  it++)
+			{
+				boolean alive = positionxyt.pointsList.get(it).alive;
+				double ypos = alive? 1.0: 0.0;
+				double t = positionxyt.pointsList.get(it).time;
+				seriesXY.add( t, ypos );
+			}
+			minmax = new MinMaxDouble(0., 1.2);
+			break;
+			
+		default:
+		case xyPosition:
+			{
+				Rectangle rect = positionxyt.roi.getBounds();
+				double yOrigin = rect.getY()+rect.getHeight();	
+				for ( int it = 0; it < itmax;  it++)
+				{
+					Point2D point = positionxyt.pointsList.get(it).point;
+					double ypos = yOrigin - point.getY();
+					double t = positionxyt.pointsList.get(it).time;
+					seriesXY.add( t, ypos );
+				}
+				minmax = new MinMaxDouble(0., rect.height * 1.2);
+				break;
+			}
+		}
+		return minmax;
+	}
+	
+	private YPosMultiChartStructure getDataSet(XYTaSeries positionxyt, ArrayListType option) {
+		
+		XYSeriesCollection xyDataset = new XYSeriesCollection();	
 		String name = positionxyt.roi.getName();
 		XYSeries seriesXY = new XYSeries(name);
 		seriesXY.setDescription(name);
-		int itmax = positionxyt.pointsList.size();
-		Rectangle2D rect = positionxyt.roi.getBounds2D();
-		double yOrigin = rect.getY()+rect.getHeight();
+		MinMaxDouble minmax = addPointsToXYSeries(positionxyt, option, seriesXY);
+		xyDataset.addSeries(seriesXY);
 		
-		for ( int it = 0; it < itmax;  it++)
-		{
-			Point2D point = positionxyt.pointsList.get(it).point;
-			double ypos = yOrigin - point.getY();
-			double t = positionxyt.pointsList.get(it).time;
-			seriesXY.add( t, ypos );
-		}
-		xyDataset.addSeries(seriesXY );
-		return xyDataset;
+		return new YPosMultiChartStructure(minmax, xyDataset);
 	}
 	
 	private void cleanChartsPanel (ArrayList<ChartPanel> chartsPanel) {
 		if (chartsPanel != null && chartsPanel.size() > 0) {
 			chartsPanel.clear();
 		}
-	}
-	
-	private MinMaxInt getMinMaxFromROIs (XYSeriesCollection xyDataset, ArrayList<XYTaSeries> flyPositionsList) {
-		MinMaxInt valMinMax = new MinMaxInt();
-		List<XYSeries> xySeriesList = (List<XYSeries>) xyDataset.getSeries();
-		valMinMax.min = (int) xySeriesList.get(0).getMinY();
-		valMinMax.max = (int) xySeriesList.get(0).getMaxY();
-		for (XYSeries xySeries: xySeriesList) {
-			String name = xySeries.getDescription();
-			for (XYTaSeries flyPositionSeries: flyPositionsList) {
-				if (name.equals(flyPositionSeries.getName())) {
-					Rectangle rect = flyPositionSeries.roi.getBounds();	
-					valMinMax.getMaxMin(rect.y, rect.y+rect.height);
-				}
-			}
-		}
-		return valMinMax;
-	}
-	
-	private MinMaxInt getMinMax (XYSeriesCollection xyDataset) {
-		MinMaxInt valMinMax = new MinMaxInt();
-		List<XYSeries> xySeriesList = (List<XYSeries>) xyDataset.getSeries();
-		valMinMax.min = (int) xySeriesList.get(0).getMinY();
-		valMinMax.max = (int) xySeriesList.get(0).getMaxY();
-		for (XYSeries xySeries: xySeriesList) {
-			int min = (int) xySeries.getMinY();
-			int max = (int) xySeries.getMaxY();
-			valMinMax.getMaxMin(max, min);
-		}
-		return valMinMax;
 	}
 
 }

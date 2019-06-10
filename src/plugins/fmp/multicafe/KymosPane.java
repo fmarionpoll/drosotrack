@@ -15,7 +15,6 @@ import icy.image.IcyBufferedImage;
 import plugins.fmp.sequencevirtual.SequencePlus;
 import plugins.fmp.tools.ImageTransformTools;
 import plugins.fmp.tools.ImageTransformTools.TransformOp;
-import plugins.fmp.tools.StatusPane;
 
 
 public class KymosPane extends JPanel implements PropertyChangeListener, ChangeListener {

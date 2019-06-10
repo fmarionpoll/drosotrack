@@ -1,13 +1,13 @@
 package plugins.fmp.tools;
 
-public class MinMaxInt {
-	public int max=0;
-	public int min=0;
+public class MinMaxDouble {
+	public double max=0;
+	public double min=0;
 	
-	public MinMaxInt() {
+	public MinMaxDouble() {
 	}
 	
-	public MinMaxInt(int val1, int val2 ) {
+	public MinMaxDouble(double val1, double val2 ) {
 		if (val1 >= val2) {
 			max = val1;
 			min = val2;
@@ -18,19 +18,19 @@ public class MinMaxInt {
 		}
 	}
 	
-	public MinMaxInt getMaxMin(int value1, int value2) {
+	public MinMaxDouble getMaxMin(double value1, double value2) {
 		getMaxMin(value1);
 		getMaxMin(value2);
 		return this;
 	}
 	
-	public MinMaxInt getMaxMin(MinMaxInt val) {
+	public MinMaxDouble getMaxMin(MinMaxDouble val) {
 		getMaxMin(val.min);
 		getMaxMin(val.max);
 		return this;
 	}
 	
-	public MinMaxInt getMaxMin(int value) {
+	public MinMaxDouble getMaxMin(double value) {
 		if (value > max)
 			max = value;
 		if (value < min)

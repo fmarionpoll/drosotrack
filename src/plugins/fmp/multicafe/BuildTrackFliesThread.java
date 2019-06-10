@@ -147,7 +147,7 @@ class BuildTrackFliesThread implements Runnable {
 						flyROI.setName("det"+iroi +" " + t );
 					}
 					else {
-						Point2D pt = new Point2D.Double(0,0);
+						Point2D pt = new Point2D.Double(-1,-1);
 						flyROI = new ROI2DArea(pt);
 						flyROI.setName("failed det"+iroi +" " + t );
 					}

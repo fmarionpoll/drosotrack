@@ -13,11 +13,12 @@ import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
 import plugins.fmp.sequencevirtual.SequencePlus;
 import plugins.fmp.sequencevirtual.SequenceVirtual;
+import plugins.fmp.sequencevirtual.XYTaSeries;
 
 public class XLSExportCapillaryResults {
 
-	static SequenceVirtual 					vSequence = null;
-	static XLSExportCapillariesOptions options = null;
+	static SequenceVirtual 				vSequence = null;
+	static XLSExportCapillariesOptions 	options = null;
 	static ArrayList<SequencePlus> 		kymographArrayList = null;
 	
 	public static void exportToFile(String filename, XLSExportCapillariesOptions opt, 
@@ -53,29 +54,29 @@ public class XLSExportCapillaryResults {
 		System.out.println("XLS output finished");
 	}
 
-	private static ArrayList <ArrayList<Integer >> getDataFromRois(XLSExportItems option, boolean relative) {
-		ArrayList <ArrayList<Integer >> arrayList = new ArrayList <ArrayList <Integer>> ();
+	private static ArrayList <ArrayList<Integer>> getDataFromRois(XLSExportItems xlsoption, boolean relative) {
+		ArrayList <ArrayList<Integer >> resultsArrayList = new ArrayList <ArrayList<Integer >> ();
 		for (SequencePlus seq: kymographArrayList) {
-			switch (option) {
+			switch (xlsoption) {
 			case DERIVEDVALUES:
-				arrayList.add(seq.getArrayListFromRois(ArrayListType.derivedValues));
+				resultsArrayList.add(seq.getArrayListFromRois(ArrayListType.derivedValues));
 				break;
 			case SUMGULPS: 
-				arrayList.add(seq.getArrayListFromRois(ArrayListType.cumSum));
+				resultsArrayList.add(seq.getArrayListFromRois(ArrayListType.cumSum));
 				break;
 			case BOTTOMLEVEL:
-				arrayList.add(seq.getArrayListFromRois(ArrayListType.bottomLevel));
+				resultsArrayList.add(seq.getArrayListFromRois(ArrayListType.bottomLevel));
 				break;
 			case TOPLEVEL:
 			case SUMLR:
 			default:
-				arrayList.add(seq.getArrayListFromRois(ArrayListType.topLevel));
+				resultsArrayList.add(seq.getArrayListFromRois(ArrayListType.topLevel));
 				break;
 			}
 		}
 		
 		if (relative) {
-			for (ArrayList<Integer> array : arrayList) {
+			for (ArrayList<Integer> array : resultsArrayList) {
 				int item0 = array.get(0);
 				int i=0;
 				for (int item: array) {
@@ -84,19 +85,57 @@ public class XLSExportCapillaryResults {
 				}
 			}
 		}
-		return arrayList;
+		
+		if (options.onlyalive && vSequence.cages.flyPositionsList.size() > 0) {
+			resultsArrayList = trimDeads(resultsArrayList);
+		}
+		return resultsArrayList;
+	}
+	private static ArrayList <ArrayList<Integer>> trimDeads(ArrayList <ArrayList<Integer >> resultsArrayList) {
+		ArrayList <ArrayList<Integer >> trimmedArrayList = new ArrayList <ArrayList<Integer >> ();
+		int ncages = vSequence.cages.flyPositionsList.size();
+		int ncapillaries = resultsArrayList.size();
+		int icapillary = 0;
+		for (XYTaSeries flypos: vSequence.cages.flyPositionsList) {
+			int ilastalive = getLastIntervalAlive(flypos);					
+			trimmedArrayList.add(trimArray(resultsArrayList.get(icapillary), ilastalive));
+			trimmedArrayList.add(trimArray(resultsArrayList.get(icapillary+1), ilastalive));
+			icapillary += 2;
+		}
+		return trimmedArrayList;
+		
 	}
 	
-	private static void xlsExportToWorkbook(Workbook workBook, String title, XLSExportItems option) {
+	private static int getLastIntervalAlive(XYTaSeries flypos) {
+		int npos_intervals = flypos.pointsList.size();
+		int ilastalive = -1;
+		for (int i = npos_intervals-1; i >= 0; i--) {
+			if (flypos.pointsList.get(i).alive) {
+				ilastalive = i;
+				break;
+			}
+		}
+		return ilastalive;
+	}
+	
+	private static ArrayList<Integer> trimArray (ArrayList<Integer> array, int ilastalive) {
+		int nresults_intervals = array.size();
+		for (int i = nresults_intervals-1; i > ilastalive; i--) {
+			array.remove(i);
+		}
+		return array;
+	}
+	
+	private static void xlsExportToWorkbook(Workbook workBook, String title, XLSExportItems xlsoption) {
 		System.out.println("export worksheet "+title);
-		ArrayList <ArrayList<Integer >> arrayList = getDataFromRois(option, options.t0);		
+		ArrayList <ArrayList<Integer >> arrayList = getDataFromRois(xlsoption, options.t0);		
 		if (arrayList.size() == 0)
 			return;
 
 		Sheet sheet = workBook.createSheet(title );
 		Point pt = writeGlobalInfos(sheet, options.transpose);
-		pt = writeColumnHeaders(sheet, pt, option, options.transpose);
-		pt = writeData(sheet, pt, option, arrayList, options.transpose);
+		pt = writeColumnHeaders(sheet, pt, xlsoption, options.transpose);
+		pt = writeData(sheet, pt, xlsoption, arrayList, options.transpose);
 	}
 	
 	private static Point writeGlobalInfos(Sheet sheet, boolean transpose) {

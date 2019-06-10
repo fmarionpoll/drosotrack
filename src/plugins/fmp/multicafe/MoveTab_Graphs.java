@@ -10,8 +10,12 @@ import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.JSpinner;
+import javax.swing.SpinnerNumberModel;
 
 import icy.gui.util.GuiUtil;
+import plugins.fmp.sequencevirtual.XYTaSeries;
+import plugins.fmp.tools.ArrayListType;
 import plugins.fmp.tools.YPosMultiChart;
 
 
@@ -27,9 +31,10 @@ public class MoveTab_Graphs extends JPanel implements ActionListener  {
 	private YPosMultiChart aliveChart		= null;
 	private Multicafe parent0 = null;
 	
-	public JCheckBox	moveCheckbox		= new JCheckBox("y position", false);	
+	public JCheckBox	moveCheckbox		= new JCheckBox("y position", true);	
 	public JCheckBox	distanceCheckbox	= new JCheckBox("distance t/t+1", true);
 	public JCheckBox	aliveCheckbox		= new JCheckBox("fly alive", true);
+	public JSpinner 	aliveThresholdSpinner = new JSpinner(new SpinnerNumberModel(5.0, 0., 100000., .1));
 	public JButton 		displayResultsButton= new JButton("Display results");
 
 	
@@ -37,6 +42,8 @@ public class MoveTab_Graphs extends JPanel implements ActionListener  {
 		setLayout(capLayout);
 		this.parent0 = parent0;
 		add(GuiUtil.besidesPanel(moveCheckbox, distanceCheckbox, aliveCheckbox, new JLabel(" ")));
+		add(GuiUtil.besidesPanel(new JLabel(" "), new JLabel("Alive threshold"), aliveThresholdSpinner, new JLabel(" ")));
+		
 		add(GuiUtil.besidesPanel(displayResultsButton, new JLabel(" "))); 
 		defineActionListeners();
 	}
@@ -64,27 +71,35 @@ public class MoveTab_Graphs extends JPanel implements ActionListener  {
 		final int deltay = 230;
 	
 		if (moveCheckbox.isSelected() ) {
-			ypositionsChart = displayYPos("flies Y positions", ypositionsChart, rectv, ptRelative);
+			ypositionsChart = displayYPos("flies Y positions", ypositionsChart, rectv, ptRelative, 
+					ArrayListType.xyPosition);
 			ptRelative.y += deltay;
 		}
 		if (distanceCheckbox.isSelected()) {
-			distanceChart = displayYPos("distance between positions at t+1 and t", distanceChart, rectv, ptRelative);
+			distanceChart = displayYPos("distance between positions at t+1 and t", distanceChart, rectv, ptRelative,
+					ArrayListType.distance);
 			ptRelative.y += deltay;
 		}
 		if (aliveCheckbox.isSelected()) {
-			aliveChart = displayYPos("flies alive", aliveChart, rectv, ptRelative);	
+			double threshold = (double) aliveThresholdSpinner.getValue();		
+			for (XYTaSeries posSeries: parent0.vSequence.cages.flyPositionsList) {
+				posSeries.threshold = threshold;
+				posSeries.getDoubleArrayList(ArrayListType.isalive);
+			}
+			aliveChart = displayYPos("flies alive", aliveChart, rectv, ptRelative,
+					ArrayListType.isalive);	
 			ptRelative.y += deltay;
 		}
 	}
 
 	
-	private YPosMultiChart displayYPos(String title, YPosMultiChart iChart, Rectangle rectv, Point ptRelative) {
+	private YPosMultiChart displayYPos(String title, YPosMultiChart iChart, Rectangle rectv, Point ptRelative, ArrayListType option) {
 		if (iChart == null || !iChart.mainChartPanel.isValid()) {
 			iChart = new YPosMultiChart();
 			iChart.createPanel(title);
 			iChart.setLocationRelativeToRectangle(rectv, ptRelative);
 		}
-		iChart.displayData(parent0.vSequence.cages.flyPositionsList);
+		iChart.displayData(parent0.vSequence.cages.flyPositionsList, option);
 		iChart.mainChartFrame.toFront();
 		return iChart;
 	}
@@ -105,6 +120,5 @@ public class MoveTab_Graphs extends JPanel implements ActionListener  {
 			aliveChart.mainChartFrame.close();
 			aliveChart = null;
 		}
-		
 	}
 }

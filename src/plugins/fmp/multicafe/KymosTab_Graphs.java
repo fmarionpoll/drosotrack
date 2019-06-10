@@ -22,8 +22,8 @@ public class KymosTab_Graphs extends JPanel implements ActionListener  {
 	 */
 	private static final long serialVersionUID = -7079184380174992501L;
 	private XYMultiChart topandbottomChart 		= null;
-	private XYMultiChart drivativeChart 		= null;
-	private XYMultiChart sumgulpsChart 		= null;
+	private XYMultiChart derivativeChart 		= null;
+	private XYMultiChart sumgulpsChart 			= null;
 	private Multicafe parent0 = null;
 	
 	public JCheckBox 	limitsCheckbox 		= new JCheckBox("top/bottom", true);
@@ -52,7 +52,6 @@ public class KymosTab_Graphs extends JPanel implements ActionListener  {
 			parent0.roisSaveEdits();
 			xyDisplayGraphs();
 			displayResultsButton.setEnabled(true);
-//			firePropertyChange("DISPLAY_RESULTS", false, true);	
 		}
 	}
 	
@@ -72,9 +71,9 @@ public class KymosTab_Graphs extends JPanel implements ActionListener  {
 			ptRelative.y += deltay;
 		}
 		if (derivativeCheckbox.isSelected()) {
-			drivativeChart = xyDisplayGraphsItem("Derivative", 
+			derivativeChart = xyDisplayGraphsItem("Derivative", 
 					ArrayListType.derivedValues, 
-					drivativeChart, rectv, ptRelative, kmax);
+					derivativeChart, rectv, ptRelative, kmax);
 			ptRelative.y += deltay; 
 		}
 		if (consumptionCheckbox.isSelected()) {
@@ -104,13 +103,13 @@ public class KymosTab_Graphs extends JPanel implements ActionListener  {
 	public void closeAll() {
 		if (topandbottomChart != null) 
 			topandbottomChart.mainChartFrame.dispose();
-		if (drivativeChart != null) 
-			drivativeChart.mainChartFrame.close();
+		if (derivativeChart != null) 
+			derivativeChart.mainChartFrame.close();
 		if (sumgulpsChart != null) 
 			sumgulpsChart.mainChartFrame.close();
 
 		topandbottomChart  = null;
-		drivativeChart = null;
+		derivativeChart = null;
 		sumgulpsChart  = null;
 	}
 }

@@ -10,7 +10,7 @@ import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
 import icy.gui.util.GuiUtil;
-import plugins.fmp.tools.StatusPane;
+
 
 
 public class MovePane extends JPanel implements PropertyChangeListener, ChangeListener {
@@ -22,7 +22,7 @@ public class MovePane extends JPanel implements PropertyChangeListener, ChangeLi
 	
 	public JTabbedPane tabsPane	= new JTabbedPane();
 	public MoveTab_BuildROIs 	buildROIsTab = new MoveTab_BuildROIs();
-	public MoveTab_DetectFlies 	optionsTab 	= new MoveTab_DetectFlies();
+	public MoveTab_Detect 		optionsTab 	= new MoveTab_Detect();
 	public MoveTab_File 		filesTab 	= new MoveTab_File();
 	public MoveTab_Graphs 		graphicsTab = new MoveTab_Graphs();
 	public MoveTab_Excel 		excelTab  	= new MoveTab_Excel();

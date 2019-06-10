@@ -7,4 +7,5 @@ public class XLSExportMoveOptions {
 	public boolean 	distance = false;
 	public boolean 	alive = true;
 	public boolean	transpose = false;
+	public boolean  duplicateSeries = true;
 }

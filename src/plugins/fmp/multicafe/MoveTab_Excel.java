@@ -25,10 +25,11 @@ public class MoveTab_Excel  extends JPanel implements ActionListener  {
 	private static final long serialVersionUID = 1290058998782225526L;
 
 	public JCheckBox 	xyCenterCheckBox 	= new JCheckBox("XY position", true);
-	public JCheckBox 	distanceCheckBox = new JCheckBox("distance", false);
-	public JCheckBox 	aliveCheckBox = new JCheckBox("alive or not", true);
+	public JCheckBox 	distanceCheckBox 	= new JCheckBox("distance", false);
+	public JCheckBox 	aliveCheckBox 		= new JCheckBox("alive", true);
+	public JCheckBox	transposeCheckBox 	= new JCheckBox("transpose", true);
 	public JButton 		exportToXLSButton 	= new JButton("save XLS");
-	public JCheckBox	transposeCheckBox 	= new JCheckBox("transpose", false);
+	
 
 	private Multicafe parent0 = null;
 	

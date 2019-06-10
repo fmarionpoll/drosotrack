@@ -66,7 +66,6 @@ public class XLSExportMoveResults {
 		return arrayList;
 	}
 
-	//-----------------------------------------------------------------------------------
 	private static void xlsExportToWorkbook(Workbook workBook, String title, XLSExportItems option) {
 		System.out.println("export worksheet "+title);
 		ArrayList <ArrayList<Double >> arrayList = getDataFromCages(option);		
@@ -124,9 +123,18 @@ public class XLSExportMoveResults {
 		
 		switch (option) {
 		case DISTANCE:
+			for (XYTaSeries posxyt: vSequence.cages.flyPositionsList) {
+				String name0 = posxyt.getName();
+				XLSUtils.setValue(sheet,  pt.x, pt.y, name0 );
+				pt = XLSUtils.nextCol(pt, transpose);
+			}
+			break;
+			
 		case ISALIVE:
 			for (XYTaSeries posxyt: vSequence.cages.flyPositionsList) {
 				String name0 = posxyt.getName();
+				XLSUtils.setValue(sheet,  pt.x, pt.y, name0 );
+				pt = XLSUtils.nextCol(pt, transpose);
 				XLSUtils.setValue(sheet,  pt.x, pt.y, name0 );
 				pt = XLSUtils.nextCol(pt, transpose);
 			}
@@ -169,9 +177,17 @@ public class XLSExportMoveResults {
 			
 			switch (option) {
 			case DISTANCE:
+				for (int i=0; i < n_series; i++ ) 
+				{
+					XLSUtils.setValue(sheet,  pt2.x, pt2.y, arrayList.get(i).get(time_interval) );
+					pt2 = XLSUtils.nextCol(pt2, transpose);
+				}
+				break;
 			case ISALIVE:
 				for (int i=0; i < n_series; i++ ) 
 				{
+					XLSUtils.setValue(sheet,  pt2.x, pt2.y, arrayList.get(i).get(time_interval) );
+					pt2 = XLSUtils.nextCol(pt2, transpose);
 					XLSUtils.setValue(sheet,  pt2.x, pt2.y, arrayList.get(i).get(time_interval) );
 					pt2 = XLSUtils.nextCol(pt2, transpose);
 				}

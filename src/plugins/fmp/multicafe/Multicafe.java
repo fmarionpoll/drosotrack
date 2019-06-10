@@ -23,8 +23,7 @@ import icy.sequence.SequenceListener;
 import plugins.fmp.sequencevirtual.SequencePlus;
 import plugins.fmp.tools.ArrayListType;
 import plugins.fmp.sequencevirtual.SequenceVirtual;
-import plugins.fmp.tools.StatusAnalysis;
-import plugins.fmp.tools.StatusPane;
+
 
 // SequenceListener?
 public class Multicafe extends PluginActionable implements ViewerListener, PropertyChangeListener, SequenceListener
@@ -167,7 +166,6 @@ public class Multicafe extends PluginActionable implements ViewerListener, Prope
 			if( !capillariesPane.loadDefaultCapillaries()) 
 				return;
 			sequencePane.UpdateItemsFromSequence(vSequence);
-//			buttonsVisibilityUpdate(StatusAnalysis.ROIS_OK);
 		}
 		if (loadKymographs) {
 			if ( !capillariesPane.fileTab.loadDefaultKymos()) {
@@ -185,7 +183,11 @@ public class Multicafe extends PluginActionable implements ViewerListener, Prope
 			movePane.loadDefaultCages();
 			movePane.graphicsTab.moveCheckbox.setEnabled(true);
 			movePane.graphicsTab.displayResultsButton.setEnabled(true);
-		}
+			if (vSequence.cages != null && vSequence.cages.flyPositionsList.size() > 0) {
+				double threshold = vSequence.cages.flyPositionsList.get(0).threshold;
+				movePane.graphicsTab.aliveThresholdSpinner.setValue(threshold);
+				}
+			}
 	}
 
 }
