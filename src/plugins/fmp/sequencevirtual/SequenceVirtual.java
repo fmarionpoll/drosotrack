@@ -374,6 +374,17 @@ public class SequenceVirtual extends Sequence
 		// TODO clean buffer by removing images?
 	}
 
+	public void cleanUpBufferAndRestart() {
+		if (bufferThread == null)
+			return;
+		int depth = bufferThread.getFenetre();
+		vImageBufferThread_STOP();
+		for (int t = 0; t < nTotalFrames-1 ; t++) {
+			removeImage(t, 0);
+		}
+		vImageBufferThread_START(depth);
+	}
+	
 	public class VImageBufferThread extends Thread {
 
 		/**
@@ -398,9 +409,11 @@ public class SequenceVirtual extends Sequence
 			span = fenetre/2 * analysisStep;
 		}
 
-		public void getFenetre (int depth) {
-			fenetre = depth;
-			span = fenetre/2 * analysisStep;
+		public int getFenetre () {
+			return fenetre;
+		}
+		public int getStep() {
+			return analysisStep;
 		}
 
 		public int getCurrentBufferLoadPercent()

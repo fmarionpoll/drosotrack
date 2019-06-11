@@ -9,5 +9,6 @@ public class XLSExportCapillariesOptions {
 	public boolean transpose = false; 
 	public boolean t0 = true;
 	public boolean onlyalive = false;
+	public boolean pivot = false;
 
 }

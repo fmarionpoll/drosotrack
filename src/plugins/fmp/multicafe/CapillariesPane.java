@@ -17,13 +17,13 @@ public class CapillariesPane extends JPanel implements PropertyChangeListener {
 	 */
 	private static final long serialVersionUID = 853047648249832145L;
 	
-	public JTabbedPane tabsPane 			= new JTabbedPane();
-	public CapillariesTab_Build buildarrayTab 	= new CapillariesTab_Build();
-	public CapillariesTab_File fileTab 		= new CapillariesTab_File();
-	public CapillariesTab_Adjust adjustTab 	= new CapillariesTab_Adjust();
-	public CapillariesTab_Properties propertiesTab = new CapillariesTab_Properties();
+	public JTabbedPane tabsPane 					= new JTabbedPane();
+	public CapillariesTab_Build buildarrayTab 		= new CapillariesTab_Build();
+	public CapillariesTab_File fileTab 				= new CapillariesTab_File();
+	public CapillariesTab_Adjust adjustTab 			= new CapillariesTab_Adjust();
+	public CapillariesTab_Properties propertiesTab 	= new CapillariesTab_Properties();
 	public CapillaryTab_BuildKymos buildkymosTab 	= new CapillaryTab_BuildKymos();
-	public CapillariesTab_Options optionsTab 	= new CapillariesTab_Options();
+	public CapillariesTab_Options optionsTab 		= new CapillariesTab_Options();
 	
 	
 	private Multicafe parent0 = null;
@@ -90,6 +90,7 @@ public class CapillariesPane extends JPanel implements PropertyChangeListener {
 			tabsPane.setSelectedIndex(2);
 		}
 		else if (event.getPropertyName().equals("CAPILLARIES_NEW")) {
+			propertiesTab.visibleCheckBox.setSelected(true);
 			firePropertyChange("CAPILLARIES_NEW", false, true);
 			tabsPane.setSelectedIndex(2);
 		}

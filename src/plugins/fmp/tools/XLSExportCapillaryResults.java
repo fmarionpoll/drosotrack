@@ -6,9 +6,17 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 
+import org.apache.poi.ss.util.CellReference;
+import org.apache.poi.ss.SpreadsheetVersion;
+import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.DataConsolidateFunction;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
+import org.apache.poi.ss.util.AreaReference;
+import org.apache.poi.ss.util.CellAddress;
+import org.apache.poi.xssf.usermodel.XSSFPivotTable;
+import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
 import plugins.fmp.sequencevirtual.SequencePlus;
@@ -30,12 +38,13 @@ public class XLSExportCapillaryResults {
 		kymographArrayList = kymographsArray;
 		
 		try { 
-			Workbook workbook = new XSSFWorkbook(); 
+			XSSFWorkbook workbook = new XSSFWorkbook(); 
 			workbook.setMissingCellPolicy(Row.MissingCellPolicy.CREATE_NULL_AS_BLANK);
 
 			if (options.topLevel) {
 				xlsExportToWorkbook(workbook, "toplevel", XLSExportItems.TOPLEVEL);
-				xlsExportToWorkbook(workbook, "toplevel_alive", XLSExportItems.TOPLEVEL);
+				if (options.onlyalive) xlsExportToWorkbook(workbook, "toplevel_alive", XLSExportItems.TOPLEVEL);
+				if (options.transpose && options.pivot) xlsCreatePivotTable(workbook, "toplevel");
 			}
 			if (options.bottomLevel) 
 				xlsExportToWorkbook(workbook, "bottomlevel", XLSExportItems.BOTTOMLEVEL);
@@ -43,11 +52,11 @@ public class XLSExportCapillaryResults {
 				xlsExportToWorkbook(workbook, "derivative", XLSExportItems.DERIVEDVALUES);
 			if (options.consumption) {
 				xlsExportToWorkbook(workbook, "sumGulps", XLSExportItems.SUMGULPS);
-				xlsExportToWorkbook(workbook, "sumGulps_alive", XLSExportItems.SUMGULPS);
+				if (options.onlyalive) xlsExportToWorkbook(workbook, "sumGulps_alive", XLSExportItems.SUMGULPS);
 			}
 			if (options.sum) { 
 				xlsExportToWorkbook(workbook, "sumL+R", XLSExportItems.SUMLR);
-				xlsExportToWorkbook(workbook, "sumL+R_alive", XLSExportItems.SUMLR);
+				if (options.onlyalive) xlsExportToWorkbook(workbook, "sumL+R_alive", XLSExportItems.SUMLR);
 			}
 			
 			FileOutputStream fileOut = new FileOutputStream(filename);
@@ -81,8 +90,9 @@ public class XLSExportCapillaryResults {
 			}
 		}
 		
-		if (relative) {
+		if (relative && resultsArrayList.size() > 0) {
 			for (ArrayList<Integer> array : resultsArrayList) {
+
 				int item0 = array.get(0);
 				int i=0;
 				for (int item: array) {
@@ -129,7 +139,7 @@ public class XLSExportCapillaryResults {
 		return array;
 	}
 	
-	private static void xlsExportToWorkbook(Workbook workBook, String title, XLSExportItems xlsoption) {
+	private static void xlsExportToWorkbook(XSSFWorkbook workBook, String title, XLSExportItems xlsoption) {
 		System.out.println("export worksheet "+title);
 		ArrayList <ArrayList<Integer >> arrayList = getDataFromRois(xlsoption, options.t0);		
 		if (arrayList.size() == 0)
@@ -213,7 +223,7 @@ public class XLSExportCapillaryResults {
 			if (datai.size() > maxelements)
 				maxelements = datai.size();
 		}
-		int nelements = maxelements-1;
+		int nelements = maxelements; //-1;
 		if (nelements <= 0)
 			return pt;
 		
@@ -232,7 +242,7 @@ public class XLSExportCapillaryResults {
 				pt2 = XLSUtils.nextCol(pt2, transpose);
 			}
 
-			XLSUtils.setValue(sheet,  pt2.x, pt2.y, t);
+			XLSUtils.setValue(sheet,  pt2.x, pt2.y, Integer.toString(t));
 			t  += vSequence.analysisStep;
 			pt2 = XLSUtils.nextCol(pt2, transpose);
 			
@@ -242,7 +252,7 @@ public class XLSExportCapillaryResults {
 				{
 					ArrayList<Integer> dataL = arrayList.get(i);
 					ArrayList<Integer> dataR = arrayList.get(i+1);
-					if (j < dataL.size())
+					if (j < dataL.size() && j < dataR.size())
 						XLSUtils.setValue(sheet,  pt2.x, pt2.y, (dataL.get(j)+dataR.get(j))*ratio );
 					pt2 = XLSUtils.nextCol(pt2, transpose);
 					pt2 = XLSUtils.nextCol(pt2, transpose);
@@ -263,5 +273,30 @@ public class XLSExportCapillaryResults {
 			pt = XLSUtils.nextRow (pt, transpose);
 		}
 		return pt;
+	}
+	
+	public static void xlsCreatePivotTable(XSSFWorkbook workBook, String sourcetitle) {
+        XSSFSheet sheet = workBook.createSheet("pivot");
+        XSSFSheet sourceSheet = workBook.getSheet("toplevel");
+        
+        int ndatacolumns = 0;
+        for (XYTaSeries series: vSequence.cages.flyPositionsList) {
+        	int len = series.pointsList.size();
+        	if (len > ndatacolumns)
+        		ndatacolumns = len;
+        }
+        int ncolumns_notdata = 4;
+        CellAddress lastcell = new CellAddress (21, ndatacolumns + ncolumns_notdata -1);
+        String address = "D2:"+lastcell.toString();
+        AreaReference source = new AreaReference(address, SpreadsheetVersion.EXCEL2007);
+        CellReference position = new CellReference(1, 1);
+        XSSFPivotTable pivotTable = sheet.createPivotTable(source, position, sourceSheet);
+        
+        pivotTable.addRowLabel(0);
+        for (int i=0; i< ndatacolumns; i++) {
+        	Cell cell = XLSUtils.getCell(sourceSheet, 1, i+ncolumns_notdata);
+        	pivotTable.addColumnLabel(DataConsolidateFunction.AVERAGE, i+1, cell.getStringCellValue());
+        }
+
 	}
 }

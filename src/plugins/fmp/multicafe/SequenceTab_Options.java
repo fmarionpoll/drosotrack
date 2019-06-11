@@ -61,6 +61,7 @@ public class SequenceTab_Options extends JPanel implements ActionListener{
 		} catch( Exception e ) { 
 			new AnnounceFrame("Can't interpret the analyze step value."); 
 		}
+		vSequence.cleanUpBufferAndRestart();
 	}
 
 }

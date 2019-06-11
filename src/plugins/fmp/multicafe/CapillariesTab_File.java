@@ -65,7 +65,7 @@ public class CapillariesTab_File extends JPanel implements ActionListener {
 	public void actionPerformed(ActionEvent e) {
 		Object o = e.getSource();
 		if ( o == openButtonCapillaries)  {
-			firePropertyChange("CAP_ROIS_OPEN", false, true);	
+			firePropertyChange("CAPILLARIES_NEW", false, true);
 		}
 		else if ( o == saveButtonCapillaries) {
 			firePropertyChange("CAP_ROIS_SAVE", false, true);	

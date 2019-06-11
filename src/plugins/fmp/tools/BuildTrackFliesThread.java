@@ -1,4 +1,4 @@
-package plugins.fmp.multicafe;
+package plugins.fmp.tools;
 
 import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
@@ -14,17 +14,13 @@ import icy.roi.ROI;
 import icy.system.profile.Chronometer;
 
 import plugins.fmp.sequencevirtual.Cages;
-import plugins.fmp.sequencevirtual.DetectFliesParameters;
 import plugins.fmp.sequencevirtual.XYTaSeries;
 import plugins.fmp.sequencevirtual.SequenceVirtual;
-import plugins.fmp.tools.Tools;
-import plugins.fmp.tools.ROI2DUtilities;
-
 import plugins.kernel.roi.roi2d.ROI2DArea;
 import plugins.kernel.roi.roi2d.ROI2DRectangle;
 
 
-class BuildTrackFliesThread implements Runnable {
+public class BuildTrackFliesThread implements Runnable {
 	
 	private ArrayList<BooleanMask2D> cageMaskList = new ArrayList<BooleanMask2D>();
 	public SequenceVirtual vSequence = null;	

@@ -1,4 +1,4 @@
-package plugins.fmp.multicafe;
+package plugins.fmp.tools;
 
 
 import java.util.ArrayList;
@@ -13,18 +13,12 @@ import icy.type.collection.array.Array1DUtil;
 
 import plugins.fmp.sequencevirtual.SequencePlus;
 import plugins.fmp.sequencevirtual.SequenceVirtual;
-import plugins.fmp.tools.ProgressChrono;
-import plugins.fmp.tools.Tools;
 import plugins.kernel.roi.roi2d.ROI2DShape;
-//import plugins.agaspard.rigidregistration.RigidRegistration;
-import plugins.fmp.tools.DufourRigidRegistration;
-
 import plugins.nchenouard.kymographtracker.Util;
 import plugins.nchenouard.kymographtracker.spline.CubicSmoothingSpline;
 
 
-//-------------------------------------------
-//	public class BuildKymographsThread extends Thread  
+ 
 public class BuildKymographsThread implements Runnable 
 {
 	public SequenceVirtual vSequence = null;

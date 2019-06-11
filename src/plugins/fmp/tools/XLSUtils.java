@@ -34,6 +34,7 @@ public class XLSUtils {
 		Cell cell = getCell (sheet, row, column);
 		cell.setCellValue(ivalue);
 	}
+	
 	public static void setValue (Sheet sheet, int column, int row, String string) {
 		Cell cell = getCell (sheet, row, column);
 		cell.setCellValue(string);

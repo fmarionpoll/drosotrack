@@ -33,6 +33,7 @@ public class KymosTab_Excel extends JPanel implements ActionListener  {
 	public JCheckBox	t0CheckBox			= new JCheckBox("t-t0", true);
 	public JCheckBox	transposeCheckBox 	= new JCheckBox("transpose", true);
 	public JCheckBox	combinewithaliveCheckBox = new JCheckBox("dead=empty", false);
+	public JCheckBox	pivotCheckBox 		= new JCheckBox("pivot", false);
 	private Multicafe parent0 = null;
 	
 	
@@ -40,7 +41,7 @@ public class KymosTab_Excel extends JPanel implements ActionListener  {
 		setLayout(capLayout);
 		this.parent0 = parent0;
 		add(GuiUtil.besidesPanel( topLevelCheckBox, bottomLevelCheckBox, consumptionCheckBox, sumCheckBox));
-		add(GuiUtil.besidesPanel( t0CheckBox, transposeCheckBox, combinewithaliveCheckBox, new JLabel(" "))); 
+		add(GuiUtil.besidesPanel( t0CheckBox, transposeCheckBox, combinewithaliveCheckBox, pivotCheckBox)); 
 //		add(GuiUtil.besidesPanel( t0CheckBox, transposeCheckBox, new JLabel(" "), new JLabel(" "))); 
 		add(GuiUtil.besidesPanel( new JLabel(" "), new JLabel(" "), new JLabel(" "), exportToXLSButton)); 
 		defineActionListeners();
@@ -61,11 +62,9 @@ public class KymosTab_Excel extends JPanel implements ActionListener  {
 			String file = Tools.saveFileAs(tentativeName, directory.getParent().toString(), "xlsx");
 			if (file != null) {
 				final String filename = file;
-				exportToXLSButton.setEnabled( false);
 				parent0.capillariesPane.propertiesTab.updateSequenceFromDialog();
 				XLSExportCapillaryResults.exportToFile(filename, getOptions(), parent0.vSequence, parent0.kymographArrayList);
 				firePropertyChange("EXPORT_TO_EXCEL", false, true);	
-				exportToXLSButton.setEnabled( true );
 			}
 		}
 	}
@@ -80,6 +79,7 @@ public class KymosTab_Excel extends JPanel implements ActionListener  {
 		options.transpose = transposeCheckBox.isSelected(); 
 		options.t0 = t0CheckBox.isSelected();
 		options.onlyalive = combinewithaliveCheckBox.isSelected();
+		options.pivot = pivotCheckBox.isSelected();
 		return options;
 	}
 	
