@@ -79,8 +79,8 @@ public class CapillariesPane extends JPanel implements PropertyChangeListener {
 		  	UpdateInfosFromSequence();
 		  	tabsPane.setSelectedIndex(2);
 		  	firePropertyChange("CAPILLARIES_OPEN", false, true);
-		 }			  
-		 else if (event.getPropertyName().equals("CAP_ROIS_SAVE")) {
+		}			  
+		else if (event.getPropertyName().equals("CAP_ROIS_SAVE")) {
 			propertiesTab.updateSequenceFromDialog();
 			if (buildarrayTab.getGroupedBy2())
 				parent0.vSequence.capillaries.capillariesGrouping = 2;
@@ -88,12 +88,12 @@ public class CapillariesPane extends JPanel implements PropertyChangeListener {
 				parent0.vSequence.capillaries.capillariesGrouping = 1;
 			fileTab.capillaryRoisSave();
 			tabsPane.setSelectedIndex(2);
-		 }
-		 else if (event.getPropertyName().equals("CAPILLARIES_NEW")) {
+		}
+		else if (event.getPropertyName().equals("CAPILLARIES_NEW")) {
 			firePropertyChange("CAPILLARIES_NEW", false, true);
 			tabsPane.setSelectedIndex(2);
-		 }
-		 else if (event.getPropertyName().equals("KYMOS_OPEN")) {
+		}
+		else if (event.getPropertyName().equals("KYMOS_OPEN")) {
 			optionsTab.viewKymosCheckBox.setSelected(true);
 			optionsTab.transferFileNamesToComboBox();
 			tabsPane.setSelectedIndex(2);
@@ -106,6 +106,12 @@ public class CapillariesPane extends JPanel implements PropertyChangeListener {
 		else if (event.getPropertyName() .equals("KYMOS_DISPLAY_UPDATE")) {
 			int ikymo = optionsTab.kymographNamesComboBox.getSelectedIndex();
 			optionsTab.selectKymograph(ikymo);
+		}
+		else if (event.getPropertyName().equals("KYMOS_OK")) {
+			tabsPane.setSelectedIndex(4);
+		}
+		else if (event.getPropertyName().equals("KYMOS_SAVE")) {
+			tabsPane.setSelectedIndex(4);
 		}
 }
 	

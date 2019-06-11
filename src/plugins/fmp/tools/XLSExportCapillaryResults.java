@@ -33,16 +33,22 @@ public class XLSExportCapillaryResults {
 			Workbook workbook = new XSSFWorkbook(); 
 			workbook.setMissingCellPolicy(Row.MissingCellPolicy.CREATE_NULL_AS_BLANK);
 
-			if (options.topLevel) 
+			if (options.topLevel) {
 				xlsExportToWorkbook(workbook, "toplevel", XLSExportItems.TOPLEVEL);
+				xlsExportToWorkbook(workbook, "toplevel_alive", XLSExportItems.TOPLEVEL);
+			}
 			if (options.bottomLevel) 
 				xlsExportToWorkbook(workbook, "bottomlevel", XLSExportItems.BOTTOMLEVEL);
 			if (options.derivative) 
 				xlsExportToWorkbook(workbook, "derivative", XLSExportItems.DERIVEDVALUES);
-			if (options.consumption) 
+			if (options.consumption) {
 				xlsExportToWorkbook(workbook, "sumGulps", XLSExportItems.SUMGULPS);
-			if (options.sum) 
+				xlsExportToWorkbook(workbook, "sumGulps_alive", XLSExportItems.SUMGULPS);
+			}
+			if (options.sum) { 
 				xlsExportToWorkbook(workbook, "sumL+R", XLSExportItems.SUMLR);
+				xlsExportToWorkbook(workbook, "sumL+R_alive", XLSExportItems.SUMLR);
+			}
 			
 			FileOutputStream fileOut = new FileOutputStream(filename);
 			workbook.write(fileOut);
@@ -85,12 +91,9 @@ public class XLSExportCapillaryResults {
 				}
 			}
 		}
-		
-		if (options.onlyalive && vSequence.cages.flyPositionsList.size() > 0) {
-			resultsArrayList = trimDeads(resultsArrayList);
-		}
 		return resultsArrayList;
 	}
+	
 	private static ArrayList <ArrayList<Integer>> trimDeads(ArrayList <ArrayList<Integer >> resultsArrayList) {
 		ArrayList <ArrayList<Integer >> trimmedArrayList = new ArrayList <ArrayList<Integer >> ();
 		int ncages = vSequence.cages.flyPositionsList.size();
@@ -132,6 +135,12 @@ public class XLSExportCapillaryResults {
 		if (arrayList.size() == 0)
 			return;
 
+		if (title.contains("alive")
+				&& options.onlyalive 
+				&& vSequence.cages.flyPositionsList.size() > 0) {
+			arrayList = trimDeads(arrayList);
+		}
+		
 		Sheet sheet = workBook.createSheet(title );
 		Point pt = writeGlobalInfos(sheet, options.transpose);
 		pt = writeColumnHeaders(sheet, pt, xlsoption, options.transpose);
