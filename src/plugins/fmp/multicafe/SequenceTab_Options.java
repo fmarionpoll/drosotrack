@@ -5,6 +5,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
 import javax.swing.JButton;
+import javax.swing.JComboBox;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
@@ -24,10 +25,12 @@ public class SequenceTab_Options extends JPanel implements ActionListener{
 	public JTextField 	endFrameTextField		= new JTextField("99999999");
 	public JTextField 	analyzeStepTextField 	= new JTextField("1");
 	private JButton 	updateButton 			= new JButton("Update");
-	
+	public JComboBox<String> experimentComboBox	= new JComboBox();
+
 	public void init(GridLayout capLayout) {
 		setLayout(capLayout);
- 
+		add(GuiUtil.besidesPanel( new JLabel("view"), experimentComboBox));
+		
 		add(GuiUtil.besidesPanel( 
 				new JLabel("start ", SwingConstants.RIGHT), startFrameTextField, 
 				new JLabel("step ", SwingConstants.RIGHT) , analyzeStepTextField 				

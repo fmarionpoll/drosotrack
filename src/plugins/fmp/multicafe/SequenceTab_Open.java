@@ -6,6 +6,7 @@ import java.awt.event.ActionListener;
 
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
+import javax.swing.JComboBox;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 
@@ -22,6 +23,7 @@ public class SequenceTab_Open extends JPanel implements ActionListener {
 	private JCheckBox	cagesCheckBox		= new JCheckBox("cages", true);
 	private JCheckBox	kymographsCheckBox	= new JCheckBox("kymographs", true);
 	private JCheckBox	measuresCheckBox	= new JCheckBox("measures", true);
+	
 	
 	public void init(GridLayout capLayout) {
 		setLayout(capLayout);
@@ -53,6 +55,5 @@ public class SequenceTab_Open extends JPanel implements ActionListener {
 	public boolean isCheckedLoadMeasures() {
 		return measuresCheckBox.isSelected();
 	}
-	
-	
+
 }

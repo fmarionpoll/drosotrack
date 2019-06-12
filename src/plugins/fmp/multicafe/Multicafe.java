@@ -29,15 +29,15 @@ import plugins.fmp.sequencevirtual.SequenceVirtual;
 public class Multicafe extends PluginActionable implements ViewerListener, PropertyChangeListener, SequenceListener
 {
 	//------------------------------------------- global variables
-	SequenceVirtual vSequence = null;
-	ArrayList <SequencePlus> kymographArrayList	= new ArrayList <SequencePlus> ();	// list of kymograph sequences
-	IcyFrame mainFrame = new IcyFrame("MultiCAFE analysis 11-June-2019", true, true, true, true);
-
-	//---------------------------------------------------------------------------
-	SequencePane sequencePane 		= null;
-	CapillariesPane capillariesPane = null;
-	KymosPane 	kymographsPane 		= null;
-	MovePane 	movePane 			= null;
+	SequenceVirtual 			vSequence 			= null;
+	ArrayList <SequencePlus> 	kymographArrayList	= new ArrayList <SequencePlus> ();
+	ArrayList<Experiment> 		experimentList 		= new ArrayList<Experiment> ();
+	IcyFrame 					mainFrame 			= new IcyFrame("MultiCAFE analysis 11-June-2019", true, true, true, true);
+	
+	SequencePane 				sequencePane 		= null;
+	CapillariesPane 			capillariesPane 	= null;
+	KymosPane 					kymographsPane 		= null;
+	MovePane 					movePane 			= null;
 
 	//-------------------------------------------------------------------
 	
@@ -69,9 +69,6 @@ public class Multicafe extends PluginActionable implements ViewerListener, Prope
 		mainFrame.addToDesktopPane();
 	}
 
-	// -------------------------------------------
-
-
 	public void roisSaveEdits() {
 
 		for (SequencePlus seq: kymographArrayList) {
@@ -82,7 +79,6 @@ public class Multicafe extends PluginActionable implements ViewerListener, Prope
 			}
 		}
 	}
-
 
 	@Override	
 	public void viewerChanged(ViewerEvent event)
@@ -116,8 +112,6 @@ public class Multicafe extends PluginActionable implements ViewerListener, Prope
 			capillariesPane.optionsTab.selectKymograph(0);
 		}
 		else if (arg0.getPropertyName() .equals("KYMO_DISPLAYFILTERED")) {
-//			int ikymo = paneKymos.optionsTab.kymographNamesComboBox.getSelectedIndex();
-//			paneKymos.optionsTab.selectKymograph(ikymo);
 			capillariesPane.optionsTab.displayUpdate();
 			capillariesPane.optionsTab.viewKymosCheckBox.setSelected(true);
 		}

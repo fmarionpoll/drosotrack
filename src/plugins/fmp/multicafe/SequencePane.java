@@ -31,10 +31,10 @@ public class SequencePane extends JPanel implements PropertyChangeListener {
 		this.parent0 = parent0;
 		capPanel = GuiUtil.generatePanel(string);
 		mainPanel.add(GuiUtil.besidesPanel(capPanel));
-		GridLayout capLayout = new GridLayout(2, 2);
+		GridLayout capLayout = new GridLayout(3, 2);
 		
 		fileTab.init(capLayout);
-		tabsPane.addTab("Open", null, fileTab, "Open stack of files (click on one only) or an AVI file");
+		tabsPane.addTab("Open/select", null, fileTab, "Open stack of files (click on one only) or an AVI file, or select experiment");
 		fileTab.addPropertyChangeListener(this);
 		
 		optionsTab.init(capLayout);
@@ -63,6 +63,7 @@ public class SequencePane extends JPanel implements PropertyChangeListener {
 			if (sequenceOpenFile()) {
 				int endFrame = parent0.vSequence.getSizeT()-1;
 				optionsTab.endFrameTextField.setText( Integer.toString(endFrame));
+				optionsTab.experimentComboBox.addItem(parent0.vSequence.getName());
 				tabsPane.setSelectedIndex(1);
 				Viewer v = parent0.vSequence.getFirstViewer();
 				Rectangle rectv = v.getBoundsInternal();
