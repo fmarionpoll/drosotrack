@@ -5,6 +5,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.ArrayList;
 
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
@@ -25,6 +26,7 @@ public class KymosTab_Excel extends JPanel implements ActionListener  {
 	private static final long serialVersionUID = 1290058998782225526L;
 
 	public JButton 		exportToXLSButton 	= new JButton("save XLS");
+	public JCheckBox 	exportAllFilesCheckBox = new JCheckBox("top", true);
 	public JCheckBox 	topLevelCheckBox 	= new JCheckBox("top", true);
 	public JCheckBox 	bottomLevelCheckBox = new JCheckBox("bottom", false);
 	public JCheckBox 	consumptionCheckBox = new JCheckBox("gulps", false);
@@ -42,8 +44,7 @@ public class KymosTab_Excel extends JPanel implements ActionListener  {
 		this.parent0 = parent0;
 		add(GuiUtil.besidesPanel( topLevelCheckBox, bottomLevelCheckBox, consumptionCheckBox, sumCheckBox));
 		add(GuiUtil.besidesPanel( t0CheckBox, transposeCheckBox, combinewithaliveCheckBox, pivotCheckBox)); 
-//		add(GuiUtil.besidesPanel( t0CheckBox, transposeCheckBox, new JLabel(" "), new JLabel(" "))); 
-		add(GuiUtil.besidesPanel( new JLabel(" "), new JLabel(" "), new JLabel(" "), exportToXLSButton)); 
+		add(GuiUtil.besidesPanel( new JLabel(" "), new JLabel(" "), exportAllFilesCheckBox, exportToXLSButton)); 
 		defineActionListeners();
 	}
 	
@@ -63,7 +64,7 @@ public class KymosTab_Excel extends JPanel implements ActionListener  {
 			if (file != null) {
 				final String filename = file;
 				parent0.capillariesPane.propertiesTab.updateSequenceFromDialog();
-				XLSExportCapillaryResults.exportToFile(filename, getOptions(), parent0.vSequence, parent0.kymographArrayList);
+				XLSExportCapillaryResults.exportToFile(filename, getOptions());
 				firePropertyChange("EXPORT_TO_EXCEL", false, true);	
 			}
 		}
@@ -71,6 +72,7 @@ public class KymosTab_Excel extends JPanel implements ActionListener  {
 
 	private XLSExportCapillariesOptions getOptions() {
 		XLSExportCapillariesOptions options = new XLSExportCapillariesOptions();
+		
 		options.topLevel = topLevelCheckBox.isSelected(); 
 		options.bottomLevel = bottomLevelCheckBox.isSelected(); 
 		options.derivative = derivativeCheckBox.isSelected(); 
@@ -80,6 +82,22 @@ public class KymosTab_Excel extends JPanel implements ActionListener  {
 		options.t0 = t0CheckBox.isSelected();
 		options.onlyalive = combinewithaliveCheckBox.isSelected();
 		options.pivot = pivotCheckBox.isSelected();
+		options.exportAllFiles = exportAllFilesCheckBox.isSelected();
+		
+		options.experimentList = new ArrayList<Experiment> ();
+		if (exportAllFilesCheckBox.isSelected()) {
+			int nfiles = parent0.sequencePane.optionsTab.experimentComboBox.getItemCount();
+			for (int i=0; i< nfiles; i++) {
+				Experiment exp = new Experiment ();
+				exp.filename = parent0.sequencePane.optionsTab.experimentComboBox.getItemAt(i);
+				options.experimentList.add(exp);
+			}
+		}
+		else {
+			Experiment exp = new Experiment();
+			exp.filename = parent0.vSequence.getFileName();
+			options.experimentList.add(exp);
+		}
 		return options;
 	}
 	

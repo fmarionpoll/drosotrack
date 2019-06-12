@@ -12,7 +12,6 @@ import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.DataConsolidateFunction;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
-import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.ss.util.AreaReference;
 import org.apache.poi.ss.util.CellAddress;
 import org.apache.poi.xssf.usermodel.XSSFPivotTable;
@@ -29,36 +28,38 @@ public class XLSExportCapillaryResults {
 	static XLSExportCapillariesOptions 	options = null;
 	static ArrayList<SequencePlus> 		kymographArrayList = null;
 	
-	public static void exportToFile(String filename, XLSExportCapillariesOptions opt, 
-			SequenceVirtual vSeq,ArrayList<SequencePlus> kymographsArray) {
+	public static void exportToFile(String filename, XLSExportCapillariesOptions opt) {
 		
 		System.out.println("XLS output");
-		vSequence = vSeq;
 		options = opt;
+		vSequence = vSeq;
 		kymographArrayList = kymographsArray;
 		
 		try { 
 			XSSFWorkbook workbook = new XSSFWorkbook(); 
 			workbook.setMissingCellPolicy(Row.MissingCellPolicy.CREATE_NULL_AS_BLANK);
-
-			if (options.topLevel) {
-				xlsExportToWorkbook(workbook, "toplevel", XLSExportItems.TOPLEVEL);
-				if (options.onlyalive) xlsExportToWorkbook(workbook, "toplevel_alive", XLSExportItems.TOPLEVEL);
-				if (options.transpose && options.pivot) xlsCreatePivotTable(workbook, "toplevel");
+			int col0 = 0;
+			for (int i=0; i < options.experimentList.size(); i++) {
+				openDocuments(options.experimentList.get(i).filename);
+				if (options.topLevel) {
+					xlsExportToWorkbook(workbook, "toplevel", XLSExportItems.TOPLEVEL, col0);
+					if (options.onlyalive) xlsExportToWorkbook(workbook, "toplevel_alive", XLSExportItems.TOPLEVEL, col0);
+				}
+				if (options.bottomLevel) 
+					xlsExportToWorkbook(workbook, "bottomlevel", XLSExportItems.BOTTOMLEVEL, col0);
+				if (options.derivative) 
+					xlsExportToWorkbook(workbook, "derivative", XLSExportItems.DERIVEDVALUES, col0);
+				if (options.consumption) {
+					xlsExportToWorkbook(workbook, "sumGulps", XLSExportItems.SUMGULPS, col0);
+					if (options.onlyalive) xlsExportToWorkbook(workbook, "sumGulps_alive", XLSExportItems.SUMGULPS, col0);
+				}
+				if (options.sum) { 
+					xlsExportToWorkbook(workbook, "sumL+R", XLSExportItems.SUMLR, col0);
+					if (options.onlyalive) xlsExportToWorkbook(workbook, "sumL+R_alive", XLSExportItems.SUMLR, col0);
+				}
 			}
-			if (options.bottomLevel) 
-				xlsExportToWorkbook(workbook, "bottomlevel", XLSExportItems.BOTTOMLEVEL);
-			if (options.derivative) 
-				xlsExportToWorkbook(workbook, "derivative", XLSExportItems.DERIVEDVALUES);
-			if (options.consumption) {
-				xlsExportToWorkbook(workbook, "sumGulps", XLSExportItems.SUMGULPS);
-				if (options.onlyalive) xlsExportToWorkbook(workbook, "sumGulps_alive", XLSExportItems.SUMGULPS);
-			}
-			if (options.sum) { 
-				xlsExportToWorkbook(workbook, "sumL+R", XLSExportItems.SUMLR);
-				if (options.onlyalive) xlsExportToWorkbook(workbook, "sumL+R_alive", XLSExportItems.SUMLR);
-			}
-			
+			if (options.topLevel && options.transpose && options.pivot) xlsCreatePivotTable(workbook, "toplevel");
+				
 			FileOutputStream fileOut = new FileOutputStream(filename);
 			workbook.write(fileOut);
 	        fileOut.close();
@@ -67,6 +68,22 @@ public class XLSExportCapillaryResults {
 			e.printStackTrace();
 		}
 		System.out.println("XLS output finished");
+	}
+	
+	private static boolean openDocuments(String filename) {
+		vSequence = new SequenceVirtual();
+		if (null == vSequence.loadVirtualStackAt(filename))
+			return false;
+		String path = vSequence.getDirectory();
+		String csCapillaries = path+"\\capillarytrack.xml";
+		boolean flag = vSequence.capillaries.xmlReadROIsAndData(csCapillaries, vSequence);
+		if (!flag) return flag;
+		vSequence.capillaries.extractLinesFromSequence(vSequence);	// ???
+
+		final String csKymographs = path+"\\results";
+		
+		
+		return false;
 	}
 
 	private static ArrayList <ArrayList<Integer>> getDataFromRois(XLSExportItems xlsoption, boolean relative) {
@@ -139,7 +156,7 @@ public class XLSExportCapillaryResults {
 		return array;
 	}
 	
-	private static void xlsExportToWorkbook(XSSFWorkbook workBook, String title, XLSExportItems xlsoption) {
+	private static void xlsExportToWorkbook(XSSFWorkbook workBook, String title, XLSExportItems xlsoption, int col0) {
 		System.out.println("export worksheet "+title);
 		ArrayList <ArrayList<Integer >> arrayList = getDataFromRois(xlsoption, options.t0);		
 		if (arrayList.size() == 0)
@@ -151,14 +168,16 @@ public class XLSExportCapillaryResults {
 			arrayList = trimDeads(arrayList);
 		}
 		
-		Sheet sheet = workBook.createSheet(title );
-		Point pt = writeGlobalInfos(sheet, options.transpose);
-		pt = writeColumnHeaders(sheet, pt, xlsoption, options.transpose);
-		pt = writeData(sheet, pt, xlsoption, arrayList, options.transpose);
+		Sheet sheet = workBook.getSheet(title );
+		if (sheet == null)
+				sheet = workBook.createSheet(title );
+		Point pt = writeGlobalInfos(sheet, options.transpose, col0);
+		pt = writeColumnHeaders(sheet, pt, xlsoption, options.transpose, col0);
+		pt = writeData(sheet, pt, xlsoption, arrayList, options.transpose, col0);
 	}
 	
-	private static Point writeGlobalInfos(Sheet sheet, boolean transpose) {
-		Point pt = new Point(0, 0);
+	private static Point writeGlobalInfos(Sheet sheet, boolean transpose, int col0) {
+		Point pt = new Point(col0, 0);
 
 		XLSUtils.setValue(sheet,  pt.x, pt.y, "name:" );
 		File file = new File(vSequence.getFileName(0));
@@ -166,7 +185,7 @@ public class XLSExportCapillaryResults {
 		pt = XLSUtils.nextCol(pt, transpose);
 		XLSUtils.setValue(sheet,  pt.x, pt.y, path );
 		pt= XLSUtils.nextRow(pt, transpose);
-		pt = XLSUtils.toColZero(pt, transpose);
+		pt = XLSUtils.toColZero(pt, transpose, col0);
 		Point pt1 = pt;
 		XLSUtils.setValue(sheet,  pt1.x, pt1.y, "capillary (µl):" );
 		pt1 = XLSUtils.nextCol(pt1, transpose);
@@ -180,8 +199,8 @@ public class XLSExportCapillaryResults {
 		return pt;
 	}
 
-	private static Point writeColumnHeaders (Sheet sheet, Point pt, XLSExportItems option, boolean transpose) {
-		pt = XLSUtils.toColZero(pt, transpose);
+	private static Point writeColumnHeaders (Sheet sheet, Point pt, XLSExportItems option, boolean transpose, int col0) {
+		pt = XLSUtils.toColZero(pt, transpose, col0);
 		if (vSequence.isFileStack()) {
 			XLSUtils.setValue(sheet,  pt.x, pt.y, "filename" );
 			pt = XLSUtils.nextCol(pt, transpose);
@@ -211,12 +230,12 @@ public class XLSExportCapillaryResults {
 			}
 			break;
 		}
-		pt = XLSUtils.toColZero(pt, transpose);
+		pt = XLSUtils.toColZero(pt, transpose, col0);
 		pt = XLSUtils.nextRow(pt, transpose);
 		return pt;
 	}
 
-	private static Point writeData (Sheet sheet, Point pt, XLSExportItems option, ArrayList <ArrayList<Integer >> arrayList, boolean transpose) {
+	private static Point writeData (Sheet sheet, Point pt, XLSExportItems option, ArrayList <ArrayList<Integer >> arrayList, boolean transpose, int col0) {
 		int maxelements = 0;
 		for (int i=0; i< arrayList.size(); i++) {
 			ArrayList<Integer> datai = arrayList.get(i);
@@ -233,7 +252,7 @@ public class XLSExportCapillaryResults {
 		int t = startFrame;
 		// TODO check if name of files is correct
 		for (int j=0; j< nelements; j++) {
-			Point pt2 = XLSUtils.toColZero(pt, transpose);
+			Point pt2 = XLSUtils.toColZero(pt, transpose, col0);
 			if (vSequence.isFileStack()) {
 				String cs = vSequence.getFileName(j+startFrame);
 				int index = cs.lastIndexOf("\\");

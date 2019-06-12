@@ -4,6 +4,8 @@ import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
+import javax.swing.GroupLayout;
+import javax.swing.GroupLayout.Alignment;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JLabel;
@@ -25,11 +27,27 @@ public class SequenceTab_Options extends JPanel implements ActionListener{
 	public JTextField 	endFrameTextField		= new JTextField("99999999");
 	public JTextField 	analyzeStepTextField 	= new JTextField("1");
 	private JButton 	updateButton 			= new JButton("Update");
-	public JComboBox<String> experimentComboBox	= new JComboBox();
+	public JComboBox<String> experimentComboBox	= new JComboBox<String>();
+	private Multicafe parent0 = null;
 
-	public void init(GridLayout capLayout) {
+	public void init(GridLayout capLayout, Multicafe parent0) {
 		setLayout(capLayout);
-		add(GuiUtil.besidesPanel( new JLabel("view"), experimentComboBox));
+		this.parent0 = parent0;
+		
+		JPanel fileLine = new JPanel();
+		GroupLayout layout = new GroupLayout(fileLine);
+		fileLine.setLayout(layout);
+		layout.setAutoCreateGaps(true);
+		layout.setAutoCreateContainerGaps(true);
+		JLabel text = new JLabel("file:");
+
+        layout.setHorizontalGroup(layout.createSequentialGroup()
+        		.addComponent(text)
+        		.addComponent(experimentComboBox));
+        layout.setVerticalGroup(layout.createParallelGroup(Alignment.LEADING)
+        		.addComponent(text)
+        		.addComponent(experimentComboBox));
+		add(GuiUtil.besidesPanel(fileLine));
 		
 		add(GuiUtil.besidesPanel( 
 				new JLabel("start ", SwingConstants.RIGHT), startFrameTextField, 
@@ -40,6 +58,7 @@ public class SequenceTab_Options extends JPanel implements ActionListener{
 				new JLabel(" "), updateButton ));
 		
 		updateButton.addActionListener(this);
+		experimentComboBox.addActionListener(this);
 	}
 	
 	@Override
@@ -47,6 +66,14 @@ public class SequenceTab_Options extends JPanel implements ActionListener{
 		Object o = e.getSource();
 		if ( o == updateButton) {
 			firePropertyChange("UPDATE", false, true);
+		}
+		else if ( o == experimentComboBox) {
+			if (experimentComboBox.getItemCount() == 0)
+				return;
+			String text = (String) experimentComboBox.getSelectedItem();
+			if (parent0.vSequence == null && !text.equals(parent0.vSequence.getName())) {
+				firePropertyChange("SEQ_CHANGE", false, true);
+			}
 		}
 	}
 

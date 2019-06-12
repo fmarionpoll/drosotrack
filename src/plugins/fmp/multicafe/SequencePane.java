@@ -37,7 +37,7 @@ public class SequencePane extends JPanel implements PropertyChangeListener {
 		tabsPane.addTab("Open/select", null, fileTab, "Open stack of files (click on one only) or an AVI file, or select experiment");
 		fileTab.addPropertyChangeListener(this);
 		
-		optionsTab.init(capLayout);
+		optionsTab.init(capLayout, parent0);
 		tabsPane.addTab("Options", null, optionsTab, "change parameters reading file - beginning, end, step");
 		optionsTab.addPropertyChangeListener(this);
 		
@@ -60,19 +60,25 @@ public class SequencePane extends JPanel implements PropertyChangeListener {
 	@Override
 	public void propertyChange(PropertyChangeEvent event) {
 		if (event.getPropertyName().equals("SEQ_OPEN")) {
-			if (sequenceOpenFile()) {
-				int endFrame = parent0.vSequence.getSizeT()-1;
-				optionsTab.endFrameTextField.setText( Integer.toString(endFrame));
-				optionsTab.experimentComboBox.addItem(parent0.vSequence.getName());
-				tabsPane.setSelectedIndex(1);
-				Viewer v = parent0.vSequence.getFirstViewer();
-				Rectangle rectv = v.getBoundsInternal();
-				Rectangle rect0 = parent0.mainFrame.getBoundsInternal();
-				rectv.setLocation(rect0.x+ rect0.width, rect0.y);
-				v.setBounds(rectv);
+			if (sequenceOpenFile(null)) {
+				optionsTab.experimentComboBox.removeAllItems();
+				optionsTab.experimentComboBox.addItem(parent0.vSequence.getFileName());
+				updateParametersForSequence();
 				firePropertyChange("SEQ_OPEN", false, true);
 			}
-		 }			  
+		 }
+		else if (event.getPropertyName().equals("SEQ_ADD")) {
+			if (sequenceOpenFile(null)) {
+				String strItem = parent0.vSequence.getFileName();
+				optionsTab.experimentComboBox.setSelectedItem(strItem);   
+				if(optionsTab.experimentComboBox.getSelectedIndex() < 0){
+					optionsTab.experimentComboBox.addItem(parent0.vSequence.getName());
+					optionsTab.experimentComboBox.setSelectedItem(strItem);
+				}
+				updateParametersForSequence();
+				firePropertyChange("SEQ_OPEN", false, true);
+			}
+		 }	
 		 else if (event.getPropertyName().equals("UPDATE")) {
 			optionsTab.UpdateItemsToSequence(parent0.vSequence);
 			ArrayList<Viewer>vList =  parent0.vSequence.getViewers();
@@ -80,8 +86,15 @@ public class SequencePane extends JPanel implements PropertyChangeListener {
 			v.toFront();
 			v.requestFocus();
 		 }
+		 else if (event.getPropertyName().equals("SEQ_CHANGE")) {
+			String filename = (String) optionsTab.experimentComboBox.getSelectedItem();
+			sequenceOpenFile(filename);
+			updateParametersForSequence();
+			firePropertyChange("SEQ_OPEN", false, true);
+		}
 		 else if (event.getPropertyName().equals("SEQ_CLOSE")) {
 			tabsPane.setSelectedIndex(0);
+			optionsTab.experimentComboBox.removeAllItems();
 			firePropertyChange("SEQ_CLOSE", false, true);
 			
 		 }
@@ -98,12 +111,12 @@ public class SequencePane extends JPanel implements PropertyChangeListener {
 		parent0.vSequence.vImageBufferThread_START(100); //numberOfImageForBuffer);
 	}
 	
-	public boolean sequenceOpenFile() {
+	public boolean sequenceOpenFile(String filename) {
 		if (parent0.vSequence != null)
 			parent0.vSequence.close();		
 		parent0.vSequence = new SequenceVirtual();
 		
-		String path = parent0.vSequence.loadInputVirtualStack(null);
+		String path = parent0.vSequence.loadVirtualStackAt(filename);
 		if (path != null) {
 			initSequenceParameters(parent0.vSequence);
 			XMLPreferences guiPrefs = parent0.getPreferences("gui");
@@ -113,6 +126,17 @@ public class SequencePane extends JPanel implements PropertyChangeListener {
 			startstopBufferingThread();
 		}
 		return (path != null);
+	}
+	
+	private void updateParametersForSequence() {
+		int endFrame = parent0.vSequence.getSizeT()-1;
+		optionsTab.endFrameTextField.setText( Integer.toString(endFrame));
+		tabsPane.setSelectedIndex(1);
+		Viewer v = parent0.vSequence.getFirstViewer();
+		Rectangle rectv = v.getBoundsInternal();
+		Rectangle rect0 = parent0.mainFrame.getBoundsInternal();
+		rectv.setLocation(rect0.x+ rect0.width, rect0.y);
+		v.setBounds(rectv);
 	}
 	
 	private void initSequenceParameters(SequenceVirtual seq) {

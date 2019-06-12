@@ -87,7 +87,7 @@ public class XLSExportMoveResults {
 		pt = XLSUtils.nextCol(pt, transpose);
 		XLSUtils.setValue(sheet,  pt.x, pt.y, path );
 		pt= XLSUtils.nextRow(pt, transpose);
-		pt = XLSUtils.toColZero(pt, transpose);
+		pt = XLSUtils.toColZero(pt, transpose, 0);
 		Point pt1 = pt;
 		XLSUtils.setValue(sheet,  pt1.x, pt1.y, "n cages" );
 		pt1 = XLSUtils.nextCol(pt1, transpose);
@@ -113,7 +113,7 @@ public class XLSExportMoveResults {
 	}
 
 	private static Point writeColumnHeaders (Sheet sheet, Point pt, XLSExportItems option, boolean transpose) {
-		pt = XLSUtils.toColZero(pt, transpose);
+		pt = XLSUtils.toColZero(pt, transpose, 0);
 		if (vSequence.isFileStack()) {
 			XLSUtils.setValue(sheet,  pt.x, pt.y, "filename" );
 			pt = XLSUtils.nextCol(pt, transpose);
@@ -150,7 +150,7 @@ public class XLSExportMoveResults {
 			}
 			break;
 		}
-		pt = XLSUtils.toColZero(pt, transpose);
+		pt = XLSUtils.toColZero(pt, transpose, 0);
 		pt = XLSUtils.nextRow(pt, transpose);
 		return pt;
 	}
@@ -163,7 +163,7 @@ public class XLSExportMoveResults {
 		
 		for (int time_interval=0; time_interval< n_time_intervals; time_interval++) {
 			int time_absolute = flyPositionsList.get(0).pointsList.get(time_interval).time;
-			Point pt2 = XLSUtils.toColZero(pt, transpose);
+			Point pt2 = XLSUtils.toColZero(pt, transpose, 0);
 			if (vSequence.isFileStack()) {
 				String cs = vSequence.getFileName(time_absolute);
 				int index = cs.lastIndexOf("\\");

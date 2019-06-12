@@ -474,11 +474,7 @@ public class SequenceVirtual extends Sequence
 		}
 	}
 
-	// -----------------------------------------------------------
 	private IcyBufferedImage subtractImages (IcyBufferedImage image1, IcyBufferedImage image2) {
-		/* algorithm borrowed from  Perrine.Paul-Gilloteaux@univ-nantes.fr in  EC-CLEM
-		 * original function: private IcyBufferedImage substractbg(Sequence ori, Sequence bg,int t, int z) 
-		 */
 		IcyBufferedImage result = new IcyBufferedImage(image1.getSizeX(), image1.getSizeY(),image1.getSizeC(), image1.getDataType_());
 		for (int c=0; c<image1.getSizeC(); c++){
 			Object image1Array = image1.getDataXY(c);
@@ -531,6 +527,33 @@ public class SequenceVirtual extends Sequence
 			    list[i] = selectedFiles[i].getAbsolutePath();
 			}
 		}
+		loadSequenceVirtual(list, directory);
+		return directory;
+	}
+	
+	public String loadVirtualStackAt(String textPath) {
+
+		if (textPath == null) 
+			return loadInputVirtualStack(null); 
+		
+		File filepath = new File(textPath); 
+	    if (filepath.isDirectory())
+	    	directory = filepath.getAbsolutePath();
+	    else
+	    	directory = filepath.getParentFile().getAbsolutePath();
+		if (directory == null )
+			return null;
+
+		String [] list;
+		list = (new File(directory)).list();
+		if (list ==null)
+			return null;
+		
+		if (!(filepath.isDirectory()) && filepath.getName().toLowerCase().contains(".avi")) {
+			loadSequenceVirtualAVI(filepath.getAbsolutePath());
+			return directory;
+		}
+		
 		loadSequenceVirtual(list, directory);
 		return directory;
 	}

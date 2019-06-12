@@ -66,7 +66,7 @@ public class CapillariesPane extends JPanel implements PropertyChangeListener {
 	public void UpdateInfosFromSequence() {
 		propertiesTab.setCapillaryVolume(parent0.vSequence.capillaries.capillaryVolume);
 		propertiesTab.setCapillaryPixelLength(parent0.vSequence.capillaries.capillaryPixels);
-		parent0.vSequence.capillaries.extractLinesFromSequence(parent0.vSequence);
+		parent0.vSequence.capillaries.extractLinesFromSequence(parent0.vSequence);	// TODO : is this necessary???
 		buildarrayTab.setNbCapillaries(parent0.vSequence.capillaries.capillariesArrayList.size());
 		buildarrayTab.setGroupedBy2(parent0.vSequence.capillaries.capillariesGrouping == 2);
 	}

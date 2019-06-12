@@ -7,7 +7,8 @@ import plugins.fmp.sequencevirtual.SequencePlus;
 import plugins.fmp.sequencevirtual.SequenceVirtual;
 
 public class Experiment {
+	public String						filename = null;
 	public SequenceVirtual 				vSequence = null;
-	public ArrayList <SequencePlus> 	kymographArrayList	= new ArrayList <SequencePlus> ();	// list of kymograph sequences
+	public ArrayList <SequencePlus> 	kymographArrayList	= new ArrayList <SequencePlus> ();
 	
 }

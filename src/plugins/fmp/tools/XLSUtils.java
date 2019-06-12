@@ -7,6 +7,7 @@ import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 
 public class XLSUtils {
+
 	public static Point nextRow (Point pt, boolean transpose) {
 		if (!transpose)
 			pt.y ++;
@@ -22,11 +23,11 @@ public class XLSUtils {
 		return pt;
 	}	
 	
-	public static Point toColZero (Point pt, boolean transpose) {
+	public static Point toColZero (Point pt, boolean transpose, int col0) {
 		if (!transpose) 
-			pt.x = 0;
+			pt.x = col0;
 		else
-			pt.y = 0;
+			pt.y = col0;
 		return pt;
 	}
 
