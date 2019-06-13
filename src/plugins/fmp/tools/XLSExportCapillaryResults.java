@@ -29,7 +29,6 @@ public class XLSExportCapillaryResults {
 	static SequenceVirtual 				vSequence = null;
 	static XLSExportCapillariesOptions 	options = null;
 	static ArrayList<SequencePlus> 		kymographArrayList = null;
-	static int rowmax = 0;
 	
 	public static void exportToFile(String filename, XLSExportCapillariesOptions opt) {
 		
@@ -40,11 +39,13 @@ public class XLSExportCapillaryResults {
 			XSSFWorkbook workbook = new XSSFWorkbook(); 
 			workbook.setMissingCellPolicy(Row.MissingCellPolicy.CREATE_NULL_AS_BLANK);
 			int row0 = 0;
+			int rowmax = 0;
 			for (Experiment exp: options.experimentList) {
 				openDocuments(exp.filename);
 				if (options.topLevel) {
-					xlsExportToWorkbook(workbook, "toplevel", XLSExportItems.TOPLEVEL, row0);
-					if (options.onlyalive) xlsExportToWorkbook(workbook, "toplevel_alive", XLSExportItems.TOPLEVEL, row0);
+					rowmax = xlsExportToWorkbook(workbook, "toplevel", XLSExportItems.TOPLEVEL, row0);
+					if (options.onlyalive) 
+						xlsExportToWorkbook(workbook, "toplevel_alive", XLSExportItems.TOPLEVEL, row0);
 				}
 				if (options.bottomLevel) 
 					xlsExportToWorkbook(workbook, "bottomlevel", XLSExportItems.BOTTOMLEVEL, row0);
@@ -159,11 +160,11 @@ public class XLSExportCapillaryResults {
 		return array;
 	}
 	
-	private static void xlsExportToWorkbook(XSSFWorkbook workBook, String title, XLSExportItems xlsoption, int row0) {
+	private static int xlsExportToWorkbook(XSSFWorkbook workBook, String title, XLSExportItems xlsoption, int row0) {
 		System.out.println("export worksheet "+title);
 		ArrayList <ArrayList<Integer >> arrayList = getDataFromRois(xlsoption, options.t0);		
 		if (arrayList.size() == 0)
-			return;
+			return 0;
 
 		if (title.contains("alive")
 				&& options.onlyalive 
@@ -173,11 +174,11 @@ public class XLSExportCapillaryResults {
 		
 		Sheet sheet = workBook.getSheet(title );
 		if (sheet == null)
-				sheet = workBook.createSheet(title );
+				sheet = workBook.createSheet(title);
 		Point pt = writeGlobalInfos(sheet, options.transpose, row0);
 		pt = writeColumnHeaders(sheet, pt, xlsoption, options.transpose);
 		pt = writeData(sheet, pt, xlsoption, arrayList, options.transpose);
-		rowmax = pt.y;
+		return pt.y;
 	}
 	
 	private static Point writeGlobalInfos(Sheet sheet, boolean transpose, int row0) {
