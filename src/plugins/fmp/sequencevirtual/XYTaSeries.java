@@ -16,6 +16,7 @@ public class XYTaSeries implements XMLPersistent {
 	public ROI2DPolygon roi;
 	public Double threshold = 10.;
 	public int lastTimeAlive = 0;
+	public int lastIntervalAlive = 0;
 	public ArrayList<XYTaValue> pointsList = new ArrayList<XYTaValue>();
 
 	
@@ -57,7 +58,8 @@ public class XYTaSeries implements XMLPersistent {
 		roi.loadFromXML(node_roi);
 		
 		Element node_lastime = XMLUtil.getElement(node, "lastTimeItMoved");
-		lastTimeAlive = XMLUtil.getAttributeIntValue(node_lastime, "t", 0);
+		lastTimeAlive = XMLUtil.getAttributeIntValue(node_lastime, "tlast", -1);
+		lastIntervalAlive = XMLUtil.getAttributeIntValue(node_lastime, "ilast", -1);
 
 		Element node_position_list = XMLUtil.getElement(node, "PositionsList");
 		if (node_position_list == null) 
@@ -83,8 +85,9 @@ public class XYTaSeries implements XMLPersistent {
 		Element node_roi = XMLUtil.addElement(node, "roi");
 		roi.saveToXML(node_roi);
 		
-		Element node_lastime = XMLUtil.addElement(node, "lastTimeItMoved");
-		XMLUtil.setAttributeIntValue(node_lastime, "t", lastTimeAlive);
+		Element node_lastime = XMLUtil.addElement(node, "lastTimeAlive");
+		XMLUtil.setAttributeIntValue(node_lastime, "tlast", lastTimeAlive);
+		XMLUtil.setAttributeIntValue(node_lastime, "ilast", lastIntervalAlive);
 		
 		Element node_position_list = XMLUtil.addElement(node, "PositionsList");
 		XMLUtil.setAttributeIntValue(node_position_list, "nb_items", pointsList.size());
@@ -122,6 +125,11 @@ public class XYTaSeries implements XMLPersistent {
 		return datai;
 	}
 	
+	public int computeLastIntervalAlive() {
+		computeIsAlive(getDistanceBetweenPoints(), threshold);
+		return lastIntervalAlive;
+	}
+	
 	private ArrayList<Double> getDistanceBetweenPoints() {
 		ArrayList<Double> dataArray = new ArrayList<Double>();
 		dataArray.ensureCapacity(pointsList.size());
@@ -146,11 +154,13 @@ public class XYTaSeries implements XMLPersistent {
 	
 	public void computeIsAlive(ArrayList<Double> data, Double threshold) {
 		this.threshold = threshold;
+		lastIntervalAlive = 0;
 		boolean isalive = false;
 		for (int i= data.size() - 1; i >= 0; i--) {
-			if (data.get(i) > threshold) {
-				isalive = true;
+			if (data.get(i) > threshold && !isalive) {
+				lastIntervalAlive = i;
 				lastTimeAlive = pointsList.get(i).time;
+				isalive = true;				
 			}
 			pointsList.get(i).alive = isalive;
 		}

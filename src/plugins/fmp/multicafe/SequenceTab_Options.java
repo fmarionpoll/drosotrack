@@ -39,7 +39,7 @@ public class SequenceTab_Options extends JPanel implements ActionListener{
 		fileLine.setLayout(layout);
 		layout.setAutoCreateGaps(true);
 		layout.setAutoCreateContainerGaps(true);
-		JLabel text = new JLabel("file:");
+		JLabel text = new JLabel("stack:");
 
         layout.setHorizontalGroup(layout.createSequentialGroup()
         		.addComponent(text)

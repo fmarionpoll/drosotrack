@@ -34,11 +34,11 @@ public class SequencePane extends JPanel implements PropertyChangeListener {
 		GridLayout capLayout = new GridLayout(3, 2);
 		
 		fileTab.init(capLayout);
-		tabsPane.addTab("Open/select", null, fileTab, "Open stack of files (click on one only) or an AVI file, or select experiment");
+		tabsPane.addTab("Open/Add", null, fileTab, "Open stack of files (click on one only) or an AVI file, or select experiment");
 		fileTab.addPropertyChangeListener(this);
 		
 		optionsTab.init(capLayout, parent0);
-		tabsPane.addTab("Options", null, optionsTab, "change parameters reading file - beginning, end, step");
+		tabsPane.addTab("Options", null, optionsTab, "Select stack / change parameters reading file - beginning, end, step");
 		optionsTab.addPropertyChangeListener(this);
 		
 		closeTab.init(capLayout, parent0);

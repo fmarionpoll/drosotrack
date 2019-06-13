@@ -81,26 +81,26 @@ public class XLSExportMoveResults {
 	private static Point writeGlobalInfos(Sheet sheet, XLSExportItems option, boolean transpose) {
 		Point pt = new Point(0, 0);
 
-		XLSUtils.setValue(sheet,  pt.x, pt.y, "name:" , transpose);
+		XLSUtils.setValue(sheet, pt, transpose, "name:");
 		File file = new File(vSequence.getFileName(0));
 		String path = file.getParent();
 		pt.x++;
-		XLSUtils.setValue(sheet,  pt.x, pt.y, path, transpose);
+		XLSUtils.setValue(sheet, pt, transpose, path);
 		pt.y++;
 		pt.x=0;
 		Point pt1 = pt;
-		XLSUtils.setValue(sheet,  pt1.x, pt1.y, "n cages", transpose);
+		XLSUtils.setValue(sheet, pt, transpose, "n cages");
 		pt1.x++;
-		XLSUtils.setValue(sheet,  pt1.x, pt1.y, vSequence.cages.flyPositionsList.size(), transpose);
+		XLSUtils.setValue(sheet, pt, transpose, vSequence.cages.flyPositionsList.size());
 		
 		switch (option) {
 		case DISTANCE:
 			break;
 		case ISALIVE:
 			pt1.x++;
-			XLSUtils.setValue(sheet,  pt1.x, pt1.y, "threshold", transpose);
+			XLSUtils.setValue(sheet, pt, transpose, "threshold");
 			pt1.x++;
-			XLSUtils.setValue(sheet,  pt1.x, pt1.y, vSequence.cages.detect.threshold, transpose);
+			XLSUtils.setValue(sheet, pt, transpose, vSequence.cages.detect.threshold);
 			break;
 		case XYCENTER:
 		default:
@@ -115,17 +115,17 @@ public class XLSExportMoveResults {
 	private static Point writeColumnHeaders (Sheet sheet, Point pt, XLSExportItems option, boolean transpose) {
 		pt.x = 0;
 		if (vSequence.isFileStack()) {
-			XLSUtils.setValue(sheet,  pt.x, pt.y, "filename", transpose);
+			XLSUtils.setValue(sheet, pt, transpose, "filename");
 			pt.x++;
 		}
-		XLSUtils.setValue(sheet,  pt.x, pt.y, "i", transpose);
+		XLSUtils.setValue(sheet, pt, transpose, "i");
 		pt.x++;
 		
 		switch (option) {
 		case DISTANCE:
 			for (XYTaSeries posxyt: vSequence.cages.flyPositionsList) {
 				String name0 = posxyt.getName();
-				XLSUtils.setValue(sheet,  pt.x, pt.y, name0, transpose);
+				XLSUtils.setValue(sheet, pt, transpose, name0);
 				pt.x++;
 			}
 			break;
@@ -133,9 +133,9 @@ public class XLSExportMoveResults {
 		case ISALIVE:
 			for (XYTaSeries posxyt: vSequence.cages.flyPositionsList) {
 				String name0 = posxyt.getName();
-				XLSUtils.setValue(sheet,  pt.x, pt.y, name0, transpose);
+				XLSUtils.setValue(sheet, pt, transpose, name0);
 				pt.x++;
-				XLSUtils.setValue(sheet,  pt.x, pt.y, name0, transpose);
+				XLSUtils.setValue(sheet, pt, transpose, name0);
 				pt.x++;
 			}
 			break;
@@ -143,9 +143,9 @@ public class XLSExportMoveResults {
 		default:
 			for (XYTaSeries posxyt: vSequence.cages.flyPositionsList) {
 				String name0 = posxyt.getName();
-				XLSUtils.setValue(sheet,  pt.x, pt.y, name0+".x", transpose);
+				XLSUtils.setValue(sheet, pt, transpose, name0+".x");
 				pt.x++;
-				XLSUtils.setValue(sheet,  pt.x, pt.y, name0+".y", transpose);
+				XLSUtils.setValue(sheet, pt, transpose, name0+".y");
 				pt.x++;
 			}
 			break;
@@ -168,10 +168,10 @@ public class XLSExportMoveResults {
 				String cs = vSequence.getFileName(time_absolute);
 				int index = cs.lastIndexOf("\\");
 				String fileName = cs.substring(index + 1);
-				XLSUtils.setValue(sheet,  pt2.x, pt2.y, fileName, transpose);
+				XLSUtils.setValue(sheet, pt2, transpose, fileName);
 				pt2.x++;
 			}
-			XLSUtils.setValue(sheet,  pt2.x, pt2.y, time_absolute, transpose);
+			XLSUtils.setValue(sheet, pt2, transpose, time_absolute);
 			time_absolute  += vSequence.analysisStep;
 			pt2.x++;
 			
@@ -179,16 +179,16 @@ public class XLSExportMoveResults {
 			case DISTANCE:
 				for (int i=0; i < n_series; i++ ) 
 				{
-					XLSUtils.setValue(sheet,  pt2.x, pt2.y, arrayList.get(i).get(time_interval), transpose);
+					XLSUtils.setValue(sheet, pt2, transpose, arrayList.get(i).get(time_interval));
 					pt2.x++;
 				}
 				break;
 			case ISALIVE:
 				for (int i=0; i < n_series; i++ ) 
 				{
-					XLSUtils.setValue(sheet,  pt2.x, pt2.y, arrayList.get(i).get(time_interval), transpose);
+					XLSUtils.setValue(sheet, pt2, transpose, arrayList.get(i).get(time_interval));
 					pt2.x++;
-					XLSUtils.setValue(sheet,  pt2.x, pt2.y, arrayList.get(i).get(time_interval), transpose);
+					XLSUtils.setValue(sheet, pt2, transpose, arrayList.get(i).get(time_interval));
 					pt2.x++;
 				}
 				break;
@@ -198,9 +198,9 @@ public class XLSExportMoveResults {
 				for (int i=0; i < n_series; i++ ) 
 				{
 					int iarray = time_interval*2;
-					XLSUtils.setValue(sheet,  pt2.x, pt2.y, arrayList.get(i).get(iarray), transpose);
+					XLSUtils.setValue(sheet, pt2, transpose, arrayList.get(i).get(iarray));
 					pt2.x++;
-					XLSUtils.setValue(sheet,  pt2.x, pt2.y, arrayList.get(i).get(iarray+1), transpose);
+					XLSUtils.setValue(sheet, pt2, transpose, arrayList.get(i).get(iarray+1));
 					pt2.x++;
 				}
 				break;

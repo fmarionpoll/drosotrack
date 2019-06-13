@@ -1,39 +1,23 @@
 package plugins.fmp.tools;
 
+import java.awt.Point;
+
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 
 public class XLSUtils {
 
-	public static void setValue (Sheet sheet, int column, int row, int ivalue, boolean transpose) {
-		if (transpose) {
-			int dummy = row;
-			row = column;
-			column = dummy;
-		}
-		Cell cell = getCell (sheet, row, column);
-		cell.setCellValue(ivalue);
+	public static void setValue (Sheet sheet, Point pt, boolean transpose, int ivalue) {
+		getCell(sheet, pt, transpose).setCellValue(ivalue);
 	}
 	
-	public static void setValue (Sheet sheet, int column, int row, String string, boolean transpose) {
-		if (transpose) {
-			int dummy = row;
-			row = column;
-			column = dummy;
-		}
-		Cell cell = getCell (sheet, row, column);
-		cell.setCellValue(string);
+	public static void setValue (Sheet sheet, Point pt, boolean transpose, String string) {
+		getCell(sheet, pt, transpose).setCellValue(string);
 	}
 	
-	public static void setValue (Sheet sheet, int column, int row, double value, boolean transpose) {
-		if (transpose) {
-			int dummy = row;
-			row = column;
-			column = dummy;
-		}
-		Cell cell = getCell (sheet, row, column);
-		cell.setCellValue(value);
+	public static void setValue (Sheet sheet, Point pt, boolean transpose, double value) {
+		getCell(sheet, pt, transpose).setCellValue(value);
 	}
 	
 	public static Cell getCell (Sheet sheet, int rownum, int colnum) {
@@ -56,5 +40,14 @@ public class XLSUtils {
 		return cell;
 	}
 	
+	public static Cell getCell (Sheet sheet, Point point, boolean transpose) {
+		Point pt = new Point(point);
+		if (transpose) {
+			int dummy = pt.x;
+			pt.x = pt.y;
+			pt.y = dummy;
+		}
+		return getCell (sheet, pt.y, pt.x);
+	}
 
 }
