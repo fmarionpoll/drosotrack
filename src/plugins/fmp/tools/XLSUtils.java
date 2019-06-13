@@ -20,6 +20,10 @@ public class XLSUtils {
 		getCell(sheet, pt, transpose).setCellValue(value);
 	}
 	
+	public static double getValueDouble (Sheet sheet, Point pt, boolean transpose) {
+		return getCell(sheet, pt, transpose).getNumericCellValue();
+	}
+	
 	public static Cell getCell (Sheet sheet, int rownum, int colnum) {
 		Row row = getSheetRow(sheet, rownum);
 		Cell cell = getRowCell (row, colnum);

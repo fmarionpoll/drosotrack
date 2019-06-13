@@ -24,9 +24,12 @@ public class Capillaries {
 	public double 	capillaryPixels = 1.;
 	public int		capillariesGrouping = 1;
 	public String 	sourceName = null;
-	public ArrayList <ROI2DShape> capillariesArrayList 	= new ArrayList <ROI2DShape>();			// list of ROIs describing objects in all images for ex. glass capillaries 
+	public ArrayList <ROI2DShape> capillariesArrayList 	= new ArrayList <ROI2DShape>();	
+	public long analysisStart = 0;
+	public long analysisEnd = 0;
+	public int analysisStep = 1;
 	
-	private boolean xmlReadCapillaryParameters (Document doc, SequenceVirtual seq) {
+	private boolean xmlReadCapillaryParameters (Document doc) {
 		String nodeName = "capillaryTrack";
 		// read local parameters
 		Node node = XMLUtil.getElement(XMLUtil.getRootElement(doc), nodeName);
@@ -50,9 +53,9 @@ public class Capillaries {
 		capillaryPixels = XMLUtil.getAttributeDoubleValue(xmlVal, "npixels", Double.NaN);
 
 		xmlVal = XMLUtil.getElement(xmlElement, "analysis");
-		seq.analysisStart =  XMLUtil.getAttributeLongValue(xmlVal, "start", 0);
-		seq.analysisEnd = XMLUtil.getAttributeLongValue(xmlVal, "end", -1);
-		seq.analysisStep = XMLUtil.getAttributeIntValue(xmlVal, "step", 1);
+		analysisStart =  XMLUtil.getAttributeLongValue(xmlVal, "start", 0);
+		analysisEnd = XMLUtil.getAttributeLongValue(xmlVal, "end", 0);
+		analysisStep = XMLUtil.getAttributeIntValue(xmlVal, "step", 1);
 
 		return true;
 	}
@@ -117,7 +120,7 @@ public class Capillaries {
 	public boolean xmlWriteROIsAndDataNoQuestion(String csFile, SequenceVirtual seq) {
 
 		if (csFile != null) 
-		{;
+		{
 			extractLinesFromSequence(seq);
 			if (capillariesArrayList.size() > 0)
 			{
@@ -160,7 +163,7 @@ public class Capillaries {
 			final Document doc = XMLUtil.loadDocument(csFileName);
 			if (doc != null) {
 				final List<ROI> rois = ROI.loadROIsFromXML(XMLUtil.getRootElement(doc));
-				xmlReadCapillaryParameters(doc, seq);
+				xmlReadCapillaryParameters(doc);
 				
 				Collections.sort(rois, new Tools.ROINameComparator()); 
 

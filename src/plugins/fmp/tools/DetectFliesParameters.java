@@ -18,6 +18,10 @@ public class DetectFliesParameters implements XMLPersistent {
 	public int  	limitUp;
 	public int 		jitter = 10;
 	public TransformOp transformop; 
+	public long 	analysisStart = 0;
+	public long 	analysisEnd = 0;
+	public int 		analysisStep = 1;
+
 	
 	@Override
 	public boolean loadFromXML(Node node) {
@@ -38,6 +42,9 @@ public class DetectFliesParameters implements XMLPersistent {
 		jitter =  XMLUtil.getElementIntValue(xmlVal, "jitter", 10); 
 		String op = XMLUtil.getElementValue(xmlVal, "transformOp", null);
 		transformop = TransformOp.findByText(op);
+		analysisStart =  XMLUtil.getAttributeLongValue(xmlVal, "start", 0);
+		analysisEnd = XMLUtil.getAttributeLongValue(xmlVal, "end", 0);
+		analysisStep = XMLUtil.getAttributeIntValue(xmlVal, "step", 1);
 
 		return true;
 	}
@@ -62,6 +69,9 @@ public class DetectFliesParameters implements XMLPersistent {
 			String transform = transformop.toString();
 			XMLUtil.setElementValue(xmlVal, "transformOp", transform);
 		}
+		XMLUtil.setAttributeLongValue(xmlVal, "start", analysisStart);
+		XMLUtil.setAttributeLongValue(xmlVal, "end", analysisEnd); 
+		XMLUtil.setAttributeIntValue(xmlVal, "step", analysisStep); 
 		return true;
 	}
 	

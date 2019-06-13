@@ -647,4 +647,52 @@ public class SequenceVirtual extends Sequence
 		csFileName = name;		
 	}
 	
+	public void storeAnalysisParametersToCages() {
+		cages.detect.analysisEnd = analysisEnd;
+		cages.detect.analysisStart = analysisStart;
+		cages.detect.analysisStep = analysisStep;
+	}
+	
+	public void storeAnalysisParametersToCapillaries () {
+		capillaries.analysisStart = analysisStart;
+		capillaries.analysisEnd = analysisEnd;
+		capillaries.analysisStep = analysisStep;
+	}
+	
+	public boolean xmlReadCapillaryTrackDefault() {
+		return xmlReadCapillaryTrack(getDirectory()+"\\capillarytrack.xml");
+	}
+	
+	public boolean xmlReadCapillaryTrack(String filename) {
+		boolean flag = capillaries.xmlReadROIsAndData(filename, this);
+		if (flag) {
+			analysisStart = capillaries.analysisStart;
+			analysisEnd = capillaries.analysisEnd;
+			analysisStep = capillaries.analysisStep;
+		}
+		return flag;
+	}
+	
+	public boolean xmlWriteCapillaryTrackDefault() {
+		return capillaries.xmlWriteROIsAndData("capillarytrack.xml", this);
+	}
+	
+	public boolean xmlReadDrosoTrackDefault() {
+		return cages.xmlReadCagesFromFileNoQuestion(getDirectory() + "\\drosotrack.xml", this);
+	}
+	
+	public boolean xmlReadDrosoTrack(String filename) {
+		boolean flag = cages.xmlReadCagesFromFileNoQuestion(filename, this);
+		if (flag) {
+			analysisStart = cages.detect.analysisStart;
+			analysisEnd = cages.detect.analysisEnd;
+			analysisStep = cages.detect.analysisStep;
+		}
+		return flag;
+	}
+	
+	public boolean xmlWriteDrosoTrackDefault() {
+		return cages.xmlWriteCagesToFile("drosotrack.xml", getDirectory());
+	}
+	
 }

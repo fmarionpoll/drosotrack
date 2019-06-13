@@ -98,7 +98,7 @@ public class Cages {
 		Node node = XMLUtil.addElement(XMLUtil.getRootElement(doc), nodeName);
 		if (node == null)
 			return false;
-		
+
 		detect.saveToXML(node);
 		xmlSaveCagesLimits(node);
 		xmlSaveCagePositionsList(node);

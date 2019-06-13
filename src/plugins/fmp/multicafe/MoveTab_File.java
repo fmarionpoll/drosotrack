@@ -43,19 +43,15 @@ public class MoveTab_File extends JPanel implements ActionListener {
 		openROIsButton.addActionListener(new ActionListener () {
 			@Override
 			public void actionPerformed( final ActionEvent e ) { 
-				parent0.vSequence.cages.xmlReadCagesFromFile(parent0.vSequence);	
-//				ArrayList<ROI2D> list = parent0.vSequence.getROI2Ds();
-//				Collections.sort(list, new Tools.ROI2DNameComparator());
-//				int nrois = list.size();
-//				if (nrois > 0)
-//					nbcagesTextField.setText(Integer.toString(nrois));
+				parent0.vSequence.cages.xmlReadCagesFromFile(parent0.vSequence);
 				firePropertyChange("LOAD_DATA", false, true);	
 			}});
 		
 		saveROIsButton.addActionListener(new ActionListener () {
 			@Override
 			public void actionPerformed( final ActionEvent e ) { 
-				parent0.vSequence.cages.xmlWriteCagesToFile("drosotrack.xml", parent0.vSequence.getDirectory());
+				parent0.vSequence.storeAnalysisParametersToCages();
+				parent0.vSequence.xmlWriteDrosoTrackDefault();
 
 			}});
 	}
@@ -80,9 +76,9 @@ public class MoveTab_File extends JPanel implements ActionListener {
 		
 		boolean flag = false;
 		if (csFileName == null)
-			flag = parent0.vSequence.cages.xmlReadCagesFromFile(parent0.vSequence);
+			flag = parent0.vSequence.xmlReadDrosoTrackDefault();
 		else
-			flag = parent0.vSequence.cages.xmlReadCagesFromFileNoQuestion(csFileName, parent0.vSequence);
+			flag = parent0.vSequence.xmlReadDrosoTrack(csFileName);
 		return flag;
 	}
 	

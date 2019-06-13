@@ -9,6 +9,7 @@ import java.util.ArrayList;
 import org.apache.poi.ss.util.CellReference;
 import org.apache.poi.ss.SpreadsheetVersion;
 import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.CellType;
 import org.apache.poi.ss.usermodel.DataConsolidateFunction;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
@@ -85,13 +86,11 @@ public class XLSExportCapillaryResults {
 		vSequence = new SequenceVirtual();
 		if (null == vSequence.loadVirtualStackAt(filename))
 			return false;
-		String path = vSequence.getDirectory();
-		boolean flag = vSequence.capillaries.xmlReadROIsAndData(path+"\\capillarytrack.xml", vSequence);
-		if (!flag) return flag;
-		vSequence.capillaries.extractLinesFromSequence(vSequence);	// ???
-		String directory = path+"\\results";
+		if (!vSequence.xmlReadCapillaryTrackDefault()) 
+			return false;
+		String directory = vSequence.getDirectory() +"\\results";
 		kymographArrayList = SequencePlusUtils.openFiles(directory);
-		vSequence.cages.xmlReadCagesFromFileNoQuestion(path + "\\drosotrack.xml", vSequence);
+		vSequence.xmlReadDrosoTrackDefault();
 		return true;
 	}
 
@@ -133,8 +132,6 @@ public class XLSExportCapillaryResults {
 	
 	private static ArrayList <ArrayList<Integer>> trimDeadsFromArrayList(ArrayList <ArrayList<Integer >> resultsArrayList) {
 		ArrayList <ArrayList<Integer >> trimmedArrayList = new ArrayList <ArrayList<Integer >> ();
-//		int ncages = vSequence.cages.flyPositionsList.size();
-//		int ncapillaries = resultsArrayList.size();
 		int icapillary = 0;
 		for (XYTaSeries flypos: vSequence.cages.flyPositionsList) {
 			int ilastalive = getLastIntervalAlive(flypos);					
@@ -168,15 +165,6 @@ public class XLSExportCapillaryResults {
 		ArrayList <ArrayList<Integer >> arrayList = getDataFromRois(xlsoption, options.t0);		
 		if (arrayList.size() == 0)
 			return 0;
-		
-		int maxelements = 0;
-		for (int i=0; i< arrayList.size(); i++) {
-			ArrayList<Integer> dataArray = arrayList.get(i);
-			if (dataArray == null)
-				continue;
-			if (dataArray.size() > maxelements)
-				maxelements = dataArray.size();
-		}
 
 		if (title.contains("alive")
 				&& options.onlyalive 
@@ -189,7 +177,7 @@ public class XLSExportCapillaryResults {
 			sheet = workBook.createSheet(title);
 		Point pt = writeGlobalInfos(sheet, row0, options.transpose, charSeries);
 		pt = writeColumnHeaders(sheet, xlsoption, pt, options.transpose, charSeries);
-		pt = writeData(sheet, xlsoption, pt, options.transpose, charSeries, maxelements, arrayList);
+		pt = writeData(sheet, xlsoption, pt, options.transpose, charSeries, arrayList);
 		return pt.y;
 	}
 	
@@ -254,23 +242,24 @@ public class XLSExportCapillaryResults {
 		return pt;
 	}
 
-	private static Point writeData (Sheet sheet, XLSExportItems option, Point pt, boolean transpose, String charSeries, int nelements, ArrayList <ArrayList<Integer >> dataArrayList) {
-		
-		if (nelements <= 0)
-			return pt;
+	private static Point writeData (Sheet sheet, XLSExportItems option, Point pt, boolean transpose, String charSeries, ArrayList <ArrayList<Integer >> dataArrayList) {
 		
 		double ratio = vSequence.capillaries.capillaryVolume / vSequence.capillaries.capillaryPixels;
 		if (charSeries == null)
 			charSeries = "t";
 		
 		int startFrame = (int) vSequence.analysisStart;
-		int t = startFrame;
-		
-		// TODO check if name of files is correct
-		for (int j=0; j< nelements; j++) {
+		int step = vSequence.analysisStep;
+		int endFrame = (int) vSequence.analysisEnd;
+		Point pt0 = new Point (pt);
+		if (pt.y -4 > 0)
+			pt0.y -= 4;
+		int j = 0;		
+
+		for (int t=startFrame; t < endFrame; t+= step, j++) {
 			pt.x = 0;
 			if (vSequence.isFileStack()) {
-				String cs = vSequence.getFileName(j+startFrame);
+				String cs = vSequence.getFileName(t);
 				int index = cs.lastIndexOf("\\");
 				String fileName = cs.substring(index + 1);
 				XLSUtils.setValue(sheet, pt, transpose, fileName );
@@ -278,17 +267,24 @@ public class XLSExportCapillaryResults {
 			}
 
 			XLSUtils.setValue(sheet, pt, transpose, charSeries+t);
-			t  += vSequence.analysisStep;
 			pt.x++;
 			
 			switch (option) {
 			case SUMLR:
 				for (int i=0; i< kymographArrayList.size(); i+=2) 
 				{
-					ArrayList<Integer> dataL = dataArrayList.get(i);
+					pt0.x = pt.x;
+					ArrayList<Integer> dataL = dataArrayList.get(i) ;
 					ArrayList<Integer> dataR = dataArrayList.get(i+1);
-					if (j < dataL.size() && j < dataR.size())
-						XLSUtils.setValue(sheet, pt, transpose, (dataL.get(j)+dataR.get(j))*ratio );
+					if (j < dataL.size() && j < dataR.size()) {
+						double value = (dataL.get(j)+dataR.get(j))*ratio;
+						double valueold = 0.;
+						Cell cell = XLSUtils.getCell(sheet, pt0, transpose);
+						if (cell.getCellType() == CellType.NUMERIC)
+							valueold = cell.getNumericCellValue();
+						value += valueold;
+						XLSUtils.setValue(sheet, pt, transpose, value );
+					}
 					pt.x++;
 					pt.x++;
 				}
@@ -297,9 +293,17 @@ public class XLSExportCapillaryResults {
 			default:
 				for (int i=0; i< kymographArrayList.size(); i++) 
 				{
+					pt0.x = pt.x;
 					ArrayList<Integer> data = dataArrayList.get(i);
-					if (j < data.size())
-						XLSUtils.setValue(sheet, pt, transpose, data.get(j)*ratio );
+					if (j < data.size()) {
+						double value = data.get(j)*ratio;
+						double valueold = 0.;
+						Cell cell = XLSUtils.getCell(sheet, pt0, transpose);
+						if (cell.getCellType() == CellType.NUMERIC)
+							valueold = cell.getNumericCellValue();
+						value += valueold;
+						XLSUtils.setValue(sheet, pt, transpose, value);
+					}
 					pt.x++;
 				}
 				break;

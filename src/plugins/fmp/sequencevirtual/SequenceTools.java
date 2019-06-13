@@ -224,6 +224,10 @@ public class SequenceTools extends EzPlug {
 			flag = vSequence.capillaries.xmlReadROIsAndData(vSequence);
 		else
 			flag = vSequence.capillaries.xmlReadROIsAndData(csFileName, vSequence);
+		
+		vSequence.analysisStart = vSequence.capillaries.analysisStart;
+		vSequence.analysisEnd = vSequence.capillaries.analysisEnd;
+		vSequence.analysisStep = vSequence.capillaries.analysisStep;
 		return flag;
 	}
 }
