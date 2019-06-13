@@ -70,8 +70,9 @@ public class SequenceTab_Options extends JPanel implements ActionListener{
 		else if ( o == experimentComboBox) {
 			if (experimentComboBox.getItemCount() == 0)
 				return;
-			String text = (String) experimentComboBox.getSelectedItem();
-			if (parent0.vSequence == null && !text.equals(parent0.vSequence.getName())) {
+			String newtext = (String) experimentComboBox.getSelectedItem();
+			String oldtext = parent0.vSequence.getFileName();
+			if (!newtext.equals(oldtext)) {
 				firePropertyChange("SEQ_CHANGE", false, true);
 			}
 		}

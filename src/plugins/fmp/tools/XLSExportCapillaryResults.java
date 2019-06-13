@@ -18,7 +18,9 @@ import org.apache.poi.xssf.usermodel.XSSFPivotTable;
 import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
+import plugins.fmp.multicafe.Experiment;
 import plugins.fmp.sequencevirtual.SequencePlus;
+import plugins.fmp.sequencevirtual.SequencePlusUtils;
 import plugins.fmp.sequencevirtual.SequenceVirtual;
 import plugins.fmp.sequencevirtual.XYTaSeries;
 
@@ -27,36 +29,36 @@ public class XLSExportCapillaryResults {
 	static SequenceVirtual 				vSequence = null;
 	static XLSExportCapillariesOptions 	options = null;
 	static ArrayList<SequencePlus> 		kymographArrayList = null;
+	static int rowmax = 0;
 	
 	public static void exportToFile(String filename, XLSExportCapillariesOptions opt) {
 		
 		System.out.println("XLS output");
 		options = opt;
-		vSequence = vSeq;
-		kymographArrayList = kymographsArray;
-		
+
 		try { 
 			XSSFWorkbook workbook = new XSSFWorkbook(); 
 			workbook.setMissingCellPolicy(Row.MissingCellPolicy.CREATE_NULL_AS_BLANK);
-			int col0 = 0;
-			for (int i=0; i < options.experimentList.size(); i++) {
-				openDocuments(options.experimentList.get(i).filename);
+			int row0 = 0;
+			for (Experiment exp: options.experimentList) {
+				openDocuments(exp.filename);
 				if (options.topLevel) {
-					xlsExportToWorkbook(workbook, "toplevel", XLSExportItems.TOPLEVEL, col0);
-					if (options.onlyalive) xlsExportToWorkbook(workbook, "toplevel_alive", XLSExportItems.TOPLEVEL, col0);
+					xlsExportToWorkbook(workbook, "toplevel", XLSExportItems.TOPLEVEL, row0);
+					if (options.onlyalive) xlsExportToWorkbook(workbook, "toplevel_alive", XLSExportItems.TOPLEVEL, row0);
 				}
 				if (options.bottomLevel) 
-					xlsExportToWorkbook(workbook, "bottomlevel", XLSExportItems.BOTTOMLEVEL, col0);
+					xlsExportToWorkbook(workbook, "bottomlevel", XLSExportItems.BOTTOMLEVEL, row0);
 				if (options.derivative) 
-					xlsExportToWorkbook(workbook, "derivative", XLSExportItems.DERIVEDVALUES, col0);
+					xlsExportToWorkbook(workbook, "derivative", XLSExportItems.DERIVEDVALUES, row0);
 				if (options.consumption) {
-					xlsExportToWorkbook(workbook, "sumGulps", XLSExportItems.SUMGULPS, col0);
-					if (options.onlyalive) xlsExportToWorkbook(workbook, "sumGulps_alive", XLSExportItems.SUMGULPS, col0);
+					xlsExportToWorkbook(workbook, "sumGulps", XLSExportItems.SUMGULPS, row0);
+					if (options.onlyalive) xlsExportToWorkbook(workbook, "sumGulps_alive", XLSExportItems.SUMGULPS, row0);
 				}
 				if (options.sum) { 
-					xlsExportToWorkbook(workbook, "sumL+R", XLSExportItems.SUMLR, col0);
-					if (options.onlyalive) xlsExportToWorkbook(workbook, "sumL+R_alive", XLSExportItems.SUMLR, col0);
+					xlsExportToWorkbook(workbook, "sumL+R", XLSExportItems.SUMLR, row0);
+					if (options.onlyalive) xlsExportToWorkbook(workbook, "sumL+R_alive", XLSExportItems.SUMLR, row0);
 				}
+				row0 = rowmax+1;
 			}
 			if (options.topLevel && options.transpose && options.pivot) xlsCreatePivotTable(workbook, "toplevel");
 				
@@ -75,15 +77,13 @@ public class XLSExportCapillaryResults {
 		if (null == vSequence.loadVirtualStackAt(filename))
 			return false;
 		String path = vSequence.getDirectory();
-		String csCapillaries = path+"\\capillarytrack.xml";
-		boolean flag = vSequence.capillaries.xmlReadROIsAndData(csCapillaries, vSequence);
+		boolean flag = vSequence.capillaries.xmlReadROIsAndData(path+"\\capillarytrack.xml", vSequence);
 		if (!flag) return flag;
 		vSequence.capillaries.extractLinesFromSequence(vSequence);	// ???
-
-		final String csKymographs = path+"\\results";
-		
-		
-		return false;
+		String directory = path+"\\results";
+		kymographArrayList = SequencePlusUtils.openFiles(directory);
+		vSequence.cages.xmlReadCagesFromFileNoQuestion(path + "\\drosotrack.xml", vSequence);
+		return true;
 	}
 
 	private static ArrayList <ArrayList<Integer>> getDataFromRois(XLSExportItems xlsoption, boolean relative) {
@@ -109,7 +109,8 @@ public class XLSExportCapillaryResults {
 		
 		if (relative && resultsArrayList.size() > 0) {
 			for (ArrayList<Integer> array : resultsArrayList) {
-
+				if (array == null || array.size() < 1)
+					continue;
 				int item0 = array.get(0);
 				int i=0;
 				for (int item: array) {
@@ -121,15 +122,15 @@ public class XLSExportCapillaryResults {
 		return resultsArrayList;
 	}
 	
-	private static ArrayList <ArrayList<Integer>> trimDeads(ArrayList <ArrayList<Integer >> resultsArrayList) {
+	private static ArrayList <ArrayList<Integer>> trimDeadsFromArrayList(ArrayList <ArrayList<Integer >> resultsArrayList) {
 		ArrayList <ArrayList<Integer >> trimmedArrayList = new ArrayList <ArrayList<Integer >> ();
-		int ncages = vSequence.cages.flyPositionsList.size();
-		int ncapillaries = resultsArrayList.size();
+//		int ncages = vSequence.cages.flyPositionsList.size();
+//		int ncapillaries = resultsArrayList.size();
 		int icapillary = 0;
 		for (XYTaSeries flypos: vSequence.cages.flyPositionsList) {
 			int ilastalive = getLastIntervalAlive(flypos);					
-			trimmedArrayList.add(trimArray(resultsArrayList.get(icapillary), ilastalive));
-			trimmedArrayList.add(trimArray(resultsArrayList.get(icapillary+1), ilastalive));
+			trimmedArrayList.add(trimArrayLength(resultsArrayList.get(icapillary), ilastalive));
+			trimmedArrayList.add(trimArrayLength(resultsArrayList.get(icapillary+1), ilastalive));
 			icapillary += 2;
 		}
 		return trimmedArrayList;
@@ -148,7 +149,9 @@ public class XLSExportCapillaryResults {
 		return ilastalive;
 	}
 	
-	private static ArrayList<Integer> trimArray (ArrayList<Integer> array, int ilastalive) {
+	private static ArrayList<Integer> trimArrayLength (ArrayList<Integer> array, int ilastalive) {
+		if (array == null)
+			return null;
 		int nresults_intervals = array.size();
 		for (int i = nresults_intervals-1; i > ilastalive; i--) {
 			array.remove(i);
@@ -156,7 +159,7 @@ public class XLSExportCapillaryResults {
 		return array;
 	}
 	
-	private static void xlsExportToWorkbook(XSSFWorkbook workBook, String title, XLSExportItems xlsoption, int col0) {
+	private static void xlsExportToWorkbook(XSSFWorkbook workBook, String title, XLSExportItems xlsoption, int row0) {
 		System.out.println("export worksheet "+title);
 		ArrayList <ArrayList<Integer >> arrayList = getDataFromRois(xlsoption, options.t0);		
 		if (arrayList.size() == 0)
@@ -165,48 +168,49 @@ public class XLSExportCapillaryResults {
 		if (title.contains("alive")
 				&& options.onlyalive 
 				&& vSequence.cages.flyPositionsList.size() > 0) {
-			arrayList = trimDeads(arrayList);
+			arrayList = trimDeadsFromArrayList(arrayList);
 		}
 		
 		Sheet sheet = workBook.getSheet(title );
 		if (sheet == null)
 				sheet = workBook.createSheet(title );
-		Point pt = writeGlobalInfos(sheet, options.transpose, col0);
-		pt = writeColumnHeaders(sheet, pt, xlsoption, options.transpose, col0);
-		pt = writeData(sheet, pt, xlsoption, arrayList, options.transpose, col0);
+		Point pt = writeGlobalInfos(sheet, options.transpose, row0);
+		pt = writeColumnHeaders(sheet, pt, xlsoption, options.transpose);
+		pt = writeData(sheet, pt, xlsoption, arrayList, options.transpose);
+		rowmax = pt.y;
 	}
 	
-	private static Point writeGlobalInfos(Sheet sheet, boolean transpose, int col0) {
-		Point pt = new Point(col0, 0);
+	private static Point writeGlobalInfos(Sheet sheet, boolean transpose, int row0) {
+		Point pt = new Point(0, row0);
 
-		XLSUtils.setValue(sheet,  pt.x, pt.y, "name:" );
+		XLSUtils.setValue(sheet,  pt.x, pt.y, "name:" , transpose);
 		File file = new File(vSequence.getFileName(0));
 		String path = file.getParent();
-		pt = XLSUtils.nextCol(pt, transpose);
-		XLSUtils.setValue(sheet,  pt.x, pt.y, path );
-		pt= XLSUtils.nextRow(pt, transpose);
-		pt = XLSUtils.toColZero(pt, transpose, col0);
+		pt.x++;
+		XLSUtils.setValue(sheet,  pt.x, pt.y, path, transpose);
+		pt.y++;
+		pt.x = 0;
 		Point pt1 = pt;
-		XLSUtils.setValue(sheet,  pt1.x, pt1.y, "capillary (µl):" );
-		pt1 = XLSUtils.nextCol(pt1, transpose);
-		XLSUtils.setValue(sheet,  pt1.x, pt1.y, vSequence.capillaries.capillaryVolume);
-		pt1 = XLSUtils.nextCol(pt1, transpose);
-		XLSUtils.setValue(sheet,  pt1.x, pt1.y, "capillary (pixels):" );
-		pt1 = XLSUtils.nextCol(pt1, transpose);
-		XLSUtils.setValue(sheet,  pt1.x, pt1.y, vSequence.capillaries.capillaryPixels);
-		pt = XLSUtils.nextRow(pt, transpose);
-		pt = XLSUtils.nextRow(pt, transpose);
+		XLSUtils.setValue(sheet,  pt1.x, pt1.y, "capillary (µl):" , transpose);
+		pt1.x++;;
+		XLSUtils.setValue(sheet,  pt1.x, pt1.y, vSequence.capillaries.capillaryVolume, transpose);
+		pt1.x++;
+		XLSUtils.setValue(sheet,  pt1.x, pt1.y, "capillary (pixels):" , transpose);
+		pt1.x++;
+		XLSUtils.setValue(sheet,  pt1.x, pt1.y, vSequence.capillaries.capillaryPixels, transpose);
+		pt.y++;
+		pt.y++;
 		return pt;
 	}
 
-	private static Point writeColumnHeaders (Sheet sheet, Point pt, XLSExportItems option, boolean transpose, int col0) {
-		pt = XLSUtils.toColZero(pt, transpose, col0);
+	private static Point writeColumnHeaders (Sheet sheet, Point pt, XLSExportItems option, boolean transpose) {
+		pt.x = 0;
 		if (vSequence.isFileStack()) {
-			XLSUtils.setValue(sheet,  pt.x, pt.y, "filename" );
-			pt = XLSUtils.nextCol(pt, transpose);
+			XLSUtils.setValue(sheet,  pt.x, pt.y, "filename" , transpose);
+			pt.x++;
 		}
-		XLSUtils.setValue(sheet,  pt.x, pt.y, "i" );
-		pt = XLSUtils.nextCol(pt, transpose);
+		XLSUtils.setValue(sheet,  pt.x, pt.y, "i" , transpose);
+		pt.x++;
 		
 		switch (option) {
 		case SUMLR:
@@ -215,30 +219,32 @@ public class XLSExportCapillaryResults {
 				String name0 = kymographSeq0.getName();
 				SequencePlus kymographSeq1 = kymographArrayList.get(i+1);
 				String name1 = kymographSeq1.getName();
-				XLSUtils.setValue(sheet,  pt.x, pt.y, name0+"+"+name1 );
-				pt = XLSUtils.nextCol(pt, transpose);
-				XLSUtils.setValue(sheet,  pt.x, pt.y, "." );
-				pt = XLSUtils.nextCol(pt, transpose);
+				XLSUtils.setValue(sheet,  pt.x, pt.y, name0+"+"+name1 , transpose);
+				pt.x++;
+				XLSUtils.setValue(sheet,  pt.x, pt.y, "." , transpose);
+				pt.x++;
 			}
 			break;
 		default:
 			for (int i=0; i< kymographArrayList.size(); i++) {
 				SequencePlus kymographSeq = kymographArrayList.get(i);
 				String name = kymographSeq.getName();
-				XLSUtils.setValue(sheet,  pt.x, pt.y, name );
-				pt = XLSUtils.nextCol(pt, transpose);
+				XLSUtils.setValue(sheet,  pt.x, pt.y, name , transpose);
+				pt.x++;
 			}
 			break;
 		}
-		pt = XLSUtils.toColZero(pt, transpose, col0);
-		pt = XLSUtils.nextRow(pt, transpose);
+		pt.x = 0;
+		pt.y++;
 		return pt;
 	}
 
-	private static Point writeData (Sheet sheet, Point pt, XLSExportItems option, ArrayList <ArrayList<Integer >> arrayList, boolean transpose, int col0) {
+	private static Point writeData (Sheet sheet, Point pt, XLSExportItems option, ArrayList <ArrayList<Integer >> arrayList, boolean transpose) {
 		int maxelements = 0;
 		for (int i=0; i< arrayList.size(); i++) {
 			ArrayList<Integer> datai = arrayList.get(i);
+			if (datai == null)
+				continue;
 			if (datai.size() > maxelements)
 				maxelements = datai.size();
 		}
@@ -250,20 +256,21 @@ public class XLSExportCapillaryResults {
 		
 		int startFrame = (int) vSequence.analysisStart;
 		int t = startFrame;
+		
 		// TODO check if name of files is correct
 		for (int j=0; j< nelements; j++) {
-			Point pt2 = XLSUtils.toColZero(pt, transpose, col0);
+			Point pt2 = new Point(0, pt.y); 
 			if (vSequence.isFileStack()) {
 				String cs = vSequence.getFileName(j+startFrame);
 				int index = cs.lastIndexOf("\\");
 				String fileName = cs.substring(index + 1);
-				XLSUtils.setValue(sheet,  pt2.x, pt2.y, fileName );
-				pt2 = XLSUtils.nextCol(pt2, transpose);
+				XLSUtils.setValue(sheet,  pt2.x, pt2.y, fileName , transpose);
+				pt2.x++;
 			}
 
-			XLSUtils.setValue(sheet,  pt2.x, pt2.y, Integer.toString(t));
+			XLSUtils.setValue(sheet,  pt2.x, pt2.y, Integer.toString(t), transpose);
 			t  += vSequence.analysisStep;
-			pt2 = XLSUtils.nextCol(pt2, transpose);
+			pt2.x++;
 			
 			switch (option) {
 			case SUMLR:
@@ -272,9 +279,9 @@ public class XLSExportCapillaryResults {
 					ArrayList<Integer> dataL = arrayList.get(i);
 					ArrayList<Integer> dataR = arrayList.get(i+1);
 					if (j < dataL.size() && j < dataR.size())
-						XLSUtils.setValue(sheet,  pt2.x, pt2.y, (dataL.get(j)+dataR.get(j))*ratio );
-					pt2 = XLSUtils.nextCol(pt2, transpose);
-					pt2 = XLSUtils.nextCol(pt2, transpose);
+						XLSUtils.setValue(sheet,  pt2.x, pt2.y, (dataL.get(j)+dataR.get(j))*ratio , transpose);
+					pt2.x++;
+					pt2.x++;
 				}
 				break;
 
@@ -283,13 +290,12 @@ public class XLSExportCapillaryResults {
 				{
 					ArrayList<Integer> data = arrayList.get(i);
 					if (j < data.size())
-						XLSUtils.setValue(sheet, pt2.x, pt2.y, data.get(j)*ratio );
-					pt2 = XLSUtils.nextCol (pt2, transpose);
+						XLSUtils.setValue(sheet, pt2.x, pt2.y, data.get(j)*ratio , transpose);
+					pt2.x++;
 				}
 				break;
 			}
-			
-			pt = XLSUtils.nextRow (pt, transpose);
+			pt.y++;
 		}
 		return pt;
 	}

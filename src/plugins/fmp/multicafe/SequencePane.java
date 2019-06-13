@@ -66,13 +66,20 @@ public class SequencePane extends JPanel implements PropertyChangeListener {
 				updateParametersForSequence();
 				firePropertyChange("SEQ_OPEN", false, true);
 			}
-		 }
+		}
 		else if (event.getPropertyName().equals("SEQ_ADD")) {
 			if (sequenceOpenFile(null)) {
 				String strItem = parent0.vSequence.getFileName();
-				optionsTab.experimentComboBox.setSelectedItem(strItem);   
-				if(optionsTab.experimentComboBox.getSelectedIndex() < 0){
-					optionsTab.experimentComboBox.addItem(parent0.vSequence.getName());
+				int nitems = optionsTab.experimentComboBox.getItemCount();
+				boolean alreadystored = false;
+				for (int i=0; i < nitems; i++) {
+					if (strItem.equals(optionsTab.experimentComboBox.getItemAt(i))) {
+						alreadystored = true;
+						break;
+					}
+				}
+				if(!alreadystored) {
+					optionsTab.experimentComboBox.addItem(strItem);
 					optionsTab.experimentComboBox.setSelectedItem(strItem);
 				}
 				updateParametersForSequence();

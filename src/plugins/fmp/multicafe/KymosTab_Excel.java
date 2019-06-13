@@ -26,7 +26,7 @@ public class KymosTab_Excel extends JPanel implements ActionListener  {
 	private static final long serialVersionUID = 1290058998782225526L;
 
 	public JButton 		exportToXLSButton 	= new JButton("save XLS");
-	public JCheckBox 	exportAllFilesCheckBox = new JCheckBox("top", true);
+	public JCheckBox 	exportAllFilesCheckBox = new JCheckBox("all experiments", true);
 	public JCheckBox 	topLevelCheckBox 	= new JCheckBox("top", true);
 	public JCheckBox 	bottomLevelCheckBox = new JCheckBox("bottom", false);
 	public JCheckBox 	consumptionCheckBox = new JCheckBox("gulps", false);

@@ -81,77 +81,77 @@ public class XLSExportMoveResults {
 	private static Point writeGlobalInfos(Sheet sheet, XLSExportItems option, boolean transpose) {
 		Point pt = new Point(0, 0);
 
-		XLSUtils.setValue(sheet,  pt.x, pt.y, "name:" );
+		XLSUtils.setValue(sheet,  pt.x, pt.y, "name:" , transpose);
 		File file = new File(vSequence.getFileName(0));
 		String path = file.getParent();
-		pt = XLSUtils.nextCol(pt, transpose);
-		XLSUtils.setValue(sheet,  pt.x, pt.y, path );
-		pt= XLSUtils.nextRow(pt, transpose);
-		pt = XLSUtils.toColZero(pt, transpose, 0);
+		pt.x++;
+		XLSUtils.setValue(sheet,  pt.x, pt.y, path, transpose);
+		pt.y++;
+		pt.x=0;
 		Point pt1 = pt;
-		XLSUtils.setValue(sheet,  pt1.x, pt1.y, "n cages" );
-		pt1 = XLSUtils.nextCol(pt1, transpose);
-		XLSUtils.setValue(sheet,  pt1.x, pt1.y, vSequence.cages.flyPositionsList.size());
+		XLSUtils.setValue(sheet,  pt1.x, pt1.y, "n cages", transpose);
+		pt1.x++;
+		XLSUtils.setValue(sheet,  pt1.x, pt1.y, vSequence.cages.flyPositionsList.size(), transpose);
 		
 		switch (option) {
 		case DISTANCE:
 			break;
 		case ISALIVE:
-			pt1 = XLSUtils.nextCol(pt1, transpose);
-			XLSUtils.setValue(sheet,  pt1.x, pt1.y, "threshold" );
-			pt1 = XLSUtils.nextCol(pt1, transpose);
-			XLSUtils.setValue(sheet,  pt1.x, pt1.y, vSequence.cages.detect.threshold);
+			pt1.x++;
+			XLSUtils.setValue(sheet,  pt1.x, pt1.y, "threshold", transpose);
+			pt1.x++;
+			XLSUtils.setValue(sheet,  pt1.x, pt1.y, vSequence.cages.detect.threshold, transpose);
 			break;
 		case XYCENTER:
 		default:
 			break;
 		}
 
-		pt = XLSUtils.nextRow(pt, transpose);
-		pt = XLSUtils.nextRow(pt, transpose);
+		pt.y++;
+		pt.y++;
 		return pt;
 	}
 
 	private static Point writeColumnHeaders (Sheet sheet, Point pt, XLSExportItems option, boolean transpose) {
-		pt = XLSUtils.toColZero(pt, transpose, 0);
+		pt.x = 0;
 		if (vSequence.isFileStack()) {
-			XLSUtils.setValue(sheet,  pt.x, pt.y, "filename" );
-			pt = XLSUtils.nextCol(pt, transpose);
+			XLSUtils.setValue(sheet,  pt.x, pt.y, "filename", transpose);
+			pt.x++;
 		}
-		XLSUtils.setValue(sheet,  pt.x, pt.y, "i" );
-		pt = XLSUtils.nextCol(pt, transpose);
+		XLSUtils.setValue(sheet,  pt.x, pt.y, "i", transpose);
+		pt.x++;
 		
 		switch (option) {
 		case DISTANCE:
 			for (XYTaSeries posxyt: vSequence.cages.flyPositionsList) {
 				String name0 = posxyt.getName();
-				XLSUtils.setValue(sheet,  pt.x, pt.y, name0 );
-				pt = XLSUtils.nextCol(pt, transpose);
+				XLSUtils.setValue(sheet,  pt.x, pt.y, name0, transpose);
+				pt.x++;
 			}
 			break;
 			
 		case ISALIVE:
 			for (XYTaSeries posxyt: vSequence.cages.flyPositionsList) {
 				String name0 = posxyt.getName();
-				XLSUtils.setValue(sheet,  pt.x, pt.y, name0 );
-				pt = XLSUtils.nextCol(pt, transpose);
-				XLSUtils.setValue(sheet,  pt.x, pt.y, name0 );
-				pt = XLSUtils.nextCol(pt, transpose);
+				XLSUtils.setValue(sheet,  pt.x, pt.y, name0, transpose);
+				pt.x++;
+				XLSUtils.setValue(sheet,  pt.x, pt.y, name0, transpose);
+				pt.x++;
 			}
 			break;
 		case XYCENTER:
 		default:
 			for (XYTaSeries posxyt: vSequence.cages.flyPositionsList) {
 				String name0 = posxyt.getName();
-				XLSUtils.setValue(sheet,  pt.x, pt.y, name0+".x" );
-				pt = XLSUtils.nextCol(pt, transpose);
-				XLSUtils.setValue(sheet,  pt.x, pt.y, name0+".y" );
-				pt = XLSUtils.nextCol(pt, transpose);
+				XLSUtils.setValue(sheet,  pt.x, pt.y, name0+".x", transpose);
+				pt.x++;
+				XLSUtils.setValue(sheet,  pt.x, pt.y, name0+".y", transpose);
+				pt.x++;
 			}
 			break;
 		}
-		pt = XLSUtils.toColZero(pt, transpose, 0);
-		pt = XLSUtils.nextRow(pt, transpose);
+		pt.x=0;
+		pt.y++;
 		return pt;
 	}
 
@@ -163,33 +163,33 @@ public class XLSExportMoveResults {
 		
 		for (int time_interval=0; time_interval< n_time_intervals; time_interval++) {
 			int time_absolute = flyPositionsList.get(0).pointsList.get(time_interval).time;
-			Point pt2 = XLSUtils.toColZero(pt, transpose, 0);
+			Point pt2 = new Point(0, pt.y); 
 			if (vSequence.isFileStack()) {
 				String cs = vSequence.getFileName(time_absolute);
 				int index = cs.lastIndexOf("\\");
 				String fileName = cs.substring(index + 1);
-				XLSUtils.setValue(sheet,  pt2.x, pt2.y, fileName );
-				pt2 = XLSUtils.nextCol(pt2, transpose);
+				XLSUtils.setValue(sheet,  pt2.x, pt2.y, fileName, transpose);
+				pt2.x++;
 			}
-			XLSUtils.setValue(sheet,  pt2.x, pt2.y, time_absolute);
+			XLSUtils.setValue(sheet,  pt2.x, pt2.y, time_absolute, transpose);
 			time_absolute  += vSequence.analysisStep;
-			pt2 = XLSUtils.nextCol(pt2, transpose);
+			pt2.x++;
 			
 			switch (option) {
 			case DISTANCE:
 				for (int i=0; i < n_series; i++ ) 
 				{
-					XLSUtils.setValue(sheet,  pt2.x, pt2.y, arrayList.get(i).get(time_interval) );
-					pt2 = XLSUtils.nextCol(pt2, transpose);
+					XLSUtils.setValue(sheet,  pt2.x, pt2.y, arrayList.get(i).get(time_interval), transpose);
+					pt2.x++;
 				}
 				break;
 			case ISALIVE:
 				for (int i=0; i < n_series; i++ ) 
 				{
-					XLSUtils.setValue(sheet,  pt2.x, pt2.y, arrayList.get(i).get(time_interval) );
-					pt2 = XLSUtils.nextCol(pt2, transpose);
-					XLSUtils.setValue(sheet,  pt2.x, pt2.y, arrayList.get(i).get(time_interval) );
-					pt2 = XLSUtils.nextCol(pt2, transpose);
+					XLSUtils.setValue(sheet,  pt2.x, pt2.y, arrayList.get(i).get(time_interval), transpose);
+					pt2.x++;
+					XLSUtils.setValue(sheet,  pt2.x, pt2.y, arrayList.get(i).get(time_interval), transpose);
+					pt2.x++;
 				}
 				break;
 
@@ -198,14 +198,14 @@ public class XLSExportMoveResults {
 				for (int i=0; i < n_series; i++ ) 
 				{
 					int iarray = time_interval*2;
-					XLSUtils.setValue(sheet,  pt2.x, pt2.y, arrayList.get(i).get(iarray) );
-					pt2 = XLSUtils.nextCol(pt2, transpose);
-					XLSUtils.setValue(sheet,  pt2.x, pt2.y, arrayList.get(i).get(iarray+1) );
-					pt2 = XLSUtils.nextCol(pt2, transpose);
+					XLSUtils.setValue(sheet,  pt2.x, pt2.y, arrayList.get(i).get(iarray), transpose);
+					pt2.x++;
+					XLSUtils.setValue(sheet,  pt2.x, pt2.y, arrayList.get(i).get(iarray+1), transpose);
+					pt2.x++;
 				}
 				break;
 			}
-			pt = XLSUtils.nextRow (pt, transpose);
+			pt.y++;
 		}
 		return pt;
 	}

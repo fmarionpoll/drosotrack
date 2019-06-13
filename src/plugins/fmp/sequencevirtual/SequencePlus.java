@@ -21,11 +21,12 @@ import icy.roi.ROIEvent;
 import icy.sequence.SequenceEvent.SequenceEventType;
 import icy.type.geom.Polyline2D;
 import icy.util.XMLUtil;
+import plugins.kernel.roi.roi2d.ROI2DPolyLine;
+
 import plugins.fmp.tools.OverlayThreshold;
 import plugins.fmp.tools.OverlayTrapMouse;
 import plugins.fmp.tools.Tools;
 import plugins.fmp.tools.ImageTransformTools.TransformOp;
-import plugins.kernel.roi.roi2d.ROI2DPolyLine;
 import plugins.fmp.tools.ArrayListType;
 
 public class SequencePlus extends SequenceVirtual  {
@@ -199,13 +200,15 @@ public class SequencePlus extends SequenceVirtual  {
 
 	public boolean loadXMLCapillaryTrackResults (String directory) {
 	
-		// check if directory is present. If not, create it
-		String resultsDirectory = directory+"\\results\\";
+		String resultsDirectory = directory;
+		String subDirectory = "\\results";
+		if (!resultsDirectory.contains (subDirectory))
+			resultsDirectory += subDirectory;
 		Path resultsPath = Paths.get(resultsDirectory);
 		if (Files.notExists(resultsPath)) 
 				return false; 
 		
-		setFilename(resultsDirectory+getName()+".xml");
+		setFilename(resultsDirectory+"\\"+getName()+".xml");
 		Path filenamePath = Paths.get(filename);
 		if (Files.notExists(filenamePath)) 
 			return false; 
@@ -244,7 +247,11 @@ public class SequencePlus extends SequenceVirtual  {
 	public boolean saveXMLCapillaryTrackResults(String directory) {
 
 		// check if directory is present. If not, create it
-		String resultsDirectory = directory+"\\results\\";
+		String resultsDirectory = directory;
+		String subDirectory = "\\results";
+		if (!resultsDirectory.contains (subDirectory))
+			resultsDirectory += subDirectory;
+		resultsDirectory += "\\";
 		Path resultsPath = Paths.get(resultsDirectory);
 		if (Files.notExists(resultsPath)) {
 			try {
@@ -322,4 +329,5 @@ public class SequencePlus extends SequenceVirtual  {
 		}
 	}
 	
+
 }

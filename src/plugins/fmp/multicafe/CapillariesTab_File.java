@@ -8,7 +8,7 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
-import java.util.Arrays;
+import java.util.ArrayList;
 
 import javax.swing.JButton;
 import javax.swing.JFileChooser;
@@ -16,15 +16,15 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.SwingConstants;
 
-import icy.common.exception.UnsupportedFormatException;
-import icy.file.Loader;
 import icy.file.Saver;
 import icy.gui.frame.progress.ProgressFrame;
 import icy.gui.util.FontUtil;
 import icy.gui.util.GuiUtil;
 import icy.image.IcyBufferedImage;
 import loci.formats.FormatException;
+
 import plugins.fmp.sequencevirtual.SequencePlus;
+import plugins.fmp.sequencevirtual.SequencePlusUtils;
 
 
 public class CapillariesTab_File extends JPanel implements ActionListener {
@@ -72,10 +72,8 @@ public class CapillariesTab_File extends JPanel implements ActionListener {
 		}
 		else if ( o == openButtonKymos1)  {
 			String path = parent0.vSequence.getDirectory()+ "\\results";
-			boolean flag = openFiles(path); 
-			if (flag) {
-				firePropertyChange("KYMOS_OPEN", false, true);	
-			}
+			parent0.kymographArrayList = SequencePlusUtils.openFiles(path); 
+			firePropertyChange("KYMOS_OPEN", false, true);	
 		}
 		else if ( o == saveButtonKymos1) {
 			String path = parent0.vSequence.getDirectory() + "\\results";
@@ -98,64 +96,19 @@ public class CapillariesTab_File extends JPanel implements ActionListener {
 		return parent0.vSequence.capillaries.xmlWriteROIsAndData("capillarytrack.xml", parent0.vSequence);
 	}
 
-	public boolean openFiles(String directory) {
+	public ArrayList<SequencePlus> openFiles() {
+		String directory = parent0.vSequence.getDirectory();
 		
-		if (directory == null) {
-			directory = parent0.vSequence.getDirectory();
-		
-			JFileChooser f = new JFileChooser(directory);
-			f.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY); 
-			int v = f.showOpenDialog(null);
-			if (v == JFileChooser.APPROVE_OPTION  )
-				directory =  f.getSelectedFile().getAbsolutePath();
-			else
-				return false;
-		}
-		
-		String[] list = (new File(directory)).list();
-		if (list == null)
-			return false;
-		Arrays.sort(list, String.CASE_INSENSITIVE_ORDER);
-
-		// send some info
-		ProgressFrame progress = new ProgressFrame("Open kymographs ...");
-		int itotal = parent0.kymographArrayList.size();
-		progress.setLength(itotal);
-
-		// loop over the list to open tiff files as kymographs
-		parent0.kymographArrayList.clear();
-
-		for (String filename: list) {
-			if (!filename.contains(".tiff"))
-				continue;
-
-			SequencePlus kymographSeq = new SequencePlus();
-			filename = directory + "\\" + filename;
-			progress.incPosition(  );
-			progress.setMessage( "Open file : " + filename);
-
-			IcyBufferedImage ibufImage = null;
-			try {
-				ibufImage = Loader.loadImage(filename);
-
-			} catch (UnsupportedFormatException e) {
-				e.printStackTrace();
-			} catch (IOException e) {
-				e.printStackTrace();
-			}
-			kymographSeq.addImage(ibufImage);
-			
-			int index1 = filename.indexOf(".tiff");
-			int index0 = filename.lastIndexOf("\\")+1;
-			String title = filename.substring(index0, index1);
-			kymographSeq.setName(title);
-			parent0.kymographArrayList.add(kymographSeq);
-		}
-
-		progress.close();
-		return true;
+		JFileChooser f = new JFileChooser(directory);
+		f.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY); 
+		int v = f.showOpenDialog(null);
+		if (v == JFileChooser.APPROVE_OPTION  )
+			directory =  f.getSelectedFile().getAbsolutePath();
+		else
+			return null;
+		return SequencePlusUtils.openFiles(directory); 
 	}
-
+	
 	public void saveFiles(String directory) {
 
 		// send some info
@@ -201,8 +154,10 @@ public class CapillariesTab_File extends JPanel implements ActionListener {
 	public boolean loadDefaultKymos() {
 		String path = parent0.vSequence.getDirectory();
 		final String cs = path+"\\results";
-		boolean flag = openFiles(cs);
-		if (flag) {
+		boolean flag = false;
+		parent0.kymographArrayList = SequencePlusUtils.openFiles(cs);
+		if (parent0.kymographArrayList != null) {
+			flag = true;
 			parent0.capillariesPane.optionsTab.transferFileNamesToComboBox();
 			parent0.capillariesPane.optionsTab.viewKymosCheckBox.setSelected(true);
 		}
