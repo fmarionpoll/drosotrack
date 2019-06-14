@@ -24,8 +24,8 @@ import javax.swing.event.ChangeListener;
 import icy.gui.util.GuiUtil;
 import plugins.fmp.sequencevirtual.SequencePlus;
 import plugins.fmp.tools.ComboBoxColorRenderer;
-import plugins.fmp.tools.ImageThresholdTools.ThresholdType;
 import plugins.fmp.tools.ImageTransformTools.TransformOp;
+import plugins.fmp.tools.ThresholdType;
 
 public class DetectTab_Colors  extends JPanel implements ActionListener, ChangeListener {
 
@@ -54,7 +54,7 @@ public class DetectTab_Colors  extends JPanel implements ActionListener, ChangeL
 	public TransformOp colortransformop 	= TransformOp.NONE;
 	public int colordistanceType 			= 0;
 	public ArrayList <Color> colorarray 	= new ArrayList <Color>();
-	public ThresholdType thresholdtype 		= ThresholdType.COLORARRAY; 
+	public ThresholdType thresholdtype = ThresholdType.COLORARRAY; 
 	
 	
 	private Capillarytrack parent0;

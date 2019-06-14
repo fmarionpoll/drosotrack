@@ -115,7 +115,7 @@ public class XYTaSeries implements XMLPersistent {
 		case isalive:
 			datai = getDistanceBetweenPoints();
 			computeIsAlive(datai, threshold);
-			datai = getIsAlive();
+			datai = getIsAliveAsDoubleArray();
 			break;
 		case xyPosition:
 		default:
@@ -125,10 +125,13 @@ public class XYTaSeries implements XMLPersistent {
 		return datai;
 	}
 	
+
+	
 	public int computeLastIntervalAlive() {
 		computeIsAlive(getDistanceBetweenPoints(), threshold);
 		return lastIntervalAlive;
 	}
+	
 	
 	private ArrayList<Double> getDistanceBetweenPoints() {
 		ArrayList<Double> dataArray = new ArrayList<Double>();
@@ -143,11 +146,20 @@ public class XYTaSeries implements XMLPersistent {
 		return dataArray;
 	}
 	
-	public ArrayList<Double> getIsAlive() {
+	public ArrayList<Double> getIsAliveAsDoubleArray() {
 		ArrayList<Double> dataArray = new ArrayList<Double>();
 		dataArray.ensureCapacity(pointsList.size());
 		for (XYTaValue pos: pointsList) {
 			dataArray.add(pos.alive ? 1.0: 0.0);
+		}
+		return dataArray;
+	}
+	
+	public ArrayList<Integer> getIsAliveAsIntegerArray() {
+		ArrayList<Integer> dataArray = new ArrayList<Integer>();
+		dataArray.ensureCapacity(pointsList.size());
+		for (XYTaValue pos: pointsList) {
+			dataArray.add(pos.alive ? 1: 0);
 		}
 		return dataArray;
 	}

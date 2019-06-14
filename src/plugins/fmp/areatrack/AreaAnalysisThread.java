@@ -21,8 +21,8 @@ import icy.type.collection.array.Array1DUtil;
 import plugins.fmp.sequencevirtual.SequenceVirtual;
 import plugins.fmp.tools.ImageOperations;
 import plugins.fmp.tools.Tools;
-import plugins.fmp.tools.ImageThresholdTools.ThresholdType;
 import plugins.fmp.tools.ImageTransformTools.TransformOp;
+import plugins.fmp.tools.ThresholdType;
 
 public class AreaAnalysisThread extends Thread
 {

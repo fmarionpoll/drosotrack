@@ -12,7 +12,6 @@ import icy.type.DataType;
 import icy.type.collection.array.Array1DUtil;
 
 import plugins.fmp.sequencevirtual.SequencePlus;
-import plugins.fmp.sequencevirtual.SequenceVirtual;
 import plugins.kernel.roi.roi2d.ROI2DShape;
 import plugins.nchenouard.kymographtracker.Util;
 import plugins.nchenouard.kymographtracker.spline.CubicSmoothingSpline;
@@ -21,13 +20,8 @@ import plugins.nchenouard.kymographtracker.spline.CubicSmoothingSpline;
  
 public class BuildKymographsThread implements Runnable 
 {
-	public SequenceVirtual vSequence = null;
-	public int analyzeStep = 1;
-	public int startFrame = 1;
-	public int endFrame = 99999999;
-	public int diskRadius = 5;
+	public BuildKymographsOptions options = new BuildKymographsOptions();
 	public ArrayList <SequencePlus> kymographArrayList 	= null;
-	public boolean doRegistration = false;
 	public boolean stopFlag = false;
 	public boolean threadRunning = false;
 	
@@ -35,45 +29,45 @@ public class BuildKymographsThread implements Runnable
 	private ArrayList<ArrayList<ArrayList<int[]>>> masksArrayList = new ArrayList<ArrayList<ArrayList<int[]>>>();
 	private ArrayList<ArrayList <double []>> rois_tabValuesList = new ArrayList<ArrayList <double []>>();
 	private Viewer sequenceViewer = null;
-	IcyBufferedImage workImage = null; 
-	Sequence s = new Sequence();
+	private IcyBufferedImage workImage = null; 
+	private Sequence s = new Sequence();
 	
 	@Override
 	public void run() {
 
-		if (vSequence == null)
+		if (options.vSequence == null)
 			return;
 		
 		threadRunning = true;
-		if (startFrame < 0) 
-			startFrame = 0;
-		if (endFrame >= (int) vSequence.nTotalFrames || endFrame < 0) 
-			endFrame = (int) vSequence.nTotalFrames-1;
-		int nbframes = endFrame - startFrame +1;
+		if (options.startFrame < 0) 
+			options.startFrame = 0;
+		if (options.endFrame >= (int) options.vSequence.nTotalFrames || options.endFrame < 0) 
+			options.endFrame = (int) options.vSequence.nTotalFrames-1;
+		int nbframes = options.endFrame - options.startFrame +1;
 		ProgressChrono progressBar = new ProgressChrono("Processing started");
 		progressBar.initStuff(nbframes);
 		stopFlag = false;
 
 		initKymographs();
-		int vinputSizeX = vSequence.getSizeX();
-		vSequence.beginUpdate();
-		sequenceViewer = Icy.getMainInterface().getFirstViewer(vSequence);
+		int vinputSizeX = options.vSequence.getSizeX();
+		options.vSequence.beginUpdate();
+		sequenceViewer = Icy.getMainInterface().getFirstViewer(options.vSequence);
 		int ipixelcolumn = 0;
-		getImageAndUpdateViewer (startFrame);
+		getImageAndUpdateViewer (options.startFrame);
 		s.addImage(workImage);
 		s.addImage(workImage);
 
-		for (int t = startFrame ; t <= endFrame && !stopFlag; t += analyzeStep, ipixelcolumn++ )
+		for (int t = options.startFrame ; t <= options.endFrame && !stopFlag; t += options.analyzeStep, ipixelcolumn++ )
 		{
 			progressBar.updatePositionAndTimeLeft(t);
 			if (!getImageAndUpdateViewer (t))
 				continue;
-			if (doRegistration ) {
+			if (options.doRegistration ) {
 				adjustImage();
 			}
 			transferWorkImageToDoubleArrayList ();
 			
-			for (int iroi=0; iroi < vSequence.capillaries.capillariesArrayList.size(); iroi++)
+			for (int iroi=0; iroi < options.vSequence.capillaries.capillariesArrayList.size(); iroi++)
 			{
 				SequencePlus kymographSeq = kymographArrayList.get(iroi);
 				ArrayList<ArrayList<int[]>> masks = masksArrayList.get(iroi);	
@@ -81,7 +75,7 @@ public class BuildKymographsThread implements Runnable
 				final int kymographSizeX = kymographSeq.getSizeX();
 				final int t_out = ipixelcolumn;
 
-				for (int chan = 0; chan < vSequence.getSizeC(); chan++) 
+				for (int chan = 0; chan < options.vSequence.getSizeC(); chan++) 
 				{ 
 					double [] tabValues = tabValuesList.get(chan); 
 					double [] sourceValues = sourceValuesList.get(chan);
@@ -101,11 +95,11 @@ public class BuildKymographsThread implements Runnable
 
 		}
 
-		vSequence.endUpdate();
+		options.vSequence.endUpdate();
 		System.out.println("Elapsed time (s):" + progressBar.getSecondsSinceStart());
 		progressBar.close();
 		
-		for (int iroi=0; iroi < vSequence.capillaries.capillariesArrayList.size(); iroi++)
+		for (int iroi=0; iroi < options.vSequence.capillaries.capillariesArrayList.size(); iroi++)
 		{
 			SequencePlus kymographSeq = kymographArrayList.get(iroi);
 			kymographSeq.dataChanged();
@@ -117,7 +111,7 @@ public class BuildKymographsThread implements Runnable
 	private boolean getImageAndUpdateViewer(int t) {
 		workImage = getImageFromSequence(t); 
 		sequenceViewer.setPositionT(t);
-		sequenceViewer.setTitle(vSequence.getVImageName(t));
+		sequenceViewer.setTitle(options.vSequence.getVImageName(t));
 		if (workImage == null)
 			return false;
 		return true;
@@ -126,7 +120,7 @@ public class BuildKymographsThread implements Runnable
 	private boolean transferWorkImageToDoubleArrayList() {
 		
 		sourceValuesList = new ArrayList<double []>();
-		for (int chan = 0; chan < vSequence.getSizeC(); chan++) 
+		for (int chan = 0; chan < options.vSequence.getSizeC(); chan++) 
 		{
 			double [] sourceValues = Array1DUtil.arrayToDoubleArray(workImage.getDataXY(chan), workImage.isSignedDataType()); 
 			sourceValuesList.add(sourceValues);
@@ -136,19 +130,19 @@ public class BuildKymographsThread implements Runnable
 	
 	private void initKymographs() {
 
-		int sizex = vSequence.getSizeX();
-		int sizey = vSequence.getSizeY();
-		vSequence.capillaries.extractLinesFromSequence(vSequence);
-		int numC = vSequence.getSizeC();
-		double fimagewidth =  1 + (endFrame - startFrame )/analyzeStep;
+		int sizex = options.vSequence.getSizeX();
+		int sizey = options.vSequence.getSizeY();
+		options.vSequence.capillaries.extractLinesFromSequence(options.vSequence);
+		int numC = options.vSequence.getSizeC();
+		double fimagewidth =  1 + (options.endFrame - options.startFrame )/options.analyzeStep;
 		int imagewidth = (int) fimagewidth;
 	
-		for (int iroi=0; iroi < vSequence.capillaries.capillariesArrayList.size(); iroi++)
+		for (int iroi=0; iroi < options.vSequence.capillaries.capillariesArrayList.size(); iroi++)
 		{
-			ROI2DShape roi = vSequence.capillaries.capillariesArrayList.get(iroi);
+			ROI2DShape roi = options.vSequence.capillaries.capillariesArrayList.get(iroi);
 			ArrayList<ArrayList<int[]>> mask = new ArrayList<ArrayList<int[]>>();
 			masksArrayList.add(mask);
-			initExtractionParametersfromROI(roi, mask, diskRadius, sizex, sizey);
+			initExtractionParametersfromROI(roi, mask, options.diskRadius, sizex, sizey);
 			
 			IcyBufferedImage bufImage = new IcyBufferedImage(imagewidth, mask.size(), numC, DataType.DOUBLE);
 			SequencePlus kymographSeq = kymographArrayList.get(iroi);
@@ -198,20 +192,20 @@ public class BuildKymographsThread implements Runnable
 	}
 	
 	private IcyBufferedImage getImageFromSequence(int t) {
-		IcyBufferedImage workImage = vSequence.loadVImage(t);
-		vSequence.currentFrame = t;
+		IcyBufferedImage workImage = options.vSequence.loadVImage(t);
+		options.vSequence.currentFrame = t;
 		if (workImage == null) {
 			System.out.println("Error reading image: " + t + " ... trying again"  );
-			workImage = vSequence.loadVImage(t);
+			workImage = options.vSequence.loadVImage(t);
 			if (workImage == null) {
-				System.out.println("Fatal error occurred while reading file "+ vSequence.getFileName(t) + " -image: " + t);
+				System.out.println("Fatal error occurred while reading file "+ options.vSequence.getFileName(t) + " -image: " + t);
 				return null;
 			}
 		}
 		else
 		{
 			sequenceViewer.setPositionT(t);
-			sequenceViewer.setTitle(vSequence.getVImageName(t)); 
+			sequenceViewer.setTitle(options.vSequence.getVImageName(t)); 
 		}
 		return workImage;
 	}
@@ -224,9 +218,7 @@ public class BuildKymographsThread implements Runnable
         boolean rotate = DufourRigidRegistration.correctTemporalRotation2D(s, referenceChannel, referenceSlice);
         if (rotate) 
         	DufourRigidRegistration.correctTemporalTranslation2D(s, referenceChannel, referenceSlice);
-//        RigidRegistration.correctTemporalTranslation2D(s, 0, 0);
-//        boolean rotate = RigidRegistration.correctTemporalRotation2D(s, 0, 0);
-//        if (rotate) RigidRegistration.correctTemporalTranslation2D(s, 0, 0);
+
         workImage = s.getLastImage(1);
 	}
 

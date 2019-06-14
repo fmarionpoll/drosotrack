@@ -15,6 +15,7 @@ import icy.gui.frame.progress.AnnounceFrame;
 import icy.gui.util.GuiUtil;
 import icy.gui.viewer.Viewer;
 import plugins.fmp.sequencevirtual.SequencePlus;
+import plugins.fmp.tools.BuildKymographsThread;
 import plugins.fmp.tools.StatusComputation;
 import plugins.kernel.roi.roi2d.ROI2DShape;
 
@@ -101,15 +102,15 @@ public class KymosTab_Build extends JPanel implements ActionListener {
 	
 	private void kymosBuildStop() {	
 		if (thread.isAlive()) {
-			buildKymographsThread.doStop = true;
+			buildKymographsThread.stopFlag = true;
 			try {
 				thread.join();
 			} catch (InterruptedException e1) {
 				e1.printStackTrace();
 			}
 		}
-		
 	}
+	
 	private void resetUserInterface() {
 		sComputation = StatusComputation.START_COMPUTATION;
 		firePropertyChange( "KYMOS_CREATE", false, true);
@@ -126,12 +127,12 @@ public class KymosTab_Build extends JPanel implements ActionListener {
 		
 		// start building kymos in a separate thread
 		buildKymographsThread = new BuildKymographsThread();
-		buildKymographsThread.vSequence 	= parent0.vSequence;
-		buildKymographsThread.analyzeStep 	= parent0.vSequence.analysisStep;
-		buildKymographsThread.startFrame 	= (int) parent0.vSequence.analysisStart;
-		buildKymographsThread.endFrame 		= (int) parent0.vSequence.analysisEnd;
-		buildKymographsThread.diskRadius 	= diskRadius;
-		buildKymographsThread.doRegistration= doRegistrationCheckBox.isSelected();
+		buildKymographsThread.options.vSequence 	= parent0.vSequence;
+		buildKymographsThread.options.analyzeStep 	= parent0.vSequence.analysisStep;
+		buildKymographsThread.options.startFrame 	= (int) parent0.vSequence.analysisStart;
+		buildKymographsThread.options.endFrame 		= (int) parent0.vSequence.analysisEnd;
+		buildKymographsThread.options.diskRadius 	= diskRadius;
+		buildKymographsThread.options.doRegistration= doRegistrationCheckBox.isSelected();
 		
 		for (ROI2DShape roi:parent0.vSequence.capillaries.capillariesArrayList) {
 			SequencePlus kymographSeq = new SequencePlus();	

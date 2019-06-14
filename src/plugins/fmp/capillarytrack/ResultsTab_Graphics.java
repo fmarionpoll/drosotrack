@@ -15,6 +15,7 @@ import javax.swing.JPanel;
 import icy.gui.util.GuiUtil;
 import plugins.fmp.sequencevirtual.SequencePlus;
 import plugins.fmp.tools.ArrayListType;
+import plugins.fmp.tools.XYMultiChart;
 
 public class ResultsTab_Graphics extends JPanel implements ActionListener  {
 

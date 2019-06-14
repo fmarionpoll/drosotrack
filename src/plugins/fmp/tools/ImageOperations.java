@@ -5,7 +5,6 @@ import java.util.ArrayList;
 
 import icy.image.IcyBufferedImage;
 import plugins.fmp.sequencevirtual.SequenceVirtual;
-import plugins.fmp.tools.ImageThresholdTools.ThresholdType;
 import plugins.fmp.tools.ImageTransformTools.TransformOp;
 
 public class ImageOperations {

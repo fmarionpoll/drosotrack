@@ -19,7 +19,6 @@ import org.apache.poi.xssf.usermodel.XSSFPivotTable;
 import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
-import plugins.fmp.multicafe.Experiment;
 import plugins.fmp.sequencevirtual.SequencePlus;
 import plugins.fmp.sequencevirtual.SequencePlusUtils;
 import plugins.fmp.sequencevirtual.SequenceVirtual;
@@ -45,38 +44,45 @@ public class XLSExportCapillaryResults {
 			for (Experiment exp: options.experimentList) 
 			{
 				openSequenceAndMeasures(exp.filename);
-				
+
 				String charSeries = CellReference.convertNumToColString(iSeries);
 				if (options.topLevel) {
-					rowmax = xlsExportToWorkbook(workbook, "toplevel", XLSExportItems.TOPLEVEL, row0, charSeries);
+					ArrayList <ArrayList<Integer >> arrayList = getDataFromRois(XLSExportItems.TOPLEVEL, options.t0);	
+					rowmax = xlsExportCapillaryDataToWorkbook(workbook, "toplevel", XLSExportItems.TOPLEVEL, row0, charSeries, arrayList);
 					if (options.onlyalive) {
-						xlsExportToWorkbook(workbook, "toplevel_alive", XLSExportItems.TOPLEVEL, row0, charSeries);
+						arrayList = trimDeadsFromArrayList(arrayList);
+						xlsExportCapillaryDataToWorkbook(workbook, "toplevel_alive", XLSExportItems.TOPLEVEL, row0, charSeries, arrayList);
 					}
 				}
-				if (options.bottomLevel) 
-					xlsExportToWorkbook(workbook, "bottomlevel", XLSExportItems.BOTTOMLEVEL, row0, charSeries);
-				if (options.derivative) 
-					xlsExportToWorkbook(workbook, "derivative", XLSExportItems.DERIVEDVALUES, row0, charSeries);
+				if (options.bottomLevel) {
+					ArrayList <ArrayList<Integer >> arrayList = getDataFromRois(XLSExportItems.BOTTOMLEVEL, options.t0);	
+					rowmax = xlsExportCapillaryDataToWorkbook(workbook, "bottomlevel", XLSExportItems.BOTTOMLEVEL, row0, charSeries, arrayList);
+				}
+				if (options.derivative) {
+					ArrayList <ArrayList<Integer >> arrayList = getDataFromRois(XLSExportItems.DERIVEDVALUES, options.t0);	
+					rowmax = xlsExportCapillaryDataToWorkbook(workbook, "derivative", XLSExportItems.DERIVEDVALUES, row0, charSeries, arrayList);
+				}
 				if (options.consumption) {
-					xlsExportToWorkbook(workbook, "sumGulps", XLSExportItems.SUMGULPS, row0, charSeries);
+					ArrayList <ArrayList<Integer >> arrayList = getDataFromRois(XLSExportItems.SUMGULPS, options.t0);	
+					rowmax = xlsExportCapillaryDataToWorkbook(workbook, "sumGulps", XLSExportItems.SUMGULPS, row0, charSeries, arrayList);
 					if (options.onlyalive) {
-						xlsExportToWorkbook(workbook, "sumGulps_alive", XLSExportItems.SUMGULPS, row0, charSeries);
+						arrayList = trimDeadsFromArrayList(arrayList);
+						xlsExportCapillaryDataToWorkbook(workbook, "sumGulps_alive", XLSExportItems.SUMGULPS, row0, charSeries, arrayList);
 					}
 				}
-				if (options.sum) { 
-					xlsExportToWorkbook(workbook, "sumL+R", XLSExportItems.SUMLR, row0, charSeries);
+				if (options.sum) {
+					ArrayList <ArrayList<Integer >> arrayList = getDataFromRois(XLSExportItems.SUMLR, options.t0);	
+					rowmax = xlsExportCapillaryDataToWorkbook(workbook, "sumL+R", XLSExportItems.SUMLR, row0, charSeries, arrayList);
 					if (options.onlyalive) {
-						xlsExportToWorkbook(workbook, "sumL+R_alive", XLSExportItems.SUMLR, row0, charSeries);
+						arrayList = trimDeadsFromArrayList(arrayList);
+						xlsExportCapillaryDataToWorkbook(workbook, "sumL+R_alive", XLSExportItems.SUMLR, row0, charSeries, arrayList);
 					}
-				}
-				if (options.onlyalive) {
-					xlsExportToWorkbook(workbook, "alive", XLSExportItems.ISALIVE, row0, charSeries);
 				}
 				row0 = rowmax;
 				iSeries++;
 			}
 			if (options.topLevel && options.transpose && options.pivot) 
-				xlsCreatePivotTable(workbook, "toplevel", rowmax, iSeries);
+				xlsCreatePivotTables(workbook, "toplevel", rowmax);
 				
 			FileOutputStream fileOut = new FileOutputStream(filename);
 			workbook.write(fileOut);
@@ -88,7 +94,7 @@ public class XLSExportCapillaryResults {
 		System.out.println("XLS output finished");
 	}
 	
-	private static boolean openSequenceAndMeasures(String filename) {
+	public static boolean openSequenceAndMeasures(String filename) {
 		vSequence = new SequenceVirtual();
 		if (null == vSequence.loadVirtualStackAt(filename))
 			return false;
@@ -99,7 +105,7 @@ public class XLSExportCapillaryResults {
 		vSequence.xmlReadDrosoTrackDefault();
 		return true;
 	}
-
+	
 	private static ArrayList <ArrayList<Integer>> getDataFromRois(XLSExportItems xlsoption, boolean relative) {
 		ArrayList <ArrayList<Integer >> resultsArrayList = new ArrayList <ArrayList<Integer >> ();
 		for (SequencePlus seq: kymographArrayList) {
@@ -113,14 +119,11 @@ public class XLSExportCapillaryResults {
 			case BOTTOMLEVEL:
 				resultsArrayList.add(seq.getArrayListFromRois(ArrayListType.bottomLevel));
 				break;
-			case ISALIVE:
-				resultsArrayList.add(posxyt.getDoubleArrayList(ArrayListType.isalive));
-				// TODO add threshold to cleanup data
-				break;
 			case TOPLEVEL:
 			case SUMLR:
-			default:
 				resultsArrayList.add(seq.getArrayListFromRois(ArrayListType.topLevel));
+				break;
+			default:
 				break;
 			}
 		}
@@ -136,7 +139,7 @@ public class XLSExportCapillaryResults {
 					i++;
 				}
 			}
-		}
+		}		
 		return resultsArrayList;
 	}
 	
@@ -170,21 +173,14 @@ public class XLSExportCapillaryResults {
 		return array;
 	}
 	
-	private static int xlsExportToWorkbook(XSSFWorkbook workBook, String title, XLSExportItems xlsoption, int row0, String charSeries) {
-		System.out.println("export worksheet "+title);
-		ArrayList <ArrayList<Integer >> arrayList = getDataFromRois(xlsoption, options.t0);		
-		if (arrayList.size() == 0)
-			return 0;
-
-		if (title.contains("alive")
-				&& options.onlyalive 
-				&& vSequence.cages.flyPositionsList.size() > 0) {
-			arrayList = trimDeadsFromArrayList(arrayList);
-		}
+	private static int xlsExportCapillaryDataToWorkbook(XSSFWorkbook workBook, String title, XLSExportItems xlsoption, int row0, String charSeries, ArrayList <ArrayList<Integer >> arrayList) {
+		System.out.println("export worksheet "+title);	
 		
 		Sheet sheet = workBook.getSheet(title );
-		if (sheet == null)
+		boolean flag = (sheet == null);
+		if (flag)
 			sheet = workBook.createSheet(title);
+		
 		Point pt = writeGlobalInfos(sheet, row0, options.transpose, charSeries);
 		pt = writeColumnHeaders(sheet, xlsoption, pt, options.transpose, charSeries);
 		pt = writeData(sheet, xlsoption, pt, options.transpose, charSeries, arrayList);
@@ -194,58 +190,90 @@ public class XLSExportCapillaryResults {
 	private static Point writeGlobalInfos(Sheet sheet, int row0, boolean transpose, String charSeries) {
 		Point pt = new Point(0, row0);
 
+		XLSUtils.setValue(sheet, pt, transpose, "expt"+charSeries);
+		pt.x++;
 		File file = new File(vSequence.getFileName(0));
 		String path = file.getParent();
 		XLSUtils.setValue(sheet, pt, transpose, path);
 		pt.x++;
-		XLSUtils.setValue(sheet, pt, transpose, charSeries+"units");
+		XLSUtils.setValue(sheet, pt, transpose, "units");
 		pt.x++;
 		XLSUtils.setValue(sheet, pt, transpose, "µl" );
 		pt.x++;
 		XLSUtils.setValue(sheet, pt, transpose, "pixels" );
 		pt.y++;
 		
-		pt.x = 1;
-		XLSUtils.setValue(sheet, pt, transpose, charSeries+"capillary" );
+		pt.x = 0;
+		XLSUtils.setValue(sheet, pt, transpose, "scale"+charSeries);
+		pt.x++;
+		XLSUtils.setValue(sheet, pt, transpose, "capillary" );
 		pt.x++;
 		XLSUtils.setValue(sheet, pt, transpose, vSequence.capillaries.capillaryVolume);
 		pt.x++;
 		XLSUtils.setValue(sheet, pt, transpose, vSequence.capillaries.capillaryPixels);
 		pt.x = 0;
 		pt.y++;
+		
 		return pt;
 	}
 
-	private static Point writeColumnHeaders (Sheet sheet, XLSExportItems option, Point pt, boolean transpose, String charSeries) {
-		pt.x = 0;
-		if (vSequence.isFileStack()) {
-			XLSUtils.setValue(sheet, pt, transpose, "filename" );
-			pt.x++;
-		}
-		XLSUtils.setValue(sheet, pt, transpose, charSeries+"i" );
+	public static Point addLine(Sheet sheet, Point pt, boolean transpose, XLSExperimentDescriptors desc) {
+		XLSUtils.setValue(sheet, pt, transpose, desc.toString());
 		pt.x++;
-		
-		switch (option) {
-		case SUMLR:
-			for (int i=0; i< kymographArrayList.size(); i+= 2) {
-				SequencePlus kymographSeq0 = kymographArrayList.get(i);
-				String name0 = kymographSeq0.getName();
-				SequencePlus kymographSeq1 = kymographArrayList.get(i+1);
-				String name1 = kymographSeq1.getName();
-				XLSUtils.setValue(sheet, pt, transpose, name0+"+"+name1 );
-				pt.x++;
-				XLSUtils.setValue(sheet, pt, transpose, "." );
-				pt.x++;
+		pt.x++;
+		switch (desc) {
+		case CAGE: 	// assume 2 capillaries/slot
+			for (int i= 0; i < kymographArrayList.size(); i++, pt.x++) 
+				XLSUtils.setValue(sheet, pt, transpose, i/2);
+			break;
+		case NFLIES: // assume 2 capillaries/slot
+			for (int i= 0; i < kymographArrayList.size(); i++, pt.x++) {
+				int j = 1;
+				if (i < 2 || i > 17)
+					j = 0;
+				XLSUtils.setValue(sheet, pt, transpose, j);
+			}
+			break;
+		case CAP: // assume 2 capillaries/slot
+			for (int i= 0; i < kymographArrayList.size(); i++, pt.x++) {
+				String name = kymographArrayList.get(i).getName();
+				String letter = name.substring(name.length() - 1);
+				XLSUtils.setValue(sheet, pt, transpose, letter);
 			}
 			break;
 		default:
-			for (int i=0; i< kymographArrayList.size(); i++) {
-				SequencePlus kymographSeq = kymographArrayList.get(i);
-				String name = kymographSeq.getName();
-				XLSUtils.setValue(sheet, pt, transpose, name );
-				pt.x++;
-			}
 			break;
+		}
+		pt.x = 0;
+		pt.y++;
+		return pt;
+	}
+	
+	private static Point writeColumnHeaders (Sheet sheet, XLSExportItems option, Point pt, boolean transpose, String charSeries) {
+		
+		pt.x = 0;
+		if (charSeries.equals("A")) {
+			pt = addLine(sheet, pt, transpose, XLSExperimentDescriptors.DATE);
+			pt = addLine(sheet, pt, transpose, XLSExperimentDescriptors.STIM);
+			pt = addLine(sheet, pt, transpose, XLSExperimentDescriptors.CONC);
+			pt = addLine(sheet, pt, transpose, XLSExperimentDescriptors.CAM);
+			pt = addLine(sheet, pt, transpose, XLSExperimentDescriptors.CAP);
+			pt = addLine(sheet, pt, transpose, XLSExperimentDescriptors.CAGE);
+			pt = addLine(sheet, pt, transpose, XLSExperimentDescriptors.TIME);
+			pt = addLine(sheet, pt, transpose, XLSExperimentDescriptors.NFLIES);
+			pt = addLine(sheet, pt, transpose, XLSExperimentDescriptors.DUM1);
+			pt = addLine(sheet, pt, transpose, XLSExperimentDescriptors.DUM2);
+			pt = addLine(sheet, pt, transpose, XLSExperimentDescriptors.DUM3);
+			pt = addLine(sheet, pt, transpose, XLSExperimentDescriptors.DUM4);
+		}
+		
+		XLSUtils.setValue(sheet, pt, transpose, "rois"+charSeries);
+		pt.x++;
+		XLSUtils.setValue(sheet, pt, transpose, "filename" );
+		pt.x++;
+		for (SequencePlus seq: kymographArrayList) {
+			XLSUtils.setValue(sheet, pt, transpose, seq.getName() );
+			pt.x++;
 		}
 		pt.x = 0;
 		pt.y++;
@@ -268,20 +296,19 @@ public class XLSExportCapillaryResults {
 
 		for (int t=startFrame; t < endFrame; t+= step, j++) {
 			pt.x = 0;
-			if (vSequence.isFileStack()) {
-				String cs = vSequence.getFileName(t);
-				int index = cs.lastIndexOf("\\");
-				String fileName = cs.substring(index + 1);
-				XLSUtils.setValue(sheet, pt, transpose, fileName );
-				pt.x++;
-			}
 
 			XLSUtils.setValue(sheet, pt, transpose, charSeries+t);
+			pt.x++;
+
+			if (vSequence.isFileStack()) {
+				String cs = vSequence.getFileName(t);
+				XLSUtils.setValue(sheet, pt, transpose, cs.substring(cs.lastIndexOf("\\") + 1) );
+			}
 			pt.x++;
 			
 			switch (option) {
 			case SUMLR:
-				for (int i=0; i< kymographArrayList.size(); i+=2) 
+				for (int i=0; i< dataArrayList.size(); i+=2) 
 				{
 					pt0.x = pt.x;
 					ArrayList<Integer> dataL = dataArrayList.get(i) ;
@@ -301,7 +328,7 @@ public class XLSExportCapillaryResults {
 				break;
 
 			default:
-				for (int i=0; i< kymographArrayList.size(); i++) 
+				for (int i=0; i< dataArrayList.size(); i++) 
 				{
 					pt0.x = pt.x;
 					ArrayList<Integer> data = dataArrayList.get(i);
@@ -323,29 +350,41 @@ public class XLSExportCapillaryResults {
 		return pt;
 	}
 	
-	public static void xlsCreatePivotTable(XSSFWorkbook workBook, String sourcetitle, int rowmax, int nseries) {
-        XSSFSheet pivotSheet = workBook.createSheet("pivot");
-        XSSFSheet sourceSheet = workBook.getSheet("toplevel");
+	public static void xlsCreatePivotTables(XSSFWorkbook workBook, String fromWorkbook, int rowmax) {
+        
+		xlsCreatePivotTable(workBook, "pivot_avg", fromWorkbook, rowmax, DataConsolidateFunction.AVERAGE);
+		xlsCreatePivotTable(workBook, "pivot_std", fromWorkbook, rowmax, DataConsolidateFunction.STD_DEV);
+		xlsCreatePivotTable(workBook, "pivot_n", fromWorkbook, rowmax, DataConsolidateFunction.COUNT);
+	}
+	
+	public static void xlsCreatePivotTable(XSSFWorkbook workBook, String workBookName, String fromWorkbook,int rowmax, DataConsolidateFunction function) {
+        XSSFSheet pivotSheet = workBook.createSheet(workBookName);
+        XSSFSheet sourceSheet = workBook.getSheet(fromWorkbook);
 
         int ncolumns = rowmax;
-        int ncolumns_notdata = 3;
-
-        CellAddress lastcell = new CellAddress (21, rowmax-1);
-        String address = "A2:"+lastcell.toString();
+        CellAddress lastcell = new CellAddress (21, ncolumns-1);
+        String address = "A1:"+lastcell.toString();
         AreaReference source = new AreaReference(address, SpreadsheetVersion.EXCEL2007);
-        CellReference position = new CellReference(1, 1);
+        CellReference position = new CellReference(0, 0);
         XSSFPivotTable pivotTable = pivotSheet.createPivotTable(source, position, sourceSheet);
-        
-        pivotTable.addRowLabel(2);
-        for (int i=ncolumns_notdata; i< ncolumns; i++) {
-        	Cell cell = XLSUtils.getCell(sourceSheet, 1, i);
+
+        boolean flag = false;
+        for (int i = 0; i< ncolumns; i++) {
+        	Cell cell = XLSUtils.getCell(sourceSheet, 0, i);
         	String text = cell.getStringCellValue();
-        	if (text.contains("units")) {
+        	if( !flag) {
+        		flag = text.contains("roi");
+        		if (text.contains(XLSExperimentDescriptors.CAP.toString()))
+        			pivotTable.addRowLabel(i);
+        		if (text.contains(XLSExperimentDescriptors.NFLIES.toString()))
+        			pivotTable.addRowLabel(i);
+        		continue;
+        		}
+        	if (text.contains("expt")) {
         		i+= 2;
         		continue;
         	}
-        	pivotTable.addColumnLabel(DataConsolidateFunction.AVERAGE, i, text);
+        	pivotTable.addColumnLabel(function, i, text);
         }
-
 	}
 }

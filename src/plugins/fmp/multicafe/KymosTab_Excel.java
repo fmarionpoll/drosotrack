@@ -13,7 +13,7 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 
 import icy.gui.util.GuiUtil;
-
+import plugins.fmp.tools.Experiment;
 import plugins.fmp.tools.Tools;
 import plugins.fmp.tools.XLSExportCapillariesOptions;
 import plugins.fmp.tools.XLSExportCapillaryResults;

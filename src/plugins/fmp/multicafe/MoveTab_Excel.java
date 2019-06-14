@@ -5,6 +5,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.ArrayList;
 
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
@@ -14,6 +15,7 @@ import javax.swing.JPanel;
 import icy.gui.util.GuiUtil;
 import plugins.fmp.tools.XLSExportMoveOptions;
 import plugins.fmp.tools.XLSExportMoveResults;
+import plugins.fmp.tools.Experiment;
 import plugins.fmp.tools.Tools;
 
 
@@ -28,6 +30,8 @@ public class MoveTab_Excel  extends JPanel implements ActionListener  {
 	public JCheckBox 	distanceCheckBox 	= new JCheckBox("distance", false);
 	public JCheckBox 	aliveCheckBox 		= new JCheckBox("alive", true);
 	public JCheckBox	transposeCheckBox 	= new JCheckBox("transpose", true);
+	public JCheckBox	pivotCheckBox 		= new JCheckBox("pivot", false);
+	public JCheckBox 	exportAllFilesCheckBox = new JCheckBox("all experiments", true);
 	public JButton 		exportToXLSButton 	= new JButton("save XLS");
 	
 
@@ -37,7 +41,7 @@ public class MoveTab_Excel  extends JPanel implements ActionListener  {
 		setLayout(capLayout);
 		this.parent0 = parent0;
 		add(GuiUtil.besidesPanel( xyCenterCheckBox, distanceCheckBox, aliveCheckBox, new JLabel(" ")));
-		add(GuiUtil.besidesPanel( transposeCheckBox, new JLabel(" "), new JLabel(" "), exportToXLSButton)); 
+		add(GuiUtil.besidesPanel( transposeCheckBox, pivotCheckBox, exportAllFilesCheckBox, exportToXLSButton)); 
 		defineActionListeners();
 	}
 	
@@ -58,9 +62,7 @@ public class MoveTab_Excel  extends JPanel implements ActionListener  {
 				final String filename = file;
 				exportToXLSButton.setEnabled( false);
 				parent0.capillariesPane.propertiesTab.updateSequenceFromDialog();
-				XLSExportMoveResults.exportToFile(filename, getOptions(), parent0.vSequence);
-
-				firePropertyChange("EXPORT_TO_EXCEL", false, true);	
+				XLSExportMoveResults.exportToFile(filename, getOptions());
 				exportToXLSButton.setEnabled( true );
 			}
 		}
@@ -71,7 +73,24 @@ public class MoveTab_Excel  extends JPanel implements ActionListener  {
 		options.xyCenter = xyCenterCheckBox.isSelected(); 
 		options.distance = distanceCheckBox.isSelected(); 
 		options.alive = aliveCheckBox.isSelected(); 
-		options.transpose = transposeCheckBox.isSelected(); 
+		options.transpose = transposeCheckBox.isSelected();
+		options.pivot = pivotCheckBox.isSelected();
+		options.exportAllFiles = exportAllFilesCheckBox.isSelected();
+		
+		options.experimentList = new ArrayList<Experiment> ();
+		if (exportAllFilesCheckBox.isSelected()) {
+			int nfiles = parent0.sequencePane.optionsTab.experimentComboBox.getItemCount();
+			for (int i=0; i< nfiles; i++) {
+				Experiment exp = new Experiment ();
+				exp.filename = parent0.sequencePane.optionsTab.experimentComboBox.getItemAt(i);
+				options.experimentList.add(exp);
+			}
+		}
+		else {
+			Experiment exp = new Experiment();
+			exp.filename = parent0.vSequence.getFileName();
+			options.experimentList.add(exp);
+		}
 		return options;
 	}
 	

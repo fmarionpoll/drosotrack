@@ -42,9 +42,9 @@ import icy.sequence.DimensionId;
 import icy.system.thread.ThreadUtil;
 import loci.formats.FormatException;
 
-import plugins.fmp.capillarytrack.BuildKymographsThread;
 import plugins.fmp.sequencevirtual.*;
 import plugins.fmp.tools.Tools;
+import plugins.fmp.tools.BuildKymographsThread;
 import plugins.fmp.tools.StatusComputation;
 
 public class BuildKymos extends PluginActionable implements ActionListener, ChangeListener, ViewerListener
@@ -262,12 +262,11 @@ public class BuildKymos extends PluginActionable implements ActionListener, Chan
 		}
 		
 		// build kymograph
-		buildKymographsThread 						= new BuildKymographsThread();
-		buildKymographsThread.vSequence  			= vinputSequence;
-		buildKymographsThread.analyzeStep 			= analyzeStep;
-		buildKymographsThread.startFrame 			= (int) vinputSequence.analysisStart;
-		buildKymographsThread.endFrame 				= (int) vinputSequence.nTotalFrames-1;
-		buildKymographsThread.diskRadius 			= diskRadius;
+		buildKymographsThread.options.vSequence  	= vinputSequence;
+		buildKymographsThread.options.analyzeStep 	= analyzeStep;
+		buildKymographsThread.options.startFrame 	= (int) vinputSequence.analysisStart;
+		buildKymographsThread.options.endFrame 		= (int) vinputSequence.nTotalFrames-1;
+		buildKymographsThread.options.diskRadius 	= diskRadius;
 		buildKymographsThread.kymographArrayList 	= kymographArrayList;
 		
 		thread = new Thread(buildKymographsThread);

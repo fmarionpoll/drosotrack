@@ -75,8 +75,8 @@ import plugins.fmp.areatrack.AreaAnalysisThread;
 import plugins.fmp.sequencevirtual.SequencePlus;
 import plugins.fmp.tools.ComboBoxColorRenderer;
 import plugins.fmp.tools.Tools;
-import plugins.fmp.tools.ImageThresholdTools.ThresholdType;
 import plugins.fmp.tools.ImageTransformTools.TransformOp;
+import plugins.fmp.tools.ThresholdType;
 
 
 public class Areatrack extends PluginActionable implements ActionListener, ChangeListener, ViewerListener
