@@ -18,6 +18,7 @@ import javax.swing.JPanel;
 
 import icy.gui.util.GuiUtil;
 import org.apache.poi.ss.usermodel.*;
+import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
 import plugins.fmp.sequencevirtual.SequencePlus;
@@ -89,7 +90,7 @@ public class ResultsTab_Excel extends JPanel implements ActionListener  {
 		System.out.println("XLS output");
 		
 		try { 
-			Workbook workbook = new XSSFWorkbook(); 
+			XSSFWorkbook workbook = new XSSFWorkbook(); 
 			workbook.setMissingCellPolicy(Row.MissingCellPolicy.CREATE_NULL_AS_BLANK);
 
 			if (topLevelCheckBox.isSelected()) 
@@ -148,13 +149,13 @@ public class ResultsTab_Excel extends JPanel implements ActionListener  {
 		return arrayList;
 	}
 	
-	private void xlsExportToWorkbook(Workbook workBook, String title, XLSExportItems option) {
+	private void xlsExportToWorkbook(XSSFWorkbook workBook, String title, XLSExportItems option) {
 		System.out.println("export worksheet "+title);
 		ArrayList <ArrayList<Integer >> arrayList = getDataFromRois(option, t0CheckBox.isSelected());		
 		if (arrayList.size() == 0)
 			return;
 
-		Sheet sheet = workBook.createSheet(title );
+		XSSFSheet sheet = workBook.createSheet(title );
 		boolean transpose = transposeCheckBox.isSelected(); 
 		Point pt = writeGlobalInfos(sheet, transpose);
 		pt = writeColumnHeaders(sheet, pt, option, transpose);
@@ -162,7 +163,7 @@ public class ResultsTab_Excel extends JPanel implements ActionListener  {
 
 	}
 	
-	private Point writeGlobalInfos(Sheet sheet, boolean transpose) {
+	private Point writeGlobalInfos(XSSFSheet sheet, boolean transpose) {
 		Point pt = new Point(0, 0);
 
 		setValue(sheet,  pt.x, pt.y, "name:" );
@@ -185,7 +186,7 @@ public class ResultsTab_Excel extends JPanel implements ActionListener  {
 		return pt;
 	}
 
-	private Point writeColumnHeaders (Sheet sheet, Point pt, XLSExportItems option, boolean transpose) {
+	private Point writeColumnHeaders (XSSFSheet sheet, Point pt, XLSExportItems option, boolean transpose) {
 		pt = toColZero(pt, transpose);
 		if (parent0.vSequence.isFileStack()) {
 			setValue(sheet,  pt.x, pt.y, "filename" );
@@ -221,7 +222,7 @@ public class ResultsTab_Excel extends JPanel implements ActionListener  {
 		return pt;
 	}
 
-	private Point writeData (Sheet sheet, Point pt, XLSExportItems option, ArrayList <ArrayList<Integer >> arrayList, boolean transpose) {
+	private Point writeData (XSSFSheet sheet, Point pt, XLSExportItems option, ArrayList <ArrayList<Integer >> arrayList, boolean transpose) {
 		int maxelements = 0;
 		for (int i=0; i< arrayList.size(); i++) {
 			ArrayList<Integer> datai = arrayList.get(i);
@@ -301,26 +302,26 @@ public class ResultsTab_Excel extends JPanel implements ActionListener  {
 		return pt;
 	}
 
-	private void setValue (Sheet sheet, int column, int row, int ivalue) {
+	private void setValue (XSSFSheet sheet, int column, int row, int ivalue) {
 		Cell cell = getCell (sheet, row, column);
 		cell.setCellValue(ivalue);
 	}
-	private void setValue (Sheet sheet, int column, int row, String string) {
+	private void setValue (XSSFSheet sheet, int column, int row, String string) {
 		Cell cell = getCell (sheet, row, column);
 		cell.setCellValue(string);
 	}
 	
-	private void setValue (Sheet sheet, int column, int row, double value) {
+	private void setValue (XSSFSheet sheet, int column, int row, double value) {
 		Cell cell = getCell (sheet, row, column);
 		cell.setCellValue(value);
 	}
 	
-	private Cell getCell (Sheet sheet, int rownum, int colnum) {
+	private Cell getCell (XSSFSheet sheet, int rownum, int colnum) {
 		Row row = getRow(sheet, rownum);
 		Cell cell = getCol (row, colnum);
 		return cell;
 	}
-	private Row getRow (Sheet sheet, int rownum) {
+	private Row getRow (XSSFSheet sheet, int rownum) {
 		Row row = sheet.getRow(rownum);
 		if (row == null)
 			row = sheet.createRow(rownum);

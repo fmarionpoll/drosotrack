@@ -7,13 +7,13 @@ import java.io.IOException;
 import java.util.ArrayList;
 
 import org.apache.poi.ss.SpreadsheetVersion;
-import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.DataConsolidateFunction;
-import org.apache.poi.ss.usermodel.Row;
-import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.util.AreaReference;
 import org.apache.poi.ss.util.CellAddress;
 import org.apache.poi.ss.util.CellReference;
+import org.apache.poi.ss.usermodel.Row;
+
+import org.apache.poi.xssf.usermodel.XSSFCell;
 import org.apache.poi.xssf.usermodel.XSSFPivotTable;
 import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
@@ -95,7 +95,7 @@ public class XLSExportMoveResults {
 		System.out.println("export worksheet "+title);
 		ArrayList <ArrayList<Double >> arrayList = getDataFromCages(option);
 
-		Sheet sheet = workBook.getSheet(title );
+		XSSFSheet sheet = workBook.getSheet(title );
 		boolean flag = (sheet == null);
 		if (flag)
 			sheet = workBook.createSheet(title);
@@ -106,7 +106,7 @@ public class XLSExportMoveResults {
 		return pt.y;
 	}
 	
-	private static Point writeGlobalInfos(Sheet sheet, int row0, XLSExportItems option, boolean transpose, String charSeries) {
+	private static Point writeGlobalInfos(XSSFSheet sheet, int row0, XLSExportItems option, boolean transpose, String charSeries) {
 		Point pt = new Point(0, row0);
 
 		XLSUtils.setValue(sheet, pt, transpose, "expt"+charSeries);
@@ -142,7 +142,7 @@ public class XLSExportMoveResults {
 		return pt;
 	}
 
-	public static Point addLine(Sheet sheet, Point pt, boolean transpose, XLSExperimentDescriptors desc) {
+	public static Point addLine(XSSFSheet sheet, Point pt, boolean transpose, XLSExperimentDescriptors desc) {
 		XLSUtils.setValue(sheet, pt, transpose, desc.toString());
 		pt.x++;
 		pt.x++;
@@ -176,7 +176,7 @@ public class XLSExportMoveResults {
 		return pt;
 	}
 	
-	private static Point writeColumnHeaders (Sheet sheet, Point pt, XLSExportItems option, boolean transpose, String charSeries) {
+	private static Point writeColumnHeaders (XSSFSheet sheet, Point pt, XLSExportItems option, boolean transpose, String charSeries) {
 		pt.x = 0;
 		if (charSeries.equals("A")) {
 			pt = addLine(sheet, pt, transpose, XLSExperimentDescriptors.DATE);
@@ -234,7 +234,7 @@ public class XLSExportMoveResults {
 		return pt;
 	}
 
-	private static Point writeData (Sheet sheet, Point pt, XLSExportItems option, ArrayList <ArrayList<Double >> arrayList, boolean transpose, String charSeries) {
+	private static Point writeData (XSSFSheet sheet, Point pt, XLSExportItems option, ArrayList <ArrayList<Double >> arrayList, boolean transpose, String charSeries) {
 	
 		if (charSeries == null)
 			charSeries = "t";
@@ -309,7 +309,7 @@ public class XLSExportMoveResults {
 
         boolean flag = false;
         for (int i = 0; i< ncolumns; i++) {
-        	Cell cell = XLSUtils.getCell(sourceSheet, 0, i);
+        	XSSFCell cell = XLSUtils.getCell(sourceSheet, 0, i);
         	String text = cell.getStringCellValue();
         	if(!flag) {
         		flag = text.contains("roi");

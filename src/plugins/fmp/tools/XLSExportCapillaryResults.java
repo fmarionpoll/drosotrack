@@ -6,15 +6,14 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 
-import org.apache.poi.ss.util.CellReference;
 import org.apache.poi.ss.SpreadsheetVersion;
-import org.apache.poi.ss.usermodel.Cell;
-import org.apache.poi.ss.usermodel.CellType;
+
 import org.apache.poi.ss.usermodel.DataConsolidateFunction;
 import org.apache.poi.ss.usermodel.Row;
-import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.util.AreaReference;
 import org.apache.poi.ss.util.CellAddress;
+import org.apache.poi.ss.util.CellReference;
+import org.apache.poi.xssf.usermodel.XSSFCell;
 import org.apache.poi.xssf.usermodel.XSSFPivotTable;
 import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
@@ -176,7 +175,7 @@ public class XLSExportCapillaryResults {
 	private static int xlsExportCapillaryDataToWorkbook(XSSFWorkbook workBook, String title, XLSExportItems xlsoption, int row0, String charSeries, ArrayList <ArrayList<Integer >> arrayList) {
 		System.out.println("export worksheet "+title);	
 		
-		Sheet sheet = workBook.getSheet(title );
+		XSSFSheet sheet = workBook.getSheet(title );
 		boolean flag = (sheet == null);
 		if (flag)
 			sheet = workBook.createSheet(title);
@@ -187,7 +186,7 @@ public class XLSExportCapillaryResults {
 		return pt.y;
 	}
 	
-	private static Point writeGlobalInfos(Sheet sheet, int row0, boolean transpose, String charSeries) {
+	private static Point writeGlobalInfos(XSSFSheet sheet, int row0, boolean transpose, String charSeries) {
 		Point pt = new Point(0, row0);
 
 		XLSUtils.setValue(sheet, pt, transpose, "expt"+charSeries);
@@ -217,7 +216,7 @@ public class XLSExportCapillaryResults {
 		return pt;
 	}
 
-	public static Point addLine(Sheet sheet, Point pt, boolean transpose, XLSExperimentDescriptors desc) {
+	public static Point addLine(XSSFSheet sheet, Point pt, boolean transpose, XLSExperimentDescriptors desc) {
 		XLSUtils.setValue(sheet, pt, transpose, desc.toString());
 		pt.x++;
 		pt.x++;
@@ -249,7 +248,7 @@ public class XLSExportCapillaryResults {
 		return pt;
 	}
 	
-	private static Point writeColumnHeaders (Sheet sheet, XLSExportItems option, Point pt, boolean transpose, String charSeries) {
+	private static Point writeColumnHeaders (XSSFSheet sheet, XLSExportItems option, Point pt, boolean transpose, String charSeries) {
 		
 		pt.x = 0;
 		if (charSeries.equals("A")) {
@@ -280,7 +279,7 @@ public class XLSExportCapillaryResults {
 		return pt;
 	}
 
-	private static Point writeData (Sheet sheet, XLSExportItems option, Point pt, boolean transpose, String charSeries, ArrayList <ArrayList<Integer >> dataArrayList) {
+	private static Point writeData (XSSFSheet sheet, XLSExportItems option, Point pt, boolean transpose, String charSeries, ArrayList <ArrayList<Integer >> dataArrayList) {
 		
 		double ratio = vSequence.capillaries.capillaryVolume / vSequence.capillaries.capillaryPixels;
 		if (charSeries == null)
@@ -316,8 +315,8 @@ public class XLSExportCapillaryResults {
 					if (j < dataL.size() && j < dataR.size()) {
 						double value = (dataL.get(j)+dataR.get(j))*ratio;
 						double valueold = 0.;
-						Cell cell = XLSUtils.getCell(sheet, pt0, transpose);
-						if (cell.getCellType() == CellType.NUMERIC)
+						XSSFCell cell = XLSUtils.getCell(sheet, pt0, transpose);
+//						if (cell.getCellType() == CellType.NUMERIC)
 							valueold = cell.getNumericCellValue();
 						value += valueold;
 						XLSUtils.setValue(sheet, pt, transpose, value );
@@ -335,8 +334,8 @@ public class XLSExportCapillaryResults {
 					if (j < data.size()) {
 						double value = data.get(j)*ratio;
 						double valueold = 0.;
-						Cell cell = XLSUtils.getCell(sheet, pt0, transpose);
-						if (cell.getCellType() == CellType.NUMERIC)
+						XSSFCell cell = XLSUtils.getCell(sheet, pt0, transpose);
+//						if (cell.getCellType() == CellType.NUMERIC)
 							valueold = cell.getNumericCellValue();
 						value += valueold;
 						XLSUtils.setValue(sheet, pt, transpose, value);
@@ -370,7 +369,7 @@ public class XLSExportCapillaryResults {
 
         boolean flag = false;
         for (int i = 0; i< ncolumns; i++) {
-        	Cell cell = XLSUtils.getCell(sourceSheet, 0, i);
+        	XSSFCell cell = XLSUtils.getCell(sourceSheet, 0, i);
         	String text = cell.getStringCellValue();
         	if( !flag) {
         		flag = text.contains("roi");
