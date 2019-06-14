@@ -93,6 +93,7 @@ public class CapillariesTab_File extends JPanel implements ActionListener {
 	}
 	
 	public boolean capillaryRoisSave() {
+		parent0.sequencePane.optionsTab.UpdateItemsToSequence (parent0);
 		return parent0.vSequence.xmlWriteCapillaryTrackDefault();
 	}
 

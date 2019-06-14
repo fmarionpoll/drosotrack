@@ -104,7 +104,7 @@ public class Multicafe extends PluginActionable implements ViewerListener, Prope
 					sequencePane.fileTab.isCheckedLoadMeasures());
 		}
 		else if (arg0.getPropertyName().equals("CAPILLARIES_OPEN")) {
-		  	sequencePane.UpdateItemsFromSequence(vSequence);
+		  	sequencePane.optionsTab.UpdateItemsFromSequence(this);
 		}
 		else if (arg0.getPropertyName().equals("MEASUREGULPS_OK") 
 				|| arg0.getPropertyName().equals("MEASURES_OPEN")) {	
@@ -158,7 +158,7 @@ public class Multicafe extends PluginActionable implements ViewerListener, Prope
 		if (loadCapillaries) {
 			if( !capillariesPane.loadDefaultCapillaries()) 
 				return;
-			sequencePane.UpdateItemsFromSequence(vSequence);
+			sequencePane.optionsTab.UpdateItemsFromSequence(this);
 			capillariesPane.propertiesTab.visibleCheckBox.setSelected(true);
 		}
 		if (loadKymographs) {
@@ -169,7 +169,7 @@ public class Multicafe extends PluginActionable implements ViewerListener, Prope
 		
 		if (loadKymographs && loadMeasures) {
 			if (kymographsPane.fileTab.measuresFileOpen()) {
-				sequencePane.optionsTab.UpdateItemsFromSequence(vSequence);
+				sequencePane.optionsTab.UpdateItemsFromSequence(this);
 			}
 		}
 		

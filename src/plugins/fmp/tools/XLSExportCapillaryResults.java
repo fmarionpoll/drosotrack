@@ -49,8 +49,9 @@ public class XLSExportCapillaryResults {
 				String charSeries = CellReference.convertNumToColString(iSeries);
 				if (options.topLevel) {
 					rowmax = xlsExportToWorkbook(workbook, "toplevel", XLSExportItems.TOPLEVEL, row0, charSeries);
-					if (options.onlyalive) 
+					if (options.onlyalive) {
 						xlsExportToWorkbook(workbook, "toplevel_alive", XLSExportItems.TOPLEVEL, row0, charSeries);
+					}
 				}
 				if (options.bottomLevel) 
 					xlsExportToWorkbook(workbook, "bottomlevel", XLSExportItems.BOTTOMLEVEL, row0, charSeries);
@@ -58,13 +59,18 @@ public class XLSExportCapillaryResults {
 					xlsExportToWorkbook(workbook, "derivative", XLSExportItems.DERIVEDVALUES, row0, charSeries);
 				if (options.consumption) {
 					xlsExportToWorkbook(workbook, "sumGulps", XLSExportItems.SUMGULPS, row0, charSeries);
-					if (options.onlyalive) 
+					if (options.onlyalive) {
 						xlsExportToWorkbook(workbook, "sumGulps_alive", XLSExportItems.SUMGULPS, row0, charSeries);
+					}
 				}
 				if (options.sum) { 
 					xlsExportToWorkbook(workbook, "sumL+R", XLSExportItems.SUMLR, row0, charSeries);
-					if (options.onlyalive) 
+					if (options.onlyalive) {
 						xlsExportToWorkbook(workbook, "sumL+R_alive", XLSExportItems.SUMLR, row0, charSeries);
+					}
+				}
+				if (options.onlyalive) {
+					xlsExportToWorkbook(workbook, "alive", XLSExportItems.ISALIVE, row0, charSeries);
 				}
 				row0 = rowmax;
 				iSeries++;
@@ -106,6 +112,10 @@ public class XLSExportCapillaryResults {
 				break;
 			case BOTTOMLEVEL:
 				resultsArrayList.add(seq.getArrayListFromRois(ArrayListType.bottomLevel));
+				break;
+			case ISALIVE:
+				resultsArrayList.add(posxyt.getDoubleArrayList(ArrayListType.isalive));
+				// TODO add threshold to cleanup data
 				break;
 			case TOPLEVEL:
 			case SUMLR:

@@ -13,9 +13,8 @@ import javax.swing.JPanel;
 import javax.swing.JTextField;
 import javax.swing.SwingConstants;
 
-import icy.gui.frame.progress.AnnounceFrame;
 import icy.gui.util.GuiUtil;
-import plugins.fmp.sequencevirtual.SequenceVirtual;
+
 
 public class SequenceTab_Options extends JPanel implements ActionListener{
 	/**
@@ -78,21 +77,17 @@ public class SequenceTab_Options extends JPanel implements ActionListener{
 		}
 	}
 
-	public void UpdateItemsFromSequence (SequenceVirtual vSequence) {
-		endFrameTextField.setText(Integer.toString((int) vSequence.analysisEnd));
-		startFrameTextField.setText(Integer.toString((int) vSequence.analysisStart));
-		analyzeStepTextField.setText(Integer.toString(vSequence.analysisStep));
+	public void UpdateItemsFromSequence (Multicafe parent0) {
+		endFrameTextField.setText(Integer.toString((int) parent0.vSequence.analysisEnd));
+		startFrameTextField.setText(Integer.toString((int) parent0.vSequence.analysisStart));
+		analyzeStepTextField.setText(Integer.toString(parent0.vSequence.analysisStep));
 	}
 	
-	public void UpdateItemsToSequence (SequenceVirtual vSequence) {
-		vSequence.analysisStart = Integer.parseInt( startFrameTextField.getText() );
-		vSequence.analysisEnd 	= Integer.parseInt( endFrameTextField.getText());
-		try { 
-			vSequence.analysisStep = Integer.parseInt( analyzeStepTextField.getText() );
-		} catch( Exception e ) { 
-			new AnnounceFrame("Can't interpret the analyze step value."); 
-		}
-		vSequence.cleanUpBufferAndRestart();
+	public void UpdateItemsToSequence (Multicafe parent0) {
+		parent0.vSequence.analysisStart = Integer.parseInt( startFrameTextField.getText() );
+		parent0.vSequence.analysisEnd 	= Integer.parseInt( endFrameTextField.getText());
+		parent0.vSequence.analysisStep 	= Integer.parseInt( analyzeStepTextField.getText() );
+		parent0.vSequence.cleanUpBufferAndRestart();
 	}
 
 }

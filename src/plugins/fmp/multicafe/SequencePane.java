@@ -49,14 +49,6 @@ public class SequencePane extends JPanel implements PropertyChangeListener {
 		capPanel.add(GuiUtil.besidesPanel(tabsPane));
 	}
 	
-	public void UpdateItemsFromSequence(SequenceVirtual vSequence) {
-		optionsTab.UpdateItemsFromSequence (vSequence);
-	}
-	
-	public void UpdateItemsToSequence(SequenceVirtual vSequence) {
-		optionsTab.UpdateItemsToSequence ( vSequence);
-	}
-	
 	@Override
 	public void propertyChange(PropertyChangeEvent event) {
 		if (event.getPropertyName().equals("SEQ_OPEN")) {
@@ -87,7 +79,7 @@ public class SequencePane extends JPanel implements PropertyChangeListener {
 			}
 		 }	
 		 else if (event.getPropertyName().equals("UPDATE")) {
-			optionsTab.UpdateItemsToSequence(parent0.vSequence);
+			optionsTab.UpdateItemsToSequence(parent0);
 			ArrayList<Viewer>vList =  parent0.vSequence.getViewers();
 			Viewer v = vList.get(0);
 			v.toFront();
@@ -114,7 +106,7 @@ public class SequencePane extends JPanel implements PropertyChangeListener {
 			return;
 
 		parent0.vSequence.vImageBufferThread_STOP();
-		UpdateItemsToSequence(parent0.vSequence); ;
+		optionsTab.UpdateItemsToSequence(parent0); ;
 		parent0.vSequence.vImageBufferThread_START(100); //numberOfImageForBuffer);
 	}
 	
