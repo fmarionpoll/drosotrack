@@ -33,10 +33,11 @@ public class Multicafe extends PluginActionable implements ViewerListener, Prope
 	ArrayList <SequencePlus> 	kymographArrayList	= new ArrayList <SequencePlus> ();
 	IcyFrame 					mainFrame 			= new IcyFrame("MultiCAFE analysis 15-June-2019", true, true, true, true);
 	
-	SequencePane 				sequencePane 		= null;
-	CapillariesPane 			capillariesPane 	= null;
-	KymosPane 					kymographsPane 		= null;
-	MovePane 					movePane 			= null;
+	SequencePane 				sequencePane 		= new SequencePane();
+	CapillariesPane 			capillariesPane 	= new CapillariesPane();
+	KymosPane 					kymographsPane 		= new KymosPane();
+	MovePane 					movePane 			= new MovePane();
+	ExcelPane					excelPane			= new ExcelPane();
 
 	//-------------------------------------------------------------------
 	
@@ -46,21 +47,20 @@ public class Multicafe extends PluginActionable implements ViewerListener, Prope
 		mainFrame.setLayout(new BorderLayout());
 		mainFrame.add(mainPanel, BorderLayout.CENTER);
 
-		sequencePane = new SequencePane();
 		sequencePane.init(mainPanel, "SOURCE", this);
 		sequencePane.addPropertyChangeListener(this);
 
-		capillariesPane = new CapillariesPane();
 		capillariesPane.init(mainPanel, "CAPILLARIES", this);
 		capillariesPane.addPropertyChangeListener(this);	
 				
-		kymographsPane = new KymosPane();
 		kymographsPane.init(mainPanel, "MEASURE LEVELS", this);
 		kymographsPane.addPropertyChangeListener(this);
 		
-		movePane = new MovePane();
 		movePane.init(mainPanel, "DETECT FLIES", this);
 		movePane.addPropertyChangeListener(this);
+		
+		excelPane.init(mainPanel, "EXPORT TO EXCEL FILE", this);
+		excelPane.addPropertyChangeListener(this);
 		
 		mainFrame.pack();
 		mainFrame.center();

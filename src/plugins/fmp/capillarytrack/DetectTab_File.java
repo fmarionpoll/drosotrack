@@ -68,7 +68,7 @@ public class DetectTab_File extends JPanel implements ActionListener {
 		for (int kymo=0; kymo < parent0.kymographArrayList.size(); kymo++) {	
 			SequencePlus seq = parent0.kymographArrayList.get(kymo);
 			seq.beginUpdate();
-			if (flag = seq.loadXMLCapillaryTrackResults(directory)) {
+			if (flag = seq.loadXMLKymographAnalysis(directory)) {
 				seq.validateRois();
 				seq.getArrayListFromRois(ArrayListType.cumSum);
 			}
@@ -94,7 +94,7 @@ public class DetectTab_File extends JPanel implements ActionListener {
 			seq.analysisStep = parent0.vSequence.analysisStep;
 			
 			System.out.println("saving "+seq.getName());
-			if (!seq.saveXMLCapillaryTrackResults(directory))
+			if (!seq.saveXMLKymographAnalysis(directory))
 				System.out.println(" -> failed - in directory: " + directory);
 		}
 	}

@@ -2,6 +2,7 @@ package plugins.fmp.multicafe;
 
 import java.awt.GridLayout;
 import java.awt.Polygon;
+import java.awt.Rectangle;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.geom.Point2D;
@@ -26,7 +27,8 @@ public class MoveTab_BuildROIs extends JPanel implements ActionListener {
 	 * 
 	 */
 	private static final long serialVersionUID = -5257698990389571518L;
-	private JButton createROIsFromPolygonButton = new JButton("Create/add cage limits (from Polygon 2D)");
+	private JButton 	addPolygon2DButton 		= new JButton("Define external limits");
+	private JButton createROIsFromPolygonButton = new JButton("Create/add (from Polygon 2D)");
 	private JTextField nbcagesTextField 	= new JTextField("10");
 	private JTextField width_cageTextField 	= new JTextField("10");
 	private JTextField width_intervalTextField = new JTextField("2");
@@ -41,7 +43,7 @@ public class MoveTab_BuildROIs extends JPanel implements ActionListener {
 		setLayout(capLayout);
 		this.parent0 = parent0;
 		
-		add( GuiUtil.besidesPanel( createROIsFromPolygonButton));
+		add( GuiUtil.besidesPanel(addPolygon2DButton, createROIsFromPolygonButton));
 		JLabel ncagesLabel = new JLabel("N cages ");
 		JLabel cagewidthLabel = new JLabel("cage width ");
 		JLabel btwcagesLabel = new JLabel("between cages ");
@@ -56,26 +58,19 @@ public class MoveTab_BuildROIs extends JPanel implements ActionListener {
 	
 	private void defineActionListeners() {
 		
-		createROIsFromPolygonButton.addActionListener(new ActionListener () {
-			@Override
-			public void actionPerformed( final ActionEvent e ) { 
-				addROISCreatedFromSelectedPolygon();
-			}});
+		createROIsFromPolygonButton.addActionListener(this);
+		addPolygon2DButton.addActionListener(this);
 	}
 
 	@Override
 	public void actionPerformed(ActionEvent e) {
-//		Object o = e.getSource();
-//		if ( o == createROIsFromPolygonButton2)  {
-//			roisGenerateFromPolygon();
-//			parent0.vSequence.keepOnly2DLines_CapillariesArrayList();
-//			firePropertyChange("CAPILLARIES_NEW", false, true);	
-//		}
-//		else if ( o == selectRegularButton) {
-//			boolean status = false;
-//			width_between_capillariesTextField.setEnabled(status);
-//			width_intervalTextField.setEnabled(status);	
-//		}
+		Object o = e.getSource();
+		if ( o == createROIsFromPolygonButton)  {
+			addROISCreatedFromSelectedPolygon();
+		}
+		else if ( o == addPolygon2DButton) {
+			create2DPolygon();
+		}
 	}
 	
 	public void updateFromSequence() {
@@ -86,6 +81,27 @@ public class MoveTab_BuildROIs extends JPanel implements ActionListener {
 		}
 	}
 
+	private void create2DPolygon() {
+		
+		final String dummyname = "perimeter_enclosing_capillaries";
+		ArrayList<ROI2D> listRois = parent0.vSequence.getROI2Ds();
+		for (ROI2D roi: listRois) {
+			if (roi.getName() .equals(dummyname))
+				return;
+		}
+
+		Rectangle rect = parent0.vSequence.getBounds2D();
+		List<Point2D> points = new ArrayList<Point2D>();
+		points.add(new Point2D.Double(rect.x + rect.width /6, rect.y + rect.height *2/3));
+		points.add(new Point2D.Double(rect.x + rect.width*5 /6, rect.y + rect.height *2/3));
+		points.add(new Point2D.Double(rect.x + rect.width*5 /6, rect.y + rect.height - 4));
+		points.add(new Point2D.Double(rect.x + rect.width /6, rect.y + rect.height - 4 ));
+		ROI2DPolygon roi = new ROI2DPolygon(points);
+		roi.setName(dummyname);
+		parent0.vSequence.addROI(roi);
+		parent0.vSequence.setSelectedROI(roi);
+	}
+		
 	private void addROISCreatedFromSelectedPolygon() {
 		// read values from text boxes
 		try { 

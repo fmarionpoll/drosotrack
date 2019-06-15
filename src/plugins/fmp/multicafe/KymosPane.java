@@ -28,7 +28,7 @@ public class KymosPane extends JPanel implements PropertyChangeListener, ChangeL
 	public KymosTab_DetectLimits limitsTab 	= new KymosTab_DetectLimits();
 	public KymosTab_DetectGulps gulpsTab 	= new KymosTab_DetectGulps();
 	public KymosTab_Graphs 		graphsTab 	= new KymosTab_Graphs();
-	public KymosTab_Excel		excelTab	= new KymosTab_Excel();
+	
 	ImageTransformTools tImg = null;
 	private Multicafe parent0 = null;
 
@@ -54,10 +54,6 @@ public class KymosPane extends JPanel implements PropertyChangeListener, ChangeL
 		graphsTab.init(capLayout, parent0);
 		graphsTab.addPropertyChangeListener(this);
 		tabsPane.addTab("Graphs", null, graphsTab, "Display results as a graph");
-		
-		excelTab.init(capLayout, parent0);
-		tabsPane.addTab("Excel", null, excelTab, "Export capillary levels to Excel");
-		excelTab.addPropertyChangeListener(this);
 		
 		tabsPane.setTabLayoutPolicy(JTabbedPane.SCROLL_TAB_LAYOUT);
 		tabsPane.addChangeListener(this);

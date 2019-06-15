@@ -2,9 +2,12 @@ package plugins.fmp.multicafe;
 
 import java.awt.GridLayout;
 import java.awt.Polygon;
+import java.awt.Rectangle;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.geom.Point2D;
+import java.util.ArrayList;
+import java.util.List;
 
 import javax.swing.ButtonGroup;
 import javax.swing.JButton;
@@ -28,6 +31,7 @@ public class CapillariesTab_Build extends JPanel implements ActionListener {
 	 */
 	private static final long serialVersionUID = -5257698990389571518L;
 	
+	private JButton 	addPolygon2DButton 		= new JButton("Define external limits");
 	private JButton 	createROIsFromPolygonButton2 = new JButton("Generate ROIs (from Polygon 2D)");
 	private JRadioButton selectGroupedby2Button = new JRadioButton("grouped by 2");
 	private JRadioButton selectRegularButton 	= new JRadioButton("evenly spaced");
@@ -40,7 +44,7 @@ public class CapillariesTab_Build extends JPanel implements ActionListener {
 	public void init(GridLayout capLayout, Multicafe parent0) {
 		setLayout(capLayout);
 		
-		add( GuiUtil.besidesPanel( createROIsFromPolygonButton2));
+		add( GuiUtil.besidesPanel( addPolygon2DButton, createROIsFromPolygonButton2));
 		buttonGroup2.add(selectGroupedby2Button);
 		buttonGroup2.add(selectRegularButton);
 		selectGroupedby2Button.setSelected(true);
@@ -60,7 +64,7 @@ public class CapillariesTab_Build extends JPanel implements ActionListener {
 	}
 	
 	private void defineActionListeners() {
-		
+		addPolygon2DButton.addActionListener(this);
 		createROIsFromPolygonButton2.addActionListener(this);
 		selectRegularButton.addActionListener(this);
 	}
@@ -77,6 +81,9 @@ public class CapillariesTab_Build extends JPanel implements ActionListener {
 			boolean status = false;
 			width_between_capillariesTextField.setEnabled(status);
 			width_intervalTextField.setEnabled(status);	
+		}
+		else if (o == addPolygon2DButton) {
+			create2DPolygon();
 		}
 	}
 	
@@ -106,6 +113,27 @@ public class CapillariesTab_Build extends JPanel implements ActionListener {
 	}
 	
 	// ---------------------------------
+	private void create2DPolygon() {
+		
+		final String dummyname = "perimeter_enclosing_capillaries";
+		ArrayList<ROI2D> listRois = parent0.vSequence.getROI2Ds();
+		for (ROI2D roi: listRois) {
+			if (roi.getName() .equals(dummyname))
+				return;
+		}
+		
+		Rectangle rect = parent0.vSequence.getBounds2D();
+		List<Point2D> points = new ArrayList<Point2D>();
+		points.add(new Point2D.Double(rect.x + rect.width /5, rect.y + rect.height /5));
+		points.add(new Point2D.Double(rect.x + rect.width*4 /5, rect.y + rect.height /5));
+		points.add(new Point2D.Double(rect.x + rect.width*4 /5, rect.y + rect.height*2 /3));
+		points.add(new Point2D.Double(rect.x + rect.width /5, rect.y + rect.height *2 /3));
+		ROI2DPolygon roi = new ROI2DPolygon(points);
+		roi.setName(dummyname);
+		parent0.vSequence.addROI(roi);
+		parent0.vSequence.setSelectedROI(roi);
+	}
+	
 	private void roisGenerateFromPolygon() {
 
 		boolean statusGroup2Mode = false;

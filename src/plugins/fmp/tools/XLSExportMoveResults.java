@@ -23,10 +23,10 @@ import plugins.fmp.sequencevirtual.XYTaSeries;
 
 public class XLSExportMoveResults {
 
-	static XLSExportMoveOptions options = null;
+	static XLSExportOptions options = null;
 	static SequenceVirtual vSequence = null;
 	
-	public static void exportToFile(String filename, XLSExportMoveOptions opt) {
+	public static void exportToFile(String filename, XLSExportOptions opt) {
 		System.out.println("XLS output");
 		options = opt;
 		

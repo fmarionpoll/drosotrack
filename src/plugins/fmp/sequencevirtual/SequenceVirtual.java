@@ -26,34 +26,34 @@ import plugins.fmp.tools.ImageTransformTools.TransformOp;
 
 public class SequenceVirtual extends Sequence 
 {
-	private XugglerAviFile 	aviFile = null;
-	private String [] 		listFiles = null;
-	private String 			csFileName = null;
+	private XugglerAviFile 	aviFile 		= null;
+	private String [] 		listFiles 		= null;
+	private String 			csFileName 		= null;
 	private final static String[] acceptedTypes = {".jpg", ".jpeg", ".bmp"};
-	private String			directory = null;
-	private IcyBufferedImage refImage = null;
+	private String			directory 		= null;
+	private IcyBufferedImage refImage 		= null;
 	
-	public long				analysisStart = 0;
-	public long 			analysisEnd	= 99999999;
-	public int 				analysisStep = 1;
-	public int 				currentFrame = 0;
-	public int				nTotalFrames = 0;
+	public long				analysisStart 	= 0;
+	public long 			analysisEnd		= 99999999;
+	public int 				analysisStep 	= 1;
+	public int 				currentFrame 	= 0;
+	public int				nTotalFrames 	= 0;
 	
-	public VImageBufferThread bufferThread = null;
-	public boolean			bBufferON = false;
+	public VImageBufferThread bufferThread 	= null;
+	public boolean			bBufferON 		= false;
 	public Status 			status;
 	
-	public Capillaries 		capillaries = new Capillaries();
-	public Cages			cages = new Cages();
+	public Capillaries 		capillaries 	= new Capillaries();
+	public Cages			cages 			= new Cages();
 	
-	public String [] 		seriesname = null;
-	public int [][] 		data_raw = null;
-	public double [][] 		data_filtered = null;
+	public String [] 		seriesname 		= null;
+	public int [][] 		data_raw 		= null;
+	public double [][] 		data_filtered 	= null;
 	
 	// image cache
 	public IcyBufferedImage cacheTransformedImage = null;
 	public ImageOperationsStruct cacheTransformOp = new ImageOperationsStruct();
-	public IcyBufferedImage cacheThresholdedImage  = null;
+	public IcyBufferedImage cacheThresholdedImage = null;
 	public ImageOperationsStruct cacheThresholdOp = new ImageOperationsStruct();
 	
 	// ----------------------------------------

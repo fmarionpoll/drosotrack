@@ -35,9 +35,9 @@ public class CapillariesTab_File extends JPanel implements ActionListener {
 	
 	private JButton		openButtonCapillaries	= new JButton("Load...");
 	private JButton		saveButtonCapillaries	= new JButton("Save...");
-	private JButton		openButtonKymos1	= new JButton("Load...");
-	private JButton		saveButtonKymos1	= new JButton("Save...");
-	private Multicafe parent0 = null;
+	private JButton		openButtonKymos			= new JButton("Load...");
+	private JButton		saveButtonKymos			= new JButton("Save...");
+	private Multicafe 	parent0 				= null;
 	
 	public void init(GridLayout capLayout, Multicafe parent0) {
 		setLayout(capLayout);
@@ -48,7 +48,7 @@ public class CapillariesTab_File extends JPanel implements ActionListener {
 		
 		JLabel loadsaveText1b = new JLabel ("-> Kymographs (tiff) ", SwingConstants.RIGHT);
 		loadsaveText1b.setFont(FontUtil.setStyle(loadsaveText1b.getFont(), Font.ITALIC));	
-		add(GuiUtil.besidesPanel( new JLabel (" "), loadsaveText1b, openButtonKymos1, saveButtonKymos1));
+		add(GuiUtil.besidesPanel( new JLabel (" "), loadsaveText1b, openButtonKymos, saveButtonKymos));
 		
 		this.parent0 = parent0;
 		defineActionListeners();
@@ -57,8 +57,8 @@ public class CapillariesTab_File extends JPanel implements ActionListener {
 	private void defineActionListeners() {
 		openButtonCapillaries.addActionListener(this); 
 		saveButtonCapillaries.addActionListener(this);	
-		openButtonKymos1.addActionListener(this);
-		saveButtonKymos1.addActionListener(this);
+		openButtonKymos.addActionListener(this);
+		saveButtonKymos.addActionListener(this);
 	}
 	
 	@Override
@@ -70,12 +70,12 @@ public class CapillariesTab_File extends JPanel implements ActionListener {
 		else if ( o == saveButtonCapillaries) {
 			firePropertyChange("CAP_ROIS_SAVE", false, true);	
 		}
-		else if ( o == openButtonKymos1)  {
+		else if ( o == openButtonKymos)  {
 			String path = parent0.vSequence.getDirectory()+ "\\results";
 			parent0.kymographArrayList = SequencePlusUtils.openFiles(path); 
 			firePropertyChange("KYMOS_OPEN", false, true);	
 		}
-		else if ( o == saveButtonKymos1) {
+		else if ( o == saveButtonKymos) {
 			String path = parent0.vSequence.getDirectory() + "\\results";
 			saveFiles(path);
 			firePropertyChange("KYMOS_SAVE", false, true);	

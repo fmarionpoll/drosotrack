@@ -6,6 +6,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -32,20 +33,48 @@ import plugins.fmp.tools.ArrayListType;
 public class SequencePlus extends SequenceVirtual  {
 	
 	public ArrayList<Integer> derivedValuesArrayList= new ArrayList<Integer>(); // (derivative) result of the detection of the capillary level
-	public boolean hasChanged = false;
-	public boolean bStatusChanged = false;
-	public boolean detectTop = true;
-	public boolean detectBottom = true;
-	public boolean detectAllLevel = true;
-	public boolean detectAllGulps = true;
-	public 	int direction = 0;
-	public 	int	detectLevelThreshold = 35;
-	public	int detectGulpsThreshold = 90;
-	public	TransformOp	transformForLevels = TransformOp.R2MINUS_GB;
-	public	TransformOp transformForGulps = TransformOp.XDIFFN;
+	public boolean 		hasChanged 				= false;
+	public boolean 		bStatusChanged 			= false;
+	public boolean 		detectTop 				= true;
+	public boolean 		detectBottom 			= true;
+	public boolean 		detectAllLevel 			= true;
+	public boolean 		detectAllGulps 			= true;
+	public 	int 		direction 				= 0;
+	public 	int			detectLevelThreshold 	= 35;
+	public	int 		detectGulpsThreshold 	= 90;
+	public	TransformOp	transformForLevels 		= TransformOp.R2MINUS_GB;
+	public	TransformOp transformForGulps 		= TransformOp.XDIFFN;
+	
+	public LocalDateTime	startDate				= null;
+	public LocalDateTime	endDate					= null;
+	public long			minutesBetweenImages 	= 1;
 
-	public OverlayThreshold thresholdOverlay = null;
-	public OverlayTrapMouse trapOverlay 	= null;
+	/*
+	 * https://stackoverflow.com/questions/17940200/how-to-find-the-duration-of-difference-between-two-dates-in-java
+
+Date startDate = // Set start date
+Date endDate   = // Set end date
+
+long duration  = endDate.getTime() - startDate.getTime();
+
+long diffInSeconds = TimeUnit.MILLISECONDS.toSeconds(duration);
+long diffInMinutes = TimeUnit.MILLISECONDS.toMinutes(duration);
+long diffInHours = TimeUnit.MILLISECONDS.toHours(duration);
+long diffInDays = TimeUnit.MILLISECONDS.toDays(duration);
+
+
+in Java 8:
+LocalDate today = LocalDate.now();
+LocalDate birthday = LocalDate.of(1960, Month.JANUARY, 1);
+
+Period p = Period.between(birthday, today);
+long p2 = ChronoUnit.DAYS.between(birthday, today);
+
+System.out.println("You are " + p.getYears() + " years, " + p.getMonths() + " months, and " + p.getDays() + " days old. (" + p2 + " days total)");
+
+	 */
+	public OverlayThreshold thresholdOverlay 	= null;
+	public OverlayTrapMouse trapOverlay 		= null;
 	
 	// -----------------------------------------------------
 	
@@ -198,7 +227,7 @@ public class SequencePlus extends SequenceVirtual  {
         super.roiChanged(event.getSource(), SequenceEventType.CHANGED);
     }
 
-	public boolean loadXMLCapillaryTrackResults (String directory) {
+	public boolean loadXMLKymographAnalysis (String directory) {
 	
 		String resultsDirectory = directory;
 		String subDirectory = "\\results";
@@ -244,7 +273,7 @@ public class SequencePlus extends SequenceVirtual  {
 		return flag;
 	}
 
-	public boolean saveXMLCapillaryTrackResults(String directory) {
+	public boolean saveXMLKymographAnalysis(String directory) {
 
 		// check if directory is present. If not, create it
 		String resultsDirectory = directory;

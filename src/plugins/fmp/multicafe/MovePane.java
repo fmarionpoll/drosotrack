@@ -25,7 +25,7 @@ public class MovePane extends JPanel implements PropertyChangeListener, ChangeLi
 	public MoveTab_Detect 		optionsTab 	= new MoveTab_Detect();
 	public MoveTab_File 		filesTab 	= new MoveTab_File();
 	public MoveTab_Graphs 		graphicsTab = new MoveTab_Graphs();
-	public MoveTab_Excel 		excelTab  	= new MoveTab_Excel();
+	
 	Multicafe parent0 = null;
 
 	
@@ -51,24 +51,16 @@ public class MovePane extends JPanel implements PropertyChangeListener, ChangeLi
 		tabsPane.addTab("Graphs", null, graphicsTab, "Display results as graphics");
 		graphicsTab.addPropertyChangeListener(this);
 
-		excelTab.init(capLayout, parent0);
-		tabsPane.addTab("Excel", null, excelTab, "Export fly positions to Excel");
-		excelTab.addPropertyChangeListener(this);
-		
 		tabsPane.setTabLayoutPolicy(JTabbedPane.SCROLL_TAB_LAYOUT);
 		panel.add(GuiUtil.besidesPanel(tabsPane));
 		tabsPane.setSelectedIndex(0);
 	}
 
 	@Override
-	public void propertyChange(PropertyChangeEvent arg0) {
-		if (arg0.getPropertyName().equals("LOAD_DATA")) {
+	public void propertyChange(PropertyChangeEvent evt) {
+		if (evt.getPropertyName().equals("LOAD_DATA")) {
 			buildROIsTab.updateFromSequence();
 		}
-		else if (arg0.getPropertyName().equals("EXPORT_TO_EXCEL")) {
-			firePropertyChange("EXPORT_TO_EXCEL", false, true);	
-		}
-
 	}
 	
 	@Override

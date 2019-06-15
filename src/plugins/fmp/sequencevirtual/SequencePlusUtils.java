@@ -41,7 +41,7 @@ public class SequencePlusUtils {
 			int index0 = filename.lastIndexOf("\\")+1;
 			String title = filename.substring(index0, index1);
 			kymographSeq.setName(title);
-			kymographSeq.loadXMLCapillaryTrackResults(directory);
+			kymographSeq.loadXMLKymographAnalysis(directory);
 			arrayKymos.add(kymographSeq);
 		}
 		return arrayKymos;

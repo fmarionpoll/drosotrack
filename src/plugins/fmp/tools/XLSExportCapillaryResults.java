@@ -10,6 +10,7 @@ import org.apache.poi.ss.SpreadsheetVersion;
 
 import org.apache.poi.ss.usermodel.DataConsolidateFunction;
 import org.apache.poi.ss.usermodel.Row;
+import org.apache.poi.ss.usermodel.CellType;
 import org.apache.poi.ss.util.AreaReference;
 import org.apache.poi.ss.util.CellAddress;
 import org.apache.poi.ss.util.CellReference;
@@ -26,10 +27,10 @@ import plugins.fmp.sequencevirtual.XYTaSeries;
 public class XLSExportCapillaryResults {
 
 	static SequenceVirtual 				vSequence = null;
-	static XLSExportCapillariesOptions 	options = null;
+	static XLSExportOptions 	options = null;
 	static ArrayList<SequencePlus> 		kymographArrayList = null;
 	
-	public static void exportToFile(String filename, XLSExportCapillariesOptions opt) {
+	public static void exportToFile(String filename, XLSExportOptions opt) {
 		
 		System.out.println("XLS output");
 		options = opt;
@@ -225,7 +226,7 @@ public class XLSExportCapillaryResults {
 			for (int i= 0; i < kymographArrayList.size(); i++, pt.x++) 
 				XLSUtils.setValue(sheet, pt, transpose, i/2);
 			break;
-		case NFLIES: // assume 2 capillaries/slot
+		case NFLIES: // assume first 2 and last 2 have no flies
 			for (int i= 0; i < kymographArrayList.size(); i++, pt.x++) {
 				int j = 1;
 				if (i < 2 || i > 17)
@@ -233,11 +234,16 @@ public class XLSExportCapillaryResults {
 				XLSUtils.setValue(sheet, pt, transpose, j);
 			}
 			break;
-		case CAP: // assume 2 capillaries/slot
+		case CAP:
 			for (int i= 0; i < kymographArrayList.size(); i++, pt.x++) {
 				String name = kymographArrayList.get(i).getName();
 				String letter = name.substring(name.length() - 1);
 				XLSUtils.setValue(sheet, pt, transpose, letter);
+			}
+			break;
+		case DUM4: 
+			for (int i= 0; i < kymographArrayList.size(); i++, pt.x++) {
+				XLSUtils.setValue(sheet, pt, transpose, sheet.getSheetName());
 			}
 			break;
 		default:
@@ -317,7 +323,7 @@ public class XLSExportCapillaryResults {
 							double value = (dataL.get(j)+dataR.get(j))*ratio;
 							double valueold = 0.;
 							XSSFCell cell = XLSUtils.getCell(sheet, pt0, transpose);
-	//						if (cell.getCellType() == CellType.NUMERIC)
+							if (cell.getCellType() == CellType.NUMERIC)
 								valueold = cell.getNumericCellValue();
 							value += valueold;
 							XLSUtils.setValue(sheet, pt, transpose, value );
@@ -338,7 +344,7 @@ public class XLSExportCapillaryResults {
 							double value = data.get(j)*ratio;
 							double valueold = 0.;
 							XSSFCell cell = XLSUtils.getCell(sheet, pt0, transpose);
-	//						if (cell.getCellType() == CellType.NUMERIC)
+							if (cell.getCellType() == CellType.NUMERIC)
 								valueold = cell.getNumericCellValue();
 							value += valueold;
 							XLSUtils.setValue(sheet, pt, transpose, value);
