@@ -312,14 +312,16 @@ public class XLSExportCapillaryResults {
 					pt0.x = pt.x;
 					ArrayList<Integer> dataL = dataArrayList.get(i) ;
 					ArrayList<Integer> dataR = dataArrayList.get(i+1);
-					if (j < dataL.size() && j < dataR.size()) {
-						double value = (dataL.get(j)+dataR.get(j))*ratio;
-						double valueold = 0.;
-						XSSFCell cell = XLSUtils.getCell(sheet, pt0, transpose);
-//						if (cell.getCellType() == CellType.NUMERIC)
-							valueold = cell.getNumericCellValue();
-						value += valueold;
-						XLSUtils.setValue(sheet, pt, transpose, value );
+					if (dataL != null && dataR != null) {
+						if (j < dataL.size() && j < dataR.size()) {
+							double value = (dataL.get(j)+dataR.get(j))*ratio;
+							double valueold = 0.;
+							XSSFCell cell = XLSUtils.getCell(sheet, pt0, transpose);
+	//						if (cell.getCellType() == CellType.NUMERIC)
+								valueold = cell.getNumericCellValue();
+							value += valueold;
+							XLSUtils.setValue(sheet, pt, transpose, value );
+						}
 					}
 					pt.x++;
 					pt.x++;
@@ -331,14 +333,16 @@ public class XLSExportCapillaryResults {
 				{
 					pt0.x = pt.x;
 					ArrayList<Integer> data = dataArrayList.get(i);
-					if (j < data.size()) {
-						double value = data.get(j)*ratio;
-						double valueold = 0.;
-						XSSFCell cell = XLSUtils.getCell(sheet, pt0, transpose);
-//						if (cell.getCellType() == CellType.NUMERIC)
-							valueold = cell.getNumericCellValue();
-						value += valueold;
-						XLSUtils.setValue(sheet, pt, transpose, value);
+					if (data != null) {
+						if (j < data.size()) {
+							double value = data.get(j)*ratio;
+							double valueold = 0.;
+							XSSFCell cell = XLSUtils.getCell(sheet, pt0, transpose);
+	//						if (cell.getCellType() == CellType.NUMERIC)
+								valueold = cell.getNumericCellValue();
+							value += valueold;
+							XLSUtils.setValue(sheet, pt, transpose, value);
+						}
 					}
 					pt.x++;
 				}

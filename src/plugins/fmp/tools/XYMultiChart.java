@@ -183,18 +183,20 @@ public class XYMultiChart extends IcyFrame  {
 	private XYSeries getXYSeries(ArrayList<Integer> data, String name, int startFrame) {
 		
 		XYSeries seriesXY = new XYSeries(name, false);
-		int npoints = data.size();
-		if (npoints != 0) {
-			int x = 0;
-			ymax = data.get(0);
-			ymin = ymax;
-			for (int j=0; j < npoints; j++) 
-			{
-				int y = data.get(j);
-				seriesXY.add( x+startFrame , y );
-				if (ymax < y) ymax = y;
-				if (ymin > y) ymin = y;
-				x++;
+		if (data != null) {
+			int npoints = data.size();
+			if (npoints != 0) {
+				int x = 0;
+				ymax = data.get(0);
+				ymin = ymax;
+				for (int j=0; j < npoints; j++) 
+				{
+					int y = data.get(j);
+					seriesXY.add( x+startFrame , y );
+					if (ymax < y) ymax = y;
+					if (ymin > y) ymin = y;
+					x++;
+				}
 			}
 		}
 		return seriesXY;
