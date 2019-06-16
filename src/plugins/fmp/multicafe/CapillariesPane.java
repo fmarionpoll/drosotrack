@@ -24,8 +24,6 @@ public class CapillariesPane extends JPanel implements PropertyChangeListener {
 	public CapillariesTab_Properties propertiesTab 	= new CapillariesTab_Properties();
 	public CapillaryTab_BuildKymos buildkymosTab 	= new CapillaryTab_BuildKymos();
 	public CapillariesTab_Options optionsTab 		= new CapillariesTab_Options();
-	
-	
 	private Multicafe parent0 = null;
 
 	public void init (JPanel mainPanel, String string, Multicafe parent0) {
@@ -33,7 +31,7 @@ public class CapillariesPane extends JPanel implements PropertyChangeListener {
 		this.parent0 = parent0;
 		final JPanel capPanel = GuiUtil.generatePanel(string);
 		mainPanel.add(GuiUtil.besidesPanel(capPanel));
-		GridLayout capLayout = new GridLayout(3, 2);
+		GridLayout capLayout = new GridLayout(3, 1);
 		
 		buildarrayTab.init(capLayout, parent0);
 		buildarrayTab.addPropertyChangeListener(this);

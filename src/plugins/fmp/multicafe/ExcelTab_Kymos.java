@@ -26,13 +26,14 @@ public class ExcelTab_Kymos extends JPanel implements ActionListener  {
 	public JCheckBox 	sumCheckBox 		= new JCheckBox("L+R", true);
 	public JCheckBox 	derivativeCheckBox  = new JCheckBox("derivative", false);
 	public JCheckBox	t0CheckBox			= new JCheckBox("t-t0", true);
+	public JCheckBox	onlyaliveCheckBox   = new JCheckBox("dead=empty");
 	
 	
 	public void init(GridLayout capLayout) {	
 		setLayout(capLayout);
-		add(GuiUtil.besidesPanel( topLevelCheckBox, bottomLevelCheckBox, consumptionCheckBox, sumCheckBox));
-		add(GuiUtil.besidesPanel( t0CheckBox, new JLabel(" "), new JLabel(" "), new JLabel(" "))); 
-		add(GuiUtil.besidesPanel( new JLabel(" "), new JLabel(" "), new JLabel(" "), exportToXLSButton)); 
+		add(GuiUtil.besidesPanel( topLevelCheckBox, bottomLevelCheckBox, consumptionCheckBox, new JLabel(" ")));
+		add(GuiUtil.besidesPanel( t0CheckBox, sumCheckBox, new JLabel(" "), new JLabel(" "))); 
+		add(GuiUtil.besidesPanel( onlyaliveCheckBox, new JLabel(" "), new JLabel(" "), exportToXLSButton)); 
 		defineActionListeners();
 	}
 	

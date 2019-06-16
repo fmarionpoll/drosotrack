@@ -1,5 +1,6 @@
 package plugins.fmp.multicafe;
 
+import java.awt.FlowLayout;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -34,8 +35,8 @@ public class MoveTab_Detect extends JPanel implements ActionListener, ChangeList
 	private static final long serialVersionUID = -5257698990389571518L;
 	private Multicafe parent0;
 	
-	private JButton startComputationButton 	= new JButton("Start");
-	private JButton stopComputationButton	= new JButton("Stop");
+	private JButton startComputationButton 	= new JButton("Start / Stop");
+//	private JButton stopComputationButton	= new JButton("Stop");
 	private JComboBox<String> colorChannelComboBox = new JComboBox<String> (new String[] {"Red", "Green", "Blue"});
 	private JComboBox<TransformOp> backgroundComboBox = new JComboBox<> (new TransformOp[]  {TransformOp.NONE, TransformOp.REF_PREVIOUS, TransformOp.REF_T0});
 	private JSpinner thresholdSpinner		= new JSpinner(new SpinnerNumberModel(100, 0, 255, 10));
@@ -44,8 +45,8 @@ public class MoveTab_Detect extends JPanel implements ActionListener, ChangeList
 	private JSpinner objectLowsizeSpinner	= new JSpinner(new SpinnerNumberModel(50, 0, 100000, 1));
 	private JCheckBox objectUpsizeCheckBox 	= new JCheckBox("object <");
 	private JSpinner objectUpsizeSpinner	= new JSpinner(new SpinnerNumberModel(500, 0, 100000, 1));
-	private JCheckBox whiteMiceCheckBox 	= new JCheckBox("Track white on dark ");
-	private JCheckBox thresholdedImageCheckBox = new JCheckBox("Display as overlay");
+	private JCheckBox whiteMiceCheckBox 	= new JCheckBox("white on dark ");
+	private JCheckBox thresholdedImageCheckBox = new JCheckBox("overlay");
 	
 	private OverlayThreshold ov = null;
 	private BuildTrackFliesThread trackAllFliesThread = null;
@@ -54,22 +55,33 @@ public class MoveTab_Detect extends JPanel implements ActionListener, ChangeList
 		setLayout(capLayout);
 		this.parent0 = parent0;
 
-		add( GuiUtil.besidesPanel( startComputationButton, stopComputationButton ) );
-		add( GuiUtil.besidesPanel(whiteMiceCheckBox, thresholdedImageCheckBox));
-		JLabel videochannel = new JLabel("channel ");
-		videochannel.setHorizontalAlignment(SwingConstants.RIGHT);
+//		add( GuiUtil.besidesPanel( startComputationButton, stopComputationButton ) );
+		JPanel dummyPanel = new JPanel();
+		dummyPanel.add( GuiUtil.besidesPanel(whiteMiceCheckBox, thresholdedImageCheckBox ) );
+		FlowLayout layout = (FlowLayout) dummyPanel.getLayout();
+		layout.setVgap(0);
+		dummyPanel.validate();
+		
+		add( GuiUtil.besidesPanel(startComputationButton,  dummyPanel));
+		
 		colorChannelComboBox.setSelectedIndex(1);
-		JLabel backgroundsubtraction = new JLabel("background ");
-		backgroundsubtraction.setHorizontalAlignment(SwingConstants.RIGHT);
-		add( GuiUtil.besidesPanel( videochannel, colorChannelComboBox, backgroundsubtraction, backgroundComboBox));
-		JLabel thresholdLabel = new JLabel("threshold ");
-		thresholdLabel.setHorizontalAlignment(SwingConstants.RIGHT);
+		add( GuiUtil.besidesPanel( new JLabel("channel ", SwingConstants.RIGHT), 
+				colorChannelComboBox, 
+				new JLabel("background ", SwingConstants.RIGHT), 
+				backgroundComboBox));
+		
 		objectLowsizeCheckBox.setHorizontalAlignment(SwingConstants.RIGHT);
-		add( GuiUtil.besidesPanel( thresholdLabel, thresholdSpinner, objectLowsizeCheckBox, objectLowsizeSpinner));
+		add( GuiUtil.besidesPanel(new JLabel("threshold ", 
+				SwingConstants.RIGHT), 
+				thresholdSpinner, 
+				objectLowsizeCheckBox, 
+				objectLowsizeSpinner));
+		
 		objectUpsizeCheckBox.setHorizontalAlignment(SwingConstants.RIGHT);
-		JLabel jitterlabel = new JLabel("jitter <= ");
-		jitterlabel.setHorizontalAlignment(SwingConstants.RIGHT);
-		add( GuiUtil.besidesPanel( jitterlabel, jitterTextField , objectUpsizeCheckBox, objectUpsizeSpinner) );
+		add( GuiUtil.besidesPanel( new JLabel("jitter <= ", SwingConstants.RIGHT), 
+				jitterTextField , 
+				objectUpsizeCheckBox, 
+				objectUpsizeSpinner) );
 		
 		defineActionListeners();
 		thresholdSpinner.addChangeListener(this);
@@ -109,12 +121,12 @@ public class MoveTab_Detect extends JPanel implements ActionListener, ChangeList
 				startComputation();
 			}});
 		
-		stopComputationButton.addActionListener(new ActionListener () {
-			@Override
-			public void actionPerformed( final ActionEvent e ) { 
-				stopComputation();
-				// TODO updateButtonsVisibility(StateD.STOP_COMPUTATION);
-			}});
+//		stopComputationButton.addActionListener(new ActionListener () {
+//			@Override
+//			public void actionPerformed( final ActionEvent e ) { 
+//				stopComputation();
+//				// TODO updateButtonsVisibility(StateD.STOP_COMPUTATION);
+//			}});
 
 	}
 
@@ -178,8 +190,11 @@ public class MoveTab_Detect extends JPanel implements ActionListener, ChangeList
 	public void startComputation() {
 		if (trackAllFliesThread == null)
 			trackAllFliesThread = new BuildTrackFliesThread();
-		if (trackAllFliesThread.threadRunning)
+		
+		if (trackAllFliesThread.threadRunning) {
+			stopComputation();
 			return;
+		}
 		initTrackParameters();
 		cleanPreviousDetections();
 		ThreadUtil.bgRun(trackAllFliesThread);

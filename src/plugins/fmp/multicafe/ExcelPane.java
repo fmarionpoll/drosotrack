@@ -11,7 +11,7 @@ import javax.swing.JPanel;
 import javax.swing.JTabbedPane;
 
 import icy.gui.util.GuiUtil;
-import plugins.fmp.tools.Experiment;
+import plugins.fmp.sequencevirtual.Experiment;
 import plugins.fmp.tools.Tools;
 import plugins.fmp.tools.XLSExportCapillaryResults;
 import plugins.fmp.tools.XLSExportMoveResults;
@@ -56,10 +56,7 @@ public class ExcelPane  extends JPanel implements PropertyChangeListener {
 
 	@Override
 	public void propertyChange(PropertyChangeEvent evt) {
-		if (evt.getPropertyName().equals("EXPORT_TO_EXCEL")) {
-			firePropertyChange("EXPORT_TO_EXCEL", false, true);	
-		}
-		else if (evt.getPropertyName().equals("EXPORT_MOVEDATA")) {
+		if (evt.getPropertyName().equals("EXPORT_MOVEDATA")) {
 			parent0.roisSaveEdits();
 			Path directory = Paths.get(parent0.vSequence.getFileName(0)).getParent();
 			Path subpath = directory.getName(directory.getNameCount()-1);
@@ -91,22 +88,22 @@ public class ExcelPane  extends JPanel implements PropertyChangeListener {
 	private XLSExportOptions getMoveOptions() {
 		XLSExportOptions options = new XLSExportOptions();
 		options.xyCenter = moveTab.xyCenterCheckBox.isSelected(); 
-		options.distance = moveTab.distanceCheckBox.isSelected(); 
+		options.distance = moveTab.distanceCheckBox.isSelected();
+		options.alive = moveTab.aliveCheckBox.isSelected(); 
 		getCommonOptions(options);
 		return options;
 	}
 	
 	private void getCommonOptions(XLSExportOptions options) {
-		options.alive = optionsTab.aliveCheckBox.isSelected(); 
 		options.transpose = optionsTab.transposeCheckBox.isSelected();
 		options.pivot = optionsTab.pivotCheckBox.isSelected();
 		options.exportAllFiles = optionsTab.exportAllFilesCheckBox.isSelected();
 		options.experimentList = new ArrayList<Experiment> ();
 		if (optionsTab.exportAllFilesCheckBox.isSelected()) {
-			int nfiles = parent0.sequencePane.optionsTab.experimentComboBox.getItemCount();
+			int nfiles = parent0.sequencePane.fileTab.experimentComboBox.getItemCount();
 			for (int i=0; i< nfiles; i++) {
 				Experiment exp = new Experiment ();
-				exp.filename = parent0.sequencePane.optionsTab.experimentComboBox.getItemAt(i);
+				exp.filename = parent0.sequencePane.fileTab.experimentComboBox.getItemAt(i);
 				options.experimentList.add(exp);
 			}
 		}
@@ -126,6 +123,7 @@ public class ExcelPane  extends JPanel implements PropertyChangeListener {
 		options.consumption = kymosTab.consumptionCheckBox.isSelected(); 
 		options.sum = kymosTab.sumCheckBox.isSelected(); 
 		options.t0 = kymosTab.t0CheckBox.isSelected();
+		options.onlyalive = kymosTab.t0CheckBox.isSelected();
 		getCommonOptions(options);
 		return options;
 	}

@@ -24,6 +24,7 @@ public class SequenceTab_Close  extends JPanel implements ActionListener {
 		setLayout(capLayout);
 		this.parent0  = parent0;
 		add( GuiUtil.besidesPanel(closeAllButton, new JLabel(" ")));
+		
 		closeAllButton.addActionListener(this);
 	}
 	@Override

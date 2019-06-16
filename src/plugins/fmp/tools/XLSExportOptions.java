@@ -2,6 +2,8 @@ package plugins.fmp.tools;
 
 import java.util.ArrayList;
 
+import plugins.fmp.sequencevirtual.Experiment;
+
 public class XLSExportOptions {
 	
 	public boolean xyCenter 		= true;

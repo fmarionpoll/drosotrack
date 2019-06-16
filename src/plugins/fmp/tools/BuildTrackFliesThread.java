@@ -103,7 +103,7 @@ public class BuildTrackFliesThread implements Runnable {
 				IcyBufferedImage workImage = vSequence.loadVImageAndSubtractReference(t, detect.transformop); 			
 				vSequence.currentFrame = t;
 				v.setPositionT(t);
-				v.setTitle(vSequence.getVImageName(t));
+				v.setTitle(vSequence.getDecoratedImageName(t));
 
 				ROI2DArea roiAll = findFly ( workImage, vSequence.cages.detect.threshold, detect.ichanselected, detect.btrackWhite );
 

@@ -22,8 +22,9 @@ public class ExcelTab_Options   extends JPanel {
 	
 	public void init(GridLayout capLayout) {	
 		setLayout(capLayout);
-		add(GuiUtil.besidesPanel( aliveCheckBox, new JLabel(" "), new JLabel(" "), new JLabel(" ")));
-		add(GuiUtil.besidesPanel( transposeCheckBox, pivotCheckBox, exportAllFilesCheckBox ), new JLabel(" ")); 
+		add(GuiUtil.besidesPanel( transposeCheckBox, new JLabel(" "), new JLabel(" "), new JLabel(" ")));
+		add(GuiUtil.besidesPanel( pivotCheckBox, new JLabel(" "),  new JLabel(" "), new JLabel(" "))); 
+		add(GuiUtil.besidesPanel( exportAllFilesCheckBox, new JLabel(" "), new JLabel(" "), new JLabel(" "))); 
 	}
 
 }

@@ -20,29 +20,34 @@ public class SequencePane extends JPanel implements PropertyChangeListener {
 	 */
 	private static final long serialVersionUID = -6826269677524125173L;
 	
-	public JTabbedPane tabsPane 			= new JTabbedPane();
-	public SequenceTab_Open fileTab 		= new SequenceTab_Open();
-	public SequenceTab_Options optionsTab 	= new SequenceTab_Options();
-	public SequenceTab_Close closeTab 		= new SequenceTab_Close();
-	private Multicafe parent0 = null;
-	JPanel capPanel ;
+	public JTabbedPane 			tabsPane 	= new JTabbedPane();
+	public SequenceTab_Open 	fileTab 	= new SequenceTab_Open();
+	public SequenceTab_Options 	optionsTab 	= new SequenceTab_Options();
+	public SequenceTab_Close 	closeTab 	= new SequenceTab_Close();
+	public SequenceTab_List		listTab		= new SequenceTab_List();
+	private Multicafe 			parent0 	= null;
+	
 	
 	public void init (JPanel mainPanel, String string, Multicafe parent0) {
 		this.parent0 = parent0;
-		capPanel = GuiUtil.generatePanel(string);
+		final JPanel capPanel = GuiUtil.generatePanel(string);
 		mainPanel.add(GuiUtil.besidesPanel(capPanel));
-		GridLayout capLayout = new GridLayout(3, 2);
+		GridLayout capLayout = new GridLayout(4, 1);
 		
-		fileTab.init(capLayout);
-		tabsPane.addTab("Open/Add", null, fileTab, "Open stack of files (click on one only) or an AVI file, or select experiment");
+		fileTab.init(capLayout, parent0);
+		tabsPane.addTab("Open/Add", null, fileTab, "Open one or several stacks of .jpg files");
 		fileTab.addPropertyChangeListener(this);
 		
-		optionsTab.init(capLayout, parent0);
-		tabsPane.addTab("Options", null, optionsTab, "Select stack / change parameters reading file - beginning, end, step");
+		optionsTab.init(capLayout);
+		tabsPane.addTab("Options", null, optionsTab, "Parameters to read/analyze stack");
 		optionsTab.addPropertyChangeListener(this);
 		
+		listTab.init(capLayout, parent0);
+		tabsPane.addTab("List", null, listTab, "Define list of files");
+		listTab.addPropertyChangeListener(this);
+		
 		closeTab.init(capLayout, parent0);
-		tabsPane.addTab("Close", null, closeTab, "close file and associated windows");
+		tabsPane.addTab("Close", null, closeTab, "Close file and associated windows");
 		closeTab.addPropertyChangeListener(this);
 
 		tabsPane.setTabLayoutPolicy(JTabbedPane.SCROLL_TAB_LAYOUT);
@@ -53,8 +58,8 @@ public class SequencePane extends JPanel implements PropertyChangeListener {
 	public void propertyChange(PropertyChangeEvent event) {
 		if (event.getPropertyName().equals("SEQ_OPEN")) {
 			if (sequenceOpenFile(null)) {
-				optionsTab.experimentComboBox.removeAllItems();
-				optionsTab.experimentComboBox.addItem(parent0.vSequence.getFileName());
+				fileTab.experimentComboBox.removeAllItems();
+				fileTab.experimentComboBox.addItem(parent0.vSequence.getFileName());
 				updateParametersForSequence();
 				firePropertyChange("SEQ_OPEN", false, true);
 			}
@@ -62,18 +67,8 @@ public class SequencePane extends JPanel implements PropertyChangeListener {
 		else if (event.getPropertyName().equals("SEQ_ADD")) {
 			if (sequenceOpenFile(null)) {
 				String strItem = parent0.vSequence.getFileName();
-				int nitems = optionsTab.experimentComboBox.getItemCount();
-				boolean alreadystored = false;
-				for (int i=0; i < nitems; i++) {
-					if (strItem.equals(optionsTab.experimentComboBox.getItemAt(i))) {
-						alreadystored = true;
-						break;
-					}
-				}
-				if(!alreadystored) {
-					optionsTab.experimentComboBox.addItem(strItem);
-					optionsTab.experimentComboBox.setSelectedItem(strItem);
-				}
+				addFileToCombo(strItem);
+				fileTab.experimentComboBox.setSelectedItem(strItem);
 				updateParametersForSequence();
 				firePropertyChange("SEQ_OPEN", false, true);
 			}
@@ -86,17 +81,30 @@ public class SequencePane extends JPanel implements PropertyChangeListener {
 			v.requestFocus();
 		 }
 		 else if (event.getPropertyName().equals("SEQ_CHANGE")) {
-			String filename = (String) optionsTab.experimentComboBox.getSelectedItem();
+			String filename = (String) fileTab.experimentComboBox.getSelectedItem();
 			sequenceOpenFile(filename);
 			updateParametersForSequence();
 			firePropertyChange("SEQ_OPEN", false, true);
 		}
 		 else if (event.getPropertyName().equals("SEQ_CLOSE")) {
 			tabsPane.setSelectedIndex(0);
-			optionsTab.experimentComboBox.removeAllItems();
+			fileTab.experimentComboBox.removeAllItems();
 			firePropertyChange("SEQ_CLOSE", false, true);
-			
 		 }
+	}
+	
+	public void addFileToCombo(String strItem) {
+		int nitems = fileTab.experimentComboBox.getItemCount();
+		boolean alreadystored = false;
+		for (int i=0; i < nitems; i++) {
+			if (strItem.equals(fileTab.experimentComboBox.getItemAt(i))) {
+				alreadystored = true;
+				break;
+			}
+		}
+		if(!alreadystored) {
+			fileTab.experimentComboBox.addItem(strItem);
+		}
 	}
 	
 	// -------------------------

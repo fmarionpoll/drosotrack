@@ -28,10 +28,9 @@ import plugins.fmp.sequencevirtual.SequenceVirtual;
 // SequenceListener?
 public class Multicafe extends PluginActionable implements ViewerListener, PropertyChangeListener, SequenceListener
 {
-	//------------------------------------------- global variables
 	SequenceVirtual 			vSequence 			= null;
 	ArrayList <SequencePlus> 	kymographArrayList	= new ArrayList <SequencePlus> ();
-	IcyFrame 					mainFrame 			= new IcyFrame("MultiCAFE analysis 15-June-2019", true, true, true, true);
+	IcyFrame mainFrame = new IcyFrame("MultiCAFE analysis 15-June-2019", true, true, true, true);
 	
 	SequencePane 				sequencePane 		= new SequencePane();
 	CapillariesPane 			capillariesPane 	= new CapillariesPane();

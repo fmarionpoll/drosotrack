@@ -153,7 +153,7 @@ public class AreaAnalysisThread extends Thread
 					// load next image and compute threshold
 					vSequence.currentFrame = t;
 					viewer.setPositionT(t);
-					viewer.setTitle(vSequence.getVImageName(t));
+					viewer.setTitle(vSequence.getDecoratedImageName(t));
 
 					// ------------------------ compute global mask
 					IcyBufferedImage binaryMap = imgOp1.run();	

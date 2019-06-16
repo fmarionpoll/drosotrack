@@ -2,6 +2,13 @@ package plugins.fmp.sequencevirtual;
 
 import java.awt.image.BufferedImage;
 import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.attribute.FileTime;
+import java.time.LocalDateTime;
+import java.time.ZoneOffset;
 
 import icy.canvas.Canvas2D;
 import icy.gui.dialog.LoaderDialog;
@@ -231,7 +238,7 @@ public class SequenceVirtual extends Sequence
 		return 0d;
 	}
 
-	public String getVImageName(int t)
+	public String getDecoratedImageName(int t)
 	{
 		String csTitle = "["+t+ "/" + nTotalFrames + " V] : ";
 		if (status == Status.FILESTACK) 
@@ -631,7 +638,7 @@ public class SequenceVirtual extends Sequence
 	private void setVImageName(int t)
 	{
 		if (status == Status.FILESTACK)
-			setName(getVImageName(t));
+			setName(getDecoratedImageName(t));
 	}
 
 	public String getFileName() {
@@ -695,4 +702,16 @@ public class SequenceVirtual extends Sequence
 		return cages.xmlWriteCagesToFile("drosotrack.xml", getDirectory());
 	}
 	
+	public FileTime getImageModifiedTime (int t) {
+		String name = getFileName(t);
+		Path path = Paths.get(name);
+		FileTime fileTime;
+		try { fileTime = Files.getLastModifiedTime(path); }
+		catch (IOException e) {
+			System.err.println("Cannot get the last modified time - "+e+ "image "+ t+ " -- file "+ name);
+			return null;
+		}
+//		LocalDateTime loc = LocalDateTime.ofInstant(fileTime.toInstant(), ZoneOffset.UTC);
+		return fileTime;
+	}
 }

@@ -29,7 +29,7 @@ public class Capillaries {
 	public long analysisEnd = 0;
 	public int analysisStep = 1;
 	
-	private boolean xmlReadCapillaryParameters (Document doc) {
+	public boolean xmlReadCapillaryParameters (Document doc) {
 		String nodeName = "capillaryTrack";
 		// read local parameters
 		Node node = XMLUtil.getElement(XMLUtil.getRootElement(doc), nodeName);

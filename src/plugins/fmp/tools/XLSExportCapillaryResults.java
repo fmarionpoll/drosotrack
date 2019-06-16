@@ -4,6 +4,7 @@ import java.awt.Point;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.nio.file.attribute.FileTime;
 import java.util.ArrayList;
 
 import org.apache.poi.ss.SpreadsheetVersion;
@@ -19,6 +20,7 @@ import org.apache.poi.xssf.usermodel.XSSFPivotTable;
 import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
+import plugins.fmp.sequencevirtual.Experiment;
 import plugins.fmp.sequencevirtual.SequencePlus;
 import plugins.fmp.sequencevirtual.SequencePlusUtils;
 import plugins.fmp.sequencevirtual.SequenceVirtual;
@@ -27,8 +29,10 @@ import plugins.fmp.sequencevirtual.XYTaSeries;
 public class XLSExportCapillaryResults {
 
 	static SequenceVirtual 				vSequence = null;
-	static XLSExportOptions 	options = null;
+	static XLSExportOptions 			options = null;
 	static ArrayList<SequencePlus> 		kymographArrayList = null;
+	static FileTime						image0Time;
+	static long							longImage0Time;
 	
 	public static void exportToFile(String filename, XLSExportOptions opt) {
 		
@@ -270,6 +274,8 @@ public class XLSExportCapillaryResults {
 			pt = addLine(sheet, pt, transpose, XLSExperimentDescriptors.DUM2);
 			pt = addLine(sheet, pt, transpose, XLSExperimentDescriptors.DUM3);
 			pt = addLine(sheet, pt, transpose, XLSExperimentDescriptors.DUM4);
+			image0Time = vSequence.getImageModifiedTime(0);
+			longImage0Time = image0Time.toMillis();
 		}
 		
 		XLSUtils.setValue(sheet, pt, transpose, "rois"+charSeries);
@@ -285,6 +291,16 @@ public class XLSExportCapillaryResults {
 		return pt;
 	}
 
+	private static long getnearest(long diff, int step) {
+		long diff0 = (diff /step)*step;
+		long diff1 = diff0 + step;
+		if ((diff - diff0 ) < (diff1 - diff))
+			diff = diff0;
+		else
+			diff = diff1;
+		return diff;
+	}
+	
 	private static Point writeData (XSSFSheet sheet, XLSExportItems option, Point pt, boolean transpose, String charSeries, ArrayList <ArrayList<Integer >> dataArrayList) {
 		
 		double ratio = vSequence.capillaries.capillaryVolume / vSequence.capillaries.capillaryPixels;
@@ -299,14 +315,16 @@ public class XLSExportCapillaryResults {
 			pt0.y -= 4;
 		int j = 0;		
 
-		for (int t=startFrame; t < endFrame; t+= step, j++) {
+		for (int currentFrame=startFrame; currentFrame < endFrame; currentFrame+= step, j++) {
 			pt.x = 0;
 
-			XLSUtils.setValue(sheet, pt, transpose, charSeries+t);
+			FileTime imageTime = vSequence.getImageModifiedTime(currentFrame);
+			long diff = getnearest((imageTime.toMillis() - longImage0Time)/60000, step);
+			XLSUtils.setValue(sheet, pt, transpose, "t"+diff);
 			pt.x++;
 
 			if (vSequence.isFileStack()) {
-				String cs = vSequence.getFileName(t);
+				String cs = vSequence.getFileName(currentFrame);
 				XLSUtils.setValue(sheet, pt, transpose, cs.substring(cs.lastIndexOf("\\") + 1) );
 			}
 			pt.x++;

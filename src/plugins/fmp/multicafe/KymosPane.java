@@ -37,7 +37,7 @@ public class KymosPane extends JPanel implements PropertyChangeListener, ChangeL
 		this.parent0 = parent0;
 		final JPanel kymosPanel = GuiUtil.generatePanel(string);
 		mainPanel.add(GuiUtil.besidesPanel(kymosPanel));
-		GridLayout capLayout = new GridLayout(3, 2);
+		GridLayout capLayout = new GridLayout(3, 1);
 		
 		limitsTab.init(capLayout, parent0);
 		limitsTab.addPropertyChangeListener(this);

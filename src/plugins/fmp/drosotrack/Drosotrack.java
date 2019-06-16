@@ -1057,7 +1057,7 @@ public class Drosotrack extends PluginActionable implements ActionListener, View
 						
 						vSequence.currentFrame = t;
 						v.setPositionT(t);
-						v.setTitle(vSequence.getVImageName(t));
+						v.setTitle(vSequence.getDecoratedImageName(t));
 						if (workImage == null) {
 							// try another time
 							System.out.println("Error reading image: " + t + " ... trying again"  );

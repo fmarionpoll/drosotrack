@@ -6,6 +6,7 @@ import java.awt.event.ActionListener;
 
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
+import javax.swing.JComboBox;
 import javax.swing.JPanel;
 
 import icy.gui.util.GuiUtil;
@@ -22,14 +23,23 @@ public class SequenceTab_Open extends JPanel implements ActionListener {
 	private JCheckBox	cagesCheckBox		= new JCheckBox("cages", true);
 	private JCheckBox	kymographsCheckBox	= new JCheckBox("kymographs", true);
 	private JCheckBox	measuresCheckBox	= new JCheckBox("measures", true);
+	public JComboBox<String> experimentComboBox	= new JComboBox<String>();
+	public boolean disableChangeFile = false;
+	private Multicafe parent0 = null;
+
 	
-	
-	public void init(GridLayout capLayout) {
+	public void init(GridLayout capLayout, Multicafe parent0) {
 		setLayout(capLayout);
+		this.parent0 = parent0;
+		
 		add( GuiUtil.besidesPanel(setVideoSourceButton, addVideoSourceButton));
 		add( GuiUtil.besidesPanel(capillariesCheckBox, kymographsCheckBox, cagesCheckBox, measuresCheckBox));
+              
+		add( GuiUtil.besidesPanel(experimentComboBox));
+		
 		setVideoSourceButton.addActionListener(this);
 		addVideoSourceButton.addActionListener(this);
+		experimentComboBox.addActionListener(this);
 	}
 	
 	@Override
@@ -40,6 +50,15 @@ public class SequenceTab_Open extends JPanel implements ActionListener {
 		}
 		else if ( o == addVideoSourceButton) {
 			firePropertyChange("SEQ_ADD", false, true);
+		}
+		else if ( o == experimentComboBox) {
+			if (experimentComboBox.getItemCount() == 0 || parent0.vSequence == null || disableChangeFile)
+				return;
+			String newtext = (String) experimentComboBox.getSelectedItem();
+			String oldtext = parent0.vSequence.getFileName();
+			if (!newtext.equals(oldtext)) {
+				firePropertyChange("SEQ_CHANGE", false, true);
+			}
 		}
 	}
 

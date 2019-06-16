@@ -33,7 +33,7 @@ public class MovePane extends JPanel implements PropertyChangeListener, ChangeLi
 		this.parent0 = parent0;
 		final JPanel panel = GuiUtil.generatePanel(string);
 		mainPanel.add(GuiUtil.besidesPanel(panel));
-		GridLayout capLayout = new GridLayout(5, 2);
+		GridLayout capLayout = new GridLayout(4, 1);
 		
 		buildROIsTab.init(capLayout, parent0);
 		buildROIsTab.addPropertyChangeListener(this);
@@ -46,11 +46,11 @@ public class MovePane extends JPanel implements PropertyChangeListener, ChangeLi
 		filesTab.init(capLayout, parent0);
 		filesTab.addPropertyChangeListener(this);
 		tabsPane.addTab("Load/Save", null, filesTab, "Load/save cages and flies position");
-		graphicsTab.init(capLayout, parent0);
 		
-		tabsPane.addTab("Graphs", null, graphicsTab, "Display results as graphics");
+		graphicsTab.init(capLayout, parent0);		
 		graphicsTab.addPropertyChangeListener(this);
-
+		tabsPane.addTab("Graphs", null, graphicsTab, "Display results as graphics");
+		
 		tabsPane.setTabLayoutPolicy(JTabbedPane.SCROLL_TAB_LAYOUT);
 		panel.add(GuiUtil.besidesPanel(tabsPane));
 		tabsPane.setSelectedIndex(0);
