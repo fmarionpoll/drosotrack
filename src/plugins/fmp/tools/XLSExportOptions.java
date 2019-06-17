@@ -10,6 +10,7 @@ public class XLSExportOptions {
 	public boolean distance 		= false;
 	public boolean alive 			= true;
 	
+	public boolean topLevelDelta	= true;
 	public boolean topLevel 		= true; 
 	public boolean bottomLevel 		= false; 
 	public boolean derivative 		= false; 

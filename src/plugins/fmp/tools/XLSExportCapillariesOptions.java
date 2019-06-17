@@ -2,6 +2,8 @@ package plugins.fmp.tools;
 
 import java.util.ArrayList;
 
+import plugins.fmp.sequencevirtual.Experiment;
+
 public class XLSExportCapillariesOptions {
 	public boolean topLevel 		= true; 
 	public boolean bottomLevel 		= false; 

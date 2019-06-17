@@ -58,6 +58,17 @@ public class XLSExportCapillaryResults {
 						xlsExportCapillaryDataToWorkbook(workbook, "toplevel_alive", XLSExportItems.TOPLEVEL, row0, charSeries, arrayList);
 					}
 				}
+				
+				if (options.topLevelDelta) {
+					ArrayList <ArrayList<Integer >> arrayList = getDataFromRois(XLSExportItems.TOPLEVELDELTA, options.t0);	
+					rowmax = xlsExportCapillaryDataToWorkbook(workbook, "topdelta", XLSExportItems.TOPLEVELDELTA, row0, charSeries, arrayList);
+					if (options.onlyalive) {
+						arrayList = trimDeadsFromArrayList(arrayList);
+						xlsExportCapillaryDataToWorkbook(workbook, "topdelta_alive", XLSExportItems.TOPLEVELDELTA, row0, charSeries, arrayList);
+					}
+				}
+
+				
 				if (options.bottomLevel) {
 					ArrayList <ArrayList<Integer >> arrayList = getDataFromRois(XLSExportItems.BOTTOMLEVEL, options.t0);	
 					rowmax = xlsExportCapillaryDataToWorkbook(workbook, "bottomlevel", XLSExportItems.BOTTOMLEVEL, row0, charSeries, arrayList);
@@ -110,10 +121,15 @@ public class XLSExportCapillaryResults {
 		return true;
 	}
 	
-	private static ArrayList <ArrayList<Integer>> getDataFromRois(XLSExportItems xlsoption, boolean relative) {
+	private static ArrayList <ArrayList<Integer>> getDataFromRois(XLSExportItems xlsoption, boolean optiont0) {
 		ArrayList <ArrayList<Integer >> resultsArrayList = new ArrayList <ArrayList<Integer >> ();
+		
 		for (SequencePlus seq: kymographArrayList) {
 			switch (xlsoption) {
+			case TOPLEVELDELTA:
+				resultsArrayList.add(seq.getArrayListFromRois(ArrayListType.topLevel));
+				deltaT(resultsArrayList);
+				break;
 			case DERIVEDVALUES:
 				resultsArrayList.add(seq.getArrayListFromRois(ArrayListType.derivedValues));
 				break;
@@ -132,19 +148,37 @@ public class XLSExportCapillaryResults {
 			}
 		}
 		
-		if (relative && resultsArrayList.size() > 0) {
-			for (ArrayList<Integer> array : resultsArrayList) {
-				if (array == null || array.size() < 1)
-					continue;
-				int item0 = array.get(0);
-				int i=0;
-				for (int item: array) {
-					array.set(i, item-item0);
-					i++;
-				}
-			}
+		if (optiont0) {
+			subtractT0(resultsArrayList);
 		}		
 		return resultsArrayList;
+	}
+	
+	private static void subtractT0(ArrayList <ArrayList<Integer >> resultsArrayList) {
+		for (ArrayList<Integer> array : resultsArrayList) {
+			if (array == null || array.size() < 1)
+				continue;
+			int item0 = array.get(0);
+			int i=0;
+			for (int item: array) {
+				array.set(i, item-item0);
+				i++;
+			}
+		}
+	}
+	
+	private static void deltaT(ArrayList <ArrayList<Integer >> resultsArrayList) {
+		for (ArrayList<Integer> array : resultsArrayList) {
+			if (array == null || array.size() < 1)
+				continue;
+			int item0 = array.get(0);
+			int i=0;
+			for (int item: array) {
+				array.set(i, item-item0);
+				item0 = item;
+				i++;
+			}
+		}
 	}
 	
 	private static ArrayList <ArrayList<Integer>> trimDeadsFromArrayList(ArrayList <ArrayList<Integer >> resultsArrayList) {
