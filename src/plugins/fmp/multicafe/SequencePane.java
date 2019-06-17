@@ -57,7 +57,13 @@ public class SequencePane extends JPanel implements PropertyChangeListener {
 	@Override
 	public void propertyChange(PropertyChangeEvent event) {
 		if (event.getPropertyName().equals("SEQ_OPEN")) {
-			if (sequenceOpenFile(null)) {
+			if (parent0.vSequence== null) {
+				String filename = (String) fileTab.experimentComboBox.getSelectedItem();
+				sequenceCreateNew(filename);
+				updateParametersForSequence();
+				firePropertyChange("SEQ_OPEN", false, true);
+			}
+			else if (sequenceCreateNew(null)) {
 				fileTab.experimentComboBox.removeAllItems();
 				fileTab.experimentComboBox.addItem(parent0.vSequence.getFileName());
 				updateParametersForSequence();
@@ -65,9 +71,9 @@ public class SequencePane extends JPanel implements PropertyChangeListener {
 			}
 		}
 		else if (event.getPropertyName().equals("SEQ_ADD")) {
-			if (sequenceOpenFile(null)) {
+			if (sequenceCreateNew(null)) {
 				String strItem = parent0.vSequence.getFileName();
-				addFileToCombo(strItem);
+				sequenceAddtoCombo(strItem);
 				fileTab.experimentComboBox.setSelectedItem(strItem);
 				updateParametersForSequence();
 				firePropertyChange("SEQ_OPEN", false, true);
@@ -82,7 +88,7 @@ public class SequencePane extends JPanel implements PropertyChangeListener {
 		 }
 		 else if (event.getPropertyName().equals("SEQ_CHANGE")) {
 			String filename = (String) fileTab.experimentComboBox.getSelectedItem();
-			sequenceOpenFile(filename);
+			sequenceCreateNew(filename);
 			updateParametersForSequence();
 			firePropertyChange("SEQ_OPEN", false, true);
 		}
@@ -93,7 +99,7 @@ public class SequencePane extends JPanel implements PropertyChangeListener {
 		 }
 	}
 	
-	public void addFileToCombo(String strItem) {
+	public void sequenceAddtoCombo(String strItem) {
 		int nitems = fileTab.experimentComboBox.getItemCount();
 		boolean alreadystored = false;
 		for (int i=0; i < nitems; i++) {
@@ -118,7 +124,7 @@ public class SequencePane extends JPanel implements PropertyChangeListener {
 		parent0.vSequence.vImageBufferThread_START(100); //numberOfImageForBuffer);
 	}
 	
-	public boolean sequenceOpenFile(String filename) {
+	public boolean sequenceCreateNew (String filename) {
 		if (parent0.vSequence != null)
 			parent0.vSequence.close();		
 		parent0.vSequence = new SequenceVirtual();

@@ -135,7 +135,7 @@ public class SequenceTab_List  extends JPanel implements ActionListener, IcyFram
 		for (String csFileName : allItems) {
 			final Document doc = XMLUtil.loadDocument(csFileName);
 			dummyCap.xmlReadCapillaryParameters(doc);
-			parent0.sequencePane.addFileToCombo(dummyCap.sourceName);
+			parent0.sequencePane.sequenceAddtoCombo(dummyCap.sourceName);
 		}
 		parent0.sequencePane.fileTab.disableChangeFile = false;
 	}
