@@ -57,18 +57,11 @@ public class SequencePane extends JPanel implements PropertyChangeListener {
 	@Override
 	public void propertyChange(PropertyChangeEvent event) {
 		if (event.getPropertyName().equals("SEQ_OPEN")) {
-			if (parent0.vSequence== null) {
-				String filename = (String) fileTab.experimentComboBox.getSelectedItem();
-				sequenceCreateNew(filename);
-				updateParametersForSequence();
-				firePropertyChange("SEQ_OPEN", false, true);
-			}
-			else if (sequenceCreateNew(null)) {
-				fileTab.experimentComboBox.removeAllItems();
-				fileTab.experimentComboBox.addItem(parent0.vSequence.getFileName());
-				updateParametersForSequence();
-				firePropertyChange("SEQ_OPEN", false, true);
-			}
+			String filename = (String) fileTab.experimentComboBox.getSelectedItem();
+			sequenceCreateNew(filename);
+			updateParametersForSequence();
+			sequenceAddtoCombo(parent0.vSequence.getFileName());
+			firePropertyChange("SEQ_OPEN", false, true);
 		}
 		else if (event.getPropertyName().equals("SEQ_ADD")) {
 			if (sequenceCreateNew(null)) {
@@ -86,12 +79,6 @@ public class SequencePane extends JPanel implements PropertyChangeListener {
 			v.toFront();
 			v.requestFocus();
 		 }
-		 else if (event.getPropertyName().equals("SEQ_CHANGE")) {
-			String filename = (String) fileTab.experimentComboBox.getSelectedItem();
-			sequenceCreateNew(filename);
-			updateParametersForSequence();
-			firePropertyChange("SEQ_OPEN", false, true);
-		}
 		 else if (event.getPropertyName().equals("SEQ_CLOSE")) {
 			tabsPane.setSelectedIndex(0);
 			fileTab.experimentComboBox.removeAllItems();

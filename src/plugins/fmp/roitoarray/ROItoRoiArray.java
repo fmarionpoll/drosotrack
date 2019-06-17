@@ -1189,11 +1189,13 @@ public class ROItoRoiArray extends EzPlug implements ViewerListener {
 	private void openXMLFile() {
 		vSequence.removeAllROI();
 		vSequence.capillaries.xmlReadROIsAndData(vSequence);
+//		vSequence.cages.xmlReadCagesFromFile(vSequence);
 	}
 	
 	private void saveXMLFile() {
 		vSequence.capillaries.capillariesGrouping = 1;
-		vSequence.capillaries.xmlWriteROIsAndData("roisarray.xml", vSequence);
+		vSequence.capillaries.xmlWriteROIsAndDataNoFilter("roisarray.xml", vSequence);
+//		vSequence.cages.xmlWriteCagesToFile("roisarray.xml", vSequence.getDirectory());
 	}
 	
 	private void changeGridName() {

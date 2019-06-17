@@ -57,7 +57,7 @@ public class SequenceTab_Open extends JPanel implements ActionListener {
 			String newtext = (String) experimentComboBox.getSelectedItem();
 			String oldtext = parent0.vSequence.getFileName();
 			if (!newtext.equals(oldtext)) {
-				firePropertyChange("SEQ_CHANGE", false, true);
+				firePropertyChange("SEQ_OPEN", false, true);
 			}
 		}
 	}

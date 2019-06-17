@@ -140,6 +140,30 @@ public class Capillaries {
 		return false;
 	}
 	
+	public boolean xmlWriteROIsAndDataNoFilter(String name, SequenceVirtual seq) {
+
+		String csFile = Tools.saveFileAs(name, seq.getDirectory(), "xml");
+		csFile.toLowerCase();
+		if (!csFile.contains(".xml")) {
+			csFile += ".xml";
+		}
+		if (capillariesArrayList.size() > 0)
+		{
+			final Document doc = XMLUtil.createDocument(true);
+			if (doc != null)
+			{
+				List<ROI> roisList = new ArrayList<ROI>();
+				for (ROI roi: capillariesArrayList)
+					roisList.add(roi);
+				ROI.saveROIsToXML(XMLUtil.getRootElement(doc), roisList);
+				xmlWriteCapillaryParameters (doc, seq);
+				XMLUtil.saveDocument(doc, csFile);
+				return true;
+			}
+		}
+		return false;
+	}
+	
 	public boolean xmlReadROIsAndData(SequenceVirtual seq) {
 
 		String [] filedummy = null;

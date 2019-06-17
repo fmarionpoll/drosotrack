@@ -23,18 +23,17 @@ import javax.swing.JTextField;
 import javax.swing.ListSelectionModel;
 import javax.swing.ScrollPaneConstants;
 
+import org.apache.commons.io.FilenameUtils;
 import org.w3c.dom.Document;
 
 import icy.gui.frame.IcyFrame;
-import icy.gui.frame.IcyFrameEvent;
-import icy.gui.frame.IcyFrameListener;
 import icy.gui.util.GuiUtil;
 import icy.preferences.XMLPreferences;
 import icy.util.XMLUtil;
 import plugins.fmp.sequencevirtual.Capillaries;
 import plugins.fmp.tools.Tools;
 
-public class SequenceTab_List  extends JPanel implements ActionListener, IcyFrameListener {
+public class SequenceTab_List  extends JPanel {
 	
 	/**
 	 * 
@@ -44,6 +43,7 @@ public class SequenceTab_List  extends JPanel implements ActionListener, IcyFram
 	public JTabbedPane 	tabsPane 	= new JTabbedPane();
 	public JTextField 	filterTextField 	= new JTextField("capillarytrack");
 	public JButton 		findButton			= new JButton("Select root directory and search...");
+	
 	public JButton 		clearSelectedButton	= new JButton("Clear selected");
 	public JButton 		clearAllButton		= new JButton("Clear all");
 	public JButton 		addSelectedButton	= new JButton("Add selected");
@@ -52,14 +52,33 @@ public class SequenceTab_List  extends JPanel implements ActionListener, IcyFram
 	IcyFrame mainFrame = null;
 	
 	
-	public JButton	showButton = new JButton("show dialog");
+	public JButton		showButton = new JButton("show dialog");
+	public JButton		closeButton			= new JButton("Close seach");
 	private Multicafe 	parent0 	= null;
 		
 	public void init (GridLayout capLayout,  Multicafe parent0) {
 		this.parent0 = parent0;
 		setLayout(capLayout);
-		add(GuiUtil.besidesPanel(showButton));
-		showButton.addActionListener(this);
+		add(GuiUtil.besidesPanel(showButton, closeButton));
+		showButton.addActionListener(new ActionListener()  {
+            @Override
+            public void actionPerformed(ActionEvent arg0)
+            {
+            	showDialog();
+            }
+        });
+		
+		closeButton.addActionListener(new ActionListener()  {
+            @Override
+            public void actionPerformed(ActionEvent arg0)
+            {
+            	closeDialog();
+            }
+        });
+	}
+	
+	private void closeDialog() {
+		mainFrame.close();
 	}
 	
 	private void showDialog() {
@@ -84,58 +103,78 @@ public class SequenceTab_List  extends JPanel implements ActionListener, IcyFram
 		mainPanel.add(GuiUtil.besidesPanel(clearSelectedButton, clearAllButton));
 		mainPanel.add(GuiUtil.besidesPanel(addSelectedButton, addAllButton));
 		
-		findButton.addActionListener(this);
-		clearSelectedButton.addActionListener(this);
-		clearAllButton.addActionListener(this);
-		addSelectedButton.addActionListener(this);
-		addAllButton.addActionListener(this);
+		addActionListeners();
 		
 		mainFrame.pack();
+		mainFrame.addToDesktopPane();
+		mainFrame.requestFocus();
 		mainFrame.center();
 		mainFrame.setVisible(true);
-		mainFrame.addToDesktopPane();
-		mainFrame.center();
-		mainFrame.addFrameListener( this );
 	}
 	
-	@Override
-	public void actionPerformed(ActionEvent e) {
-		Object o = e.getSource();
-		if (o == findButton) {
-			getListofFiles();	
-		}
-		else if (o == clearSelectedButton) {
-			List<String> selectedItems = xmlFilesJList.getSelectedValuesList();
-		    removeList (selectedItems);
-		}
-		else if (o == clearAllButton) {
-			((DefaultListModel<String>) xmlFilesJList.getModel()).removeAllElements();
-		}
-		else if (o == showButton) {
-			showDialog();
-		}
-		else if (o == addSelectedButton) {
-			List<String> selectedItems = xmlFilesJList.getSelectedValuesList();
-			addJPGFilesToCombo(selectedItems);
-			removeList(selectedItems);
-		}
-		else if (o == addAllButton) {
-			
-			List<String> allItems = new ArrayList <String> ();
-			for(int i = 0; i< xmlFilesJList.getModel().getSize();i++)
-			    allItems.add(xmlFilesJList.getModel().getElementAt(i));
-			addJPGFilesToCombo(allItems);
-			((DefaultListModel<String>) xmlFilesJList.getModel()).removeAllElements();
-		}
+	void addActionListeners() {
+		findButton.addActionListener(new ActionListener()  {
+            @Override
+            public void actionPerformed(ActionEvent arg0)
+            {
+            	findButton.setEnabled(false);
+    			final String pattern = filterTextField.getText();
+    			getListofFilesMatchingPattern(pattern);
+    			findButton.setEnabled(true);
+            }
+        });
+		
+		clearSelectedButton.addActionListener(new ActionListener()  {
+            @Override
+            public void actionPerformed(ActionEvent arg0)
+            {
+            	List<String> selectedItems = xmlFilesJList.getSelectedValuesList();
+    		    removeList (selectedItems);
+            }
+        });
+		
+		clearAllButton.addActionListener(new ActionListener()  {
+            @Override
+            public void actionPerformed(ActionEvent arg0)
+            {
+            	((DefaultListModel<String>) xmlFilesJList.getModel()).removeAllElements();
+            }
+        });
+		
+		addSelectedButton.addActionListener(new ActionListener()  {
+            @Override
+            public void actionPerformed(ActionEvent arg0)
+            {
+            	List<String> selectedItems = xmlFilesJList.getSelectedValuesList();
+    			addJPGFilesToCombo(selectedItems);
+    			removeList(selectedItems);
+            }
+        });
+		
+		addAllButton.addActionListener(new ActionListener()  {
+            @Override
+            public void actionPerformed(ActionEvent arg0)
+            {
+    			List<String> allItems = new ArrayList <String> ();
+    			for(int i = 0; i< xmlFilesJList.getModel().getSize();i++)
+    			    allItems.add(xmlFilesJList.getModel().getElementAt(i));
+    			addJPGFilesToCombo(allItems);
+    			((DefaultListModel<String>) xmlFilesJList.getModel()).removeAllElements();
+            }
+        });
+		
 	}
-	
+		
 	private void addJPGFilesToCombo(List<String> allItems) {
 		parent0.sequencePane.fileTab.disableChangeFile = true;
-		Capillaries dummyCap = new Capillaries();
 		for (String csFileName : allItems) {
+			String directory = Paths.get(csFileName).getParent().toString();
+			
+			Capillaries dummyCap = new Capillaries();
 			final Document doc = XMLUtil.loadDocument(csFileName);
 			dummyCap.xmlReadCapillaryParameters(doc);
-			parent0.sequencePane.sequenceAddtoCombo(dummyCap.sourceName);
+			String filename = FilenameUtils.getName(dummyCap.sourceName);
+			parent0.sequencePane.sequenceAddtoCombo(directory+ "/"+ filename);
 		}
 		parent0.sequencePane.fileTab.disableChangeFile = false;
 	}
@@ -145,7 +184,7 @@ public class SequenceTab_List  extends JPanel implements ActionListener, IcyFram
 	    	 ((DefaultListModel<String>) xmlFilesJList.getModel()).removeElement(oo);
 	}
 	
-	private void getListofFiles() {
+	private void getListofFilesMatchingPattern(String pattern) {
 		
 		XMLPreferences guiPrefs = parent0.getPreferences("gui");
 		String lastUsedPathString = guiPrefs.get("lastUsedPath", "");
@@ -156,14 +195,13 @@ public class SequenceTab_List  extends JPanel implements ActionListener, IcyFram
 		lastUsedPathString = dir.getAbsolutePath();
 		guiPrefs.put("lastUsedPath", lastUsedPathString);
 		Path pdir = Paths.get(lastUsedPathString);
-		String extension = filterTextField.getText();
-		
+				
 		try {
 			Files.walk(pdir)
 			.filter(Files::isRegularFile)
 			.forEach((f)->{
 			    String fileName = f.toString();
-			    if( fileName.contains(extension)) {
+			    if( fileName.contains(pattern)) {
 			    	addIfNew(fileName);
 			    }
 			});
@@ -175,6 +213,7 @@ public class SequenceTab_List  extends JPanel implements ActionListener, IcyFram
 	private void addIfNew(String fileName) {
 		
 		fileName = fileName.toLowerCase();
+		
 		int ilast = ((DefaultListModel<String>) xmlFilesJList.getModel()).getSize();
 		boolean found = false;
 		for (int i=0; i < ilast; i++)
@@ -187,60 +226,6 @@ public class SequenceTab_List  extends JPanel implements ActionListener, IcyFram
 		}
 		if (!found)
 			((DefaultListModel<String>) xmlFilesJList.getModel()).addElement(fileName);
-	}
-
-
-	@Override
-	public void icyFrameOpened(IcyFrameEvent e) {
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
-	public void icyFrameClosing(IcyFrameEvent e) {
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
-	public void icyFrameClosed(IcyFrameEvent e) {
-		mainFrame = null;		
-	}
-
-	@Override
-	public void icyFrameIconified(IcyFrameEvent e) {
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
-	public void icyFrameDeiconified(IcyFrameEvent e) {
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
-	public void icyFrameActivated(IcyFrameEvent e) {
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
-	public void icyFrameDeactivated(IcyFrameEvent e) {
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
-	public void icyFrameInternalized(IcyFrameEvent e) {
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
-	public void icyFrameExternalized(IcyFrameEvent e) {
-		// TODO Auto-generated method stub
-		
 	}
 
 }
