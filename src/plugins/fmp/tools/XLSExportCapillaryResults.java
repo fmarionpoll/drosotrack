@@ -17,6 +17,7 @@ import org.apache.poi.ss.util.CellAddress;
 import org.apache.poi.ss.util.CellReference;
 import org.apache.poi.xssf.usermodel.XSSFCell;
 import org.apache.poi.xssf.usermodel.XSSFPivotTable;
+import org.apache.poi.xssf.usermodel.XSSFRow;
 import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
@@ -32,7 +33,9 @@ public class XLSExportCapillaryResults {
 	static XLSExportOptions 			options = null;
 	static ArrayList<SequencePlus> 		kymographArrayList = null;
 	static FileTime						image0Time;
-	static long							longImage0Time;
+	static long							image0TimeMinutes;
+	static FileTime	 firstImageTime; ;
+	static long	firstImageTimeMinutes;
 	
 	public static void exportToFile(String filename, XLSExportOptions opt) {
 		
@@ -42,62 +45,28 @@ public class XLSExportCapillaryResults {
 		try { 
 			XSSFWorkbook workbook = new XSSFWorkbook(); 
 			workbook.setMissingCellPolicy(Row.MissingCellPolicy.CREATE_NULL_AS_BLANK);
-			int row0 = 0;
-			int rowmax = 0;
+			int col0 = 0;
+			int colmax = 0;
 			int iSeries = 0;
 			for (Experiment exp: options.experimentList) 
 			{
 				openSequenceAndMeasures(exp.filename);
 
 				String charSeries = CellReference.convertNumToColString(iSeries);
-				if (options.topLevel) {
-					ArrayList <ArrayList<Integer >> arrayList = getDataFromRois(XLSExportItems.TOPLEVEL, options.t0);	
-					rowmax = xlsExportCapillaryDataToWorkbook(workbook, "toplevel", XLSExportItems.TOPLEVEL, row0, charSeries, arrayList);
-					if (options.onlyalive) {
-						arrayList = trimDeadsFromArrayList(arrayList);
-						xlsExportCapillaryDataToWorkbook(workbook, "toplevel_alive", XLSExportItems.TOPLEVEL, row0, charSeries, arrayList);
-					}
-				}
 				
-				if (options.topLevelDelta) {
-					ArrayList <ArrayList<Integer >> arrayList = getDataFromRois(XLSExportItems.TOPLEVELDELTA, options.t0);	
-					rowmax = xlsExportCapillaryDataToWorkbook(workbook, "topdelta", XLSExportItems.TOPLEVELDELTA, row0, charSeries, arrayList);
-					if (options.onlyalive) {
-						arrayList = trimDeadsFromArrayList(arrayList);
-						xlsExportCapillaryDataToWorkbook(workbook, "topdelta_alive", XLSExportItems.TOPLEVELDELTA, row0, charSeries, arrayList);
-					}
-				}
+				if (options.topLevel) 		colmax = getDataAndExport(workbook, col0, charSeries, XLSExportItems.TOPLEVEL);
+				if (options.topLevelDelta) 	colmax = getDataAndExport(workbook, col0, charSeries, XLSExportItems.TOPLEVELDELTA);
+				if (options.bottomLevel) 	colmax = getDataAndExport(workbook, col0, charSeries, XLSExportItems.BOTTOMLEVEL);		
+				if (options.derivative) 	colmax = getDataAndExport(workbook, col0, charSeries, XLSExportItems.DERIVEDVALUES);	
+				if (options.consumption) 	colmax = getDataAndExport(workbook, col0, charSeries, XLSExportItems.SUMGULPS);
+				if (options.sum) 			colmax = getDataAndExport(workbook, col0, charSeries, XLSExportItems.SUMLR);
 
-				
-				if (options.bottomLevel) {
-					ArrayList <ArrayList<Integer >> arrayList = getDataFromRois(XLSExportItems.BOTTOMLEVEL, options.t0);	
-					rowmax = xlsExportCapillaryDataToWorkbook(workbook, "bottomlevel", XLSExportItems.BOTTOMLEVEL, row0, charSeries, arrayList);
-				}
-				if (options.derivative) {
-					ArrayList <ArrayList<Integer >> arrayList = getDataFromRois(XLSExportItems.DERIVEDVALUES, options.t0);	
-					rowmax = xlsExportCapillaryDataToWorkbook(workbook, "derivative", XLSExportItems.DERIVEDVALUES, row0, charSeries, arrayList);
-				}
-				if (options.consumption) {
-					ArrayList <ArrayList<Integer >> arrayList = getDataFromRois(XLSExportItems.SUMGULPS, options.t0);	
-					rowmax = xlsExportCapillaryDataToWorkbook(workbook, "sumGulps", XLSExportItems.SUMGULPS, row0, charSeries, arrayList);
-					if (options.onlyalive) {
-						arrayList = trimDeadsFromArrayList(arrayList);
-						xlsExportCapillaryDataToWorkbook(workbook, "sumGulps_alive", XLSExportItems.SUMGULPS, row0, charSeries, arrayList);
-					}
-				}
-				if (options.sum) {
-					ArrayList <ArrayList<Integer >> arrayList = getDataFromRois(XLSExportItems.SUMLR, options.t0);	
-					rowmax = xlsExportCapillaryDataToWorkbook(workbook, "sumL+R", XLSExportItems.SUMLR, row0, charSeries, arrayList);
-					if (options.onlyalive) {
-						arrayList = trimDeadsFromArrayList(arrayList);
-						xlsExportCapillaryDataToWorkbook(workbook, "sumL+R_alive", XLSExportItems.SUMLR, row0, charSeries, arrayList);
-					}
-				}
-				row0 = rowmax;
+				col0 = colmax;
 				iSeries++;
 			}
+			
 			if (options.topLevel && options.transpose && options.pivot) 
-				xlsCreatePivotTables(workbook, "toplevel", rowmax);
+				xlsCreatePivotTables(workbook, "toplevel", colmax);
 				
 			FileOutputStream fileOut = new FileOutputStream(filename);
 			workbook.write(fileOut);
@@ -107,6 +76,17 @@ public class XLSExportCapillaryResults {
 			e.printStackTrace();
 		}
 		System.out.println("XLS output finished");
+	}
+	
+	private static int getDataAndExport(XSSFWorkbook workbook, int col0, String charSeries, XLSExportItems datatype) {
+		
+		ArrayList <ArrayList<Integer >> arrayList = getDataFromRois(datatype, options.t0);	
+		int colmax = xlsExportCapillaryDataToWorkbook(workbook, datatype.toString(), datatype, col0, charSeries, arrayList);
+		if (options.onlyalive) {
+			arrayList = trimDeadsFromArrayList(arrayList);
+			xlsExportCapillaryDataToWorkbook(workbook, datatype.toString()+"_alive", datatype, col0, charSeries, arrayList);
+		}
+		return colmax;
 	}
 	
 	public static boolean openSequenceAndMeasures(String filename) {
@@ -128,7 +108,7 @@ public class XLSExportCapillaryResults {
 			switch (xlsoption) {
 			case TOPLEVELDELTA:
 				resultsArrayList.add(seq.getArrayListFromRois(ArrayListType.topLevel));
-				deltaT(resultsArrayList);
+				subtractTi(resultsArrayList);
 				break;
 			case DERIVEDVALUES:
 				resultsArrayList.add(seq.getArrayListFromRois(ArrayListType.derivedValues));
@@ -167,14 +147,14 @@ public class XLSExportCapillaryResults {
 		}
 	}
 	
-	private static void deltaT(ArrayList <ArrayList<Integer >> resultsArrayList) {
+	private static void subtractTi(ArrayList <ArrayList<Integer >> resultsArrayList) {
 		for (ArrayList<Integer> array : resultsArrayList) {
 			if (array == null || array.size() < 1)
 				continue;
 			int item0 = array.get(0);
 			int i=0;
 			for (int item: array) {
-				array.set(i, item-item0);
+				array.set(i, item0-item);
 				item0 = item;
 				i++;
 			}
@@ -211,7 +191,7 @@ public class XLSExportCapillaryResults {
 		return array;
 	}
 	
-	private static int xlsExportCapillaryDataToWorkbook(XSSFWorkbook workBook, String title, XLSExportItems xlsoption, int row0, String charSeries, ArrayList <ArrayList<Integer >> arrayList) {
+	private static int xlsExportCapillaryDataToWorkbook(XSSFWorkbook workBook, String title, XLSExportItems xlsoption, int col0, String charSeries, ArrayList <ArrayList<Integer >> arrayList) {
 		System.out.println("export worksheet "+title);	
 		
 		XSSFSheet sheet = workBook.getSheet(title );
@@ -219,16 +199,16 @@ public class XLSExportCapillaryResults {
 		if (flag)
 			sheet = workBook.createSheet(title);
 		
-		Point pt = writeGlobalInfos(sheet, row0, options.transpose, charSeries);
-		pt = writeColumnHeaders(sheet, xlsoption, pt, options.transpose, charSeries);
+		Point pt = writeGlobalInfos(sheet, col0, options.transpose);
+		pt = writeHeader(sheet, xlsoption, pt, options.transpose, charSeries);
 		pt = writeData(sheet, xlsoption, pt, options.transpose, charSeries, arrayList);
-		return pt.y;
+		return pt.x;
 	}
 	
-	private static Point writeGlobalInfos(XSSFSheet sheet, int row0, boolean transpose, String charSeries) {
-		Point pt = new Point(0, row0);
+	private static Point writeGlobalInfos(XSSFSheet sheet, int col0, boolean transpose) {
+		Point pt = new Point(col0, 0);
 
-		XLSUtils.setValue(sheet, pt, transpose, "expt"+charSeries);
+		XLSUtils.setValue(sheet, pt, transpose, "expt");
 		pt.x++;
 		File file = new File(vSequence.getFileName(0));
 		String path = file.getParent();
@@ -241,21 +221,22 @@ public class XLSExportCapillaryResults {
 		XLSUtils.setValue(sheet, pt, transpose, "pixels" );
 		pt.y++;
 		
-		pt.x = 0;
-		XLSUtils.setValue(sheet, pt, transpose, "scale"+charSeries);
+		pt.x = col0;
+		XLSUtils.setValue(sheet, pt, transpose, "scale");
 		pt.x++;
 		XLSUtils.setValue(sheet, pt, transpose, "capillary" );
 		pt.x++;
 		XLSUtils.setValue(sheet, pt, transpose, vSequence.capillaries.capillaryVolume);
 		pt.x++;
 		XLSUtils.setValue(sheet, pt, transpose, vSequence.capillaries.capillaryPixels);
-		pt.x = 0;
+		pt.x = col0;
 		pt.y++;
 		
 		return pt;
 	}
 
-	public static Point addLine(XSSFSheet sheet, Point pt, boolean transpose, XLSExperimentDescriptors desc) {
+	public static Point addLineToHeader(XSSFSheet sheet, Point pt, boolean transpose, XLSExperimentDescriptors desc) {
+		int col0 = pt.x;
 		XLSUtils.setValue(sheet, pt, transpose, desc.toString());
 		pt.x++;
 		pt.x++;
@@ -287,32 +268,36 @@ public class XLSExportCapillaryResults {
 		default:
 			break;
 		}
-		pt.x = 0;
+		pt.x = col0;
 		pt.y++;
 		return pt;
 	}
 	
-	private static Point writeColumnHeaders (XSSFSheet sheet, XLSExportItems option, Point pt, boolean transpose, String charSeries) {
+	private static Point writeHeader (XSSFSheet sheet, XLSExportItems option, Point pt, boolean transpose, String charSeries) {
 		
-		pt.x = 0;
-		if (charSeries.equals("A")) {
-			pt = addLine(sheet, pt, transpose, XLSExperimentDescriptors.DATE);
-			pt = addLine(sheet, pt, transpose, XLSExperimentDescriptors.STIM);
-			pt = addLine(sheet, pt, transpose, XLSExperimentDescriptors.CONC);
-			pt = addLine(sheet, pt, transpose, XLSExperimentDescriptors.CAM);
-			pt = addLine(sheet, pt, transpose, XLSExperimentDescriptors.CAP);
-			pt = addLine(sheet, pt, transpose, XLSExperimentDescriptors.CAGE);
-			pt = addLine(sheet, pt, transpose, XLSExperimentDescriptors.TIME);
-			pt = addLine(sheet, pt, transpose, XLSExperimentDescriptors.NFLIES);
-			pt = addLine(sheet, pt, transpose, XLSExperimentDescriptors.DUM1);
-			pt = addLine(sheet, pt, transpose, XLSExperimentDescriptors.DUM2);
-			pt = addLine(sheet, pt, transpose, XLSExperimentDescriptors.DUM3);
-			pt = addLine(sheet, pt, transpose, XLSExperimentDescriptors.DUM4);
-			image0Time = vSequence.getImageModifiedTime(0);
-			longImage0Time = image0Time.toMillis();
+		int col0 = pt.x;
+		pt = addLineToHeader(sheet, pt, transpose, XLSExperimentDescriptors.DATE);
+		pt = addLineToHeader(sheet, pt, transpose, XLSExperimentDescriptors.STIM);
+		pt = addLineToHeader(sheet, pt, transpose, XLSExperimentDescriptors.CONC);
+		pt = addLineToHeader(sheet, pt, transpose, XLSExperimentDescriptors.CAM);
+		pt = addLineToHeader(sheet, pt, transpose, XLSExperimentDescriptors.CAP);
+		pt = addLineToHeader(sheet, pt, transpose, XLSExperimentDescriptors.CAGE);
+		pt = addLineToHeader(sheet, pt, transpose, XLSExperimentDescriptors.TIME);
+		pt = addLineToHeader(sheet, pt, transpose, XLSExperimentDescriptors.NFLIES);
+		pt = addLineToHeader(sheet, pt, transpose, XLSExperimentDescriptors.DUM1);
+		pt = addLineToHeader(sheet, pt, transpose, XLSExperimentDescriptors.DUM2);
+		pt = addLineToHeader(sheet, pt, transpose, XLSExperimentDescriptors.DUM3);
+		pt = addLineToHeader(sheet, pt, transpose, XLSExperimentDescriptors.DUM4);
+		image0Time = vSequence.getImageModifiedTime(0);
+		image0TimeMinutes = image0Time.toMillis()/60000;
+		if (col0 == 0) {
+			firstImageTime = image0Time;
+			firstImageTimeMinutes = image0TimeMinutes;
 		}
-		
+	
 		XLSUtils.setValue(sheet, pt, transpose, "rois"+charSeries);
+		pt.x++;
+		XLSUtils.setValue(sheet, pt, transpose, "timeMin"+charSeries);
 		pt.x++;
 		XLSUtils.setValue(sheet, pt, transpose, "filename" );
 		pt.x++;
@@ -320,7 +305,7 @@ public class XLSExportCapillaryResults {
 			XLSUtils.setValue(sheet, pt, transpose, seq.getName() );
 			pt.x++;
 		}
-		pt.x = 0;
+		pt.x = col0;
 		pt.y++;
 		return pt;
 	}
@@ -335,26 +320,76 @@ public class XLSExportCapillaryResults {
 		return diff;
 	}
 	
+	private static Point checkIfStartBefore(XSSFSheet sheet, Point pt, boolean transpose) {
+		
+		int startFrame 	= (int) vSequence.analysisStart;
+		int step 		= vSequence.analysisStep;
+		
+		Point ptFirstScaleItem = new Point(pt);
+		ptFirstScaleItem.x = 2;
+		FileTime imageTime = vSequence.getImageModifiedTime(startFrame);
+		long imageTimeMinutes = imageTime.toMillis()/ 60000;
+		int row0 = pt.y;
+		
+//		long firstScaleItem = (long) XLSUtils.getCell(sheet, ptFirstScaleItem, transpose).getNumericCellValue();
+//		long diff = getnearest(imageTimeMinutes - firstScaleItem, step);		
+		long diff0 = getnearest(imageTimeMinutes - firstImageTimeMinutes, step);
+		if (diff0 < 0) {
+			int nshifts = (int) -diff0/step;
+			if (!transpose) {
+				int endRow = sheet.getLastRowNum();
+				sheet.shiftRows(row0, endRow, nshifts);
+			}
+			else
+			{
+				XSSFRow row = sheet.getRow(0);				 
+				int colCount = row.getLastCellNum();
+				sheet.shiftColumns(row0, colCount, nshifts);
+			}
+			firstImageTimeMinutes = imageTimeMinutes;
+			long diff = 0;
+			for (int i = 0; i < nshifts; i++) {
+				pt.x = 0;
+				XLSUtils.setValue(sheet, pt, transpose, "t"+diff);
+				pt.x = 1;
+				XLSUtils.setValue(sheet, pt, transpose, imageTimeMinutes);
+				pt.y ++;
+				diff += step;
+				imageTimeMinutes += step;
+			}
+		}
+		return pt;
+	}
+	
 	private static Point writeData (XSSFSheet sheet, XLSExportItems option, Point pt, boolean transpose, String charSeries, ArrayList <ArrayList<Integer >> dataArrayList) {
 		
+		int col0 = pt.x;
+		int row0 = pt.y;
 		double ratio = vSequence.capillaries.capillaryVolume / vSequence.capillaries.capillaryPixels;
 		if (charSeries == null)
 			charSeries = "t";
+		checkIfStartBefore(sheet, pt, transpose);
 		
-		int startFrame = (int) vSequence.analysisStart;
-		int step = vSequence.analysisStep;
-		int endFrame = (int) vSequence.analysisEnd;
+		int startFrame 	= (int) vSequence.analysisStart;
+		int step 		= vSequence.analysisStep;
+		int endFrame 	= (int) vSequence.analysisEnd;
 		Point pt0 = new Point (pt);
-		if (pt.y -4 > 0)
-			pt0.y -= 4;
-		int j = 0;		
-
+		int j = 0;
+		
+		FileTime imageTime = vSequence.getImageModifiedTime(startFrame);
+		long imageTimeMinutes = imageTime.toMillis()/ 60000;
+		long diff = getnearest(imageTimeMinutes-firstImageTimeMinutes, step)/ step;
+		pt.y = (int) (row0 + diff);
+		
 		for (int currentFrame=startFrame; currentFrame < endFrame; currentFrame+= step, j++) {
-			pt.x = 0;
+			pt.x = col0;
 
-			FileTime imageTime = vSequence.getImageModifiedTime(currentFrame);
-			long diff = getnearest((imageTime.toMillis() - longImage0Time)/60000, step);
+			imageTime = vSequence.getImageModifiedTime(currentFrame);
+			imageTimeMinutes = imageTime.toMillis()/ 60000;
+			diff = getnearest(imageTimeMinutes-image0TimeMinutes, step);
 			XLSUtils.setValue(sheet, pt, transpose, "t"+diff);
+			pt.x++;
+			XLSUtils.setValue(sheet, pt, transpose, imageTimeMinutes);
 			pt.x++;
 
 			if (vSequence.isFileStack()) {

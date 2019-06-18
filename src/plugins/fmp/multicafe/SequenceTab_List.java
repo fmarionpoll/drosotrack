@@ -52,8 +52,8 @@ public class SequenceTab_List  extends JPanel {
 	IcyFrame mainFrame = null;
 	
 	
-	public JButton		showButton = new JButton("show dialog");
-	public JButton		closeButton			= new JButton("Close seach");
+	public JButton		showButton 	= new JButton("Search for files...");
+	public JButton		closeButton	= new JButton("Close search dialog");
 	private Multicafe 	parent0 	= null;
 		
 	public void init (GridLayout capLayout,  Multicafe parent0) {
@@ -79,11 +79,13 @@ public class SequenceTab_List  extends JPanel {
 	
 	private void closeDialog() {
 		mainFrame.close();
+		mainFrame = null;
+		firePropertyChange("SEARCH_CLOSED", false, true);
 	}
 	
 	private void showDialog() {
 		if (mainFrame != null)
-			return;
+			closeDialog();
 		
 		mainFrame = new IcyFrame ("Dialog box to select files", true, true);
 		JPanel mainPanel = GuiUtil.generatePanelWithoutBorder();

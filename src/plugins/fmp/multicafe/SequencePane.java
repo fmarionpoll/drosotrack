@@ -84,6 +84,9 @@ public class SequencePane extends JPanel implements PropertyChangeListener {
 			fileTab.experimentComboBox.removeAllItems();
 			firePropertyChange("SEQ_CLOSE", false, true);
 		 }
+		 else if (event.getPropertyName().equals("SEARCH_CLOSED")) {
+			 tabsPane.setSelectedIndex(0); 
+		 }
 	}
 	
 	public void sequenceAddtoCombo(String strItem) {
