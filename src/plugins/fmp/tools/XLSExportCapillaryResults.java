@@ -320,7 +320,7 @@ public class XLSExportCapillaryResults {
 		return diff;
 	}
 	
-	private static Point checkIfStartBefore(XSSFSheet sheet, Point pt, boolean transpose) {
+	private static void checkIfStartBefore(XSSFSheet sheet, Point pt, boolean transpose) {
 		
 		int startFrame 	= (int) vSequence.analysisStart;
 		int step 		= vSequence.analysisStep;
@@ -329,28 +329,30 @@ public class XLSExportCapillaryResults {
 		ptFirstScaleItem.x = 2;
 		FileTime imageTime = vSequence.getImageModifiedTime(startFrame);
 		long imageTimeMinutes = imageTime.toMillis()/ 60000;
-		int row0 = pt.y;
 		
 //		long firstScaleItem = (long) XLSUtils.getCell(sheet, ptFirstScaleItem, transpose).getNumericCellValue();
 //		long diff = getnearest(imageTimeMinutes - firstScaleItem, step);		
 		long diff0 = getnearest(imageTimeMinutes - firstImageTimeMinutes, step);
+		int nshifts = 0;
+		int row_first = pt.y;
+		int row_last = sheet.getLastRowNum();
 		if (diff0 < 0) {
-			int nshifts = (int) -diff0/step;
-			nshifts = 4;
+			nshifts = (int) -diff0/step +1;
+			System.out.println("insert "+ nshifts );		
 			if (!transpose) {
-				int endRow = sheet.getLastRowNum();
-				sheet.shiftRows(row0, endRow, nshifts);
+				sheet.shiftRows(row_last, row_last, nshifts);
 			}
 			else
 			{
 				XSSFRow row = sheet.getRow(0);				 
 				int colCount = row.getLastCellNum();
-				sheet.shiftColumns(row0, colCount, nshifts);
+				sheet.shiftColumns(row_first, colCount, nshifts);
 			}
 			firstImageTimeMinutes = imageTimeMinutes;
+			int nrows = row_last - row_first + nshifts;
 			long diff = 0;
-			for (int i = 0; i < nshifts; i++) {
-				pt.x = 0;
+			for (int i = 0; i < nrows; i++) {
+				pt.x = 2;
 				XLSUtils.setValue(sheet, pt, transpose, "t"+diff);
 				pt.x = 1;
 				XLSUtils.setValue(sheet, pt, transpose, imageTimeMinutes);
@@ -359,7 +361,6 @@ public class XLSExportCapillaryResults {
 				imageTimeMinutes += step;
 			}
 		}
-		return pt;
 	}
 	
 	private static Point writeData (XSSFSheet sheet, XLSExportItems option, Point pt, boolean transpose, String charSeries, ArrayList <ArrayList<Integer >> dataArrayList) {
