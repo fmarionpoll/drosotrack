@@ -336,6 +336,7 @@ public class XLSExportCapillaryResults {
 		long diff0 = getnearest(imageTimeMinutes - firstImageTimeMinutes, step);
 		if (diff0 < 0) {
 			int nshifts = (int) -diff0/step;
+			nshifts = 4;
 			if (!transpose) {
 				int endRow = sheet.getLastRowNum();
 				sheet.shiftRows(row0, endRow, nshifts);
@@ -380,6 +381,7 @@ public class XLSExportCapillaryResults {
 		long imageTimeMinutes = imageTime.toMillis()/ 60000;
 		long diff = getnearest(imageTimeMinutes-firstImageTimeMinutes, step)/ step;
 		pt.y = (int) (row0 + diff);
+		System.out.println("read from "+startFrame + " to "+ endFrame);
 		
 		for (int currentFrame=startFrame; currentFrame < endFrame; currentFrame+= step, j++) {
 			pt.x = col0;
