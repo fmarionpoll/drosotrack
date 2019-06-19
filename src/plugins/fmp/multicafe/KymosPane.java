@@ -41,10 +41,10 @@ public class KymosPane extends JPanel implements PropertyChangeListener, ChangeL
 		
 		limitsTab.init(capLayout, parent0);
 		limitsTab.addPropertyChangeListener(this);
-		tabsPane.addTab("Detect limits", null, limitsTab, "Find limits of the columns of liquid");
+		tabsPane.addTab("Liquid", null, limitsTab, "Find limits of the columns of liquid");
 		
 		gulpsTab.init(capLayout, parent0);	
-		tabsPane.addTab("Detect gulps", null, gulpsTab, "detect gulps");
+		tabsPane.addTab("Gulps", null, gulpsTab, "detect gulps");
 		gulpsTab.addPropertyChangeListener(this);
 		
 		fileTab.init(capLayout, parent0);

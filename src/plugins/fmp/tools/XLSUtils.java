@@ -20,7 +20,7 @@ public class XLSUtils {
 	public static void setValue (XSSFSheet sheet, Point pt, boolean transpose, double value) {
 		getCell(sheet, pt, transpose).setCellValue(value);
 	}
-	
+		
 	public static double getValueDouble (XSSFSheet sheet, Point pt, boolean transpose) {
 		return getCell(sheet, pt, transpose).getNumericCellValue();
 	}

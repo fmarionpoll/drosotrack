@@ -16,6 +16,9 @@ public class Experiment {
 		vSequence = new SequenceVirtual();
 		if (null == vSequence.loadVirtualStackAt(filename))
 			return false;
+		fileTimeImageFirst = vSequence.getImageModifiedTime(0);
+		fileTimeImageLast = vSequence.getImageModifiedTime(vSequence.getSizeT()-1);
+		
 		if (!vSequence.xmlReadCapillaryTrackDefault()) 
 			return false;
 		String directory = vSequence.getDirectory() +"\\results";

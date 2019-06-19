@@ -117,14 +117,14 @@ public class ExcelPane  extends JPanel implements PropertyChangeListener {
 	private XLSExportOptions getOptions() {
 		XLSExportOptions options = new XLSExportOptions();
 		
-		options.topLevel = kymosTab.topLevelCheckBox.isSelected(); 
-		options.topLevelDelta = kymosTab.topLevelDCheckBox.isSelected(); 	
-		options.bottomLevel = kymosTab.bottomLevelCheckBox.isSelected(); 
-		options.derivative = kymosTab.derivativeCheckBox.isSelected(); 
-		options.consumption = kymosTab.consumptionCheckBox.isSelected(); 
-		options.sum = kymosTab.sumCheckBox.isSelected(); 
-		options.t0 = kymosTab.t0CheckBox.isSelected();
-		options.onlyalive = kymosTab.t0CheckBox.isSelected();
+		options.topLevel 		= kymosTab.topLevelCheckBox.isSelected(); 
+		options.topLevelDelta 	= kymosTab.topLevelDCheckBox.isSelected(); 	
+		options.bottomLevel 	= kymosTab.bottomLevelCheckBox.isSelected(); 
+		options.derivative 		= kymosTab.derivativeCheckBox.isSelected(); 
+		options.consumption 	= kymosTab.consumptionCheckBox.isSelected(); 
+		options.sum 			= kymosTab.sumCheckBox.isSelected(); 
+		options.t0 				= kymosTab.t0CheckBox.isSelected();
+		options.onlyalive 		= kymosTab.onlyaliveCheckBox.isSelected();
 		getCommonOptions(options);
 		return options;
 	}
