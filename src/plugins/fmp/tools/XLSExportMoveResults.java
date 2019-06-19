@@ -4,6 +4,7 @@ import java.awt.Point;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.nio.file.attribute.FileTime;
 import java.util.ArrayList;
 
 import org.apache.poi.ss.SpreadsheetVersion;
@@ -25,10 +26,15 @@ import plugins.fmp.sequencevirtual.XYTaSeries;
 public class XLSExportMoveResults {
 
 	static XLSExportOptions options = null;
-	static SequenceVirtual vSequence = null;
+	static FileTime			image0Time;
+	static long				image0TimeMinutes;
+	
+	static Experiment expAll = null;
+	static int			nintervals	= 0;
 	
 	public static void exportToFile(String filename, XLSExportOptions opt) {
-		System.out.println("XLS output");
+		
+		System.out.println("XLS move output");
 		options = opt;
 		
 		try { 
@@ -38,20 +44,19 @@ public class XLSExportMoveResults {
 			int rowmax = 0;
 			int iSeries = 0;
 			
-			for (Experiment exp: options.experimentList) 
+			options.experimentList.readInfosFromAllExperiments();
+			expAll = options.experimentList.getStartAndEndFromAllExperiments();
+			
+			for (Experiment exp: options.experimentList.experimentList) 
 			{
-				vSequence = new SequenceVirtual();
-				if (null == vSequence.loadVirtualStackAt(exp.filename))
-					continue;
-				vSequence.xmlReadDrosoTrackDefault();
 				String charSeries = CellReference.convertNumToColString(iSeries);
 			
 				if (options.xyCenter) 
-					rowmax = xlsExportToWorkbook(workbook, "xypos", XLSExportItems.XYCENTER, row0, charSeries);
+					rowmax = xlsExportToWorkbook(exp, workbook, "xypos", XLSExportItems.XYCENTER, row0, charSeries);
 				if (options.distance) 
-					rowmax = xlsExportToWorkbook(workbook, "distance", XLSExportItems.DISTANCE, row0, charSeries);
+					rowmax = xlsExportToWorkbook(exp, workbook, "distance", XLSExportItems.DISTANCE, row0, charSeries);
 				if (options.alive) 
-					rowmax = xlsExportToWorkbook(workbook, "alive", XLSExportItems.ISALIVE, row0, charSeries);
+					rowmax = xlsExportToWorkbook(exp, workbook, "alive", XLSExportItems.ISALIVE, row0, charSeries);
 				
 				row0 = rowmax;
 				iSeries++;
@@ -70,18 +75,20 @@ public class XLSExportMoveResults {
 		}
 		System.out.println("XLS output finished");
 	}
+	
 
-	private static ArrayList <ArrayList<Double>> getDataFromCages(XLSExportItems option) {
+
+	private static ArrayList <ArrayList<Double>> getDataFromCages(Experiment exp, XLSExportItems option) {
 		ArrayList <ArrayList<Double >> arrayList = new ArrayList <ArrayList <Double>> ();
 		
-		for (XYTaSeries posxyt: vSequence.cages.flyPositionsList) {
+		for (XYTaSeries posxyt: exp.vSequence.cages.flyPositionsList) {
 			switch (option) {
 			case DISTANCE: 
 				arrayList.add(posxyt.getDoubleArrayList(ArrayListType.distance));
 				break;
 			case ISALIVE:
 				arrayList.add(posxyt.getDoubleArrayList(ArrayListType.isalive));
-				// TODO add threshold to cleanup data
+				// TODO add threshold to cleanup data?
 				break;
 			case XYCENTER:
 			default:
@@ -92,38 +99,39 @@ public class XLSExportMoveResults {
 		return arrayList;
 	}
 
-	public static int xlsExportToWorkbook(XSSFWorkbook workBook, String title, XLSExportItems option, int row0, String charSeries) {
+	public static int xlsExportToWorkbook(Experiment exp, XSSFWorkbook workBook, String title, XLSExportItems option, int row0, String charSeries) {
 		System.out.println("export worksheet "+title);
-		ArrayList <ArrayList<Double >> arrayList = getDataFromCages(option);
+		ArrayList <ArrayList<Double >> arrayList = getDataFromCages(exp, option);
 
 		XSSFSheet sheet = workBook.getSheet(title );
 		boolean flag = (sheet == null);
 		if (flag)
 			sheet = workBook.createSheet(title);
 		
-		Point pt = writeGlobalInfos(sheet, row0, option, options.transpose, charSeries);
-		pt = writeColumnHeaders(sheet, pt, option, options.transpose, charSeries);
-		pt = writeData(sheet, pt, option, arrayList, options.transpose, charSeries);
+		Point pt = writeGlobalInfos(exp, sheet, row0, option, options.transpose, charSeries);
+		pt = writeColumnHeaders(exp, sheet, pt, option, options.transpose, charSeries);
+		pt = writeData(exp, sheet, pt, option, arrayList, options.transpose, charSeries);
 		return pt.y;
 	}
 	
-	private static Point writeGlobalInfos(XSSFSheet sheet, int row0, XLSExportItems option, boolean transpose, String charSeries) {
-		Point pt = new Point(0, row0);
+	private static Point writeGlobalInfos(Experiment exp, XSSFSheet sheet, int col0, XLSExportItems option, boolean transpose, String charSeries) {
+		
+		Point pt = new Point(col0, 0);
 
 		XLSUtils.setValue(sheet, pt, transpose, "expt"+charSeries);
 		pt.x++;
 		XLSUtils.setValue(sheet, pt, transpose, "name");
-		File file = new File(vSequence.getFileName(0));
+		File file = new File(exp.vSequence.getFileName(0));
 		String path = file.getParent();
 		pt.x++;
 		XLSUtils.setValue(sheet, pt, transpose, path);
 		pt.y++;
 		
-		pt.x=0;
+		pt.x=col0;
 		Point pt1 = pt;
 		XLSUtils.setValue(sheet, pt, transpose, "n_cages"+charSeries);
 		pt1.x++;
-		XLSUtils.setValue(sheet, pt, transpose, vSequence.cages.flyPositionsList.size());
+		XLSUtils.setValue(sheet, pt, transpose, exp.vSequence.cages.flyPositionsList.size());
 		switch (option) {
 		case DISTANCE:
 			break;
@@ -131,29 +139,29 @@ public class XLSExportMoveResults {
 			pt1.x++;
 			XLSUtils.setValue(sheet, pt, transpose, "threshold");
 			pt1.x++;
-			XLSUtils.setValue(sheet, pt, transpose, vSequence.cages.detect.threshold);
+			XLSUtils.setValue(sheet, pt, transpose, exp.vSequence.cages.detect.threshold);
 			break;
 		case XYCENTER:
 		default:
 			break;
 		}
 
+		pt.x=col0;
 		pt.y++;
-		pt.x=0;
 		return pt;
 	}
 
-	public static Point addLine(XSSFSheet sheet, Point pt, boolean transpose, XLSExperimentDescriptors desc) {
+	public static Point addLine(Experiment exp, XSSFSheet sheet, Point pt, boolean transpose, XLSExperimentDescriptors desc) {
 		XLSUtils.setValue(sheet, pt, transpose, desc.toString());
 		pt.x++;
 		pt.x++;
 		switch (desc) {
 		case CAGE: 	// assume 2 capillaries/slot
-			for (int i= 0; i < vSequence.cages.flyPositionsList.size()*2; i++, pt.x++) 
+			for (int i= 0; i < exp.vSequence.cages.flyPositionsList.size()*2; i++, pt.x++) 
 				XLSUtils.setValue(sheet, pt, transpose, i/2);
 			break;
 		case NFLIES: // assume 2 capillaries/slot
-			for (int i= 0; i < vSequence.cages.flyPositionsList.size()*2; i++, pt.x++) {
+			for (int i= 0; i < exp.vSequence.cages.flyPositionsList.size()*2; i++, pt.x++) {
 				int j = 1;
 				if (i < 2 || i > 17)
 					j = 0;
@@ -161,7 +169,7 @@ public class XLSExportMoveResults {
 			}
 			break;
 		case CAP:
-			for (int i= 0; i < vSequence.cages.flyPositionsList.size()*2; i++, pt.x++) {
+			for (int i= 0; i < exp.vSequence.cages.flyPositionsList.size()*2; i++, pt.x++) {
 				boolean isEven = (i % 2) == 0;
 				if (isEven)
 					XLSUtils.setValue(sheet, pt, transpose, "L");
@@ -177,33 +185,33 @@ public class XLSExportMoveResults {
 		return pt;
 	}
 	
-	private static Point writeColumnHeaders (XSSFSheet sheet, Point pt, XLSExportItems option, boolean transpose, String charSeries) {
+	private static Point writeColumnHeaders (Experiment exp, XSSFSheet sheet, Point pt, XLSExportItems option, boolean transpose, String charSeries) {
 		pt.x = 0;
-		if (charSeries.equals("A")) {
-			pt = addLine(sheet, pt, transpose, XLSExperimentDescriptors.DATE);
-			pt = addLine(sheet, pt, transpose, XLSExperimentDescriptors.STIM);
-			pt = addLine(sheet, pt, transpose, XLSExperimentDescriptors.CONC);
-			pt = addLine(sheet, pt, transpose, XLSExperimentDescriptors.CAM);
-			pt = addLine(sheet, pt, transpose, XLSExperimentDescriptors.CAP);
-			pt = addLine(sheet, pt, transpose, XLSExperimentDescriptors.CAGE);
-			pt = addLine(sheet, pt, transpose, XLSExperimentDescriptors.TIME);
-			pt = addLine(sheet, pt, transpose, XLSExperimentDescriptors.NFLIES);
-			pt = addLine(sheet, pt, transpose, XLSExperimentDescriptors.DUM1);
-			pt = addLine(sheet, pt, transpose, XLSExperimentDescriptors.DUM2);
-			pt = addLine(sheet, pt, transpose, XLSExperimentDescriptors.DUM3);
-			pt = addLine(sheet, pt, transpose, XLSExperimentDescriptors.DUM4);
-		}
+
+		pt = addLine(exp, sheet, pt, transpose, XLSExperimentDescriptors.DATE);
+		pt = addLine(exp, sheet, pt, transpose, XLSExperimentDescriptors.STIM);
+		pt = addLine(exp, sheet, pt, transpose, XLSExperimentDescriptors.CONC);
+		pt = addLine(exp, sheet, pt, transpose, XLSExperimentDescriptors.CAM);
+		pt = addLine(exp, sheet, pt, transpose, XLSExperimentDescriptors.CAP);
+		pt = addLine(exp, sheet, pt, transpose, XLSExperimentDescriptors.CAGE);
+		pt = addLine(exp, sheet, pt, transpose, XLSExperimentDescriptors.TIME);
+		pt = addLine(exp, sheet, pt, transpose, XLSExperimentDescriptors.NFLIES);
+		pt = addLine(exp, sheet, pt, transpose, XLSExperimentDescriptors.DUM1);
+		pt = addLine(exp, sheet, pt, transpose, XLSExperimentDescriptors.DUM2);
+		pt = addLine(exp, sheet, pt, transpose, XLSExperimentDescriptors.DUM3);
+		pt = addLine(exp, sheet, pt, transpose, XLSExperimentDescriptors.DUM4);
+
 		
 		XLSUtils.setValue(sheet, pt, transpose, "rois"+charSeries);
 		pt.x++;
-		if (vSequence.isFileStack()) {
+		if (exp.vSequence.isFileStack()) {
 			XLSUtils.setValue(sheet, pt, transpose, "filename");
 			pt.x++;
 		}
 		
 		switch (option) {
 		case DISTANCE:
-			for (XYTaSeries posxyt: vSequence.cages.flyPositionsList) {
+			for (XYTaSeries posxyt: exp.vSequence.cages.flyPositionsList) {
 				String name0 = posxyt.getName();
 				XLSUtils.setValue(sheet, pt, transpose, name0);
 				pt.x++;
@@ -211,7 +219,7 @@ public class XLSExportMoveResults {
 			break;
 			
 		case ISALIVE:
-			for (XYTaSeries posxyt: vSequence.cages.flyPositionsList) {
+			for (XYTaSeries posxyt: exp.vSequence.cages.flyPositionsList) {
 				String name0 = posxyt.getName();
 				XLSUtils.setValue(sheet, pt, transpose, name0);
 				pt.x++;
@@ -221,7 +229,7 @@ public class XLSExportMoveResults {
 			break;
 		case XYCENTER:
 		default:
-			for (XYTaSeries posxyt: vSequence.cages.flyPositionsList) {
+			for (XYTaSeries posxyt: exp.vSequence.cages.flyPositionsList) {
 				String name0 = posxyt.getName();
 				XLSUtils.setValue(sheet, pt, transpose, name0+".x");
 				pt.x++;
@@ -235,12 +243,12 @@ public class XLSExportMoveResults {
 		return pt;
 	}
 
-	private static Point writeData (XSSFSheet sheet, Point pt, XLSExportItems option, ArrayList <ArrayList<Double >> arrayList, boolean transpose, String charSeries) {
+	private static Point writeData (Experiment exp, XSSFSheet sheet, Point pt, XLSExportItems option, ArrayList <ArrayList<Double >> arrayList, boolean transpose, String charSeries) {
 	
 		if (charSeries == null)
 			charSeries = "t";
 		
-		ArrayList<XYTaSeries> flyPositionsList = vSequence.cages.flyPositionsList; 
+		ArrayList<XYTaSeries> flyPositionsList = exp.vSequence.cages.flyPositionsList; 
 		int n_time_intervals = flyPositionsList.get(0).pointsList.size();
 		int n_series = flyPositionsList.size();
 		
@@ -249,8 +257,9 @@ public class XLSExportMoveResults {
 			int time_absolute = flyPositionsList.get(0).pointsList.get(t).time;
 			XLSUtils.setValue(sheet, pt2, transpose, charSeries+time_absolute);
 
-			pt2.x++;if (vSequence.isFileStack()) {
-				String cs = vSequence.getFileName(time_absolute);
+			pt2.x++;
+			if (exp.vSequence.isFileStack()) {
+				String cs = exp.vSequence.getFileName(time_absolute);
 				int index = cs.lastIndexOf("\\");
 				String fileName = cs.substring(index + 1);
 				XLSUtils.setValue(sheet, pt2, transpose, fileName);

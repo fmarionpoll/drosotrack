@@ -1,5 +1,7 @@
 package plugins.fmp.multicafe;
 
+import java.awt.BorderLayout;
+import java.awt.Dimension;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -23,8 +25,12 @@ public class SequenceTab_Open extends JPanel implements ActionListener {
 	private JCheckBox	cagesCheckBox		= new JCheckBox("cages", true);
 	private JCheckBox	kymographsCheckBox	= new JCheckBox("kymographs", true);
 	private JCheckBox	measuresCheckBox	= new JCheckBox("measures", true);
+	public  JCheckBox	graphsCheckBox		= new JCheckBox("graphs", true);
 	public JComboBox<String> experimentComboBox	= new JComboBox<String>();
 	public boolean disableChangeFile = false;
+	public JButton  	previousButton		 	= new JButton("<");
+	public JButton		nextButton				= new JButton(">");
+	
 	private Multicafe parent0 = null;
 
 	
@@ -33,13 +39,25 @@ public class SequenceTab_Open extends JPanel implements ActionListener {
 		this.parent0 = parent0;
 		
 		add( GuiUtil.besidesPanel(setVideoSourceButton, addVideoSourceButton));
-		add( GuiUtil.besidesPanel(capillariesCheckBox, kymographsCheckBox, cagesCheckBox, measuresCheckBox));
+		add( GuiUtil.besidesPanel(capillariesCheckBox, kymographsCheckBox, cagesCheckBox, measuresCheckBox, graphsCheckBox));
               
-		add( GuiUtil.besidesPanel(experimentComboBox));
+//		add( GuiUtil.besidesPanel(experimentComboBox));
+		JPanel k2Panel = new JPanel();
+		k2Panel.setLayout(new BorderLayout());
+		k2Panel.add(previousButton, BorderLayout.WEST); 
+		int bWidth = 30;
+		int height = 10;
+		previousButton.setPreferredSize(new Dimension(bWidth, height));
+		k2Panel.add(experimentComboBox, BorderLayout.CENTER);
+		nextButton.setPreferredSize(new Dimension(bWidth, height)); 
+		k2Panel.add(nextButton, BorderLayout.EAST);
+		add(GuiUtil.besidesPanel( k2Panel));
 		
 		setVideoSourceButton.addActionListener(this);
 		addVideoSourceButton.addActionListener(this);
 		experimentComboBox.addActionListener(this);
+		nextButton.addActionListener(this);
+		previousButton.addActionListener(this);
 	}
 	
 	@Override
@@ -59,6 +77,16 @@ public class SequenceTab_Open extends JPanel implements ActionListener {
 			if (!newtext.equals(oldtext)) {
 				firePropertyChange("SEQ_OPEN", false, true);
 			}
+		}
+		else if ( o == nextButton) {
+			int isel = experimentComboBox.getSelectedIndex();
+			if (isel < (experimentComboBox.getItemCount() -1))
+				experimentComboBox.setSelectedIndex(isel+1);
+		}
+		else if ( o == previousButton) {
+			int isel = experimentComboBox.getSelectedIndex();
+			if (isel > 0)
+				experimentComboBox.setSelectedIndex(experimentComboBox.getSelectedIndex()-1);
 		}
 	}
 

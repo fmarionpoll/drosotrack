@@ -5,11 +5,13 @@ import java.nio.file.attribute.FileTime;
 import java.util.ArrayList;
 
 public class Experiment {
-	public String						filename = null;
-	public SequenceVirtual 				vSequence = null;
-	public ArrayList <SequencePlus> 	kymographArrayList	= new ArrayList <SequencePlus> ();
+	public String						filename 			= null;
+	public SequenceVirtual 				vSequence 			= null;
+	public ArrayList <SequencePlus> 	kymographArrayList	= null;
 	public FileTime						fileTimeImageFirst;
 	public FileTime						fileTimeImageLast;
+	public long							fileTimeImageFirstMinutes = 0;
+	public long							fileTimeImageLastMinutes = 0;
 	
 	public boolean openSequenceAndMeasures() {
 
@@ -18,6 +20,8 @@ public class Experiment {
 			return false;
 		fileTimeImageFirst = vSequence.getImageModifiedTime(0);
 		fileTimeImageLast = vSequence.getImageModifiedTime(vSequence.getSizeT()-1);
+		fileTimeImageFirstMinutes = fileTimeImageFirst.toMillis()/60000;
+		fileTimeImageLastMinutes = fileTimeImageLast.toMillis()/60000;
 		
 		if (!vSequence.xmlReadCapillaryTrackDefault()) 
 			return false;

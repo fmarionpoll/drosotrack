@@ -5,13 +5,13 @@ import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.ArrayList;
 
 import javax.swing.JPanel;
 import javax.swing.JTabbedPane;
 
 import icy.gui.util.GuiUtil;
 import plugins.fmp.sequencevirtual.Experiment;
+import plugins.fmp.sequencevirtual.ExperimentList;
 import plugins.fmp.tools.Tools;
 import plugins.fmp.tools.XLSExportCapillaryResults;
 import plugins.fmp.tools.XLSExportMoveResults;
@@ -98,19 +98,19 @@ public class ExcelPane  extends JPanel implements PropertyChangeListener {
 		options.transpose = optionsTab.transposeCheckBox.isSelected();
 		options.pivot = optionsTab.pivotCheckBox.isSelected();
 		options.exportAllFiles = optionsTab.exportAllFilesCheckBox.isSelected();
-		options.experimentList = new ArrayList<Experiment> ();
+		options.experimentList = new ExperimentList ();
 		if (optionsTab.exportAllFilesCheckBox.isSelected()) {
 			int nfiles = parent0.sequencePane.fileTab.experimentComboBox.getItemCount();
 			for (int i=0; i< nfiles; i++) {
 				Experiment exp = new Experiment ();
 				exp.filename = parent0.sequencePane.fileTab.experimentComboBox.getItemAt(i);
-				options.experimentList.add(exp);
+				options.experimentList.experimentList.add(exp);
 			}
 		}
 		else {
 			Experiment exp = new Experiment();
 			exp.filename = parent0.vSequence.getFileName();
-			options.experimentList.add(exp);
+			options.experimentList.experimentList.add(exp);
 		}
 	}
 	

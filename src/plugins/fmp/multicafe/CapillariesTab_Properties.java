@@ -33,11 +33,13 @@ public class CapillariesTab_Properties extends JPanel implements ActionListener 
 		
 		public void init(GridLayout capLayout, Multicafe parent0) {
 			setLayout(capLayout);
+			
 			add( GuiUtil.besidesPanel(
 					new JLabel("volume (µl) ", SwingConstants.RIGHT), 
 					capillaryVolumeTextField,  
 					new JLabel("length (pixels) ", SwingConstants.RIGHT), 
 					capillaryPixelsTextField));
+			
 			add( GuiUtil.besidesPanel(
 					visibleCheckBox,  
 					new JLabel(" ", SwingConstants.RIGHT)));

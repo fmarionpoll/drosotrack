@@ -3,6 +3,7 @@ package plugins.fmp.tools;
 import java.util.ArrayList;
 
 import plugins.fmp.sequencevirtual.Experiment;
+import plugins.fmp.sequencevirtual.ExperimentList;
 
 public class XLSExportOptions {
 	
@@ -24,5 +25,5 @@ public class XLSExportOptions {
 	public boolean pivot 			= false;
 	public boolean exportAllFiles 	= true;
 	
-	public ArrayList<Experiment> experimentList = new ArrayList<Experiment> ();
+	public ExperimentList experimentList = new ExperimentList ();
 }

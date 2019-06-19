@@ -32,7 +32,7 @@ public class SequencePane extends JPanel implements PropertyChangeListener {
 		this.parent0 = parent0;
 		final JPanel capPanel = GuiUtil.generatePanel(string);
 		mainPanel.add(GuiUtil.besidesPanel(capPanel));
-		GridLayout capLayout = new GridLayout(4, 1);
+		GridLayout capLayout = new GridLayout(3, 1);
 		
 		fileTab.init(capLayout, parent0);
 		tabsPane.addTab("Open/Add", null, fileTab, "Open one or several stacks of .jpg files");
@@ -134,7 +134,7 @@ public class SequencePane extends JPanel implements PropertyChangeListener {
 	private void updateParametersForSequence() {
 		int endFrame = parent0.vSequence.getSizeT()-1;
 		optionsTab.endFrameTextField.setText( Integer.toString(endFrame));
-		tabsPane.setSelectedIndex(1);
+
 		Viewer v = parent0.vSequence.getFirstViewer();
 		Rectangle rectv = v.getBoundsInternal();
 		Rectangle rect0 = parent0.mainFrame.getBoundsInternal();

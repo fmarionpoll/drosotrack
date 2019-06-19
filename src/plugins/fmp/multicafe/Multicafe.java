@@ -170,6 +170,8 @@ public class Multicafe extends PluginActionable implements ViewerListener, Prope
 			if (kymographsPane.fileTab.measuresFileOpen()) {
 				sequencePane.optionsTab.UpdateItemsFromSequence(this);
 			}
+			if (sequencePane.fileTab.graphsCheckBox.isSelected())
+				kymographsPane.graphsTab.xyDisplayGraphs();
 		}
 		
 		if (loadCages) {

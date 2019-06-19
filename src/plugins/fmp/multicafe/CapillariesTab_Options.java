@@ -59,8 +59,8 @@ public class CapillariesTab_Options extends JPanel implements ActionListener, Ac
 		k2Panel.add(kymographNamesComboBox, BorderLayout.CENTER);
 		nextButton.setPreferredSize(new Dimension(bWidth, height)); 
 		k2Panel.add(nextButton, BorderLayout.EAST);
-		
 		add(GuiUtil.besidesPanel( viewKymosCheckBox, k2Panel));
+		
 		add(GuiUtil.besidesPanel( viewLevelsCheckbox, viewGulpsCheckbox, updateButton));
 		
 		defineActionListeners();
@@ -144,7 +144,7 @@ public class CapillariesTab_Options extends JPanel implements ActionListener, Ac
 		if (parent0.kymographArrayList.size() < 1) return;
 
 		Rectangle rectMaster = parent0.vSequence.getFirstViewer().getBounds();
-		int deltax = 5;
+		int deltax = 5 + rectMaster.width;
 		int deltay = 5;
 
 		for(SequencePlus seq: parent0.kymographArrayList) 
@@ -155,7 +155,9 @@ public class CapillariesTab_Options extends JPanel implements ActionListener, Ac
 				Viewer v = new Viewer(seq, true);
 				v.addListener(parent0);
 				Rectangle rectDataView = v.getBounds();
-				rectDataView.translate(rectMaster.x + deltax - rectDataView.x, rectMaster.y + deltay - rectDataView.y);
+				rectDataView.translate(
+						rectMaster.x + deltax - rectDataView.x, 
+						rectMaster.y + deltay - rectDataView.y);
 				v.setBounds(rectDataView);
 			}
 		}

@@ -55,13 +55,13 @@ public class KymosTab_Graphs extends JPanel implements ActionListener  {
 		}
 	}
 	
-	private void xyDisplayGraphs() {
+	public void xyDisplayGraphs() {
 
 		int kmax = 1;
 		if (parent0.capillariesPane.buildarrayTab.getGroupedBy2())
 			kmax = 2;
 		final Rectangle rectv = parent0.vSequence.getFirstViewer().getBounds();
-		Point ptRelative = new Point(0,30);
+		Point ptRelative = new Point(0,rectv.height);
 		final int deltay = 230;
 
 		if (limitsCheckbox.isSelected()) {

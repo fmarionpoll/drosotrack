@@ -15,7 +15,6 @@ import org.apache.poi.ss.SpreadsheetVersion;
 
 import org.apache.poi.ss.usermodel.DataConsolidateFunction;
 import org.apache.poi.ss.usermodel.Row;
-import org.apache.poi.ss.usermodel.CellType;
 import org.apache.poi.ss.util.AreaReference;
 import org.apache.poi.ss.util.CellAddress;
 import org.apache.poi.ss.util.CellReference;
@@ -31,19 +30,16 @@ import plugins.fmp.sequencevirtual.XYTaSeries;
 
 public class XLSExportCapillaryResults {
 
-	static XLSExportOptions 			options = null;
-	static FileTime						image0Time;
-	static long							image0TimeMinutes;
+	static XLSExportOptions options = null;
+	static FileTime			image0Time;
+	static long				image0TimeMinutes;
 	
-	static FileTime	 	firstImageTime 			= null;
-	static FileTime	 	lastImageTime 			= null;
-	static long			firstImageTimeMinutes 	= 0;
-	static long			lastImageTimeMinutes 	= 0;
-	static int			nintervals				= 0;
+	static Experiment expAll = null;
+	static int			nintervals					= 0;
 	
 	public static void exportToFile(String filename, XLSExportOptions opt) {
 		
-		System.out.println("XLS output");
+		System.out.println("XLS capillary measures output");
 		options = opt;
 
 		try { 
@@ -52,27 +48,11 @@ public class XLSExportCapillaryResults {
 			int col0 = 0;
 			int colmax = 0;
 			int iSeries = 0;
-			// get timemin et timemax - firstImageTime
-			Experiment exp0 = options.experimentList.get(0);
-			exp0.openSequenceAndMeasures();
-			firstImageTime = exp0.fileTimeImageFirst;
-			lastImageTime = exp0.fileTimeImageLast;
-			for (Experiment exp: options.experimentList) 
-			{
-				if (exp.openSequenceAndMeasures()) {
-					if (firstImageTime.compareTo(exp.fileTimeImageFirst) > 0) 
-						firstImageTime = exp.fileTimeImageFirst;
-					if (lastImageTime .compareTo(exp.fileTimeImageLast) <0)
-						lastImageTime = exp.fileTimeImageLast;
-					if (exp.vSequence.analysisEnd > exp.vSequence.getSizeT()-1)
-						exp.vSequence.analysisEnd = exp.vSequence.getSizeT()-1;
-				}
-			}
-			firstImageTimeMinutes = firstImageTime.toMillis()/60000;
-			lastImageTimeMinutes = lastImageTime.toMillis()/60000;
-			System.out.println("First and intervals found ");
 			
-			for (Experiment exp: options.experimentList) 
+			options.experimentList.readInfosFromAllExperiments();
+			expAll = options.experimentList.getStartAndEndFromAllExperiments();
+			
+			for (Experiment exp: options.experimentList.experimentList) 
 			{
 				String charSeries = CellReference.convertNumToColString(iSeries);
 				
@@ -110,12 +90,13 @@ public class XLSExportCapillaryResults {
 		System.out.println("XLS output finished");
 	}
 	
+	
 	private static int getDataAndExport(Experiment exp, XSSFWorkbook workbook, int col0, String charSeries, XLSExportItems datatype) 
 	{	
 		ArrayList <ArrayList<Integer >> arrayList = getDataFromRois(exp, datatype, options.t0);	
 		int colmax = xlsExportCapillaryDataToWorkbook(exp, workbook, datatype.toString(), datatype, col0, charSeries, arrayList);
 		if (options.onlyalive) {
-			/*arrayList =*/ trimDeadsFromArrayList(exp, arrayList);
+			trimDeadsFromArrayList(exp, arrayList);
 			xlsExportCapillaryDataToWorkbook(exp, workbook, datatype.toString()+"_alive", datatype, col0, charSeries, arrayList);
 		}
 		return colmax;
@@ -124,11 +105,11 @@ public class XLSExportCapillaryResults {
 	private static ArrayList <ArrayList<Integer>> getDataFromRois(Experiment exp, XLSExportItems xlsoption, boolean optiont0) {
 		
 		ArrayList <ArrayList<Integer >> resultsArrayList = new ArrayList <ArrayList<Integer >> ();	
+		
 		for (SequencePlus seq: exp.kymographArrayList) {
 			switch (xlsoption) {
 			case TOPLEVELDELTA:
-				resultsArrayList.add(seq.getArrayListFromRois(ArrayListType.topLevel));
-				subtractTi(resultsArrayList);
+				resultsArrayList.add(subtractTi(seq.getArrayListFromRois(ArrayListType.topLevel)));
 				break;
 			case DERIVEDVALUES:
 				resultsArrayList.add(seq.getArrayListFromRois(ArrayListType.derivedValues));
@@ -141,71 +122,70 @@ public class XLSExportCapillaryResults {
 				break;
 			case TOPLEVEL:
 			case SUMLR:
-				resultsArrayList.add(seq.getArrayListFromRois(ArrayListType.topLevel));
+				if (optiont0)
+					resultsArrayList.add(subtractT0(seq.getArrayListFromRois(ArrayListType.topLevel)));
+				else
+					resultsArrayList.add(seq.getArrayListFromRois(ArrayListType.topLevel));
 				break;
 			default:
 				break;
 			}
 		}
-		
-		if (optiont0) {
-			subtractT0(resultsArrayList);
-		}		
+			
 		return resultsArrayList;
 	}
 	
-	private static void subtractT0(ArrayList <ArrayList<Integer >> resultsArrayList) {
-		for (ArrayList<Integer> array : resultsArrayList) {
-			if (array == null || array.size() < 1)
-				continue;
-			int item0 = array.get(0);
-			for (int item: array) {
-				item =item-item0;
-			}
+	private static ArrayList<Integer> subtractT0 (ArrayList<Integer> array) {
+
+		if (array == null)
+			return null;
+		int item0 = array.get(0);
+		for (int index= 0; index < array.size(); index++) {
+			int value = array.get(index);
+			array.set(index, value-item0);
 		}
+		return array;
 	}
 	
-	private static void subtractTi(ArrayList <ArrayList<Integer >> resultsArrayList) {
-		for (ArrayList<Integer> array : resultsArrayList) {
-			if (array == null || array.size() < 1)
-				continue;
-			int item0 = array.get(0);
-			for (int item: array) {
-				int value = item;
-				item =item-item0;
-				item0 = value;
-			}
+	private static ArrayList<Integer> subtractTi(ArrayList<Integer > array) {
+		if (array == null)
+			return null;
+		int item0 = array.get(0);
+		for (int index= 0; index < array.size(); index++) {
+			int value = array.get(index);
+			array.set(index, value-item0);
+			item0 = value;
 		}
+		return array;
 	}
 	
-	private static void /*ArrayList <ArrayList<Integer>>*/ trimDeadsFromArrayList(Experiment exp, ArrayList <ArrayList<Integer >> resultsArrayList) {
+	private static void trimDeadsFromArrayList(Experiment exp, ArrayList <ArrayList<Integer >> resultsArrayList) {
 		
 		ArrayList <ArrayList<Integer >> trimmedArrayList = new ArrayList <ArrayList<Integer >> ();
 		int icapillary = 0;
 		for (XYTaSeries flypos: exp.vSequence.cages.flyPositionsList) {
-			int ilastalive = getLastIntervalAlive(flypos);					
-			trimmedArrayList.add(trimArrayLength(resultsArrayList.get(icapillary), ilastalive));
-			trimmedArrayList.add(trimArrayLength(resultsArrayList.get(icapillary+1), ilastalive));
+			int ilastalive = getLastIntervalAlive(flypos);
+			trimArrayLength(resultsArrayList.get(icapillary), ilastalive);
+			trimmedArrayList.add(resultsArrayList.get(icapillary));
+			trimArrayLength(resultsArrayList.get(icapillary+1), ilastalive);
+			trimmedArrayList.add(resultsArrayList.get(icapillary+1));
 			icapillary += 2;
-		}
-		/*return trimmedArrayList;*/		
+		}		
 	}
 	
 	private static int getLastIntervalAlive(XYTaSeries flypos) {
 		if (flypos.lastIntervalAlive >= 0)
 			return flypos.lastIntervalAlive;
-		
 		return flypos.computeLastIntervalAlive();
 	}
 	
-	private static ArrayList<Integer> trimArrayLength (ArrayList<Integer> array, int ilastalive) {
+	private static void trimArrayLength (ArrayList<Integer> array, int ilastalive) {
 		if (array == null)
-			return null;
-		int nresults_intervals = array.size();
-		for (int i = nresults_intervals-1; i > ilastalive; i--) {
+			return;
+		int arraysize = array.size();
+		for (int i = arraysize-1; i > ilastalive; i--) {
 			array.remove(i);
 		}
-		return array;
 	}
 	
 	private static int xlsExportCapillaryDataToWorkbook(Experiment exp, XSSFWorkbook workBook, String title, XLSExportItems xlsoption, int col0, String charSeries, ArrayList <ArrayList<Integer >> arrayList) {
@@ -351,21 +331,22 @@ public class XLSExportCapillaryResults {
 		return pt;
 	}
 
-	private static long getnearest(long diff, int step) {
-		long diff0 = (diff /step)*step;
+	private static long getnearest(long value, int step) {
+		long diff0 = (value /step)*step;
 		long diff1 = diff0 + step;
-		if ((diff - diff0 ) < (diff1 - diff))
-			diff = diff0;
+		if ((value - diff0 ) < (diff1 - value))
+			value = diff0;
 		else
-			diff = diff1;
-		return diff;
+			value = diff1;
+		return value;
 	}
 	
 	private static Point writeData (Experiment exp, XSSFSheet sheet, XLSExportItems option, Point pt, boolean transpose, String charSeries, ArrayList <ArrayList<Integer >> dataArrayList) {
 		
 		int col0 = pt.x;
+		int row0 = pt.y;
 
-		double ratio = exp.vSequence.capillaries.capillaryVolume / exp.vSequence.capillaries.capillaryPixels;
+		double scalingFactorToPhysicalUnits = exp.vSequence.capillaries.capillaryVolume / exp.vSequence.capillaries.capillaryPixels;
 		if (charSeries == null)
 			charSeries = "t";
 	
@@ -375,31 +356,31 @@ public class XLSExportCapillaryResults {
 		
 		FileTime imageTime = exp.vSequence.getImageModifiedTime(startFrame);
 		long imageTimeMinutes = imageTime.toMillis()/ 60000;
-		long diff = getnearest(imageTimeMinutes-firstImageTimeMinutes, step)/ step;
-		imageTimeMinutes = firstImageTimeMinutes;
+		if (col0 == 0) {
+			imageTimeMinutes = expAll.fileTimeImageLastMinutes;
+		}
+		long diff = getnearest(imageTimeMinutes-expAll.fileTimeImageFirstMinutes, step)/ step;
+		imageTimeMinutes = expAll.fileTimeImageFirstMinutes;
 		pt.x = col0;
-		for (int i = 0; i< diff; i++) {
-			long diff2 = getnearest(imageTimeMinutes-firstImageTimeMinutes, step);
+		for (int i = 0; i<= diff; i++) {
+			long diff2 = getnearest(imageTimeMinutes-expAll.fileTimeImageFirstMinutes, step);
+			pt.y = (int) (diff2/step + row0); 
 			XLSUtils.setValue(sheet, pt, transpose, "t"+diff2);
 			imageTimeMinutes += step;
-			pt.y++;
 		}
 		
-		Point pt0 = new Point(pt);
-		pt0.x = 0;
 		for (int currentFrame=startFrame; currentFrame < endFrame; currentFrame+= step) {
 			pt.x = col0;
 
 			imageTime = exp.vSequence.getImageModifiedTime(currentFrame);
 			imageTimeMinutes = imageTime.toMillis()/ 60000;
-			
-			diff = getnearest(imageTimeMinutes-firstImageTimeMinutes, step);
-			XLSUtils.setValue(sheet, pt, transpose, "t"+diff);
+			diff = getnearest(imageTimeMinutes-expAll.fileTimeImageFirstMinutes, step);
+			pt.y = (int) (diff/step + row0);
+			long diff0 = getnearest(imageTimeMinutes-exp.fileTimeImageFirst.toMillis()/60000, step);
+			XLSUtils.setValue(sheet, pt, transpose, "t"+diff0);
 			pt.x++;
-			pt0.y = pt.y;
-			XSSFCell cell = XLSUtils.getCell(sheet, pt0, transpose);
-			if (cell.getCellType() == CellType.BLANK)
-				XLSUtils.setValue(sheet, pt0, transpose, "t"+diff);
+
+			
 			XLSUtils.setValue(sheet, pt, transpose, imageTimeMinutes);
 			pt.x++;
 
@@ -412,19 +393,17 @@ public class XLSExportCapillaryResults {
 			case SUMLR:
 				for (int i=0; i< dataArrayList.size(); i+=2) 
 				{
-
 					ArrayList<Integer> dataL = dataArrayList.get(i) ;
 					ArrayList<Integer> dataR = dataArrayList.get(i+1);
 					if (dataL != null && dataR != null) {
 						int j = (currentFrame - startFrame)/step;
 						if (j < dataL.size() && j < dataR.size()) {
-							double value = (dataL.get(j)+dataR.get(j))*ratio;
-							double valueold = 0.;
-							XSSFCell cell1 = XLSUtils.getCell(sheet, pt, transpose);
-							if (cell1.getCellType() == CellType.NUMERIC)
-								valueold = cell1.getNumericCellValue();
-							value += valueold;
-							XLSUtils.setValue(sheet, pt, transpose, value );
+							double value = (dataL.get(j)+dataR.get(j))*scalingFactorToPhysicalUnits;
+							XLSUtils.setValue(sheet, pt, transpose, value);
+							Point pt0 = new Point(pt);
+							pt0.x ++;
+							value = (dataL.get(j)-dataR.get(j))*scalingFactorToPhysicalUnits/value;
+							XLSUtils.setValue(sheet, pt0, transpose, value);
 						}
 					}
 					pt.x++;
@@ -439,12 +418,7 @@ public class XLSExportCapillaryResults {
 					if (data != null) {
 						int j = (currentFrame - startFrame)/step;
 						if (j < data.size()) {
-							double value = data.get(j)*ratio;
-							double valueold = 0.;
-							XSSFCell cell1 = XLSUtils.getCell(sheet, pt, transpose);
-							if (cell1.getCellType() == CellType.NUMERIC)
-								valueold = cell1.getNumericCellValue();
-							value += valueold;
+							double value = data.get(j)*scalingFactorToPhysicalUnits;
 							XLSUtils.setValue(sheet, pt, transpose, value);
 						}
 					}
