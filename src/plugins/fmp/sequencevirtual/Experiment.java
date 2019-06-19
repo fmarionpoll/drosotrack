@@ -13,6 +13,10 @@ public class Experiment {
 	public long							fileTimeImageFirstMinutes = 0;
 	public long							fileTimeImageLastMinutes = 0;
 	
+	public int startFrame 	= 0;
+	public int step 		= 1;
+	public int endFrame 	= 0;
+	
 	public boolean openSequenceAndMeasures() {
 
 		vSequence = new SequenceVirtual();
