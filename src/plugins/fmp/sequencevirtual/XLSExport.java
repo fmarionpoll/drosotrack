@@ -159,4 +159,10 @@ public class XLSExport {
 		return pt;
 	}
 
+	public static void xlsCreatePivotTables(XSSFWorkbook workBook, String fromWorkbook) {
+        
+		xlsCreatePivotTable(workBook, "pivot_avg", fromWorkbook, DataConsolidateFunction.AVERAGE);
+		xlsCreatePivotTable(workBook, "pivot_std", fromWorkbook, DataConsolidateFunction.STD_DEV);
+		xlsCreatePivotTable(workBook, "pivot_n", fromWorkbook, DataConsolidateFunction.COUNT);
+	}
 }

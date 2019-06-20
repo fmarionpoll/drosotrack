@@ -82,7 +82,7 @@ import plugins.fmp.tools.ThresholdType;
 public class Areatrack extends PluginActionable implements ActionListener, ChangeListener, ViewerListener
 {	
 	// -------------------------------------- interface
-	IcyFrame mainFrame = new IcyFrame("AreaTrack 14-06-2018", true, true, true, true);
+	IcyFrame mainFrame = new IcyFrame("AreaTrack 20-06-2019", true, true, true, true);
 	IcyFrame mainChartFrame = null;
 	JPanel 	mainChartPanel = null;
 	
@@ -146,10 +146,8 @@ public class Areatrack extends PluginActionable implements ActionListener, Chang
 	private int			analyzeStep 		= 1;
 	private int 		startFrame 			= 1;
 	private int 		endFrame 			= 99999999;
-	//private int 		numberOfImageForBuffer = 100;
 	private AreaAnalysisThread analysisThread = null;
-//	private OverlayThreshold thresholdOverlay = null;
-//	private boolean 	thresholdOverlayON	= false;
+
 	
 	// parameters saved/read in xml file
 	private ThresholdType thresholdtype 	= ThresholdType.COLORARRAY; 

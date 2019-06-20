@@ -7,7 +7,6 @@ import java.io.IOException;
 import java.nio.file.attribute.FileTime;
 import java.util.ArrayList;
 
-import org.apache.poi.ss.usermodel.DataConsolidateFunction;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.util.CellReference;
 import org.apache.poi.xssf.usermodel.XSSFSheet;
@@ -31,12 +30,15 @@ public class XLSExportCapillaryResults extends XLSExport {
 			int col0 = 0;
 			int colmax = 0;
 			int iSeries = 0;
+			System.out.println("collect global infos on each experiment to preload data and find first and last time of the sequences");
 			options.experimentList.readInfosFromAllExperiments();
 			expAll = options.experimentList.getStartAndEndFromAllExperiments();
 			expAll.step = options.experimentList.experimentList.get(0).vSequence.analysisStep;
 			
+			int i= 0;
 			for (Experiment exp: options.experimentList.experimentList) 
 			{
+				System.out.println("output experiment "+i);
 				String charSeries = CellReference.convertNumToColString(iSeries);
 				
 				if (options.topLevel) 		colmax = getDataAndExport(exp, workbook, col0, charSeries, XLSExportItems.TOPLEVEL);
@@ -48,9 +50,11 @@ public class XLSExportCapillaryResults extends XLSExport {
 
 				col0 = colmax;
 				iSeries++;
+				i++;
 			}
 			
 			if (options.transpose && options.pivot) {
+				System.out.println("Build pivot tables... ");
 				String sourceSheetName = null;
 				if (options.topLevel) sourceSheetName = XLSExportItems.TOPLEVEL.toString();
 				else if (options.topLevelDelta) sourceSheetName = XLSExportItems.TOPLEVELDELTA.toString();
@@ -171,8 +175,7 @@ public class XLSExportCapillaryResults extends XLSExport {
 	}
 	
 	private static int xlsExportCapillaryDataToWorkbook(Experiment exp, XSSFWorkbook workBook, String title, XLSExportItems xlsoption, int col0, String charSeries, ArrayList <ArrayList<Integer >> arrayList) {
-		System.out.println("export worksheet "+title);	
-		
+			
 		XSSFSheet sheet = workBook.getSheet(title );
 		boolean flag = (sheet == null);
 		if (flag)
@@ -275,10 +278,10 @@ public class XLSExportCapillaryResults extends XLSExport {
 			
 			switch (option) {
 			case SUMLR:
-				for (int i=0; i< dataArrayList.size(); i+=2) 
+				for (int idataArray=0; idataArray< dataArrayList.size(); idataArray+=2) 
 				{
-					ArrayList<Integer> dataL = dataArrayList.get(i) ;
-					ArrayList<Integer> dataR = dataArrayList.get(i+1);
+					ArrayList<Integer> dataL = dataArrayList.get(idataArray) ;
+					ArrayList<Integer> dataR = dataArrayList.get(idataArray+1);
 					if (dataL != null && dataR != null) {
 						int j = (currentFrame - startFrame)/step;
 						if (j < dataL.size() && j < dataR.size()) {
@@ -296,9 +299,9 @@ public class XLSExportCapillaryResults extends XLSExport {
 				break;
 
 			default:
-				for (int i=0; i< dataArrayList.size(); i++) 
+				for (int idataArray=0; idataArray< dataArrayList.size(); idataArray++) 
 				{
-					ArrayList<Integer> data = dataArrayList.get(i);
+					ArrayList<Integer> data = dataArrayList.get(idataArray);
 					if (data != null) {
 						int j = (currentFrame - startFrame)/step;
 						if (j < data.size()) {
@@ -310,16 +313,10 @@ public class XLSExportCapillaryResults extends XLSExport {
 				}
 				break;
 			}
-			pt.y++;
 		}
 		return pt;
 	}
 		
-	public static void xlsCreatePivotTables(XSSFWorkbook workBook, String fromWorkbook) {
-        
-		xlsCreatePivotTable(workBook, "pivot_avg", fromWorkbook, DataConsolidateFunction.AVERAGE);
-		xlsCreatePivotTable(workBook, "pivot_std", fromWorkbook, DataConsolidateFunction.STD_DEV);
-		xlsCreatePivotTable(workBook, "pivot_n", fromWorkbook, DataConsolidateFunction.COUNT);
-	}
+
 
 }

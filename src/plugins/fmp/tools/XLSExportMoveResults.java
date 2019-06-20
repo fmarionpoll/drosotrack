@@ -7,7 +7,6 @@ import java.io.IOException;
 import java.nio.file.attribute.FileTime;
 import java.util.ArrayList;
 
-import org.apache.poi.ss.usermodel.DataConsolidateFunction;
 import org.apache.poi.ss.util.CellReference;
 import org.apache.poi.ss.usermodel.Row;
 
@@ -31,26 +30,31 @@ public class XLSExportMoveResults extends XLSExport {
 			int col0 = 0;
 			int colmax = 0;
 			int iSeries = 0;
+			System.out.println("collect global infos on each experiment to preload data and find first and last time of the sequences");
 			options.experimentList.readInfosFromAllExperiments();
 			expAll = options.experimentList.getStartAndEndFromAllExperiments();
 			expAll.step = options.experimentList.experimentList.get(0).vSequence.analysisStep;
 			
+			int i= 0;
 			for (Experiment exp: options.experimentList.experimentList) 
 			{
+				System.out.println("output experiment "+i);
 				String charSeries = CellReference.convertNumToColString(iSeries);
 			
 				if (options.xyCenter) 
-					colmax = xlsExportToWorkbook(exp, workbook, "xypos", XLSExportItems.XYCENTER, col0, charSeries);
+					colmax = xlsExportToWorkbook(exp, workbook, col0, charSeries, XLSExportItems.XYCENTER);
 				if (options.distance) 
-					colmax = xlsExportToWorkbook(exp, workbook, "distance", XLSExportItems.DISTANCE, col0, charSeries);
+					colmax = xlsExportToWorkbook(exp, workbook, col0, charSeries, XLSExportItems.DISTANCE);
 				if (options.alive) 
-					colmax = xlsExportToWorkbook(exp, workbook, "alive", XLSExportItems.ISALIVE, col0, charSeries);
+					colmax = xlsExportToWorkbook(exp, workbook, col0, charSeries,  XLSExportItems.ISALIVE);
 				
 				col0 = colmax;
 				iSeries++;
+				i++;
 			}
 			
 			if (options.transpose && options.pivot) { 
+				System.out.println("Build pivot tables... ");
 				String sourceSheetName = null;
 				if (options.alive) 
 					sourceSheetName = XLSExportItems.ISALIVE.toString();
@@ -58,7 +62,7 @@ public class XLSExportMoveResults extends XLSExport {
 					sourceSheetName = XLSExportItems.XYCENTER.toString();
 				else if (options.distance) 
 					sourceSheetName = XLSExportItems.DISTANCE.toString();
-				xlsCreatePivotTables(workbook, sourceSheetName, colmax);
+				xlsCreatePivotTables(workbook, sourceSheetName);
 			}
 			
 			FileOutputStream fileOut = new FileOutputStream(filename);
@@ -74,6 +78,7 @@ public class XLSExportMoveResults extends XLSExport {
 	
 	
 	private static ArrayList <ArrayList<Double>> getDataFromCages(Experiment exp, XLSExportItems option) {
+
 		ArrayList <ArrayList<Double >> arrayList = new ArrayList <ArrayList <Double>> ();
 		
 		for (XYTaSeries posxyt: exp.vSequence.cages.flyPositionsList) {
@@ -94,19 +99,19 @@ public class XLSExportMoveResults extends XLSExport {
 		return arrayList;
 	}
 
-	public static int xlsExportToWorkbook(Experiment exp, XSSFWorkbook workBook, String title, XLSExportItems option, int col0, String charSeries) {
-		System.out.println("export worksheet "+title);
+	public static int xlsExportToWorkbook(Experiment exp, XSSFWorkbook workBook, int col0, String charSeries, XLSExportItems option) {
+
 		ArrayList <ArrayList<Double >> arrayList = getDataFromCages(exp, option);
 
-		XSSFSheet sheet = workBook.getSheet(title );
+		XSSFSheet sheet = workBook.getSheet(option.toString());
 		boolean flag = (sheet == null);
 		if (flag)
-			sheet = workBook.createSheet(title);
+			sheet = workBook.createSheet(option.toString());
 		
 		Point pt = writeGlobalInfos(exp, sheet, col0, options.transpose, option);
 		pt = writeHeader(exp, sheet, pt, option, options.transpose, charSeries);
 		pt = writeData(exp, sheet, pt, option, arrayList, options.transpose, charSeries);
-		return pt.y;
+		return pt.x;
 	}
 	
 	private static Point writeGlobalInfos(Experiment exp, XSSFSheet sheet, int col0, boolean transpose, XLSExportItems option) {
@@ -185,23 +190,16 @@ public class XLSExportMoveResults extends XLSExport {
 		pt.y++;
 		return pt;
 	}
-
-	private static int columnOfNextSeries(Experiment exp, XLSExportItems option, int currentcolumn) {
-		int n = 2;
-		if(option == XLSExportItems.DISTANCE) 
-			n= 1;
-		return currentcolumn + exp.vSequence.cages.flyPositionsList.size() * n +15;
-	}
 	
-	private static Point writeData (Experiment exp, XSSFSheet sheet, Point pt, XLSExportItems option, ArrayList <ArrayList<Double >> arrayList, boolean transpose, String charSeries) {
+	private static Point writeData (Experiment exp, XSSFSheet sheet, Point pt, XLSExportItems option, ArrayList <ArrayList<Double >> dataArrayList, boolean transpose, String charSeries) {
 	
 		int col0 = pt.x;
 		int row0 = pt.y;
 		if (charSeries == null)
 			charSeries = "t";
 		int startFrame 	= (int) exp.vSequence.analysisStart;
-		int step 		= expAll.step;
 		int endFrame 	= (int) exp.vSequence.analysisEnd;
+		int step 		= expAll.step;
 		FileTime imageTime = exp.vSequence.getImageModifiedTime(startFrame);
 		long imageTimeMinutes = imageTime.toMillis()/ 60000;
 		if (col0 == 0) {
@@ -217,8 +215,7 @@ public class XLSExportMoveResults extends XLSExport {
 			imageTimeMinutes += step;
 		}
 		
-		int n_series = arrayList.size();
-		if (n_series == 0) {
+		if (dataArrayList.size() == 0) {
 			pt.x = columnOfNextSeries(exp, option, col0);
 			return pt;
 		}
@@ -236,58 +233,59 @@ public class XLSExportMoveResults extends XLSExport {
 			pt.x++;
 			XLSUtils.setValue(sheet, pt, transpose, imageTimeMinutes);
 			pt.x++;
-			
-			int t = currentFrame - startFrame;
 			if (exp.vSequence.isFileStack()) {
-				XLSUtils.setValue(sheet, pt, transpose, getShortenedName(exp.vSequence, startFrame + t) );
+				XLSUtils.setValue(sheet, pt, transpose, getShortenedName(exp.vSequence, currentFrame) );
 			}
 			pt.x++;
-						
+			
+			int t = (currentFrame - startFrame)/step;
 			switch (option) {
 			case DISTANCE:
-				for (int series=0; series < n_series; series++ ) 
+				for (int idataArray=0; idataArray < dataArrayList.size(); idataArray++ ) 
 				{
-					if (arrayList.get(series).size() < t)
-						continue;
-					XLSUtils.setValue(sheet, pt, transpose, arrayList.get(series).get(t));
+//					if (dataArrayList.get(idataArray).size() > t)
+						XLSUtils.setValue(sheet, pt, transpose, dataArrayList.get(idataArray).get(t));
 					pt.x++;
 				}
 				break;
 			case ISALIVE:
-				for (int series=0; series < n_series; series++ ) 
+				for (int idataArray=0; idataArray < dataArrayList.size(); idataArray++ ) 
 				{
-					if (arrayList.get(series).size() < t)
-						continue;
-					XLSUtils.setValue(sheet, pt, transpose, arrayList.get(series).get(t));
+//					if (dataArrayList.get(idataArray).size() > t)
+						XLSUtils.setValue(sheet, pt, transpose, dataArrayList.get(idataArray).get(t));
 					pt.x++;
-					XLSUtils.setValue(sheet, pt, transpose, arrayList.get(series).get(t));
+//					if (dataArrayList.get(idataArray).size() > t)
+						XLSUtils.setValue(sheet, pt, transpose, dataArrayList.get(idataArray).get(t));
 					pt.x++;
 				}
 				break;
 
 			case XYCENTER:
 			default:
-				for (int series=0; series < n_series; series++ ) 
+				for (int iDataArray=0; iDataArray < dataArrayList.size(); iDataArray++ ) 
 				{
-					if (arrayList.get(series).size() < t*2)
-						continue;
 					int iarray = t*2;
-					XLSUtils.setValue(sheet, pt, transpose, arrayList.get(series).get(iarray));
+//					if (dataArrayList.get(iDataArray).size() > iarray)
+						XLSUtils.setValue(sheet, pt, transpose, dataArrayList.get(iDataArray).get(iarray));
 					pt.x++;
-					XLSUtils.setValue(sheet, pt, transpose, arrayList.get(series).get(iarray+1));
+//					if (dataArrayList.get(iDataArray).size() > iarray+1)
+						XLSUtils.setValue(sheet, pt, transpose, dataArrayList.get(iDataArray).get(iarray+1));
 					pt.x++;
 				}
 				break;
 			}
-			pt.y++;
-		}
+		} 
 		pt.x = columnOfNextSeries(exp, option, col0);
 		return pt;
 	}
 
-	public static void xlsCreatePivotTables(XSSFWorkbook workBook, String fromWorkbook, int rowmax) {
-        
-		xlsCreatePivotTable(workBook, "pivot_sum", fromWorkbook, DataConsolidateFunction.SUM);
+	private static int columnOfNextSeries(Experiment exp, XLSExportItems option, int currentcolumn) {
+		int n = 2;
+		if(option == XLSExportItems.DISTANCE) 
+			n= 1;
+		int value = currentcolumn + exp.vSequence.cages.flyPositionsList.size() * n +4;
+		return value;
 	}
+	
 	
 }
