@@ -1,8 +1,5 @@
 package plugins.fmp.tools;
 
-import java.util.ArrayList;
-
-import plugins.fmp.sequencevirtual.Experiment;
 import plugins.fmp.sequencevirtual.ExperimentList;
 
 public class XLSExportOptions {

@@ -16,6 +16,7 @@ import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
 import plugins.fmp.tools.XLSExperimentDescriptors;
+import plugins.fmp.tools.XLSExportItems;
 import plugins.fmp.tools.XLSExportOptions;
 import plugins.fmp.tools.XLSUtils;
 
@@ -132,4 +133,30 @@ public class XLSExport {
         	pivotTable.addColumnLabel(function, i, text);
         }
 	}
+
+	public static Point writeGenericHeader (Experiment exp, XSSFSheet sheet, XLSExportItems option, Point pt, boolean transpose, String charSeries) {
+
+		pt = addLineToHeader(exp, sheet, pt, transpose, XLSExperimentDescriptors.DATE);
+		pt = addLineToHeader(exp, sheet, pt, transpose, XLSExperimentDescriptors.STIM);
+		pt = addLineToHeader(exp, sheet, pt, transpose, XLSExperimentDescriptors.CONC);
+		pt = addLineToHeader(exp, sheet, pt, transpose, XLSExperimentDescriptors.CAM);
+		pt = addLineToHeader(exp, sheet, pt, transpose, XLSExperimentDescriptors.CAP);
+		pt = addLineToHeader(exp, sheet, pt, transpose, XLSExperimentDescriptors.CAGE);
+		pt = addLineToHeader(exp, sheet, pt, transpose, XLSExperimentDescriptors.TIME);
+		pt = addLineToHeader(exp, sheet, pt, transpose, XLSExperimentDescriptors.NFLIES);
+		pt = addLineToHeader(exp, sheet, pt, transpose, XLSExperimentDescriptors.DUM1);
+		pt = addLineToHeader(exp, sheet, pt, transpose, XLSExperimentDescriptors.DUM2);
+		pt = addLineToHeader(exp, sheet, pt, transpose, XLSExperimentDescriptors.DUM3);
+		pt = addLineToHeader(exp, sheet, pt, transpose, XLSExperimentDescriptors.DUM4);
+	
+		XLSUtils.setValue(sheet, pt, transpose, "rois"+charSeries);
+		pt.x++;
+		XLSUtils.setValue(sheet, pt, transpose, "timeMin"+charSeries);
+		pt.x++;
+		XLSUtils.setValue(sheet, pt, transpose, "filename" );
+		pt.x++;
+
+		return pt;
+	}
+
 }

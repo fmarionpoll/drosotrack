@@ -146,30 +146,11 @@ public class XLSExportMoveResults extends XLSExport {
 		return pt;
 	}
 
-	
 	private static Point writeHeader (Experiment exp, XSSFSheet sheet, Point pt, XLSExportItems option, boolean transpose, String charSeries) {
 		
 		int col0 = pt.x;
 
-		pt = addLineToHeader(exp, sheet, pt, transpose, XLSExperimentDescriptors.DATE);
-		pt = addLineToHeader(exp, sheet, pt, transpose, XLSExperimentDescriptors.STIM);
-		pt = addLineToHeader(exp, sheet, pt, transpose, XLSExperimentDescriptors.CONC);
-		pt = addLineToHeader(exp, sheet, pt, transpose, XLSExperimentDescriptors.CAM);
-		pt = addLineToHeader(exp, sheet, pt, transpose, XLSExperimentDescriptors.CAP);
-		pt = addLineToHeader(exp, sheet, pt, transpose, XLSExperimentDescriptors.CAGE);
-		pt = addLineToHeader(exp, sheet, pt, transpose, XLSExperimentDescriptors.TIME);
-		pt = addLineToHeader(exp, sheet, pt, transpose, XLSExperimentDescriptors.NFLIES);
-		pt = addLineToHeader(exp, sheet, pt, transpose, XLSExperimentDescriptors.DUM1);
-		pt = addLineToHeader(exp, sheet, pt, transpose, XLSExperimentDescriptors.DUM2);
-		pt = addLineToHeader(exp, sheet, pt, transpose, XLSExperimentDescriptors.DUM3);
-		pt = addLineToHeader(exp, sheet, pt, transpose, XLSExperimentDescriptors.DUM4);
-		
-		XLSUtils.setValue(sheet, pt, transpose, "rois"+charSeries);
-		pt.x++;
-		if (exp.vSequence.isFileStack()) {
-			XLSUtils.setValue(sheet, pt, transpose, "filename");
-			pt.x++;
-		}
+		pt = writeGenericHeader(exp, sheet, option, pt, transpose, charSeries);
 		
 		switch (option) {
 		case DISTANCE:
@@ -200,11 +181,17 @@ public class XLSExportMoveResults extends XLSExport {
 			}
 			break;
 		}
-		pt.x= col0;
+		pt.x = col0;
 		pt.y++;
 		return pt;
 	}
 
+	private static int columnOfNextSeries(Experiment exp, XLSExportItems option, int currentcolumn) {
+		int n = 2;
+		if(option == XLSExportItems.DISTANCE) 
+			n= 1;
+		return currentcolumn + exp.vSequence.cages.flyPositionsList.size() * n +15;
+	}
 	
 	private static Point writeData (Experiment exp, XSSFSheet sheet, Point pt, XLSExportItems option, ArrayList <ArrayList<Double >> arrayList, boolean transpose, String charSeries) {
 	
@@ -231,6 +218,10 @@ public class XLSExportMoveResults extends XLSExport {
 		}
 		
 		int n_series = arrayList.size();
+		if (n_series == 0) {
+			pt.x = columnOfNextSeries(exp, option, col0);
+			return pt;
+		}
 		
 		for (int currentFrame=startFrame; currentFrame< endFrame; currentFrame+= step) {
 			
@@ -254,36 +245,43 @@ public class XLSExportMoveResults extends XLSExport {
 						
 			switch (option) {
 			case DISTANCE:
-				for (int i=0; i < n_series; i++ ) 
+				for (int series=0; series < n_series; series++ ) 
 				{
-					XLSUtils.setValue(sheet, pt, transpose, arrayList.get(i).get(t));
+					if (arrayList.get(series).size() < t)
+						continue;
+					XLSUtils.setValue(sheet, pt, transpose, arrayList.get(series).get(t));
 					pt.x++;
 				}
 				break;
 			case ISALIVE:
-				for (int i=0; i < n_series; i++ ) 
+				for (int series=0; series < n_series; series++ ) 
 				{
-					XLSUtils.setValue(sheet, pt, transpose, arrayList.get(i).get(t));
+					if (arrayList.get(series).size() < t)
+						continue;
+					XLSUtils.setValue(sheet, pt, transpose, arrayList.get(series).get(t));
 					pt.x++;
-					XLSUtils.setValue(sheet, pt, transpose, arrayList.get(i).get(t));
+					XLSUtils.setValue(sheet, pt, transpose, arrayList.get(series).get(t));
 					pt.x++;
 				}
 				break;
 
 			case XYCENTER:
 			default:
-				for (int i=0; i < n_series; i++ ) 
+				for (int series=0; series < n_series; series++ ) 
 				{
+					if (arrayList.get(series).size() < t*2)
+						continue;
 					int iarray = t*2;
-					XLSUtils.setValue(sheet, pt, transpose, arrayList.get(i).get(iarray));
+					XLSUtils.setValue(sheet, pt, transpose, arrayList.get(series).get(iarray));
 					pt.x++;
-					XLSUtils.setValue(sheet, pt, transpose, arrayList.get(i).get(iarray+1));
+					XLSUtils.setValue(sheet, pt, transpose, arrayList.get(series).get(iarray+1));
 					pt.x++;
 				}
 				break;
 			}
 			pt.y++;
 		}
+		pt.x = columnOfNextSeries(exp, option, col0);
 		return pt;
 	}
 

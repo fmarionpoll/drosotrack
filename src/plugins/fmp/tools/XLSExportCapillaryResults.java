@@ -217,28 +217,11 @@ public class XLSExportCapillaryResults extends XLSExport {
 	private static Point writeHeader (Experiment exp, XSSFSheet sheet, XLSExportItems option, Point pt, boolean transpose, String charSeries) {
 		
 		int col0 = pt.x;
-
-		pt = addLineToHeader(exp, sheet, pt, transpose, XLSExperimentDescriptors.DATE);
-		pt = addLineToHeader(exp, sheet, pt, transpose, XLSExperimentDescriptors.STIM);
-		pt = addLineToHeader(exp, sheet, pt, transpose, XLSExperimentDescriptors.CONC);
-		pt = addLineToHeader(exp, sheet, pt, transpose, XLSExperimentDescriptors.CAM);
-		pt = addLineToHeader(exp, sheet, pt, transpose, XLSExperimentDescriptors.CAP);
-		pt = addLineToHeader(exp, sheet, pt, transpose, XLSExperimentDescriptors.CAGE);
-		pt = addLineToHeader(exp, sheet, pt, transpose, XLSExperimentDescriptors.TIME);
-		pt = addLineToHeader(exp, sheet, pt, transpose, XLSExperimentDescriptors.NFLIES);
-		pt = addLineToHeader(exp, sheet, pt, transpose, XLSExperimentDescriptors.DUM1);
-		pt = addLineToHeader(exp, sheet, pt, transpose, XLSExperimentDescriptors.DUM2);
-		pt = addLineToHeader(exp, sheet, pt, transpose, XLSExperimentDescriptors.DUM3);
-		pt = addLineToHeader(exp, sheet, pt, transpose, XLSExperimentDescriptors.DUM4);
-	
-		XLSUtils.setValue(sheet, pt, transpose, "rois"+charSeries);
-		pt.x++;
-		XLSUtils.setValue(sheet, pt, transpose, "timeMin"+charSeries);
-		pt.x++;
-		XLSUtils.setValue(sheet, pt, transpose, "filename" );
-		pt.x++;
+		
+		pt = writeGenericHeader(exp, sheet, option, pt, transpose, charSeries);
+		
 		for (SequencePlus seq: exp.kymographArrayList) {
-			XLSUtils.setValue(sheet, pt, transpose, seq.getName() );
+			XLSUtils.setValue(sheet, pt, transpose, seq.getName());
 			pt.x++;
 		}
 		pt.x = col0;
