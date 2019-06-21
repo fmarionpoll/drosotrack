@@ -14,7 +14,6 @@ import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
 import plugins.fmp.sequencevirtual.Experiment;
-import plugins.fmp.sequencevirtual.XLSExport;
 import plugins.fmp.sequencevirtual.XYTaSeries;
 
 public class XLSExportMoveResults extends XLSExport {
@@ -243,19 +242,19 @@ public class XLSExportMoveResults extends XLSExport {
 			case DISTANCE:
 				for (int idataArray=0; idataArray < dataArrayList.size(); idataArray++ ) 
 				{
-//					if (dataArrayList.get(idataArray).size() > t)
-						XLSUtils.setValue(sheet, pt, transpose, dataArrayList.get(idataArray).get(t));
+					XLSUtils.setValue(sheet, pt, transpose, dataArrayList.get(idataArray).get(t));
+					pt.x++;
+					XLSUtils.setValue(sheet, pt, transpose, dataArrayList.get(idataArray).get(t));
 					pt.x++;
 				}
 				break;
 			case ISALIVE:
 				for (int idataArray=0; idataArray < dataArrayList.size(); idataArray++ ) 
 				{
-//					if (dataArrayList.get(idataArray).size() > t)
-						XLSUtils.setValue(sheet, pt, transpose, dataArrayList.get(idataArray).get(t));
+					XLSUtils.setValue(sheet, pt, transpose, dataArrayList.get(idataArray).get(t));
 					pt.x++;
-//					if (dataArrayList.get(idataArray).size() > t)
-						XLSUtils.setValue(sheet, pt, transpose, dataArrayList.get(idataArray).get(t));
+
+					XLSUtils.setValue(sheet, pt, transpose, dataArrayList.get(idataArray).get(t));
 					pt.x++;
 				}
 				break;
@@ -265,11 +264,10 @@ public class XLSExportMoveResults extends XLSExport {
 				for (int iDataArray=0; iDataArray < dataArrayList.size(); iDataArray++ ) 
 				{
 					int iarray = t*2;
-//					if (dataArrayList.get(iDataArray).size() > iarray)
-						XLSUtils.setValue(sheet, pt, transpose, dataArrayList.get(iDataArray).get(iarray));
+					XLSUtils.setValue(sheet, pt, transpose, dataArrayList.get(iDataArray).get(iarray));
 					pt.x++;
-//					if (dataArrayList.get(iDataArray).size() > iarray+1)
-						XLSUtils.setValue(sheet, pt, transpose, dataArrayList.get(iDataArray).get(iarray+1));
+
+					XLSUtils.setValue(sheet, pt, transpose, dataArrayList.get(iDataArray).get(iarray+1));
 					pt.x++;
 				}
 				break;
@@ -281,9 +279,7 @@ public class XLSExportMoveResults extends XLSExport {
 
 	private static int columnOfNextSeries(Experiment exp, XLSExportItems option, int currentcolumn) {
 		int n = 2;
-		if(option == XLSExportItems.DISTANCE) 
-			n= 1;
-		int value = currentcolumn + exp.vSequence.cages.flyPositionsList.size() * n +4;
+		int value = currentcolumn + exp.vSequence.cages.cageLimitROIList.size() * n + 3;
 		return value;
 	}
 	

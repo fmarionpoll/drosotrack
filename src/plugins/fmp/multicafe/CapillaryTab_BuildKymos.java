@@ -85,7 +85,7 @@ public class CapillaryTab_BuildKymos extends JPanel implements ActionListener {
 			return;
 		
 		sComputation = StatusComputation.STOP_COMPUTATION;
-		parent0.sequencePane.optionsTab.UpdateItemsToSequence (parent0);
+		parent0.sequencePane.browseTab.UpdateItemsToSequence (parent0);
 		setStartButton(false);
 		kymosBuildKymographs();	
 		Viewer v = parent0.vSequence.getFirstViewer();

@@ -14,7 +14,6 @@ import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
 import plugins.fmp.sequencevirtual.Experiment;
 import plugins.fmp.sequencevirtual.SequencePlus;
-import plugins.fmp.sequencevirtual.XLSExport;
 import plugins.fmp.sequencevirtual.XYTaSeries;
 
 public class XLSExportCapillaryResults extends XLSExport {

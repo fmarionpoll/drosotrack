@@ -1,4 +1,4 @@
-package plugins.fmp.sequencevirtual;
+package plugins.fmp.tools;
 
 import java.awt.Point;
 import java.nio.file.Path;
@@ -15,10 +15,8 @@ import org.apache.poi.xssf.usermodel.XSSFPivotTable;
 import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
-import plugins.fmp.tools.XLSExperimentDescriptors;
-import plugins.fmp.tools.XLSExportItems;
-import plugins.fmp.tools.XLSExportOptions;
-import plugins.fmp.tools.XLSUtils;
+import plugins.fmp.sequencevirtual.Experiment;
+import plugins.fmp.sequencevirtual.SequenceVirtual;
 
 public class XLSExport {
 

@@ -27,7 +27,7 @@ public class MoveTab_BuildROIs extends JPanel implements ActionListener {
 	 * 
 	 */
 	private static final long serialVersionUID = -5257698990389571518L;
-	private JButton 	addPolygon2DButton 		= new JButton("Define external limits");
+	private JButton 	addPolygon2DButton 		= new JButton("Draw Polygon2D");
 	private JButton createROIsFromPolygonButton = new JButton("Create/add (from Polygon 2D)");
 	private JTextField nbcagesTextField 	= new JTextField("10");
 	private JTextField width_cageTextField 	= new JTextField("10");

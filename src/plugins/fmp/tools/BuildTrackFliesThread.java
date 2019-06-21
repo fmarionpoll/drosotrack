@@ -30,7 +30,6 @@ public class BuildTrackFliesThread implements Runnable {
 	public DetectFliesParameters detect = new DetectFliesParameters();
 	public Cages cages = new Cages();
 
-
 	/*
 	 * (non-Javadoc)
 	 * @see java.lang.Thread#run()

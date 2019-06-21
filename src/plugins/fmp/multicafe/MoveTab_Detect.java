@@ -28,7 +28,7 @@ import plugins.fmp.tools.OverlayThreshold;
 import plugins.fmp.tools.ImageTransformTools.TransformOp;
 
 
-public class MoveTab_Detect extends JPanel implements ActionListener, ChangeListener {
+public class MoveTab_Detect extends JPanel implements ChangeListener {
 	/**
 	 * 
 	 */
@@ -36,7 +36,6 @@ public class MoveTab_Detect extends JPanel implements ActionListener, ChangeList
 	private Multicafe parent0;
 	
 	private JButton startComputationButton 	= new JButton("Start / Stop");
-//	private JButton stopComputationButton	= new JButton("Stop");
 	private JComboBox<String> colorChannelComboBox = new JComboBox<String> (new String[] {"Red", "Green", "Blue"});
 	private JComboBox<TransformOp> backgroundComboBox = new JComboBox<> (new TransformOp[]  {TransformOp.NONE, TransformOp.REF_PREVIOUS, TransformOp.REF_T0});
 	private JSpinner thresholdSpinner		= new JSpinner(new SpinnerNumberModel(100, 0, 255, 10));
@@ -55,7 +54,6 @@ public class MoveTab_Detect extends JPanel implements ActionListener, ChangeList
 		setLayout(capLayout);
 		this.parent0 = parent0;
 
-//		add( GuiUtil.besidesPanel( startComputationButton, stopComputationButton ) );
 		JPanel dummyPanel = new JPanel();
 		dummyPanel.add( GuiUtil.besidesPanel(whiteMiceCheckBox, thresholdedImageCheckBox ) );
 		FlowLayout layout = (FlowLayout) dummyPanel.getLayout();
@@ -120,18 +118,8 @@ public class MoveTab_Detect extends JPanel implements ActionListener, ChangeList
 			public void actionPerformed( final ActionEvent e ) { 
 				startComputation();
 			}});
-		
-//		stopComputationButton.addActionListener(new ActionListener () {
-//			@Override
-//			public void actionPerformed( final ActionEvent e ) { 
-//				stopComputation();
-//				// TODO updateButtonsVisibility(StateD.STOP_COMPUTATION);
-//			}});
 
-	}
 
-	@Override
-	public void actionPerformed(ActionEvent e) {
 	}
 	
 	private void updateOverlay () {

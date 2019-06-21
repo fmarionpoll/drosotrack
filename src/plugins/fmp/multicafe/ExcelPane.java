@@ -100,10 +100,10 @@ public class ExcelPane  extends JPanel implements PropertyChangeListener {
 		options.exportAllFiles = optionsTab.exportAllFilesCheckBox.isSelected();
 		options.experimentList = new ExperimentList ();
 		if (optionsTab.exportAllFilesCheckBox.isSelected()) {
-			int nfiles = parent0.sequencePane.fileTab.experimentComboBox.getItemCount();
+			int nfiles = parent0.sequencePane.browseTab.experimentComboBox.getItemCount();
 			for (int i=0; i< nfiles; i++) {
 				Experiment exp = new Experiment ();
-				exp.filename = parent0.sequencePane.fileTab.experimentComboBox.getItemAt(i);
+				exp.filename = parent0.sequencePane.browseTab.experimentComboBox.getItemAt(i);
 				options.experimentList.experimentList.add(exp);
 			}
 		}

@@ -31,7 +31,7 @@ public class CapillariesTab_Build extends JPanel implements ActionListener {
 	 */
 	private static final long serialVersionUID = -5257698990389571518L;
 	
-	private JButton 	addPolygon2DButton 		= new JButton("Define external limits");
+	private JButton 	addPolygon2DButton 		= new JButton("Draw Polygon2D");
 	private JButton 	createROIsFromPolygonButton2 = new JButton("Generate ROIs (from Polygon 2D)");
 	private JRadioButton selectGroupedby2Button = new JRadioButton("grouped by 2");
 	private JRadioButton selectRegularButton 	= new JRadioButton("evenly spaced");

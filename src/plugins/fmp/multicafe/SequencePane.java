@@ -22,9 +22,8 @@ public class SequencePane extends JPanel implements PropertyChangeListener {
 	
 	public JTabbedPane 			tabsPane 	= new JTabbedPane();
 	public SequenceTab_Open 	fileTab 	= new SequenceTab_Open();
-	public SequenceTab_Options 	optionsTab 	= new SequenceTab_Options();
+	public SequenceTab_Browse 	browseTab 	= new SequenceTab_Browse();
 	public SequenceTab_Close 	closeTab 	= new SequenceTab_Close();
-	public SequenceTab_List		listTab		= new SequenceTab_List();
 	private Multicafe 			parent0 	= null;
 	
 	
@@ -38,14 +37,10 @@ public class SequencePane extends JPanel implements PropertyChangeListener {
 		tabsPane.addTab("Open/Add", null, fileTab, "Open one or several stacks of .jpg files");
 		fileTab.addPropertyChangeListener(this);
 		
-		optionsTab.init(capLayout);
-		tabsPane.addTab("Options", null, optionsTab, "Parameters to read/analyze stack");
-		optionsTab.addPropertyChangeListener(this);
-		
-		listTab.init(capLayout, parent0);
-		tabsPane.addTab("List", null, listTab, "Define list of files");
-		listTab.addPropertyChangeListener(this);
-		
+		browseTab.init(capLayout, parent0);
+		tabsPane.addTab("Browse", null, browseTab, "Browse stack and adjust analysis parameters");
+		browseTab.addPropertyChangeListener(this);
+
 		closeTab.init(capLayout, parent0);
 		tabsPane.addTab("Close", null, closeTab, "Close file and associated windows");
 		closeTab.addPropertyChangeListener(this);
@@ -57,23 +52,19 @@ public class SequencePane extends JPanel implements PropertyChangeListener {
 	@Override
 	public void propertyChange(PropertyChangeEvent event) {
 		if (event.getPropertyName().equals("SEQ_OPEN")) {
-			String filename = (String) fileTab.experimentComboBox.getSelectedItem();
-			sequenceCreateNew(filename);
-			updateParametersForSequence();
-			sequenceAddtoCombo(parent0.vSequence.getFileName());
-			firePropertyChange("SEQ_OPEN", false, true);
+			openSequenceFromCombo(); 
 		}
 		else if (event.getPropertyName().equals("SEQ_ADD")) {
 			if (sequenceCreateNew(null)) {
 				String strItem = parent0.vSequence.getFileName();
 				sequenceAddtoCombo(strItem);
-				fileTab.experimentComboBox.setSelectedItem(strItem);
+				browseTab.experimentComboBox.setSelectedItem(strItem);
 				updateParametersForSequence();
 				firePropertyChange("SEQ_OPEN", false, true);
 			}
-		 }	
+		 }
 		 else if (event.getPropertyName().equals("UPDATE")) {
-			optionsTab.UpdateItemsToSequence(parent0);
+			browseTab.UpdateItemsToSequence(parent0);
 			ArrayList<Viewer>vList =  parent0.vSequence.getViewers();
 			Viewer v = vList.get(0);
 			v.toFront();
@@ -81,25 +72,34 @@ public class SequencePane extends JPanel implements PropertyChangeListener {
 		 }
 		 else if (event.getPropertyName().equals("SEQ_CLOSE")) {
 			tabsPane.setSelectedIndex(0);
-			fileTab.experimentComboBox.removeAllItems();
+			browseTab.experimentComboBox.removeAllItems();
 			firePropertyChange("SEQ_CLOSE", false, true);
 		 }
 		 else if (event.getPropertyName().equals("SEARCH_CLOSED")) {
-			 tabsPane.setSelectedIndex(0); 
+			 openSequenceFromCombo(); 
 		 }
 	}
 	
+	private void openSequenceFromCombo() {
+		String filename = (String) browseTab.experimentComboBox.getSelectedItem();
+		sequenceCreateNew(filename);
+		updateParametersForSequence();
+		sequenceAddtoCombo(parent0.vSequence.getFileName());
+		firePropertyChange("SEQ_OPEN", false, true);
+		tabsPane.setSelectedIndex(1);
+	}
+	
 	public void sequenceAddtoCombo(String strItem) {
-		int nitems = fileTab.experimentComboBox.getItemCount();
+		int nitems = browseTab.experimentComboBox.getItemCount();
 		boolean alreadystored = false;
 		for (int i=0; i < nitems; i++) {
-			if (strItem.equals(fileTab.experimentComboBox.getItemAt(i))) {
+			if (strItem.equals(browseTab.experimentComboBox.getItemAt(i))) {
 				alreadystored = true;
 				break;
 			}
 		}
 		if(!alreadystored) {
-			fileTab.experimentComboBox.addItem(strItem);
+			browseTab.experimentComboBox.addItem(strItem);
 		}
 	}
 	
@@ -110,7 +110,7 @@ public class SequencePane extends JPanel implements PropertyChangeListener {
 			return;
 
 		parent0.vSequence.vImageBufferThread_STOP();
-		optionsTab.UpdateItemsToSequence(parent0); ;
+		browseTab.UpdateItemsToSequence(parent0); ;
 		parent0.vSequence.vImageBufferThread_START(100); //numberOfImageForBuffer);
 	}
 	
@@ -133,7 +133,7 @@ public class SequencePane extends JPanel implements PropertyChangeListener {
 	
 	private void updateParametersForSequence() {
 		int endFrame = parent0.vSequence.getSizeT()-1;
-		optionsTab.endFrameTextField.setText( Integer.toString(endFrame));
+		browseTab.endFrameTextField.setText( Integer.toString(endFrame));
 
 		Viewer v = parent0.vSequence.getFirstViewer();
 		Rectangle rectv = v.getBoundsInternal();
