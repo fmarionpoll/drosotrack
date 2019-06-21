@@ -29,6 +29,7 @@ public class ExcelTab_Kymos extends JPanel implements ActionListener  {
 	public JCheckBox 	derivativeCheckBox  = new JCheckBox("derivative", false);
 	public JCheckBox	t0CheckBox			= new JCheckBox("t-t0", true);
 	public JCheckBox	onlyaliveCheckBox   = new JCheckBox("dead=empty");
+
 	
 	
 	public void init(GridLayout capLayout) {	

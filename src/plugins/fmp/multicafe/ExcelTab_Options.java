@@ -19,12 +19,13 @@ public class ExcelTab_Options   extends JPanel {
 	public JCheckBox	transposeCheckBox 	= new JCheckBox("transpose", true);
 	public JCheckBox	pivotCheckBox 		= new JCheckBox("pivot", false);
 	public JCheckBox 	exportAllFilesCheckBox = new JCheckBox("all experiments", true);
+	public JCheckBox	absoluteTimeCheckBox = new JCheckBox("absolute time", false);
 	
 	public void init(GridLayout capLayout) {	
 		setLayout(capLayout);
 		add(GuiUtil.besidesPanel( transposeCheckBox, new JLabel(" "), new JLabel(" "), new JLabel(" ")));
 		add(GuiUtil.besidesPanel( pivotCheckBox, new JLabel(" "),  new JLabel(" "), new JLabel(" "))); 
-		add(GuiUtil.besidesPanel( exportAllFilesCheckBox, new JLabel(" "), new JLabel(" "), new JLabel(" "))); 
+		add(GuiUtil.besidesPanel( exportAllFilesCheckBox, absoluteTimeCheckBox, new JLabel(" "), new JLabel(" "))); 
 	}
 
 }

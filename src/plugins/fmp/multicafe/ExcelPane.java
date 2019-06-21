@@ -95,10 +95,11 @@ public class ExcelPane  extends JPanel implements PropertyChangeListener {
 	}
 	
 	private void getCommonOptions(XLSExportOptions options) {
-		options.transpose = optionsTab.transposeCheckBox.isSelected();
-		options.pivot = optionsTab.pivotCheckBox.isSelected();
-		options.exportAllFiles = optionsTab.exportAllFilesCheckBox.isSelected();
-		options.experimentList = new ExperimentList ();
+		options.transpose 		= optionsTab.transposeCheckBox.isSelected();
+		options.pivot 			= optionsTab.pivotCheckBox.isSelected();
+		options.exportAllFiles 	= optionsTab.exportAllFilesCheckBox.isSelected();
+		options.experimentList 	= new ExperimentList ();
+		options.absoluteTime	= optionsTab.absoluteTimeCheckBox.isSelected();
 		if (optionsTab.exportAllFilesCheckBox.isSelected()) {
 			int nfiles = parent0.sequencePane.browseTab.experimentComboBox.getItemCount();
 			for (int i=0; i< nfiles; i++) {
@@ -125,6 +126,7 @@ public class ExcelPane  extends JPanel implements PropertyChangeListener {
 		options.sum 			= kymosTab.sumCheckBox.isSelected(); 
 		options.t0 				= kymosTab.t0CheckBox.isSelected();
 		options.onlyalive 		= kymosTab.onlyaliveCheckBox.isSelected();
+
 		getCommonOptions(options);
 		return options;
 	}

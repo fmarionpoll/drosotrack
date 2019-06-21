@@ -12,14 +12,21 @@ public enum XLSExportItems {
 	TOPLEVELDELTA ("topdelta");
 	
 	private String label;
+	
 	XLSExportItems (String label) { 
-		this.label = label;}
+		this.label = label;
+	}
+	
 	public String toString() { 
-		return label;}	
+		return label;
+	}
+	
 	public static XLSExportItems findByText(String abbr){
-	    for(XLSExportItems v : values()){ 
+	    for(XLSExportItems v : values()) { 
 	    	if( v.toString().equals(abbr)) { 
-	    		return v; }  }
+	    		return v; 
+    		}  
+    	}
 	    return null;
 	}
 }

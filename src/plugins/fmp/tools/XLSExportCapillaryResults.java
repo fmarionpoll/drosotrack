@@ -242,30 +242,39 @@ public class XLSExportCapillaryResults extends XLSExport {
 		int startFrame 	= (int) exp.vSequence.analysisStart;
 		int endFrame 	= (int) exp.vSequence.analysisEnd;
 		int step 		= expAll.step;
+
 		FileTime imageTime = exp.vSequence.getImageModifiedTime(startFrame);
 		long imageTimeMinutes = imageTime.toMillis()/ 60000;
-		if (col0 == 0) {
-			imageTimeMinutes = expAll.fileTimeImageLastMinutes;
-		}
-		long diff = getnearest(imageTimeMinutes-expAll.fileTimeImageFirstMinutes, step)/ step;
-		imageTimeMinutes = expAll.fileTimeImageFirstMinutes;
-		pt.x = col0;
-		for (int i = 0; i<= diff; i++) {
-			long diff2 = getnearest(imageTimeMinutes-expAll.fileTimeImageFirstMinutes, step);
-			pt.y = (int) (diff2/step + row0); 
-			XLSUtils.setValue(sheet, pt, transpose, "t"+diff2);
-			imageTimeMinutes += step;
+		if (options.absoluteTime) {
+			if (col0 == 0) {
+				imageTimeMinutes = expAll.fileTimeImageLastMinutes;
+			}
+			long diff = getnearest(imageTimeMinutes-expAll.fileTimeImageFirstMinutes, step)/ step;
+			imageTimeMinutes = expAll.fileTimeImageFirstMinutes;
+			pt.x = col0;
+			for (int i = 0; i<= diff; i++) {
+				long diff2 = getnearest(imageTimeMinutes-expAll.fileTimeImageFirstMinutes, step);
+				pt.y = (int) (diff2/step + row0); 
+				XLSUtils.setValue(sheet, pt, transpose, "t"+diff2);
+				imageTimeMinutes += step;
+			}
 		}
 		
 		for (int currentFrame=startFrame; currentFrame < endFrame; currentFrame+= step) {
 			
 			pt.x = col0;
 
+			long diff0 = (currentFrame - startFrame)/step;
 			imageTime = exp.vSequence.getImageModifiedTime(currentFrame);
 			imageTimeMinutes = imageTime.toMillis()/ 60000;
-			diff = getnearest(imageTimeMinutes-expAll.fileTimeImageFirstMinutes, step);
-			pt.y = (int) (diff/step + row0);
-			long diff0 = getnearest(imageTimeMinutes-exp.fileTimeImageFirst.toMillis()/60000, step);
+
+			if (options.absoluteTime) {
+				long diff = getnearest(imageTimeMinutes-expAll.fileTimeImageFirstMinutes, step);
+				pt.y = (int) (diff/step + row0);
+				diff0 = getnearest(imageTimeMinutes-exp.fileTimeImageFirst.toMillis()/60000, step);
+			} else {
+				pt.y = (int) diff0 + row0;
+			}
 			XLSUtils.setValue(sheet, pt, transpose, "t"+diff0);
 			pt.x++;
 			XLSUtils.setValue(sheet, pt, transpose, imageTimeMinutes);
@@ -316,6 +325,4 @@ public class XLSExportCapillaryResults extends XLSExport {
 		return pt;
 	}
 		
-
-
 }

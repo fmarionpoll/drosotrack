@@ -21,6 +21,7 @@ public class XLSExportOptions {
 	public boolean duplicateSeries 	= true;
 	public boolean pivot 			= false;
 	public boolean exportAllFiles 	= true;
+	public boolean absoluteTime		= false;
 	
 	public ExperimentList experimentList = new ExperimentList ();
 }

@@ -62,21 +62,21 @@ public class XLSExport {
 			break;
 		case DUM1: {
 			Path path = Paths.get(exp.vSequence.getFileName());
-			String name = path.getName(path.getNameCount() -2).toString();
+			String name = getSubName(path, 2); 
 			for (int i= 0; i < exp.kymographArrayList.size(); i++, pt.x++)
 				XLSUtils.setValue(sheet, pt, transpose, name);
 			}
 			break;
 		case DUM2:	{
 			Path path = Paths.get(exp.vSequence.getFileName());
-			String name = path.getName(path.getNameCount() -3).toString();
+			String name = getSubName(path, 3); 
 			for (int i= 0; i < exp.kymographArrayList.size(); i++, pt.x++)
 				XLSUtils.setValue(sheet, pt, transpose, name);
 			}
 			break;
 		case DUM3:	{
 			Path path = Paths.get(exp.vSequence.getFileName());
-			String name = path.getName(path.getNameCount() -4).toString();
+			String name = getSubName(path, 4); 
 			for (int i= 0; i < exp.kymographArrayList.size(); i++, pt.x++)
 				XLSUtils.setValue(sheet, pt, transpose, name);
 			}
@@ -96,6 +96,13 @@ public class XLSExport {
 		pt.x = col0;
 		pt.y++;
 		return pt;
+	}
+	
+	public static String getSubName(Path path, int subnameIndex) {
+		String name = "-";
+		if (path.getNameCount() >= subnameIndex)
+			name = path.getName(path.getNameCount() -subnameIndex).toString();
+		return name;
 	}
 	
 	public static String getShortenedName(SequenceVirtual seq, int t) {
