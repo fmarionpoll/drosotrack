@@ -36,7 +36,6 @@ public class MoveTab_BuildROIs extends JPanel implements ActionListener {
 	private int 	width_cage 				= 10;
 	private int 	width_interval 			= 2;
 
-
 	private Multicafe parent0;
 	
 	public void init(GridLayout capLayout, Multicafe parent0) {
@@ -92,10 +91,24 @@ public class MoveTab_BuildROIs extends JPanel implements ActionListener {
 
 		Rectangle rect = parent0.vSequence.getBounds2D();
 		List<Point2D> points = new ArrayList<Point2D>();
-		points.add(new Point2D.Double(rect.x + rect.width /6, rect.y + rect.height *2/3));
-		points.add(new Point2D.Double(rect.x + rect.width*5 /6, rect.y + rect.height *2/3));
-		points.add(new Point2D.Double(rect.x + rect.width*5 /6, rect.y + rect.height - 4));
-		points.add(new Point2D.Double(rect.x + rect.width /6, rect.y + rect.height - 4 ));
+		int rectleft = rect.x + rect.width /6;
+		int rectright = rect.x + rect.width*5 /6;
+		if (parent0.vSequence.capillaries.capillariesArrayList.size() > 0) {
+			Rectangle bound0 = parent0.vSequence.capillaries.capillariesArrayList.get(0).getBounds();
+			int last = parent0.vSequence.capillaries.capillariesArrayList.size() - 1;
+			Rectangle bound1 = parent0.vSequence.capillaries.capillariesArrayList.get(last).getBounds();
+			rectleft = bound0.x;
+			rectright = bound1.x + bound1.width;
+			int diff = (rectright - rectleft)*2/60;
+			rectleft -= diff;
+			rectright += diff;
+			
+		}
+		
+		points.add(new Point2D.Double(rectleft, rect.y + rect.height *2/3));
+		points.add(new Point2D.Double(rectright, rect.y + rect.height *2/3));
+		points.add(new Point2D.Double(rectright, rect.y + rect.height - 4));
+		points.add(new Point2D.Double(rectleft, rect.y + rect.height - 4 ));
 		ROI2DPolygon roi = new ROI2DPolygon(points);
 		roi.setName(dummyname);
 		parent0.vSequence.addROI(roi);
