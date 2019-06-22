@@ -207,9 +207,9 @@ public class XLSExportCapillaryResults extends XLSExport {
 		pt.x++;
 		XLSUtils.setValue(sheet, pt, transpose, "capillary" );
 		pt.x++;
-		XLSUtils.setValue(sheet, pt, transpose, exp.vSequence.capillaries.capillaryVolume);
+		XLSUtils.setValue(sheet, pt, transpose, exp.vSequence.capillaries.volume);
 		pt.x++;
-		XLSUtils.setValue(sheet, pt, transpose, exp.vSequence.capillaries.capillaryPixels);
+		XLSUtils.setValue(sheet, pt, transpose, exp.vSequence.capillaries.pixels);
 		pt.x = col0;
 		pt.y++;
 		
@@ -233,7 +233,7 @@ public class XLSExportCapillaryResults extends XLSExport {
 
 	private static Point writeData (Experiment exp, XSSFSheet sheet, XLSExportItems option, Point pt, boolean transpose, String charSeries, ArrayList <ArrayList<Integer >> dataArrayList) {
 		
-		double scalingFactorToPhysicalUnits = exp.vSequence.capillaries.capillaryVolume / exp.vSequence.capillaries.capillaryPixels;
+		double scalingFactorToPhysicalUnits = exp.vSequence.capillaries.volume / exp.vSequence.capillaries.pixels;
 		
 		int col0 = pt.x;
 		int row0 = pt.y;

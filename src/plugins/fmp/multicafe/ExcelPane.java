@@ -24,14 +24,14 @@ public class ExcelPane  extends JPanel implements PropertyChangeListener {
 	 * 
 	 */
 	private static final long serialVersionUID = -4296207607692017074L;
-	public JTabbedPane 			tabsPane 		= new JTabbedPane();
-	public ExcelTab_Options		optionsTab		= new ExcelTab_Options();
-	public ExcelTab_Kymos		kymosTab		= new ExcelTab_Kymos();
-	public ExcelTab_Move 		moveTab  		= new ExcelTab_Move();
+	private JTabbedPane 			tabsPane 		= new JTabbedPane();
+	private ExcelTab_Options		optionsTab		= new ExcelTab_Options();
+	private ExcelTab_Kymos		kymosTab		= new ExcelTab_Kymos();
+	private ExcelTab_Move 		moveTab  		= new ExcelTab_Move();
 	
 	private Multicafe parent0 = null;
 
-	public void init (JPanel mainPanel, String string, Multicafe parent0) {
+	void init (JPanel mainPanel, String string, Multicafe parent0) {
 		
 		this.parent0 = parent0;
 		final JPanel excelPanel = GuiUtil.generatePanel(string);
@@ -65,7 +65,7 @@ public class ExcelPane  extends JPanel implements PropertyChangeListener {
 			if (file != null) {
 				final String filename = file;
 				moveTab.exportToXLSButton.setEnabled( false);
-				parent0.capillariesPane.propertiesTab.updateSequenceFromDialog();
+				parent0.capillariesPane.propertiesTab.getCapillariesInfos(parent0.vSequence.capillaries);
 				XLSExportMoveResults.exportToFile(filename, getMoveOptions());
 				moveTab.exportToXLSButton.setEnabled( true );
 			}
@@ -78,7 +78,7 @@ public class ExcelPane  extends JPanel implements PropertyChangeListener {
 			String file = Tools.saveFileAs(tentativeName, directory.getParent().toString(), "xlsx");
 			if (file != null) {
 				final String filename = file;
-				parent0.capillariesPane.propertiesTab.updateSequenceFromDialog();
+				parent0.capillariesPane.propertiesTab.getCapillariesInfos(parent0.vSequence.capillaries);
 				XLSExportCapillaryResults.exportToFile(filename, getOptions());
 				firePropertyChange("EXPORT_TO_EXCEL", false, true);	
 			}

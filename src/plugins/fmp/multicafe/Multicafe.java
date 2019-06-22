@@ -67,7 +67,7 @@ public class Multicafe extends PluginActionable implements ViewerListener, Prope
 		mainFrame.addToDesktopPane();
 	}
 
-	public void roisSaveEdits() {
+	void roisSaveEdits() {
 
 		for (SequencePlus seq: kymographArrayList) {
 			if (seq.hasChanged) {
@@ -97,13 +97,13 @@ public class Multicafe extends PluginActionable implements ViewerListener, Prope
 	public void propertyChange(PropertyChangeEvent arg0) {
 		if (arg0.getPropertyName().equals("SEQ_OPEN")) {
 			loadPreviousMeasures(
-					sequencePane.fileTab.isCheckedLoadPreviousProfiles(), 
-					sequencePane.fileTab.isCheckedLoadKymographs(),
-					sequencePane.fileTab.isCheckedLoadCages(),
-					sequencePane.fileTab.isCheckedLoadMeasures());
+					sequencePane.openTab.isCheckedLoadPreviousProfiles(), 
+					sequencePane.openTab.isCheckedLoadKymographs(),
+					sequencePane.openTab.isCheckedLoadCages(),
+					sequencePane.openTab.isCheckedLoadMeasures());
 		}
 		else if (arg0.getPropertyName().equals("CAPILLARIES_OPEN")) {
-		  	sequencePane.browseTab.UpdateItemsFromSequence(this);
+		  	sequencePane.browseTab.setBrowseItems(this.vSequence);
 		}
 		else if (arg0.getPropertyName().equals("MEASUREGULPS_OK") 
 				|| arg0.getPropertyName().equals("MEASURES_OPEN")) {	
@@ -112,6 +112,12 @@ public class Multicafe extends PluginActionable implements ViewerListener, Prope
 		else if (arg0.getPropertyName() .equals("KYMO_DISPLAYFILTERED")) {
 			capillariesPane.optionsTab.displayUpdate();
 			capillariesPane.optionsTab.viewKymosCheckBox.setSelected(true);
+		}
+		else if (arg0.getPropertyName().equals("SEQ_SAVEMEAS")) {
+			capillariesPane.getCapillariesInfos(vSequence.capillaries);
+			if (capillariesPane.capold.isChanged(vSequence.capillaries))
+				capillariesPane.saveDefaultCapillaries();
+			//kymographsPane.fileTab.measuresFileSave();
 		}
 		else if (arg0.getPropertyName() .equals("EXPORT_TO_EXCEL")) {
 			kymographsPane.fileTab.measuresFileSave();
@@ -157,7 +163,7 @@ public class Multicafe extends PluginActionable implements ViewerListener, Prope
 		if (loadCapillaries) {
 			if( !capillariesPane.loadDefaultCapillaries()) 
 				return;
-			sequencePane.browseTab.UpdateItemsFromSequence(this);
+			sequencePane.browseTab.setBrowseItems(this.vSequence);
 			capillariesPane.propertiesTab.visibleCheckBox.setSelected(true);
 		}
 		if (loadKymographs) {
@@ -168,9 +174,9 @@ public class Multicafe extends PluginActionable implements ViewerListener, Prope
 		
 		if (loadKymographs && loadMeasures) {
 			if (kymographsPane.fileTab.measuresFileOpen()) {
-				sequencePane.browseTab.UpdateItemsFromSequence(this);
+				sequencePane.browseTab.setBrowseItems(this.vSequence);
 			}
-			if (sequencePane.fileTab.graphsCheckBox.isSelected())
+			if (sequencePane.openTab.graphsCheckBox.isSelected())
 				kymographsPane.graphsTab.xyDisplayGraphs();
 		}
 		
@@ -181,8 +187,8 @@ public class Multicafe extends PluginActionable implements ViewerListener, Prope
 			if (vSequence.cages != null && vSequence.cages.flyPositionsList.size() > 0) {
 				double threshold = vSequence.cages.flyPositionsList.get(0).threshold;
 				movePane.graphicsTab.aliveThresholdSpinner.setValue(threshold);
-				}
 			}
+		}
 	}
 
 }

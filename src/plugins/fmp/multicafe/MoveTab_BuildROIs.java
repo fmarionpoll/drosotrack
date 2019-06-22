@@ -38,7 +38,7 @@ public class MoveTab_BuildROIs extends JPanel implements ActionListener {
 
 	private Multicafe parent0;
 	
-	public void init(GridLayout capLayout, Multicafe parent0) {
+	void init(GridLayout capLayout, Multicafe parent0) {
 		setLayout(capLayout);
 		this.parent0 = parent0;
 		
@@ -72,7 +72,7 @@ public class MoveTab_BuildROIs extends JPanel implements ActionListener {
 		}
 	}
 	
-	public void updateFromSequence() {
+	void updateFromSequence() {
 		int nrois = parent0.vSequence.cages.cageLimitROIList.size();	
 		if (nrois > 0) {
 			nbcagesTextField.setText(Integer.toString(nrois));

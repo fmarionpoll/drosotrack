@@ -20,6 +20,7 @@ import javax.swing.SwingConstants;
 import icy.gui.frame.progress.AnnounceFrame;
 import icy.gui.util.GuiUtil;
 import icy.roi.ROI2D;
+import plugins.fmp.sequencevirtual.Capillaries;
 import plugins.fmp.tools.Tools;
 import plugins.kernel.roi.roi2d.ROI2DLine;
 import plugins.kernel.roi.roi2d.ROI2DPolygon;
@@ -41,7 +42,7 @@ public class CapillariesTab_Build extends JPanel implements ActionListener {
 	private JTextField 	width_intervalTextField = new JTextField("53");
 	private Multicafe parent0;
 	
-	public void init(GridLayout capLayout, Multicafe parent0) {
+	void init(GridLayout capLayout, Multicafe parent0) {
 		setLayout(capLayout);
 		
 		add( GuiUtil.besidesPanel( addPolygon2DButton, createROIsFromPolygonButton2));
@@ -88,30 +89,41 @@ public class CapillariesTab_Build extends JPanel implements ActionListener {
 	}
 	
 	// set/ get	
-	public void setNbCapillaries(int nrois) {
+	private void setNbCapillaries(int nrois) {
 		nbcapillariesTextField.setText(Integer.toString(nrois));
 	}
-	public int getNbCapillaries( ) {
+	private int getNbCapillaries( ) {
 		return Integer.parseInt( nbcapillariesTextField.getText() );
 	}
 
-	public int getWidthSmallInterval ( ) {
+	private int getWidthSmallInterval ( ) {
 		return Integer.parseInt( width_between_capillariesTextField.getText() );
 	}
 	
-	public int getWidthLongInterval() {
+	private int getWidthLongInterval() {
 		return Integer.parseInt( width_intervalTextField.getText() );
 	}
 	
-	public boolean getGroupedBy2() {
+	private boolean getGroupedBy2() {
 		return selectGroupedby2Button.isSelected();
 	}
 	
-	public void setGroupedBy2(boolean flag) {
+	private void setGroupedBy2(boolean flag) {
 		selectGroupedby2Button.setSelected(flag);
 		selectRegularButton.setSelected(!flag);
 	}
 	
+	void setCapillariesInfos(Capillaries cap) {
+		setNbCapillaries(cap.capillariesArrayList.size());
+		setGroupedBy2(cap.grouping == 2);
+	}
+	
+	Capillaries getCapillariesInfos(Capillaries cap) {
+		//cap.capillariesArrayList.Setsize() getNbCapillaries();
+		cap.grouping = getGroupedBy2() ? 2: 1;
+		return cap;
+	}
+
 	// ---------------------------------
 	private void create2DPolygon() {
 		

@@ -20,7 +20,7 @@ public class SequenceTab_Close  extends JPanel implements ActionListener {
 	private JButton		closeAllButton			= new JButton("Close views");
 	private Multicafe parent0 = null;
 	
-	public void init(GridLayout capLayout, Multicafe parent0) {
+	void init(GridLayout capLayout, Multicafe parent0) {
 		setLayout(capLayout);
 		this.parent0  = parent0;
 		add( GuiUtil.besidesPanel(closeAllButton, new JLabel(" ")));
@@ -36,7 +36,7 @@ public class SequenceTab_Close  extends JPanel implements ActionListener {
 		}
 	}
 	
-	public void closeAll() {
+	void closeAll() {
 		for (SequencePlus seq:parent0.kymographArrayList)
 			seq.close();
 		

@@ -26,13 +26,13 @@ public class KymosTab_Graphs extends JPanel implements ActionListener  {
 	private XYMultiChart sumgulpsChart 			= null;
 	private Multicafe parent0 = null;
 	
-	public JCheckBox 	limitsCheckbox 		= new JCheckBox("top/bottom", true);
-	public JCheckBox 	derivativeCheckbox 	= new JCheckBox("derivative", false);
-	public JCheckBox 	consumptionCheckbox = new JCheckBox("consumption", false);
-	public JButton displayResultsButton 	= new JButton("Display results");
+	private JCheckBox 	limitsCheckbox 		= new JCheckBox("top/bottom", true);
+	private JCheckBox 	derivativeCheckbox 	= new JCheckBox("derivative", false);
+	private JCheckBox 	consumptionCheckbox = new JCheckBox("consumption", false);
+	private JButton displayResultsButton 	= new JButton("Display results");
 	
 	
-	public void init(GridLayout capLayout, Multicafe parent0) {	
+	void init(GridLayout capLayout, Multicafe parent0) {	
 		setLayout(capLayout);
 		this.parent0 = parent0;
 		add(GuiUtil.besidesPanel(limitsCheckbox, derivativeCheckbox, consumptionCheckbox, new JLabel(" ")));
@@ -55,11 +55,9 @@ public class KymosTab_Graphs extends JPanel implements ActionListener  {
 		}
 	}
 	
-	public void xyDisplayGraphs() {
+	void xyDisplayGraphs() {
 
-		int kmax = 1;
-		if (parent0.capillariesPane.buildarrayTab.getGroupedBy2())
-			kmax = 2;
+		int kmax = parent0.vSequence.capillaries.grouping;
 		final Rectangle rectv = parent0.vSequence.getFirstViewer().getBounds();
 		Point ptRelative = new Point(0,rectv.height);
 		final int deltay = 230;
@@ -100,7 +98,7 @@ public class KymosTab_Graphs extends JPanel implements ActionListener  {
 		return iChart;
 	}
 	
-	public void closeAll() {
+	void closeAll() {
 		if (topandbottomChart != null) 
 			topandbottomChart.mainChartFrame.dispose();
 		if (derivativeChart != null) 

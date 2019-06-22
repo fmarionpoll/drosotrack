@@ -5,6 +5,8 @@ import java.awt.Dimension;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.ItemEvent;
+import java.awt.event.ItemListener;
 
 import javax.swing.JButton;
 import javax.swing.JComboBox;
@@ -14,6 +16,7 @@ import javax.swing.JTextField;
 import javax.swing.SwingConstants;
 
 import icy.gui.util.GuiUtil;
+import plugins.fmp.sequencevirtual.SequenceVirtual;
 
 
 public class SequenceTab_Browse extends JPanel implements ActionListener{
@@ -22,19 +25,19 @@ public class SequenceTab_Browse extends JPanel implements ActionListener{
 	 */
 	private static final long serialVersionUID = -5739112045358747277L;
 	
-	public JTextField 	startFrameTextField		= new JTextField("0");
-	public JTextField 	endFrameTextField		= new JTextField("99999999");
-	public JTextField 	analyzeStepTextField 	= new JTextField("1");
+	private JTextField 	startFrameTextField		= new JTextField("0");
+	JTextField 	endFrameTextField		= new JTextField("99999999");
+	private JTextField 	analyzeStepTextField 	= new JTextField("1");
 	private JButton 	updateButton 			= new JButton("Update");
 	
-	public JButton  	previousButton		 	= new JButton("<");
-	public JButton		nextButton				= new JButton(">");
-	public JComboBox<String> experimentComboBox	= new JComboBox<String>();
+	private JButton  	previousButton		 	= new JButton("<");
+	private JButton		nextButton				= new JButton(">");
+	JComboBox<String> 	experimentComboBox		= new JComboBox<String>();
 	
-	public boolean disableChangeFile = false;
+	boolean disableChangeFile = false;
 	private Multicafe parent0 = null;
 	
-	public void init(GridLayout capLayout, Multicafe parent0) {
+	void init(GridLayout capLayout, Multicafe parent0) {
 		setLayout(capLayout);
 		this.parent0 = parent0;
 	
@@ -61,6 +64,26 @@ public class SequenceTab_Browse extends JPanel implements ActionListener{
 		experimentComboBox.addActionListener(this);
 		nextButton.addActionListener(this);
 		previousButton.addActionListener(this);
+		
+		experimentComboBox.addItemListener(new ItemListener() {
+	        public void itemStateChanged(ItemEvent arg0) {
+	        	if (arg0.getStateChange() == ItemEvent.DESELECTED) {
+	        		firePropertyChange("SEQ_SAVEMEAS", false, true);
+	        	}
+	        	else if (arg0.getStateChange () == ItemEvent.SELECTED) {
+//	        		System.out.println("combo - item selected");
+	        		updateBrowseInterface();
+	        	}
+	        }
+	    });
+	}
+	
+	void updateBrowseInterface() {
+		int isel = experimentComboBox.getSelectedIndex();
+		boolean flag1 = (isel == 0? false: true);
+		boolean flag2 = (isel == (experimentComboBox.getItemCount() -1)? false: true);
+		previousButton.setEnabled(flag1);
+		nextButton.setEnabled(flag2);
 	}
 	
 	@Override
@@ -79,28 +102,28 @@ public class SequenceTab_Browse extends JPanel implements ActionListener{
 			}
 		}
 		else if ( o == nextButton) {
-			int isel = experimentComboBox.getSelectedIndex();
-			if (isel < (experimentComboBox.getItemCount() -1))
-				experimentComboBox.setSelectedIndex(isel+1);
+			if ( experimentComboBox.getSelectedIndex() < (experimentComboBox.getItemCount() -1)) {
+				experimentComboBox.setSelectedIndex(experimentComboBox.getSelectedIndex()+1);
+			}
+			
 		}
 		else if ( o == previousButton) {
-			int isel = experimentComboBox.getSelectedIndex();
-			if (isel > 0)
+			if (experimentComboBox.getSelectedIndex() > 0) {
 				experimentComboBox.setSelectedIndex(experimentComboBox.getSelectedIndex()-1);
+			}
 		}
 	}
 
-	public void UpdateItemsFromSequence (Multicafe parent0) {
-		endFrameTextField.setText(Integer.toString((int) parent0.vSequence.analysisEnd));
-		startFrameTextField.setText(Integer.toString((int) parent0.vSequence.analysisStart));
-		analyzeStepTextField.setText(Integer.toString(parent0.vSequence.analysisStep));
+	void setBrowseItems (SequenceVirtual seq) {
+		endFrameTextField.setText(Integer.toString((int) seq.analysisEnd));
+		startFrameTextField.setText(Integer.toString((int) seq.analysisStart));
+		analyzeStepTextField.setText(Integer.toString(seq.analysisStep));
 	}
 	
-	public void UpdateItemsToSequence (Multicafe parent0) {
-		parent0.vSequence.analysisStart = Integer.parseInt( startFrameTextField.getText() );
-		parent0.vSequence.analysisEnd 	= Integer.parseInt( endFrameTextField.getText());
-		parent0.vSequence.analysisStep 	= Integer.parseInt( analyzeStepTextField.getText() );
-		parent0.vSequence.cleanUpBufferAndRestart();
+	void getBrowseItems (SequenceVirtual seq) {
+		seq.analysisStart 	= Integer.parseInt( startFrameTextField.getText() );
+		seq.analysisEnd 	= Integer.parseInt( endFrameTextField.getText());
+		seq.analysisStep 	= Integer.parseInt( analyzeStepTextField.getText() );
 	}
 
 }

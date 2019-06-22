@@ -39,7 +39,7 @@ public class CapillariesTab_File extends JPanel implements ActionListener {
 	private JButton		saveButtonKymos			= new JButton("Save...");
 	private Multicafe 	parent0 				= null;
 	
-	public void init(GridLayout capLayout, Multicafe parent0) {
+	void init(GridLayout capLayout, Multicafe parent0) {
 		setLayout(capLayout);
 		
 		JLabel loadsaveText1 = new JLabel ("-> Capillaries (xml) ", SwingConstants.RIGHT);
@@ -82,7 +82,7 @@ public class CapillariesTab_File extends JPanel implements ActionListener {
 		}
 	}
 
-	public boolean capillaryRoisOpen(String csFileName) {
+	boolean capillaryRoisOpen(String csFileName) {
 		
 		boolean flag = false;
 		if (csFileName == null)
@@ -92,12 +92,14 @@ public class CapillariesTab_File extends JPanel implements ActionListener {
 		return flag;
 	}
 	
-	public boolean capillaryRoisSave() {
-		parent0.sequencePane.browseTab.UpdateItemsToSequence (parent0);
-		return parent0.vSequence.xmlWriteCapillaryTrackDefault();
+	boolean capillaryRoisSave() {
+		parent0.sequencePane.browseTab.getBrowseItems (parent0.vSequence);
+		parent0.vSequence.cleanUpBufferAndRestart();
+		String name = parent0.vSequence.getDirectory()+ "\\capillarytrack.xml";
+		return parent0.vSequence.capillaries.xmlWriteROIsAndDataNoQuestion(name, parent0.vSequence);
 	}
 
-	public ArrayList<SequencePlus> openFiles() {
+	ArrayList<SequencePlus> openFiles() {
 		String directory = parent0.vSequence.getDirectory();
 		
 		JFileChooser f = new JFileChooser(directory);
@@ -110,7 +112,7 @@ public class CapillariesTab_File extends JPanel implements ActionListener {
 		return SequencePlusUtils.openFiles(directory); 
 	}
 	
-	public void saveFiles(String directory) {
+	void saveFiles(String directory) {
 
 		// send some info
 		ProgressFrame progress = new ProgressFrame("Save kymographs");
@@ -152,7 +154,7 @@ public class CapillariesTab_File extends JPanel implements ActionListener {
 		progress.close();
 	}
 	
-	public boolean loadDefaultKymos() {
+	boolean loadDefaultKymos() {
 		String path = parent0.vSequence.getDirectory();
 		final String cs = path+"\\results";
 		boolean flag = false;

@@ -23,7 +23,7 @@ public class KymosTab_File  extends JPanel implements ActionListener {
 	private JButton		saveMeasuresButton		= new JButton("Save");
 	private Multicafe parent0 = null;
 	
-	public void init(GridLayout capLayout, Multicafe parent0) {
+	void init(GridLayout capLayout, Multicafe parent0) {
 		setLayout(capLayout);
 		this.parent0 = parent0;
 		
@@ -58,7 +58,7 @@ public class KymosTab_File  extends JPanel implements ActionListener {
 	
 
 	// ASSUME: same parameters for each kymograph
-	public boolean measuresFileOpen() {
+	boolean measuresFileOpen() {
 		String directory = parent0.vSequence.getDirectory();
 		boolean flag = true;
 		for (int kymo=0; kymo < parent0.kymographArrayList.size(); kymo++) {	
@@ -84,7 +84,7 @@ public class KymosTab_File  extends JPanel implements ActionListener {
 		return flag;
 	}
 	
-	public void measuresFileSave() {
+	void measuresFileSave() {
 		
 		String directory = parent0.vSequence.getDirectory();
 		for (int kymo=0; kymo < parent0.kymographArrayList.size(); kymo++) {
@@ -93,7 +93,7 @@ public class KymosTab_File  extends JPanel implements ActionListener {
 			seq.analysisEnd  = parent0.vSequence.analysisEnd;
 			seq.analysisStep = parent0.vSequence.analysisStep;
 			
-			System.out.println("saving "+seq.getName());
+//			System.out.println("saving "+seq.getName());
 			if (!seq.saveXMLKymographAnalysis(directory))
 				System.out.println(" -> failed - in directory: " + directory);
 		}

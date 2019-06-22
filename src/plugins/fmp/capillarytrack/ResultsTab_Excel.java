@@ -176,11 +176,11 @@ public class ResultsTab_Excel extends JPanel implements ActionListener  {
 		Point pt1 = pt;
 		setValue(sheet,  pt1.x, pt1.y, "capillary (µl):" );
 		pt1 = nextCol(pt1, transpose);
-		setValue(sheet,  pt1.x, pt1.y, 	parent0.vSequence.capillaries.capillaryVolume);
+		setValue(sheet,  pt1.x, pt1.y, 	parent0.vSequence.capillaries.volume);
 		pt1 = nextCol(pt1, transpose);
 		setValue(sheet,  pt1.x, pt1.y, "capillary (pixels):" );
 		pt1 = nextCol(pt1, transpose);
-		setValue(sheet,  pt1.x, pt1.y, 	parent0.vSequence.capillaries.capillaryPixels);
+		setValue(sheet,  pt1.x, pt1.y, 	parent0.vSequence.capillaries.pixels);
 		pt = nextRow(pt, transpose);
 		pt = nextRow(pt, transpose);
 		return pt;
@@ -233,7 +233,7 @@ public class ResultsTab_Excel extends JPanel implements ActionListener  {
 		if (nelements <= 0)
 			return pt;
 		
-		double ratio = parent0.vSequence.capillaries.capillaryVolume / parent0.vSequence.capillaries.capillaryPixels;
+		double ratio = parent0.vSequence.capillaries.volume / parent0.vSequence.capillaries.pixels;
 		
 		int startFrame = (int) parent0.vSequence.analysisStart;
 		int t = startFrame;

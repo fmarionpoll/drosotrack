@@ -27,19 +27,19 @@ public class CapillaryTab_BuildKymos extends JPanel implements ActionListener {
 	 */
 	private static final long serialVersionUID = 1771360416354320887L;
 	
-	public JButton 	kymoStartComputationButton 	= new JButton("Start");
-	public JButton  kymosStopComputationButton 	= new JButton("Stop");
-	public JTextField 	diskRadiusTextField 	= new JTextField("5");
+	JButton 	kymoStartComputationButton 	= new JButton("Start");
+	JButton  kymosStopComputationButton 	= new JButton("Stop");
+	JTextField 	diskRadiusTextField 	= new JTextField("5");
 	JCheckBox doRegistrationCheckBox = new JCheckBox("registration", false);
 	
-	public StatusComputation sComputation = StatusComputation.START_COMPUTATION; 
-	public int diskRadius = 5;
+	StatusComputation sComputation = StatusComputation.START_COMPUTATION; 
+	int diskRadius = 5;
 	
 	private Multicafe parent0;
 	private BuildKymographsThread buildKymographsThread = null;
 	private Thread thread = null;
 		
-	public void init(GridLayout capLayout, Multicafe parent0) {
+	void init(GridLayout capLayout, Multicafe parent0) {
 		setLayout(capLayout);	
 		this.parent0 = parent0;
 		add(GuiUtil.besidesPanel(
@@ -85,7 +85,8 @@ public class CapillaryTab_BuildKymos extends JPanel implements ActionListener {
 			return;
 		
 		sComputation = StatusComputation.STOP_COMPUTATION;
-		parent0.sequencePane.browseTab.UpdateItemsToSequence (parent0);
+		parent0.sequencePane.browseTab.getBrowseItems (parent0.vSequence);
+		parent0.vSequence.cleanUpBufferAndRestart();
 		setStartButton(false);
 		kymosBuildKymographs();	
 		Viewer v = parent0.vSequence.getFirstViewer();

@@ -19,12 +19,12 @@ public class ExcelTab_Move  extends JPanel implements ActionListener  {
 	 */
 	private static final long serialVersionUID = 1290058998782225526L;
 
-	public JCheckBox 	xyCenterCheckBox 	= new JCheckBox("XY position", true);
-	public JCheckBox 	distanceCheckBox 	= new JCheckBox("distance", false);
-	public JCheckBox 	aliveCheckBox 		= new JCheckBox("alive", true);
-	public JButton 		exportToXLSButton 	= new JButton("save XLS");
+	JCheckBox 	xyCenterCheckBox 	= new JCheckBox("XY position", true);
+	JCheckBox 	distanceCheckBox 	= new JCheckBox("distance", false);
+	JCheckBox 	aliveCheckBox 		= new JCheckBox("alive", true);
+	JButton 		exportToXLSButton 	= new JButton("save XLS");
 	
-	public void init(GridLayout capLayout) {	
+	void init(GridLayout capLayout) {	
 		setLayout(capLayout);
 		add(GuiUtil.besidesPanel( xyCenterCheckBox, new JLabel(" "), new JLabel(" "), new JLabel(" ")));
 		add(GuiUtil.besidesPanel( distanceCheckBox, new JLabel(" "), new JLabel(" "), new JLabel(" "), new JLabel(" "))); 

@@ -16,6 +16,7 @@ import javax.swing.SwingConstants;
 import icy.gui.frame.progress.AnnounceFrame;
 import icy.gui.util.GuiUtil;
 import plugins.fmp.tools.Tools;
+import plugins.fmp.sequencevirtual.SequencePlus;
 import plugins.fmp.tools.ImageTransformTools.TransformOp;
 
 public class KymosTab_DetectGulps extends JPanel implements ActionListener {
@@ -24,18 +25,18 @@ public class KymosTab_DetectGulps extends JPanel implements ActionListener {
 	 * 
 	 */
 	private static final long serialVersionUID = -5590697762090397890L;
-	public JCheckBox	detectAllGulpsCheckBox 	= new JCheckBox ("all", true);
+	JCheckBox	detectAllGulpsCheckBox 	= new JCheckBox ("all", true);
 	private JButton		displayTransform2Button	= new JButton("Display");
 	private JTextField	spanTransf2TextField	= new JTextField("3");
-	public JTextField 	detectGulpsThresholdTextField 	= new JTextField("90");
+	private  JTextField 	detectGulpsThresholdTextField 	= new JTextField("90");
 	private JButton 	detectGulpsButton 		= new JButton("Detect");
-	public JComboBox<TransformOp> transformForGulpsComboBox = new JComboBox<TransformOp> (new TransformOp[] {
+	JComboBox<TransformOp> transformForGulpsComboBox = new JComboBox<TransformOp> (new TransformOp[] {
 			TransformOp.XDIFFN /*, TransformOp.YDIFFN, TransformOp.XYDIFFN	*/});
 	private	int	spanDiffTransf2 			= 3;
 	private double detectGulpsThreshold 	= 5.;
 	private Multicafe parent0;
 	
-	public void init(GridLayout capLayout, Multicafe parent0) {
+	void init(GridLayout capLayout, Multicafe parent0) {
 		setLayout(capLayout);
 		this.parent0 = parent0;
 		add( GuiUtil.besidesPanel( new JLabel("threshold ", SwingConstants.RIGHT), detectGulpsThresholdTextField, transformForGulpsComboBox, displayTransform2Button));
@@ -73,19 +74,25 @@ public class KymosTab_DetectGulps extends JPanel implements ActionListener {
 	
 	// get/set
 	
-	public double getDetectGulpsThreshold() {
+	double getDetectGulpsThreshold() {
 		try { detectGulpsThreshold =  Double.parseDouble( detectGulpsThresholdTextField.getText() );
 		}catch( Exception e ) { new AnnounceFrame("Can't interpret the top threshold value."); }
 		return detectGulpsThreshold;
 	}
 	
-	public void kymosDisplayFiltered2() {
+	void kymosDisplayFiltered2() {
 		if (parent0.kymographArrayList == null)
 			return;
 		Collections.sort(parent0.kymographArrayList, new Tools.SequenceNameComparator()); 
 		TransformOp transform;
 		transform = (TransformOp) transformForGulpsComboBox.getSelectedItem();
 		parent0.kymographsPane.kymosBuildFiltered(0, 2, transform, spanDiffTransf2);
+	}
+	
+	void setInfos(SequencePlus seq) {
+		detectGulpsThresholdTextField.setText(Integer.toString(seq.detectGulpsThreshold));
+		transformForGulpsComboBox.setSelectedItem(seq.transformForGulps);
+		detectAllGulpsCheckBox.setSelected(seq.detectAllGulps);
 	}
 
 }

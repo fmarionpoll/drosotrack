@@ -23,16 +23,16 @@ public class KymosPane extends JPanel implements PropertyChangeListener, ChangeL
 	 */
 	private static final long serialVersionUID = -7339633966002954720L;
 	
-	public JTabbedPane 			tabsPane 	= new JTabbedPane();
-	public KymosTab_File 		fileTab 	= new KymosTab_File();
-	public KymosTab_DetectLimits limitsTab 	= new KymosTab_DetectLimits();
-	public KymosTab_DetectGulps gulpsTab 	= new KymosTab_DetectGulps();
-	public KymosTab_Graphs 		graphsTab 	= new KymosTab_Graphs();
+	private JTabbedPane 	tabsPane 	= new JTabbedPane();
+	KymosTab_File 			fileTab 	= new KymosTab_File();
+	KymosTab_DetectLimits 	limitsTab 	= new KymosTab_DetectLimits();
+	KymosTab_DetectGulps 	gulpsTab 	= new KymosTab_DetectGulps();
+	KymosTab_Graphs 				graphsTab 	= new KymosTab_Graphs();
 	
 	ImageTransformTools tImg = null;
 	private Multicafe parent0 = null;
 
-	public void init (JPanel mainPanel, String string, Multicafe parent0) {
+	void init (JPanel mainPanel, String string, Multicafe parent0) {
 		
 		this.parent0 = parent0;
 		final JPanel kymosPanel = GuiUtil.generatePanel(string);
@@ -92,7 +92,7 @@ public class KymosPane extends JPanel implements PropertyChangeListener, ChangeL
 		}
 	}
 
-	public void tabbedCapillariesAndKymosSelected() {
+	void tabbedCapillariesAndKymosSelected() {
 		if (parent0.vSequence == null)
 			return;
 		int iselected = tabsPane.getSelectedIndex();
@@ -110,20 +110,13 @@ public class KymosPane extends JPanel implements PropertyChangeListener, ChangeL
 			tabbedCapillariesAndKymosSelected();
 	}
 
-	public void setDetectionParameters(int ikymo) {
+	void setDetectionParameters(int ikymo) {
 		SequencePlus seq = parent0.kymographArrayList.get(ikymo);
-		limitsTab.transformForLevelsComboBox.setSelectedItem(seq.transformForLevels);
-		limitsTab.directionComboBox.setSelectedIndex(seq.direction);
-		limitsTab.setDetectLevelThreshold(seq.detectLevelThreshold);
-		limitsTab.detectTopTextField.setText(Integer.toString(seq.detectLevelThreshold));
-		limitsTab.detectAllLevelCheckBox.setSelected(seq.detectAllLevel);
-
-		gulpsTab.detectGulpsThresholdTextField.setText(Integer.toString(seq.detectGulpsThreshold));
-		gulpsTab.transformForGulpsComboBox.setSelectedItem(seq.transformForGulps);
-		gulpsTab.detectAllGulpsCheckBox.setSelected(seq.detectAllGulps);
+		limitsTab.setInfos(seq);
+		gulpsTab.setInfos(seq);
 	}
 	
-	public void kymosBuildFiltered(int zChannelSource, int zChannelDestination, TransformOp transformop, int spanDiff) {
+	void kymosBuildFiltered(int zChannelSource, int zChannelDestination, TransformOp transformop, int spanDiff) {
 
 		if (tImg == null) 
 			tImg = new ImageTransformTools();

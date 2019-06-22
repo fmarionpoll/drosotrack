@@ -106,7 +106,7 @@ public class CapillariesTab_Properties extends JPanel implements ActionListener 
 		}
 		
 		public void updateSequenceFromDialog() {
-			parent0.vSequence.capillaries.capillaryVolume = getCapillaryVolume();
-			parent0.vSequence.capillaries.capillaryPixels = getCapillaryPixelLength();
+			parent0.vSequence.capillaries.volume = getCapillaryVolume();
+			parent0.vSequence.capillaries.pixels = getCapillaryPixelLength();
 		}
 }

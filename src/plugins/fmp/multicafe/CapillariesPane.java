@@ -8,6 +8,8 @@ import javax.swing.JPanel;
 import javax.swing.JTabbedPane;
 
 import icy.gui.util.GuiUtil;
+import plugins.fmp.sequencevirtual.Capillaries;
+import plugins.fmp.sequencevirtual.SequenceVirtual;
 
 
 
@@ -17,16 +19,18 @@ public class CapillariesPane extends JPanel implements PropertyChangeListener {
 	 */
 	private static final long serialVersionUID = 853047648249832145L;
 	
-	public JTabbedPane tabsPane 					= new JTabbedPane();
-	public CapillariesTab_Build buildarrayTab 		= new CapillariesTab_Build();
-	public CapillariesTab_File fileTab 				= new CapillariesTab_File();
-	public CapillariesTab_Adjust adjustTab 			= new CapillariesTab_Adjust();
-	public CapillariesTab_Properties propertiesTab 	= new CapillariesTab_Properties();
-	public CapillaryTab_BuildKymos buildkymosTab 	= new CapillaryTab_BuildKymos();
-	public CapillariesTab_Options optionsTab 		= new CapillariesTab_Options();
+	JTabbedPane 				tabsPane 		= new JTabbedPane();
+	CapillariesTab_Build 		buildarrayTab 	= new CapillariesTab_Build();
+	CapillariesTab_File 		fileTab 		= new CapillariesTab_File();
+	CapillariesTab_Adjust 		adjustTab 		= new CapillariesTab_Adjust();
+	CapillariesTab_Properties 	propertiesTab 	= new CapillariesTab_Properties();
+	CapillaryTab_BuildKymos 	buildkymosTab 	= new CapillaryTab_BuildKymos();
+	CapillariesTab_Options 		optionsTab 		= new CapillariesTab_Options();
+	
+	Capillaries capold = new Capillaries();
 	private Multicafe parent0 = null;
 
-	public void init (JPanel mainPanel, String string, Multicafe parent0) {
+	void init (JPanel mainPanel, String string, Multicafe parent0) {
 		
 		this.parent0 = parent0;
 		final JPanel capPanel = GuiUtil.generatePanel(string);
@@ -43,7 +47,7 @@ public class CapillariesPane extends JPanel implements PropertyChangeListener {
 
 		propertiesTab.init(capLayout, parent0);
 		propertiesTab.addPropertyChangeListener(this);
-		tabsPane.addTab("Properties", null, propertiesTab, "Define pixel conversion unit of images");
+		tabsPane.addTab("Properties", null, propertiesTab, "Define pixel conversion unit of images and experiment information");
 
 		buildkymosTab.init(capLayout, parent0);
 		buildkymosTab.addPropertyChangeListener(this);
@@ -61,29 +65,18 @@ public class CapillariesPane extends JPanel implements PropertyChangeListener {
 		capPanel.add(GuiUtil.besidesPanel(tabsPane));
 	}
 	
-	public void UpdateInfosFromSequence() {
-		propertiesTab.setCapillaryVolume(parent0.vSequence.capillaries.capillaryVolume);
-		propertiesTab.setCapillaryPixelLength(parent0.vSequence.capillaries.capillaryPixels);
-		parent0.vSequence.capillaries.extractLinesFromSequence(parent0.vSequence);	// TODO : is this necessary???
-		buildarrayTab.setNbCapillaries(parent0.vSequence.capillaries.capillariesArrayList.size());
-		buildarrayTab.setGroupedBy2(parent0.vSequence.capillaries.capillariesGrouping == 2);
-	}
 	
-
 	@Override
 	public void propertyChange(PropertyChangeEvent event) {
 		if (event.getPropertyName().equals("CAP_ROIS_OPEN")) {
 			fileTab.capillaryRoisOpen(null);
-		  	UpdateInfosFromSequence();
+		  	setCapillariesInfos(parent0.vSequence);
 		  	tabsPane.setSelectedIndex(2);
 		  	firePropertyChange("CAPILLARIES_OPEN", false, true);
 		}			  
 		else if (event.getPropertyName().equals("CAP_ROIS_SAVE")) {
-			propertiesTab.updateSequenceFromDialog();
-			if (buildarrayTab.getGroupedBy2())
-				parent0.vSequence.capillaries.capillariesGrouping = 2;
-			else
-				parent0.vSequence.capillaries.capillariesGrouping = 1;
+			propertiesTab.getCapillariesInfos(parent0.vSequence.capillaries);
+			buildarrayTab.getCapillariesInfos(parent0.vSequence.capillaries);
 			fileTab.capillaryRoisSave();
 			tabsPane.setSelectedIndex(2);
 		}
@@ -114,14 +107,33 @@ public class CapillariesPane extends JPanel implements PropertyChangeListener {
 		}
 }
 	
-	public boolean loadDefaultCapillaries() {
+	boolean loadDefaultCapillaries() {
 		String path = parent0.vSequence.getDirectory();
 		boolean flag = fileTab.capillaryRoisOpen(path+"\\capillarytrack.xml");
 		if (flag) {
-			UpdateInfosFromSequence();
+			setCapillariesInfos(parent0.vSequence);
+			capold.copy(parent0.vSequence.capillaries);
 		// TODO update measure from to, etc (see "ROIS_OPEN")
 		}
 		return flag;
 	}
+	
+	private void setCapillariesInfos(SequenceVirtual seq) {
+		propertiesTab.setCapillariesInfos(seq.capillaries);
+		parent0.vSequence.capillaries.extractLinesFromSequence(seq);	// TODO : is this necessary???
+		buildarrayTab.setCapillariesInfos(seq.capillaries);
+	}
+	
+	boolean saveDefaultCapillaries() {
+		getCapillariesInfos(parent0.vSequence.capillaries);
+		return fileTab.capillaryRoisSave();
+	}
+	
+	void getCapillariesInfos(Capillaries cap) {
+		propertiesTab.getCapillariesInfos(cap);
+		buildarrayTab.getCapillariesInfos(cap);
+	}
+	
+
 
 }

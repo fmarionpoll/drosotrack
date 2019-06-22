@@ -50,7 +50,7 @@ public class MoveTab_Detect extends JPanel implements ChangeListener {
 	private OverlayThreshold ov = null;
 	private BuildTrackFliesThread trackAllFliesThread = null;
 	
-	public void init(GridLayout capLayout, Multicafe parent0) {
+	void init(GridLayout capLayout, Multicafe parent0) {
 		setLayout(capLayout);
 		this.parent0 = parent0;
 
@@ -175,7 +175,7 @@ public class MoveTab_Detect extends JPanel implements ChangeListener {
 		}
 	}
 
-	public void startComputation() {
+	void startComputation() {
 		if (trackAllFliesThread == null)
 			trackAllFliesThread = new BuildTrackFliesThread();
 		
@@ -188,7 +188,7 @@ public class MoveTab_Detect extends JPanel implements ChangeListener {
 		ThreadUtil.bgRun(trackAllFliesThread);
 	}
 	
-	public void stopComputation() {
+	void stopComputation() {
 		if (trackAllFliesThread != null)
 			trackAllFliesThread.stopFlag = true;
 	}

@@ -20,14 +20,19 @@ import plugins.kernel.roi.roi2d.ROI2DShape;
 
 public class Capillaries {
 	
-	public double 	capillaryVolume = 1.;
-	public double 	capillaryPixels = 1.;
-	public int		capillariesGrouping = 1;
-	public String 	sourceName = null;
+	public double 	volume 				= 5.;
+	public double 	pixels 				= 300.;
+	public int		grouping 			= 2;
+	public String 	sourceName 			= null;
 	public ArrayList <ROI2DShape> capillariesArrayList 	= new ArrayList <ROI2DShape>();	
-	public long analysisStart = 0;
-	public long analysisEnd = 0;
-	public int analysisStep = 1;
+	public long 	analysisStart 		= 0;
+	public long 	analysisEnd 		= 0;
+	public int 		analysisStep 		= 1;
+	
+	public String 	stimulusR			= new String("stimulusR");
+	public String 	concentrationR		= new String("xmMR");
+	public String 	stimulusL			= new String("stimulusL");
+	public String 	concentrationL		= new String("xmML");
 	
 	public boolean xmlReadCapillaryParameters (Document doc) {
 		String nodeName = "capillaryTrack";
@@ -44,19 +49,24 @@ public class Capillaries {
 		sourceName = XMLUtil.getAttributeValue(xmlVal, "ID", null);
 		
 		xmlVal = XMLUtil.getElement(xmlElement, "Grouping");
-		capillariesGrouping = XMLUtil.getAttributeIntValue(xmlVal, "n", 2);
+		grouping = XMLUtil.getAttributeIntValue(xmlVal, "n", 2);
 		
 		xmlVal = XMLUtil.getElement(xmlElement, "capillaryVolume");
-		capillaryVolume = XMLUtil.getAttributeDoubleValue(xmlVal, "volume_ul", Double.NaN);
+		volume = XMLUtil.getAttributeDoubleValue(xmlVal, "volume_ul", Double.NaN);
 
 		xmlVal = XMLUtil.getElement(xmlElement, "capillaryPixels");
-		capillaryPixels = XMLUtil.getAttributeDoubleValue(xmlVal, "npixels", Double.NaN);
+		pixels = XMLUtil.getAttributeDoubleValue(xmlVal, "npixels", Double.NaN);
 
 		xmlVal = XMLUtil.getElement(xmlElement, "analysis");
 		analysisStart =  XMLUtil.getAttributeLongValue(xmlVal, "start", 0);
 		analysisEnd = XMLUtil.getAttributeLongValue(xmlVal, "end", 0);
 		analysisStep = XMLUtil.getAttributeIntValue(xmlVal, "step", 1);
 
+		xmlVal = XMLUtil.getElement(xmlElement,  "LRstimulus");
+		stimulusR = XMLUtil.getAttributeValue(xmlVal, "stimR", "stimR");
+		concentrationR = XMLUtil.getAttributeValue(xmlVal, "concR", "concR");
+		stimulusL = XMLUtil.getAttributeValue(xmlVal, "stimL", "stimL");
+		concentrationL = XMLUtil.getAttributeValue(xmlVal, "concL", "concL");
 		return true;
 	}
 	
@@ -74,18 +84,24 @@ public class Capillaries {
 		XMLUtil.setAttributeValue(xmlVal, "ID", sourceName);
 	
 		xmlVal = XMLUtil.addElement(xmlElement, "Grouping");
-		XMLUtil.setAttributeIntValue(xmlVal, "n", capillariesGrouping);
+		XMLUtil.setAttributeIntValue(xmlVal, "n", grouping);
 		
 		xmlVal = XMLUtil.addElement(xmlElement, "capillaryVolume");
-		XMLUtil.setAttributeDoubleValue(xmlVal, "volume_ul", capillaryVolume);
+		XMLUtil.setAttributeDoubleValue(xmlVal, "volume_ul", volume);
 
 		xmlVal = XMLUtil.addElement(xmlElement, "capillaryPixels");
-		XMLUtil.setAttributeDoubleValue(xmlVal, "npixels", capillaryPixels);
+		XMLUtil.setAttributeDoubleValue(xmlVal, "npixels", pixels);
 
 		xmlVal = XMLUtil.addElement(xmlElement, "analysis");
 		XMLUtil.setAttributeLongValue(xmlVal, "start", seq.analysisStart);
 		XMLUtil.setAttributeLongValue(xmlVal, "end", seq.analysisEnd); 
 		XMLUtil.setAttributeIntValue(xmlVal, "step", seq.analysisStep); 
+		
+		xmlVal = XMLUtil.addElement(xmlElement,  "LRstimulus");
+		XMLUtil.setAttributeValue(xmlVal, "stimR", stimulusR);
+		XMLUtil.setAttributeValue(xmlVal, "concR", concentrationR);
+		XMLUtil.setAttributeValue(xmlVal, "stimL", stimulusL);
+		XMLUtil.setAttributeValue(xmlVal, "concL", concentrationL);
 
 		return true;
 	}
@@ -207,5 +223,45 @@ public class Capillaries {
 			}
 		}
 		return false;
+	}
+
+	public Capillaries copy (Capillaries cap) {
+		volume = cap.volume;
+		pixels = cap.pixels;
+		grouping = cap.grouping;
+		analysisStart = cap.analysisStart;
+		analysisEnd = cap.analysisEnd;
+		analysisStep = cap.analysisStep;
+		stimulusR = cap.stimulusR;
+		stimulusL = cap.stimulusL;
+		concentrationR = cap.concentrationR;
+		concentrationL = cap.concentrationL;
+		return cap;
+	}
+	
+	public boolean isChanged (Capillaries cap) {
+		boolean flag = false;
+		if (cap.volume != volume) 
+			flag =  true;
+		if (cap.pixels != pixels) 
+			flag = true;
+		if (cap.analysisStart != analysisStart) 
+			flag = true;
+		if (cap.analysisEnd != analysisEnd) 
+			flag = true;
+		if (cap.analysisStep != analysisStep) 
+			flag = true;
+		if (!cap.stimulusR .equals(stimulusR)) 
+			flag = true;
+		if (!cap.concentrationR .equals(concentrationR)) 
+			flag = true;
+		if (!cap.stimulusL .equals(stimulusL)) 
+			flag = true;
+		if (!cap.concentrationL .equals(concentrationL)) 
+			flag = true;
+//			if (cap.capillariesArrayList.size() != capold.capillariesArrayList.size()) 
+//				flag = true; 
+		return flag;
+
 	}
 }

@@ -6,30 +6,28 @@ import java.beans.PropertyChangeListener;
 
 import javax.swing.JPanel;
 import javax.swing.JTabbedPane;
-import javax.swing.event.ChangeEvent;
-import javax.swing.event.ChangeListener;
 
 import icy.gui.util.GuiUtil;
 
 
 
-public class MovePane extends JPanel implements PropertyChangeListener, ChangeListener {
+public class MovePane extends JPanel implements PropertyChangeListener {
 	
 	/**
 	 * 
 	 */
 	private static final long serialVersionUID = 3457738144388946607L;
 	
-	public JTabbedPane tabsPane	= new JTabbedPane();
-	public MoveTab_BuildROIs 	buildROIsTab = new MoveTab_BuildROIs();
-	public MoveTab_Detect 		optionsTab 	= new MoveTab_Detect();
-	public MoveTab_File 		filesTab 	= new MoveTab_File();
-	public MoveTab_Graphs 		graphicsTab = new MoveTab_Graphs();
+	private JTabbedPane 		tabsPane	= new JTabbedPane();
+	private MoveTab_BuildROIs 	buildROIsTab= new MoveTab_BuildROIs();
+	private MoveTab_Detect 		optionsTab 	= new MoveTab_Detect();
+	private MoveTab_File 		filesTab 	= new MoveTab_File();
+	MoveTab_Graphs 				graphicsTab = new MoveTab_Graphs();
 	
 	Multicafe parent0 = null;
 
 	
-	public void init (JPanel mainPanel, String string, Multicafe parent0) {
+	void init (JPanel mainPanel, String string, Multicafe parent0) {
 		this.parent0 = parent0;
 		final JPanel panel = GuiUtil.generatePanel(string);
 		mainPanel.add(GuiUtil.besidesPanel(panel));
@@ -62,14 +60,8 @@ public class MovePane extends JPanel implements PropertyChangeListener, ChangeLi
 			buildROIsTab.updateFromSequence();
 		}
 	}
-	
-	@Override
-	public void stateChanged(ChangeEvent arg0) {
-//		if (arg0.getSource() == tabsPane)
-//			colorsTab.colorsUpdateThresholdOverlayParameters();
-	}
-	
-	public boolean loadDefaultCages() {
+
+	boolean loadDefaultCages() {
 		String path = parent0.vSequence.getDirectory();
 		boolean flag = filesTab.cageRoisOpen(path+"\\drosotrack.xml");
 		return flag;

@@ -31,14 +31,14 @@ public class MoveTab_Graphs extends JPanel implements ActionListener  {
 	private YPosMultiChart aliveChart		= null;
 	private Multicafe parent0 = null;
 	
-	public JCheckBox	moveCheckbox		= new JCheckBox("y position", true);	
-	public JCheckBox	distanceCheckbox	= new JCheckBox("distance t/t+1", true);
-	public JCheckBox	aliveCheckbox		= new JCheckBox("fly alive", true);
-	public JSpinner 	aliveThresholdSpinner = new JSpinner(new SpinnerNumberModel(5.0, 0., 100000., .1));
-	public JButton 		displayResultsButton= new JButton("Display results");
+	JCheckBox			moveCheckbox		= new JCheckBox("y position", true);	
+	private JCheckBox	distanceCheckbox	= new JCheckBox("distance t/t+1", true);
+	JCheckBox			aliveCheckbox		= new JCheckBox("fly alive", true);
+	JSpinner 			aliveThresholdSpinner = new JSpinner(new SpinnerNumberModel(5.0, 0., 100000., .1));
+	JButton 			displayResultsButton= new JButton("Display results");
 
 	
-	public void init(GridLayout capLayout, Multicafe parent0) {	
+	void init(GridLayout capLayout, Multicafe parent0) {	
 		setLayout(capLayout);
 		this.parent0 = parent0;
 		add(GuiUtil.besidesPanel(moveCheckbox, distanceCheckbox, aliveCheckbox, new JLabel(" ")));
@@ -105,7 +105,7 @@ public class MoveTab_Graphs extends JPanel implements ActionListener  {
 	}
 
 	
-	public void closeAll() {
+	void closeAll() {
 		if (ypositionsChart != null) {
 			ypositionsChart.mainChartFrame.close();
 			ypositionsChart = null;

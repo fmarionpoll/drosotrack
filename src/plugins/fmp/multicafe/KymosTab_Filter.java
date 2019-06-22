@@ -24,10 +24,10 @@ public class KymosTab_Filter  extends JPanel implements ActionListener {
 	private static final long serialVersionUID = -4413321640245046423L;
 	
 	private Multicafe parent0;
-	public JButton 	startButton = new JButton("Start");
-	public JTextField spanText 	= new JTextField("10");
+	private JButton 	startButton = new JButton("Start");
+	private JTextField spanText 	= new JTextField("10");
 
-	public void init(GridLayout capLayout, Multicafe parent0) {
+	void init(GridLayout capLayout, Multicafe parent0) {
 		setLayout(capLayout);	
 		this.parent0 = parent0;
 		add(GuiUtil.besidesPanel(new JLabel("use N pixels="), spanText, new JLabel(" ")));
@@ -39,9 +39,10 @@ public class KymosTab_Filter  extends JPanel implements ActionListener {
 		startButton.addActionListener(this);
 	}
 
-	public int getSpan( ) {
+	int getSpan( ) {
 		return Integer.parseInt( spanText.getText() );
 	}
+	
 	@Override
 	public void actionPerformed(ActionEvent arg0) {
 		Object o = arg0.getSource();

@@ -677,11 +677,7 @@ public class SequenceVirtual extends Sequence
 		}
 		return flag;
 	}
-	
-	public boolean xmlWriteCapillaryTrackDefault() {
-		return capillaries.xmlWriteROIsAndData("capillarytrack.xml", this);
-	}
-	
+		
 	public boolean xmlReadDrosoTrackDefault() {
 		return cages.xmlReadCagesFromFileNoQuestion(getDirectory() + "\\drosotrack.xml", this);
 	}

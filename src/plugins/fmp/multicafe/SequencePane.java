@@ -5,6 +5,7 @@ import java.awt.Rectangle;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.util.ArrayList;
+
 import javax.swing.JPanel;
 import javax.swing.JTabbedPane;
 
@@ -20,22 +21,22 @@ public class SequencePane extends JPanel implements PropertyChangeListener {
 	 */
 	private static final long serialVersionUID = -6826269677524125173L;
 	
-	public JTabbedPane 			tabsPane 	= new JTabbedPane();
-	public SequenceTab_Open 	fileTab 	= new SequenceTab_Open();
-	public SequenceTab_Browse 	browseTab 	= new SequenceTab_Browse();
-	public SequenceTab_Close 	closeTab 	= new SequenceTab_Close();
-	private Multicafe 			parent0 	= null;
+	private JTabbedPane tabsPane 	= new JTabbedPane();
+	SequenceTab_Open 	openTab 	= new SequenceTab_Open();
+	SequenceTab_Browse 	browseTab 	= new SequenceTab_Browse();
+	SequenceTab_Close 	closeTab 	= new SequenceTab_Close();
+	private Multicafe 	parent0 	= null;
 	
 	
-	public void init (JPanel mainPanel, String string, Multicafe parent0) {
+	void init (JPanel mainPanel, String string, Multicafe parent0) {
 		this.parent0 = parent0;
 		final JPanel capPanel = GuiUtil.generatePanel(string);
 		mainPanel.add(GuiUtil.besidesPanel(capPanel));
 		GridLayout capLayout = new GridLayout(3, 1);
 		
-		fileTab.init(capLayout, parent0);
-		tabsPane.addTab("Open/Add", null, fileTab, "Open one or several stacks of .jpg files");
-		fileTab.addPropertyChangeListener(this);
+		openTab.init(capLayout, parent0);
+		tabsPane.addTab("Open/Add", null, openTab, "Open one or several stacks of .jpg files");
+		openTab.addPropertyChangeListener(this);
 		
 		browseTab.init(capLayout, parent0);
 		tabsPane.addTab("Browse", null, browseTab, "Browse stack and adjust analysis parameters");
@@ -64,11 +65,15 @@ public class SequencePane extends JPanel implements PropertyChangeListener {
 			}
 		 }
 		 else if (event.getPropertyName().equals("UPDATE")) {
-			browseTab.UpdateItemsToSequence(parent0);
+			browseTab.getBrowseItems(parent0.vSequence);
+			parent0.vSequence.cleanUpBufferAndRestart();
 			ArrayList<Viewer>vList =  parent0.vSequence.getViewers();
 			Viewer v = vList.get(0);
 			v.toFront();
 			v.requestFocus();
+		 }
+		 else if (event.getPropertyName().equals("SEQ_SAVEMEAS")) {
+			 firePropertyChange("SEQ_SAVEMEAS", false, true);
 		 }
 		 else if (event.getPropertyName().equals("SEQ_CLOSE")) {
 			tabsPane.setSelectedIndex(0);
@@ -76,7 +81,18 @@ public class SequencePane extends JPanel implements PropertyChangeListener {
 			firePropertyChange("SEQ_CLOSE", false, true);
 		 }
 		 else if (event.getPropertyName().equals("SEARCH_CLOSED")) {
-			 openSequenceFromCombo(); 
+			int index = browseTab.experimentComboBox.getSelectedIndex();
+			if (index < 0)
+				index = 0;
+			browseTab.disableChangeFile = true;
+			for (String name: openTab.selectedNames) {
+				 sequenceAddtoCombo(name);
+			}
+			openTab.selectedNames.clear();
+			browseTab.experimentComboBox.setSelectedIndex(index);
+			browseTab.updateBrowseInterface();
+			browseTab.disableChangeFile = false;
+			openSequenceFromCombo();
 		 }
 	}
 	
@@ -89,7 +105,7 @@ public class SequencePane extends JPanel implements PropertyChangeListener {
 		tabsPane.setSelectedIndex(1);
 	}
 	
-	public void sequenceAddtoCombo(String strItem) {
+	void sequenceAddtoCombo(String strItem) {
 		int nitems = browseTab.experimentComboBox.getItemCount();
 		boolean alreadystored = false;
 		for (int i=0; i < nitems; i++) {
@@ -104,17 +120,18 @@ public class SequencePane extends JPanel implements PropertyChangeListener {
 	}
 	
 	// -------------------------
-	public void startstopBufferingThread() {
+	void startstopBufferingThread() {
 
 		if (parent0.vSequence == null)
 			return;
 
 		parent0.vSequence.vImageBufferThread_STOP();
-		browseTab.UpdateItemsToSequence(parent0); ;
+		browseTab.getBrowseItems(parent0.vSequence); 
+		parent0.vSequence.cleanUpBufferAndRestart();
 		parent0.vSequence.vImageBufferThread_START(100); //numberOfImageForBuffer);
 	}
 	
-	public boolean sequenceCreateNew (String filename) {
+	boolean sequenceCreateNew (String filename) {
 		if (parent0.vSequence != null)
 			parent0.vSequence.close();		
 		parent0.vSequence = new SequenceVirtual();
@@ -136,10 +153,12 @@ public class SequencePane extends JPanel implements PropertyChangeListener {
 		browseTab.endFrameTextField.setText( Integer.toString(endFrame));
 
 		Viewer v = parent0.vSequence.getFirstViewer();
-		Rectangle rectv = v.getBoundsInternal();
-		Rectangle rect0 = parent0.mainFrame.getBoundsInternal();
-		rectv.setLocation(rect0.x+ rect0.width, rect0.y);
-		v.setBounds(rectv);
+		if (v != null) {
+			Rectangle rectv = v.getBoundsInternal();
+			Rectangle rect0 = parent0.mainFrame.getBoundsInternal();
+			rectv.setLocation(rect0.x+ rect0.width, rect0.y);
+			v.setBounds(rectv);
+		}
 	}
 	
 	private void initSequenceParameters(SequenceVirtual seq) {

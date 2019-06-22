@@ -25,7 +25,7 @@ public class MoveTab_File extends JPanel implements ActionListener {
 	private JButton	saveROIsButton			= new JButton("Save...");
 	private Multicafe parent0;
 	
-	public void init(GridLayout capLayout, Multicafe parent0) {
+	void init(GridLayout capLayout, Multicafe parent0) {
 		setLayout(capLayout);
 		this.parent0 = parent0;
 
@@ -72,7 +72,7 @@ public class MoveTab_File extends JPanel implements ActionListener {
 	}
 	
 
-	public boolean cageRoisOpen(String csFileName) {
+	boolean cageRoisOpen(String csFileName) {
 		
 		boolean flag = false;
 		if (csFileName == null)
@@ -82,7 +82,8 @@ public class MoveTab_File extends JPanel implements ActionListener {
 		return flag;
 	}
 	
-	public boolean cageRoisSave() {
+	boolean cageRoisSave() {
+		
 		return parent0.vSequence.cages.xmlWriteCagesToFile("drosotrack.xml", parent0.vSequence.getDirectory());
 	}
 }

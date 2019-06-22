@@ -90,6 +90,27 @@ public class XLSExport {
 	       for (int i= 0; i < exp.kymographArrayList.size(); i++, pt.x++) 
 				XLSUtils.setValue(sheet, pt, transpose, df.format(exp.fileTimeImageFirst.toMillis()));
 			break;
+		case STIML:
+			for (int i= 0; i < exp.kymographArrayList.size(); i++, pt.x++) {
+				XLSUtils.setValue(sheet, pt, transpose, exp.vSequence.capillaries.stimulusL);
+			}
+			break;
+		case CONCL:
+			for (int i= 0; i < exp.kymographArrayList.size(); i++, pt.x++) {
+				XLSUtils.setValue(sheet, pt, transpose, exp.vSequence.capillaries.concentrationL);
+			}
+			break;
+		case STIMR:
+			for (int i= 0; i < exp.kymographArrayList.size(); i++, pt.x++) {
+				XLSUtils.setValue(sheet, pt, transpose, exp.vSequence.capillaries.stimulusR);
+			}
+			break;
+		case CONCR:
+			for (int i= 0; i < exp.kymographArrayList.size(); i++, pt.x++) {
+				XLSUtils.setValue(sheet, pt, transpose, exp.vSequence.capillaries.concentrationR);
+			}
+			break;
+
 		default:
 			break;
 		}
@@ -142,8 +163,10 @@ public class XLSExport {
 	public static Point writeGenericHeader (Experiment exp, XSSFSheet sheet, XLSExportItems option, Point pt, boolean transpose, String charSeries) {
 
 		pt = addLineToHeader(exp, sheet, pt, transpose, XLSExperimentDescriptors.DATE);
-		pt = addLineToHeader(exp, sheet, pt, transpose, XLSExperimentDescriptors.STIM);
-		pt = addLineToHeader(exp, sheet, pt, transpose, XLSExperimentDescriptors.CONC);
+		pt = addLineToHeader(exp, sheet, pt, transpose, XLSExperimentDescriptors.STIML);
+		pt = addLineToHeader(exp, sheet, pt, transpose, XLSExperimentDescriptors.CONCL);
+		pt = addLineToHeader(exp, sheet, pt, transpose, XLSExperimentDescriptors.STIMR);
+		pt = addLineToHeader(exp, sheet, pt, transpose, XLSExperimentDescriptors.CONCR);
 		pt = addLineToHeader(exp, sheet, pt, transpose, XLSExperimentDescriptors.CAM);
 		pt = addLineToHeader(exp, sheet, pt, transpose, XLSExperimentDescriptors.CAP);
 		pt = addLineToHeader(exp, sheet, pt, transpose, XLSExperimentDescriptors.CAGE);

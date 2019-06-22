@@ -35,18 +35,18 @@ public class CapillariesTab_Options extends JPanel implements ActionListener, Ac
 	 * 
 	 */
 	private static final long serialVersionUID = -2103052112476748890L;
-	public JCheckBox 	viewKymosCheckBox 		= new JCheckBox("View kymos");
-	public JComboBox<String> kymographNamesComboBox = new JComboBox<String> (new String[] {"none"});
-	public JButton 		updateButton 			= new JButton("Update");
-	public JButton  	previousButton		 	= new JButton("<");
-	public JButton		nextButton				= new JButton(">");
-	public JCheckBox 	viewLevelsCheckbox 		= new JCheckBox("capillary levels", true);
-	public JCheckBox 	viewGulpsCheckbox 		= new JCheckBox("gulps", true);
+	JCheckBox 	viewKymosCheckBox 		= new JCheckBox("View kymos");
+	JComboBox<String> kymographNamesComboBox = new JComboBox<String> (new String[] {"none"});
+	JButton 		updateButton 			= new JButton("Update");
+	JButton  	previousButton		 	= new JButton("<");
+	JButton		nextButton				= new JButton(">");
+	JCheckBox 	viewLevelsCheckbox 		= new JCheckBox("capillary levels", true);
+	JCheckBox 	viewGulpsCheckbox 		= new JCheckBox("gulps", true);
 
 	private Multicafe parent0 = null;
 	private int previousupfront  = -1;
 
-	public void init(GridLayout capLayout, Multicafe parent0) {	
+	void init(GridLayout capLayout, Multicafe parent0) {	
 		setLayout(capLayout);
 		this.parent0 = parent0;
 		
@@ -103,14 +103,14 @@ public class CapillariesTab_Options extends JPanel implements ActionListener, Ac
 	}
 	
 	// ---------------------------
-	public void transferFileNamesToComboBox() {
+	void transferFileNamesToComboBox() {
 		kymographNamesComboBox.removeAllItems();
 		for (SequencePlus kymographSeq: parent0.kymographArrayList) {
 			kymographNamesComboBox.addItem(kymographSeq.getName());
 		}
 	}
 	
-	public void transferRoisNamesToComboBox(ArrayList <ROI2DShape> roi2DArrayList) {
+	void transferRoisNamesToComboBox(ArrayList <ROI2DShape> roi2DArrayList) {
 		kymographNamesComboBox.removeAllItems();
 		for (ROI2D roi:roi2DArrayList)
 			kymographNamesComboBox.addItem(roi.getName());	
@@ -140,7 +140,7 @@ public class CapillariesTab_Options extends JPanel implements ActionListener, Ac
 		}
 	}
 
-	public void displayON() {
+	void displayON() {
 		if (parent0.kymographArrayList.size() < 1) return;
 
 		Rectangle rectMaster = parent0.vSequence.getFirstViewer().getBounds();
@@ -164,7 +164,7 @@ public class CapillariesTab_Options extends JPanel implements ActionListener, Ac
 		Icy.getMainInterface().addActiveViewerListener(this);
 	}
 	
-	public void displayOFF() {
+	void displayOFF() {
 		int nseq = parent0.kymographArrayList.size();
 		if (nseq < 1) return;
 
@@ -182,7 +182,7 @@ public class CapillariesTab_Options extends JPanel implements ActionListener, Ac
 		Icy.getMainInterface().removeActiveViewerListener(this);
 	}
 	
-	public void displayUpdate() {	
+	void displayUpdate() {	
 		if (parent0.kymographArrayList.size() < 1 || kymographNamesComboBox.getItemCount() < 1)
 			return;	
 		displayON();
@@ -235,7 +235,7 @@ public class CapillariesTab_Options extends JPanel implements ActionListener, Ac
 		previousupfront = itemupfront;
 	}
 
-	public void displayViews (boolean bEnable) {
+	void displayViews (boolean bEnable) {
 		updateButton.setEnabled(bEnable);
 		previousButton.setEnabled(bEnable);
 		nextButton.setEnabled(bEnable);
@@ -246,7 +246,7 @@ public class CapillariesTab_Options extends JPanel implements ActionListener, Ac
 			displayOFF();
 	}
 
-	public void selectKymograph(int isel) {
+	void selectKymograph(int isel) {
 		int icurrent = kymographNamesComboBox.getSelectedIndex();
 		if (icurrent != isel) {
 			kymographNamesComboBox.setSelectedIndex(isel);

@@ -16,7 +16,7 @@ public class Experiment {
 	public int startFrame 	= 0;
 	public int step 		= 1;
 	public int endFrame 	= 0;
-	
+		
 	public boolean openSequenceAndMeasures() {
 
 		vSequence = new SequenceVirtual();
