@@ -125,13 +125,10 @@ public class XYTaSeries implements XMLPersistent {
 		return datai;
 	}
 	
-
-	
 	public int computeLastIntervalAlive() {
 		computeIsAlive(getDistanceBetweenPoints(), threshold);
 		return lastIntervalAlive;
 	}
-	
 	
 	private ArrayList<Double> getDistanceBetweenPoints() {
 		ArrayList<Double> dataArray = new ArrayList<Double>();
@@ -189,5 +186,11 @@ public class XYTaSeries implements XMLPersistent {
 			dataArray.add(y);
 		}
 		return dataArray;
+	}
+
+	public int getLastIntervalAlive() {
+		if (lastIntervalAlive >= 0)
+			return lastIntervalAlive;
+		return computeLastIntervalAlive();
 	}
 }

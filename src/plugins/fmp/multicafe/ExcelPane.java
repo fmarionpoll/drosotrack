@@ -24,8 +24,8 @@ public class ExcelPane  extends JPanel implements PropertyChangeListener {
 	 * 
 	 */
 	private static final long serialVersionUID = -4296207607692017074L;
-	private JTabbedPane 			tabsPane 		= new JTabbedPane();
-	private ExcelTab_Options		optionsTab		= new ExcelTab_Options();
+	private JTabbedPane 		tabsPane 		= new JTabbedPane();
+	private ExcelTab_Options	optionsTab		= new ExcelTab_Options();
 	private ExcelTab_Kymos		kymosTab		= new ExcelTab_Kymos();
 	private ExcelTab_Move 		moveTab  		= new ExcelTab_Move();
 	
@@ -95,11 +95,18 @@ public class ExcelPane  extends JPanel implements PropertyChangeListener {
 	}
 	
 	private void getCommonOptions(XLSExportOptions options) {
-		options.transpose 		= optionsTab.transposeCheckBox.isSelected();
 		options.pivot 			= optionsTab.pivotCheckBox.isSelected();
+		if (options.pivot)
+			options.transpose = true;
+		else
+			options.transpose 	= optionsTab.transposeCheckBox.isSelected();
 		options.exportAllFiles 	= optionsTab.exportAllFilesCheckBox.isSelected();
 		options.experimentList 	= new ExperimentList ();
-		options.absoluteTime	= optionsTab.absoluteTimeCheckBox.isSelected();
+		options.collateSeries 	= optionsTab.collateSeriesCheckBox.isSelected();
+		if (options.collateSeries)
+			options.absoluteTime	= true;
+		else
+			options.absoluteTime	= optionsTab.absoluteTimeCheckBox.isSelected();
 		if (optionsTab.exportAllFilesCheckBox.isSelected()) {
 			int nfiles = parent0.sequencePane.browseTab.experimentComboBox.getItemCount();
 			for (int i=0; i< nfiles; i++) {

@@ -22,6 +22,7 @@ public class XLSExportOptions {
 	public boolean pivot 			= false;
 	public boolean exportAllFiles 	= true;
 	public boolean absoluteTime		= false;
+	public boolean collateSeries	= false;
 	
 	public ExperimentList experimentList = new ExperimentList ();
 }

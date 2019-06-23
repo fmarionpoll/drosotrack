@@ -13,7 +13,8 @@ public class ExperimentList {
 	
 	public Experiment getStartAndEndFromAllExperiments() {
 		
-		// get timemin et timemax - firstImageTime
+		System.out.println("get start and end of each stack");
+		
 		Experiment expglobal = new Experiment();
 		Experiment exp0 = experimentList.get(0);
 		expglobal.fileTimeImageFirst = exp0.fileTimeImageFirst;
@@ -39,6 +40,7 @@ public class ExperimentList {
 		boolean flag = true;
 		for (Experiment exp: experimentList) 
 		{
+			System.out.println("read expt "+ exp.filename);
 			boolean ok = exp.openSequenceAndMeasures();
 			flag &= ok;
 		}

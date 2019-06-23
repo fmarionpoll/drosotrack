@@ -31,7 +31,7 @@ public class CapillariesTab_Adjust extends JPanel implements ActionListener{
 	private static final long serialVersionUID = 1756354919434057560L;
 	
 	JTextField	jitterTextField2	= new JTextField("10");
-	private JButton 	adjustButton 		= new JButton("Adjust");
+	private JButton 	adjustButton 		= new JButton("Align");
 	JCheckBox	displayYellowBarsCheckBox = new JCheckBox("display yellow bars", false);
 	private Multicafe parent0;
 	private Line2D		refLineUpper 		= null;
@@ -44,8 +44,8 @@ public class CapillariesTab_Adjust extends JPanel implements ActionListener{
 		add( GuiUtil.besidesPanel(
 				displayYellowBarsCheckBox, 
 				new JLabel("jitter ", SwingConstants.RIGHT), 
-				jitterTextField2));
-		add( GuiUtil.besidesPanel( new JLabel(" "), adjustButton));
+				jitterTextField2, 
+				adjustButton));
 		
 		this.parent0 = parent0;
 		defineActionListeners();

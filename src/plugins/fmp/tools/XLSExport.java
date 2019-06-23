@@ -4,6 +4,7 @@ import java.awt.Point;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.text.SimpleDateFormat;
+import java.util.List;
 
 import org.apache.poi.ss.SpreadsheetVersion;
 import org.apache.poi.ss.usermodel.DataConsolidateFunction;
@@ -20,9 +21,10 @@ import plugins.fmp.sequencevirtual.SequenceVirtual;
 
 public class XLSExport {
 
-	protected static XLSExportOptions options = null;
+	protected static XLSExportOptions 	options = null;
 	protected static Experiment 		expAll = null;
 	static int							nintervals	= 0;
+	static List <XLSNameAndPosition> 		listOfStacks; 
 
 	public static long getnearest(long value, int step) {
 		long diff0 = (value /step)*step;
@@ -193,4 +195,30 @@ public class XLSExport {
 		xlsCreatePivotTable(workBook, "pivot_std", fromWorkbook, DataConsolidateFunction.STD_DEV);
 		xlsCreatePivotTable(workBook, "pivot_n", fromWorkbook, DataConsolidateFunction.COUNT);
 	}
+	
+	static String getBoxIdentificator (Experiment exp) {
+		Path path = Paths.get(exp.vSequence.getFileName());
+		String name = getSubName(path, 2); 
+		return name;
+	}
+	
+	static Point getStackColumnPosition (Experiment exp, Point pt) {
+		Point localPt = pt;
+		String name = getBoxIdentificator (exp);
+		boolean found = false;
+		for (XLSNameAndPosition desc: listOfStacks) {
+			if (name .equals(desc.name)) {
+				found = true;
+				localPt = new Point(desc.column, desc.row);
+				break;
+			}
+		}
+		
+		if (!found) {
+			XLSNameAndPosition desc = new XLSNameAndPosition(name, pt);
+			listOfStacks.add(desc);
+		}
+		return localPt;
+	}
+
 }
