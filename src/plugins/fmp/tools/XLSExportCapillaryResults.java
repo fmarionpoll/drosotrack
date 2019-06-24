@@ -249,7 +249,7 @@ public class XLSExportCapillaryResults extends XLSExport {
 
 		FileTime imageTime = exp.vSequence.getImageModifiedTime(startFrame);
 		long imageTimeMinutes = imageTime.toMillis()/ 60000;
-		if (options.absoluteTime && (col0 ==0)) {
+		if (col0 ==0) {
 			imageTimeMinutes = expAll.fileTimeImageLastMinutes;
 			long diff = getnearest(imageTimeMinutes-expAll.fileTimeImageFirstMinutes, step)/ step;
 			imageTimeMinutes = expAll.fileTimeImageFirstMinutes;
