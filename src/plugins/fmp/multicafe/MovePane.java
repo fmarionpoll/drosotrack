@@ -66,5 +66,11 @@ public class MovePane extends JPanel implements PropertyChangeListener {
 		boolean flag = filesTab.cageRoisOpen(path+"\\drosotrack.xml");
 		return flag;
 	}
+	
+	boolean saveDefaultCages() {
+		String directory = parent0.vSequence.getDirectory();
+		String filename = directory + "\\drosotrack.xml";
+		return parent0.vSequence.cages.xmlWriteCagesToFileNoQuestion(filename);
+	}
 }
 

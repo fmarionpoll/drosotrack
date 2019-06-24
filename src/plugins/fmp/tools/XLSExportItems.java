@@ -9,7 +9,8 @@ public enum XLSExportItems {
 	XYCENTER ("xycenter"), 
 	DISTANCE ("distance"), 
 	ISALIVE ("_alive"), 
-	TOPLEVELDELTA ("topdelta");
+	TOPLEVELDELTA ("topdelta"),
+	TOPLEVELDELTALR ("topdeltaL+R");
 	
 	private String label;
 	

@@ -31,13 +31,16 @@ public class Cages {
 	public boolean xmlWriteCagesToFile(String name, String directory) {
 
 		String csFile = Tools.saveFileAs(name, directory, "xml");
+		if (csFile == null)
+			return false;
+		
 		csFile.toLowerCase();
 		if (!csFile.contains(".xml")) {
 			csFile += ".xml";
 		}
 		return xmlWriteCagesToFileNoQuestion(csFile);
 	}
-	
+		
 	public boolean xmlWriteCagesToFileNoQuestion(String csFile) {
 		if (csFile == null) 
 			return false;

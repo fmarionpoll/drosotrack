@@ -47,7 +47,10 @@ public class XLSExportCapillaryResults extends XLSExport {
 				if (options.bottomLevel) 	col_end = getDataAndExport(exp, workbook, col_max, charSeries, XLSExportItems.BOTTOMLEVEL);		
 				if (options.derivative) 	col_end = getDataAndExport(exp, workbook, col_max, charSeries, XLSExportItems.DERIVEDVALUES);	
 				if (options.consumption) 	col_end = getDataAndExport(exp, workbook, col_max, charSeries, XLSExportItems.SUMGULPS);
-				if (options.sum) 			col_end = getDataAndExport(exp, workbook, col_max, charSeries, XLSExportItems.SUMLR);
+				if (options.sum) {		
+					if (options.topLevel) col_end = getDataAndExport(exp, workbook, col_max, charSeries, XLSExportItems.SUMLR);
+					if (options.topLevelDelta) 	col_end = getDataAndExport(exp, workbook, col_max, charSeries, XLSExportItems.TOPLEVELDELTALR);
+				}
 
 				if (col_end > col_max)
 					col_max = col_end;
@@ -113,6 +116,9 @@ public class XLSExportCapillaryResults extends XLSExport {
 					resultsArrayList.add(subtractT0(seq.getArrayListFromRois(ArrayListType.topLevel)));
 				else
 					resultsArrayList.add(seq.getArrayListFromRois(ArrayListType.topLevel));
+				break;
+			case TOPLEVELDELTALR:
+				resultsArrayList.add(subtractTi(seq.getArrayListFromRois(ArrayListType.topLevel)));
 				break;
 			default:
 				break;
@@ -282,6 +288,7 @@ public class XLSExportCapillaryResults extends XLSExport {
 			
 			switch (option) {
 			case SUMLR:
+			case TOPLEVELDELTALR:
 				for (int idataArray=0; idataArray< dataArrayList.size(); idataArray+=2) 
 				{
 					ArrayList<Integer> dataL = dataArrayList.get(idataArray) ;

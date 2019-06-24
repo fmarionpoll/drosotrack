@@ -30,7 +30,7 @@ public class Multicafe extends PluginActionable implements ViewerListener, Prope
 {
 	SequenceVirtual 			vSequence 			= null;
 	ArrayList <SequencePlus> 	kymographArrayList	= new ArrayList <SequencePlus> ();
-	IcyFrame mainFrame = new IcyFrame("MultiCAFE analysis 23-June-2019", true, true, true, true);
+	IcyFrame mainFrame = new IcyFrame("MultiCAFE analysis 24-June-2019", true, true, true, true);
 	
 	SequencePane 				sequencePane 		= new SequencePane();
 	CapillariesPane 			capillariesPane 	= new CapillariesPane();
@@ -115,9 +115,11 @@ public class Multicafe extends PluginActionable implements ViewerListener, Prope
 		}
 		else if (arg0.getPropertyName().equals("SEQ_SAVEMEAS")) {
 			capillariesPane.getCapillariesInfos(vSequence.capillaries);
-			if (capillariesPane.capold.isChanged(vSequence.capillaries))
+			if (capillariesPane.capold.isChanged(vSequence.capillaries)) {
 				capillariesPane.saveDefaultCapillaries();
-			//kymographsPane.fileTab.measuresFileSave();
+				kymographsPane.fileTab.measuresFileSave();
+				movePane.saveDefaultCages();
+			}
 		}
 		else if (arg0.getPropertyName() .equals("EXPORT_TO_EXCEL")) {
 			kymographsPane.fileTab.measuresFileSave();
