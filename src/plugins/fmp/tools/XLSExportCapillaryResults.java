@@ -250,16 +250,27 @@ public class XLSExportCapillaryResults extends XLSExport {
 		FileTime imageTime = exp.vSequence.getImageModifiedTime(startFrame);
 		long imageTimeMinutes = imageTime.toMillis()/ 60000;
 		if (col0 ==0) {
-			imageTimeMinutes = expAll.fileTimeImageLastMinutes;
-			long diff = getnearest(imageTimeMinutes-expAll.fileTimeImageFirstMinutes, step)/ step;
-			imageTimeMinutes = expAll.fileTimeImageFirstMinutes;
-			pt.x = col0;
-			for (int i = 0; i<= diff; i++) {
-				long diff2 = getnearest(imageTimeMinutes-expAll.fileTimeImageFirstMinutes, step);
-				pt.y = (int) (diff2/step + row0); 
-				XLSUtils.setValue(sheet, pt, transpose, "t"+diff2);
-				imageTimeMinutes += step;
+			if (options.absoluteTime) {
+				imageTimeMinutes = expAll.fileTimeImageLastMinutes;
+				long diff = getnearest(imageTimeMinutes-expAll.fileTimeImageFirstMinutes, step)/ step;
+				imageTimeMinutes = expAll.fileTimeImageFirstMinutes;
+				pt.x = col0;
+				for (int i = 0; i<= diff; i++) {
+					long diff2 = getnearest(imageTimeMinutes-expAll.fileTimeImageFirstMinutes, step);
+					pt.y = (int) (diff2/step + row0); 
+					XLSUtils.setValue(sheet, pt, transpose, "t"+diff2);
+					imageTimeMinutes += step;
+				}
 			}
+			else {
+
+				pt.x = col0;
+				for (int i = 0; i<= expAll.number_of_frames; i+= step) {
+					pt.y = i/step + row0; 
+					XLSUtils.setValue(sheet, pt, transpose, "t"+i);
+				}
+			}
+
 		}
 		
 		for (int currentFrame=startFrame; currentFrame < endFrame; currentFrame+= step) {

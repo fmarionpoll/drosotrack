@@ -12,6 +12,7 @@ public class Experiment {
 	public FileTime						fileTimeImageLast;
 	public long							fileTimeImageFirstMinutes = 0;
 	public long							fileTimeImageLastMinutes = 0;
+	public int							number_of_frames = 0;
 	
 	public int startFrame 	= 0;
 	public int step 		= 1;
@@ -24,6 +25,8 @@ public class Experiment {
 			return false;
 		fileTimeImageFirst = vSequence.getImageModifiedTime(0);
 		fileTimeImageLast = vSequence.getImageModifiedTime(vSequence.getSizeT()-1);
+		//System.out.println("read expt: "+ filename+" .....size "+ vSequence.getSizeT());
+		
 		fileTimeImageFirstMinutes = fileTimeImageFirst.toMillis()/60000;
 		fileTimeImageLastMinutes = fileTimeImageLast.toMillis()/60000;
 		

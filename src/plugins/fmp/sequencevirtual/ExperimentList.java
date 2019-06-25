@@ -25,6 +25,8 @@ public class ExperimentList {
 				expglobal.fileTimeImageFirst = exp.fileTimeImageFirst;
 			if (expglobal.fileTimeImageLast .compareTo(exp.fileTimeImageLast) <0)
 				expglobal.fileTimeImageLast = exp.fileTimeImageLast;
+			if (expglobal.number_of_frames < exp.vSequence.getSizeT())
+				expglobal.number_of_frames = exp.vSequence.getSizeT();
 			if (exp.vSequence.analysisEnd > exp.vSequence.getSizeT()-1)
 				exp.vSequence.analysisEnd = exp.vSequence.getSizeT()-1;
 		}
@@ -40,7 +42,6 @@ public class ExperimentList {
 		boolean flag = true;
 		for (Experiment exp: experimentList) 
 		{
-			System.out.println("read expt "+ exp.filename);
 			boolean ok = exp.openSequenceAndMeasures();
 			flag &= ok;
 		}
