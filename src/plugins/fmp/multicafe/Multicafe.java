@@ -5,6 +5,7 @@ import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.util.ArrayList;
 import javax.swing.JPanel;
+import javax.swing.SwingUtilities;
 
 import icy.gui.frame.IcyFrame;
 import icy.gui.util.GuiUtil;
@@ -19,6 +20,7 @@ import icy.sequence.DimensionId;
 import icy.sequence.Sequence;
 import icy.sequence.SequenceEvent;
 import icy.sequence.SequenceListener;
+import icy.system.thread.ThreadUtil;
 
 import plugins.fmp.sequencevirtual.SequencePlus;
 import plugins.fmp.tools.ArrayListType;
@@ -168,28 +170,34 @@ public class Multicafe extends PluginActionable implements ViewerListener, Prope
 			sequencePane.browseTab.setBrowseItems(this.vSequence);
 			capillariesPane.propertiesTab.visibleCheckBox.setSelected(true);
 		}
-		if (loadKymographs) {
-			if ( !capillariesPane.fileTab.loadDefaultKymos()) {
-				return;
-			}
-		}
 		
-		if (loadKymographs && loadMeasures) {
-			if (kymographsPane.fileTab.measuresFileOpen()) {
-				sequencePane.browseTab.setBrowseItems(this.vSequence);
-			}
-			if (sequencePane.openTab.graphsCheckBox.isSelected())
-				kymographsPane.graphsTab.xyDisplayGraphs();
+		if (loadKymographs) {
+			ThreadUtil.bgRun( new Runnable() { @Override public void run() { 
+				if ( !capillariesPane.fileTab.loadDefaultKymos()) {
+					return;
+				}
+				if (loadMeasures) {
+					kymographsPane.fileTab.measuresFileOpen();
+					if (sequencePane.openTab.graphsCheckBox.isSelected())
+						SwingUtilities.invokeLater(new Runnable() {
+						    public void run() {
+						    	kymographsPane.graphsTab.xyDisplayGraphs();
+						    }
+						});
+				}
+			}});
 		}
 		
 		if (loadCages) {
-			movePane.loadDefaultCages();
-			movePane.graphicsTab.moveCheckbox.setEnabled(true);
-			movePane.graphicsTab.displayResultsButton.setEnabled(true);
-			if (vSequence.cages != null && vSequence.cages.flyPositionsList.size() > 0) {
-				double threshold = vSequence.cages.flyPositionsList.get(0).threshold;
-				movePane.graphicsTab.aliveThresholdSpinner.setValue(threshold);
-			}
+			ThreadUtil.bgRun( new Runnable() { @Override public void run() {
+				movePane.loadDefaultCages();
+				movePane.graphicsTab.moveCheckbox.setEnabled(true);
+				movePane.graphicsTab.displayResultsButton.setEnabled(true);
+				if (vSequence.cages != null && vSequence.cages.flyPositionsList.size() > 0) {
+					double threshold = vSequence.cages.flyPositionsList.get(0).threshold;
+					movePane.graphicsTab.aliveThresholdSpinner.setValue(threshold);
+				}
+			}});
 		}
 	}
 

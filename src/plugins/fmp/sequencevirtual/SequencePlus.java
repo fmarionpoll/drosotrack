@@ -45,34 +45,9 @@ public class SequencePlus extends SequenceVirtual  {
 	public	TransformOp	transformForLevels 		= TransformOp.R2MINUS_GB;
 	public	TransformOp transformForGulps 		= TransformOp.XDIFFN;
 	
-	public LocalDateTime	startDate				= null;
-	public LocalDateTime	endDate					= null;
+	public LocalDateTime	startDate			= null;
+	public LocalDateTime	endDate				= null;
 	public long			minutesBetweenImages 	= 1;
-
-	/*
-	 * https://stackoverflow.com/questions/17940200/how-to-find-the-duration-of-difference-between-two-dates-in-java
-
-Date startDate = // Set start date
-Date endDate   = // Set end date
-
-long duration  = endDate.getTime() - startDate.getTime();
-
-long diffInSeconds = TimeUnit.MILLISECONDS.toSeconds(duration);
-long diffInMinutes = TimeUnit.MILLISECONDS.toMinutes(duration);
-long diffInHours = TimeUnit.MILLISECONDS.toHours(duration);
-long diffInDays = TimeUnit.MILLISECONDS.toDays(duration);
-
-
-in Java 8:
-LocalDate today = LocalDate.now();
-LocalDate birthday = LocalDate.of(1960, Month.JANUARY, 1);
-
-Period p = Period.between(birthday, today);
-long p2 = ChronoUnit.DAYS.between(birthday, today);
-
-System.out.println("You are " + p.getYears() + " years, " + p.getMonths() + " months, and " + p.getDays() + " days old. (" + p2 + " days total)");
-
-	 */
 	public OverlayThreshold thresholdOverlay 	= null;
 	public OverlayTrapMouse trapOverlay 		= null;
 	

@@ -15,12 +15,14 @@ import javax.swing.JFileChooser;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.SwingConstants;
+import javax.swing.SwingUtilities;
 
 import icy.file.Saver;
 import icy.gui.frame.progress.ProgressFrame;
 import icy.gui.util.FontUtil;
 import icy.gui.util.GuiUtil;
 import icy.image.IcyBufferedImage;
+import icy.system.thread.ThreadUtil;
 import loci.formats.FormatException;
 
 import plugins.fmp.sequencevirtual.SequencePlus;
@@ -137,17 +139,19 @@ public class CapillariesTab_File extends JPanel implements ActionListener {
 	
 				progress.setMessage( "Save kymograph file : " + seq.getName());
 				String filename = outputpath + "\\" + seq.getName() + ".tiff";
-				File file = new File (filename);
-				IcyBufferedImage image = seq.getFirstImage();
-				try {
-					Saver.saveImage(image, file, true);
-				} catch (FormatException e) {
-					e.printStackTrace();
-				} catch (IOException e) {
-					e.printStackTrace();
-				}
-				
-				System.out.println("File "+ seq.getName() + " saved " );
+				final File file = new File (filename);
+				ThreadUtil.bgRun( new Runnable() { @Override public void run() { 
+					
+					IcyBufferedImage image = seq.getFirstImage();
+					try {
+						Saver.saveImage(image, file, true);
+					} catch (FormatException e) {
+						e.printStackTrace();
+					} catch (IOException e) {
+						e.printStackTrace();
+					}
+					System.out.println("File "+ seq.getName() + " saved " );
+				}});
 			}
 			System.out.println("End of Kymograph saving process");
 		}
@@ -155,14 +159,19 @@ public class CapillariesTab_File extends JPanel implements ActionListener {
 	}
 	
 	boolean loadDefaultKymos() {
+		
 		String path = parent0.vSequence.getDirectory();
 		final String cs = path+"\\results";
 		boolean flag = false;
 		parent0.kymographArrayList = SequencePlusUtils.openFiles(cs);
 		if (parent0.kymographArrayList != null) {
 			flag = true;
-			parent0.capillariesPane.optionsTab.transferFileNamesToComboBox();
-			parent0.capillariesPane.optionsTab.viewKymosCheckBox.setSelected(true);
+			SwingUtilities.invokeLater(new Runnable() {
+			    public void run() {
+	        	parent0.capillariesPane.optionsTab.transferFileNamesToComboBox();
+				parent0.capillariesPane.optionsTab.viewKymosCheckBox.setSelected(true);
+			    }
+			});
 		}
 		return flag;
 	}

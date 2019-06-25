@@ -9,6 +9,7 @@ import icy.common.exception.UnsupportedFormatException;
 import icy.file.Loader;
 import icy.image.IcyBufferedImage;
 
+
 public class SequencePlusUtils {
 	public static ArrayList<SequencePlus> openFiles (String directory) {
 		
@@ -22,13 +23,13 @@ public class SequencePlusUtils {
 		for (String filename: list) {
 			if (!filename.contains(".tiff"))
 				continue;
-
+			 
 			SequencePlus kymographSeq = new SequencePlus();
-			filename = directory + "\\" + filename;
+			final String name =  directory + "\\" + filename;
 
 			IcyBufferedImage ibufImage = null;
 			try {
-				ibufImage = Loader.loadImage(filename);
+				ibufImage = Loader.loadImage(name);
 
 			} catch (UnsupportedFormatException e) {
 				e.printStackTrace();

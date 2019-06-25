@@ -61,16 +61,22 @@ public class KymosTab_File  extends JPanel implements ActionListener {
 	boolean measuresFileOpen() {
 		String directory = parent0.vSequence.getDirectory();
 		boolean flag = true;
-		for (int kymo=0; kymo < parent0.kymographArrayList.size(); kymo++) {	
+		for (int kymo=0; kymo < parent0.kymographArrayList.size(); kymo++) {
+			
 			SequencePlus seq = parent0.kymographArrayList.get(kymo);
-			seq.beginUpdate();
-			if (flag = seq.loadXMLKymographAnalysis(directory)) {
-				seq.validateRois();
-				seq.getArrayListFromRois(ArrayListType.cumSum);
-			}
-			else 
-				System.out.println("load measures -> failed or not found in directory: " + directory);
-			seq.endUpdate();
+			 
+				seq.beginUpdate();
+				boolean flag2 = true;
+				if (flag2 = seq.loadXMLKymographAnalysis(directory)) {
+					seq.validateRois();
+					seq.getArrayListFromRois(ArrayListType.cumSum);
+				}
+				else {
+					System.out.println("load measures -> failed or not found in directory: " + directory);
+				}
+				seq.endUpdate();
+			if (!flag2)
+				flag = false;
 		}
 		
 		if (parent0.kymographArrayList.size() >0 ) {
