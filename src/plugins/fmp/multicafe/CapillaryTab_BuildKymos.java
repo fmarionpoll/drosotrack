@@ -124,6 +124,8 @@ public class CapillaryTab_BuildKymos extends JPanel implements ActionListener {
 		buildKymographsThread.options.vSequence 	= parent0.vSequence;
 		buildKymographsThread.options.analyzeStep 	= parent0.vSequence.analysisStep;
 		buildKymographsThread.options.startFrame 	= (int) parent0.vSequence.analysisStart;
+		if (parent0.vSequence.analysisEnd > (parent0.vSequence.getSizeT()-1))
+			parent0.vSequence.analysisEnd = (parent0.vSequence.getSizeT()-1);
 		buildKymographsThread.options.endFrame 		= (int) parent0.vSequence.analysisEnd;
 		buildKymographsThread.options.diskRadius 	= diskRadius;
 		buildKymographsThread.options.doRegistration= doRegistrationCheckBox.isSelected();

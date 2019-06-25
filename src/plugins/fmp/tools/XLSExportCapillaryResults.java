@@ -263,14 +263,12 @@ public class XLSExportCapillaryResults extends XLSExport {
 				}
 			}
 			else {
-
 				pt.x = col0;
 				for (int i = 0; i<= expAll.number_of_frames; i+= step) {
 					pt.y = i/step + row0; 
 					XLSUtils.setValue(sheet, pt, transpose, "t"+i);
 				}
 			}
-
 		}
 		
 		for (int currentFrame=startFrame; currentFrame < endFrame; currentFrame+= step) {
