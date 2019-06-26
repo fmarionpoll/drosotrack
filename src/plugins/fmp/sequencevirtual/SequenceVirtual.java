@@ -56,10 +56,10 @@ public class SequenceVirtual extends Sequence
 	public double [][] 		data_filtered 	= null;
 	
 	// image cache
-	public IcyBufferedImage cacheTransformedImage = null;
-	public ImageOperationsStruct cacheTransformOp = new ImageOperationsStruct();
-	public IcyBufferedImage cacheThresholdedImage = null;
-	public ImageOperationsStruct cacheThresholdOp = new ImageOperationsStruct();
+	public IcyBufferedImage 		cacheTransformedImage = null;
+	public ImageOperationsStruct 	cacheTransformOp = new ImageOperationsStruct();
+	public IcyBufferedImage 		cacheThresholdedImage = null;
+	public ImageOperationsStruct 	cacheThresholdOp = new ImageOperationsStruct();
 	
 	// ----------------------------------------
 	public SequenceVirtual () 

@@ -23,6 +23,7 @@ import icy.roi.ROI2D;
 import icy.type.collection.array.Array1DUtil;
 import plugins.fmp.tools.Line2DPlus;
 import plugins.kernel.roi.roi2d.ROI2DLine;
+import plugins.kernel.roi.roi2d.ROI2DShape;
 
 public class CapillariesTab_Adjust extends JPanel implements ActionListener{
 	/**
@@ -223,24 +224,22 @@ public class CapillariesTab_Adjust extends JPanel implements ActionListener{
 		
 		if (displayYellowBarsCheckBox.isSelected()) 
 		{
-			if (refLineUpper == null) {
-				// take as ref the whole image otherwise, we won't see the lines if the use has not defined any capillaries
-				int seqheight = parent0.vSequence.getHeight();
-				int seqwidth = parent0.vSequence.getWidth();
-				refLineUpper = new Line2D.Double (0, seqheight/3, seqwidth, seqheight/3);
-				refLineLower = new Line2D.Double (0, 2*seqheight/3, seqwidth, 2*seqheight/3);
-				
-				Rectangle extRect = new Rectangle (parent0.vSequence.capillaries.capillariesArrayList.get(0).getBounds());
-				for (ROI2D roi: parent0.vSequence.capillaries.capillariesArrayList)
-				{
-					Rectangle rect = roi.getBounds();
-					extRect.add(rect);
-				}
-				double height = extRect.getHeight()/3;
-				extRect.setRect(extRect.getX(), extRect.getY()+ height, extRect.getWidth(), height);
-				refLineUpper.setLine(extRect.getX(), extRect.getY(), extRect.getX()+extRect.getWidth(), extRect.getY());
-				refLineLower.setLine(extRect.getX(), extRect.getY()+extRect.getHeight(), extRect.getX()+extRect.getWidth(), extRect.getY()+extRect.getHeight());
+			// take as ref the whole image otherwise, we won't see the lines if the use has not defined any capillaries
+			int seqheight = parent0.vSequence.getHeight();
+			int seqwidth = parent0.vSequence.getWidth();
+			refLineUpper = new Line2D.Double (0, seqheight/3, seqwidth, seqheight/3);
+			refLineLower = new Line2D.Double (0, 2*seqheight/3, seqwidth, 2*seqheight/3);
+			
+			Rectangle extRect = new Rectangle (parent0.vSequence.capillaries.capillariesArrayList.get(0).getBounds());
+			for (ROI2D roi: parent0.vSequence.capillaries.capillariesArrayList)
+			{
+				Rectangle rect = roi.getBounds();
+				extRect.add(rect);
 			}
+			extRect.grow(extRect.width*1/10, -extRect.height*2/10);
+			refLineUpper.setLine(extRect.getX(), extRect.getY(), extRect.getX()+extRect.getWidth(), extRect.getY());
+			refLineLower.setLine(extRect.getX(), extRect.getY()+extRect.getHeight(), extRect.getX()+extRect.getWidth(), extRect.getY()+extRect.getHeight());
+
 			
 			roiRefLineUpper.setLine(refLineUpper);
 			roiRefLineLower.setLine(refLineLower);

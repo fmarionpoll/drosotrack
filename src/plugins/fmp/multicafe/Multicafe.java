@@ -8,6 +8,7 @@ import javax.swing.JPanel;
 import javax.swing.SwingUtilities;
 
 import icy.gui.frame.IcyFrame;
+import icy.gui.frame.progress.ProgressFrame;
 import icy.gui.util.GuiUtil;
 import icy.gui.viewer.Viewer;
 import icy.gui.viewer.ViewerEvent;
@@ -103,6 +104,7 @@ public class Multicafe extends PluginActionable implements ViewerListener, Prope
 					sequencePane.openTab.isCheckedLoadKymographs(),
 					sequencePane.openTab.isCheckedLoadCages(),
 					sequencePane.openTab.isCheckedLoadMeasures());
+			capillariesPane.adjustTab.displayYellowBarsCheckBox.setSelected(false);
 		}
 		else if (arg0.getPropertyName().equals("CAPILLARIES_OPEN")) {
 		  	sequencePane.browseTab.setBrowseItems(this.vSequence);
@@ -173,23 +175,29 @@ public class Multicafe extends PluginActionable implements ViewerListener, Prope
 		
 		if (loadKymographs) {
 			ThreadUtil.bgRun( new Runnable() { @Override public void run() { 
+				ProgressFrame progress = new ProgressFrame("Load kymographs");
+				
 				if ( !capillariesPane.fileTab.loadDefaultKymos()) {
+					progress.close();
 					return;
 				}
+				progress.setMessage( "Load measures");
 				if (loadMeasures) {
 					kymographsPane.fileTab.measuresFileOpen();
 					if (sequencePane.openTab.graphsCheckBox.isSelected())
 						SwingUtilities.invokeLater(new Runnable() {
 						    public void run() {
 						    	kymographsPane.graphsTab.xyDisplayGraphs();
-						    }
-						});
+						    }});
 				}
+				progress.close();
 			}});
 		}
 		
 		if (loadCages) {
 			ThreadUtil.bgRun( new Runnable() { @Override public void run() {
+				ProgressFrame progress = new ProgressFrame("Load cages and fly movements");
+				
 				movePane.loadDefaultCages();
 				movePane.graphicsTab.moveCheckbox.setEnabled(true);
 				movePane.graphicsTab.displayResultsButton.setEnabled(true);
@@ -197,6 +205,7 @@ public class Multicafe extends PluginActionable implements ViewerListener, Prope
 					double threshold = vSequence.cages.flyPositionsList.get(0).threshold;
 					movePane.graphicsTab.aliveThresholdSpinner.setValue(threshold);
 				}
+				progress.close();
 			}});
 		}
 	}

@@ -3,12 +3,14 @@ package plugins.fmp.multicafe;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.ArrayList;
 
 import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 
 import icy.gui.util.GuiUtil;
+import icy.gui.viewer.Viewer;
 import plugins.fmp.sequencevirtual.SequencePlus;
 
 public class SequenceTab_Close  extends JPanel implements ActionListener {
@@ -37,13 +39,20 @@ public class SequenceTab_Close  extends JPanel implements ActionListener {
 	}
 	
 	void closeAll() {
-		for (SequencePlus seq:parent0.kymographArrayList)
+		
+		for (SequencePlus seq:parent0.kymographArrayList) {
+			ArrayList<Viewer> viewerList = seq.getViewers();
+			for (Viewer v: viewerList)
+				v.close();
 			seq.close();
+		}
+		parent0.kymographArrayList.clear();
 		
 		parent0.movePane.graphicsTab.closeAll();
 		parent0.kymographsPane.graphsTab.closeAll();
 
 		if (parent0.vSequence != null) {
+			parent0.vSequence.removeAllROI();
 			parent0.vSequence.removeListener(parent0);
 			parent0.vSequence.close();
 			parent0.vSequence.capillaries.capillariesArrayList.clear();
