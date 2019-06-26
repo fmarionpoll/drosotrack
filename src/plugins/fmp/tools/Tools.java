@@ -230,10 +230,10 @@ public class Tools  extends Plugin {
 	    fc.setAcceptAllFileFilterUsed(false);
 	    if (fc.showOpenDialog(null) == JFileChooser.APPROVE_OPTION) { 
 	      dummy_selected = fc.getSelectedFile();
-	      }
+	    }
 	    else {
-	      System.out.println("No Selection ");
-	      }
+	      System.out.println("No directory selected ");
+	    }
 		return dummy_selected;
 	}
 	

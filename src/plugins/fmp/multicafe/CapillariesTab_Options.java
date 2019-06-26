@@ -13,6 +13,7 @@ import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
 import javax.swing.JPanel;
+import javax.swing.SwingUtilities;
 
 import icy.canvas.Canvas2D;
 import icy.canvas.IcyCanvas;
@@ -183,56 +184,64 @@ public class CapillariesTab_Options extends JPanel implements ActionListener, Ac
 	}
 	
 	void displayUpdate() {	
-		if (parent0.kymographArrayList.size() < 1 || kymographNamesComboBox.getItemCount() < 1)
-			return;	
-		displayON();
-		int itemupfront = kymographNamesComboBox.getSelectedIndex();
-		if (itemupfront < 0) {
-			itemupfront = 0;
-			kymographNamesComboBox.setSelectedIndex(0);
-		}
-		Viewer v = parent0.kymographArrayList.get(itemupfront).getFirstViewer();
-		if (previousupfront != itemupfront 
-				&& previousupfront >= 0 
-				&& previousupfront < parent0.kymographArrayList.size()) {
-			
-			SequencePlus seq0 =  parent0.kymographArrayList.get(previousupfront);
-			// save changes and interpolate points if necessary
-			if (seq0.hasChanged) {
-				seq0.validateRois();
-				seq0.hasChanged = false;
-			}
-			// update canvas size of all kymograph windows if size of window has changed
-			Viewer v0 = parent0.kymographArrayList.get(previousupfront).getFirstViewer();
-			Rectangle rect0 = v0.getBounds();
-			Canvas2D cv0 = (Canvas2D) v0.getCanvas();
-			int positionZ0 = cv0.getPositionZ(); 
-					
-			Rectangle rect = v.getBounds();
-			if (rect != rect0) {
-				v.setBounds(rect0);
-				int i= 0;
-				int imax = 500;
-				while (!v.isInitialized() && i < imax) { i ++; }
-				if (!v.isInitialized())
-					System.out.println("Viewer still not initialized after " + imax +" iterations");
+		
+		SwingUtilities.invokeLater(new Runnable() {
+			public void run() {
+				if (parent0.kymographArrayList.size() < 1 || kymographNamesComboBox.getItemCount() < 1)
+					return;	
 				
-				for (SequencePlus seq: parent0.kymographArrayList) {
-					Viewer vi = seq.getFirstViewer();
-					Rectangle recti = vi.getBounds();
-					if (recti != rect0)
-						vi.setBounds(rect0);
+				displayON();
+				int itemupfront = kymographNamesComboBox.getSelectedIndex();
+				if (itemupfront < 0) {
+					itemupfront = 0;
+					kymographNamesComboBox.setSelectedIndex(0);
+				}
+				Viewer v = parent0.kymographArrayList.get(itemupfront).getFirstViewer();
+				if (v != null) {
+					if (previousupfront != itemupfront 
+							&& previousupfront >= 0 
+							&& previousupfront < parent0.kymographArrayList.size()) {
+						
+						SequencePlus seq0 =  parent0.kymographArrayList.get(previousupfront);
+						// save changes and interpolate points if necessary
+						if (seq0.hasChanged) {
+							seq0.validateRois();
+							seq0.hasChanged = false;
+						}
+						// update canvas size of all kymograph windows if size of window has changed
+						Viewer v0 = parent0.kymographArrayList.get(previousupfront).getFirstViewer();
+						Rectangle rect0 = v0.getBounds();
+						Canvas2D cv0 = (Canvas2D) v0.getCanvas();
+						int positionZ0 = cv0.getPositionZ(); 
+								
+						Rectangle rect = v.getBounds();
+						if (rect != rect0) {
+							v.setBounds(rect0);
+							int i= 0;
+							int imax = 500;
+							while (!v.isInitialized() && i < imax) { i ++; }
+							if (!v.isInitialized())
+								System.out.println("Viewer still not initialized after " + imax +" iterations");
+							
+							for (SequencePlus seq: parent0.kymographArrayList) {
+								Viewer vi = seq.getFirstViewer();
+								Rectangle recti = vi.getBounds();
+								if (recti != rect0)
+									vi.setBounds(rect0);
+							}
+						}
+						// copy zoom and position of image from previous canvas to the one selected
+						Canvas2D cv = (Canvas2D) v.getCanvas();
+						cv.setScale(cv0.getScaleX(), cv0.getScaleY(), false);
+						cv.setOffset(cv0.getOffsetX(), cv0.getOffsetY(), false);
+						cv.setPositionZ(positionZ0);
+					}
+					v.toFront();
+					v.requestFocus();
+					previousupfront = itemupfront;
 				}
 			}
-			// copy zoom and position of image from previous canvas to the one selected
-			Canvas2D cv = (Canvas2D) v.getCanvas();
-			cv.setScale(cv0.getScaleX(), cv0.getScaleY(), false);
-			cv.setOffset(cv0.getOffsetX(), cv0.getOffsetY(), false);
-			cv.setPositionZ(positionZ0);
-		}
-		v.toFront();
-		v.requestFocus();
-		previousupfront = itemupfront;
+		});
 	}
 
 	void displayViews (boolean bEnable) {

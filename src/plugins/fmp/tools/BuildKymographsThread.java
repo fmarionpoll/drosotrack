@@ -41,7 +41,7 @@ public class BuildKymographsThread implements Runnable
 		threadRunning = true;
 		if (options.startFrame < 0) 
 			options.startFrame = 0;
-		if (options.endFrame >= (int) options.vSequence.nTotalFrames || options.endFrame < 0) 
+		if ((options.endFrame >= (int) options.vSequence.nTotalFrames) || (options.endFrame < 0)) 
 			options.endFrame = (int) options.vSequence.nTotalFrames-1;
 		int nbframes = options.endFrame - options.startFrame +1;
 		ProgressChrono progressBar = new ProgressChrono("Processing started");
@@ -99,9 +99,7 @@ public class BuildKymographsThread implements Runnable
 		System.out.println("Elapsed time (s):" + progressBar.getSecondsSinceStart());
 		progressBar.close();
 		
-		for (int iroi=0; iroi < options.vSequence.capillaries.capillariesArrayList.size(); iroi++)
-		{
-			SequencePlus kymographSeq = kymographArrayList.get(iroi);
+		for (SequencePlus kymographSeq: kymographArrayList) {
 			kymographSeq.dataChanged();
 		}
 		threadRunning = false;

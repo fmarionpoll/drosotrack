@@ -28,9 +28,9 @@ public class CapillaryTab_BuildKymos extends JPanel implements ActionListener {
 	private static final long serialVersionUID = 1771360416354320887L;
 	
 	JButton 	kymoStartComputationButton 	= new JButton("Start");
-	JButton  kymosStopComputationButton 	= new JButton("Stop");
-	JTextField 	diskRadiusTextField 	= new JTextField("5");
-	JCheckBox doRegistrationCheckBox = new JCheckBox("registration", false);
+	JButton 	kymosStopComputationButton 	= new JButton("Stop");
+	JTextField 	diskRadiusTextField 		= new JTextField("5");
+	JCheckBox 	doRegistrationCheckBox 		= new JCheckBox("registration", false);
 	
 	StatusComputation sComputation = StatusComputation.START_COMPUTATION; 
 	int diskRadius = 5;
@@ -38,7 +38,8 @@ public class CapillaryTab_BuildKymos extends JPanel implements ActionListener {
 	private Multicafe parent0;
 	private BuildKymographsThread buildKymographsThread = null;
 	private Thread thread = null;
-		
+
+
 	void init(GridLayout capLayout, Multicafe parent0) {
 		setLayout(capLayout);	
 		this.parent0 = parent0;
@@ -102,6 +103,8 @@ public class CapillaryTab_BuildKymos extends JPanel implements ActionListener {
 				e1.printStackTrace();
 			}
 		}
+		parent0.capillariesPane.optionsTab.viewKymosCheckBox.setSelected(true);
+		parent0.capillariesPane.optionsTab.displayViews (true);
 	}
 	
 	private void resetUserInterface() {
@@ -117,6 +120,13 @@ public class CapillaryTab_BuildKymos extends JPanel implements ActionListener {
 				seq.close();
 		}
 		parent0.kymographArrayList.clear();
+		for (ROI2DShape roi:parent0.vSequence.capillaries.capillariesArrayList) {
+			SequencePlus kymographSeq = new SequencePlus();	
+			kymographSeq.setName(roi.getName());
+			parent0.kymographArrayList.add(kymographSeq);
+		}
+//		parent0.capillariesPane.optionsTab.viewKymosCheckBox.setSelected(true);
+//		parent0.capillariesPane.optionsTab.displayViews (true);
 		
 		// start building kymos in a separate thread
 		buildKymographsThread = new BuildKymographsThread();
@@ -124,20 +134,10 @@ public class CapillaryTab_BuildKymos extends JPanel implements ActionListener {
 		buildKymographsThread.options.vSequence 	= parent0.vSequence;
 		buildKymographsThread.options.analyzeStep 	= parent0.vSequence.analysisStep;
 		buildKymographsThread.options.startFrame 	= (int) parent0.vSequence.analysisStart;
-		if (parent0.vSequence.analysisEnd > (parent0.vSequence.getSizeT()-1))
-			parent0.vSequence.analysisEnd = (parent0.vSequence.getSizeT()-1);
 		buildKymographsThread.options.endFrame 		= (int) parent0.vSequence.analysisEnd;
 		buildKymographsThread.options.diskRadius 	= diskRadius;
 		buildKymographsThread.options.doRegistration= doRegistrationCheckBox.isSelected();
-		
-		for (ROI2DShape roi:parent0.vSequence.capillaries.capillariesArrayList) {
-			SequencePlus kymographSeq = new SequencePlus();	
-			kymographSeq.setName(roi.getName());
-			parent0.kymographArrayList.add(kymographSeq);
-		}
-		parent0.capillariesPane.optionsTab.viewKymosCheckBox.setSelected(true);
-		parent0.capillariesPane.optionsTab.displayViews (true);
-		buildKymographsThread.kymographArrayList = parent0.kymographArrayList;
+		buildKymographsThread.kymographArrayList 	= parent0.kymographArrayList;
 		
 		thread = new Thread(null, buildKymographsThread, "buildkymos");
 		thread.start();
