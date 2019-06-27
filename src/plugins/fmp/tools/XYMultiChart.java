@@ -116,6 +116,8 @@ public class XYMultiChart extends IcyFrame  {
 	public void fetchNewData(ArrayList <SequencePlus> kymographArrayList, ArrayListType option, int kmax, int startFrame) {
 		
 		int ixy = 0;
+		if (xyDataSetList == null || xyDataSetList.size() < 1)
+			return;
 		flagMaxMinSet = false;
 		XYSeriesCollection xyDataset = null;
 		XYSeriesCollection xyDataset2 = null;

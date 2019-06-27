@@ -35,13 +35,13 @@ import plugins.fmp.sequencevirtual.Capillaries;
 import plugins.fmp.tools.Tools;
 
 
-public class SequenceTab_Open extends JPanel implements ActionListener, IcyFrameListener {
+public class MCSequenceTab_Open extends JPanel implements IcyFrameListener {
 	/**
 	 * 
 	 */
 	private static final long serialVersionUID = 6565346204580890307L;
-	private JButton 	setVideoSourceButton	= new JButton("Open...");
-	private JButton 	addVideoSourceButton	= new JButton("Add...");
+	private JButton 	openButton				= new JButton("Open...");
+	private JButton 	addButton				= new JButton("Add...");
 	private JButton		showButton 				= new JButton("Search for files...");
 	private JButton		closeButton				= new JButton("Close search dialog");
 	private JCheckBox	capillariesCheckBox		= new JCheckBox("capillaries", true);
@@ -50,18 +50,16 @@ public class SequenceTab_Open extends JPanel implements ActionListener, IcyFrame
 	private JCheckBox	measuresCheckBox		= new JCheckBox("measures", true);
 	JCheckBox			graphsCheckBox			= new JCheckBox("graphs", true);
 
-	private JTextField 		filterTextField 	= new JTextField("capillarytrack");
-	private JButton 		findButton			= new JButton("Select root directory and search...");
-	private JButton 		clearSelectedButton	= new JButton("Clear selected");
-	private JButton 		clearAllButton		= new JButton("Clear all");
-	private JButton 		addSelectedButton	= new JButton("Add selected");
-	private JButton 		addAllButton		= new JButton("Add all");
+	private JTextField 	filterTextField 		= new JTextField("capillarytrack");
+	private JButton 	findButton				= new JButton("Select root directory and search...");
+	private JButton 	clearSelectedButton		= new JButton("Clear selected");
+	private JButton 	clearAllButton			= new JButton("Clear all");
+	private JButton 	addSelectedButton		= new JButton("Add selected");
+	private JButton 	addAllButton			= new JButton("Add all");
 	private JList<String> 	xmlFilesJList		= new JList<String>(new DefaultListModel<String>());
 	
 	public List<String> 	selectedNames = new ArrayList<String> ();
-	
 	IcyFrame mainFrame = null;
-	
 	private Multicafe parent0 = null;
 
 	
@@ -69,8 +67,8 @@ public class SequenceTab_Open extends JPanel implements ActionListener, IcyFrame
 		setLayout(capLayout);
 		this.parent0 = parent0;
 		
-		add( GuiUtil.besidesPanel(setVideoSourceButton, addVideoSourceButton));
-		add(GuiUtil.besidesPanel(showButton, closeButton));
+		add( GuiUtil.besidesPanel(openButton, addButton));
+		add( GuiUtil.besidesPanel(showButton, closeButton));
 		add( GuiUtil.besidesPanel(capillariesCheckBox, kymographsCheckBox, cagesCheckBox, measuresCheckBox, graphsCheckBox));
 		
 		showButton.addActionListener(new ActionListener()  {
@@ -89,21 +87,26 @@ public class SequenceTab_Open extends JPanel implements ActionListener, IcyFrame
             	firePropertyChange("SEARCH_CLOSED", false, true);
             }
         });
-		setVideoSourceButton.addActionListener(this);
-		addVideoSourceButton.addActionListener(this);
+		
+		openButton.addActionListener(new ActionListener()  {
+            @Override
+            public void actionPerformed(ActionEvent arg0)
+            {
+            	if(parent0.sequencePane.browseTab.experimentComboBox.getItemCount() > 0 )
+            		parent0.sequencePane.closeTab.closeAll();
+            	firePropertyChange("SEQ_OPEN", false, true);
+            }
+         });
+  
+		addButton.addActionListener(new ActionListener()  {
+            @Override
+            public void actionPerformed(ActionEvent arg0)
+            {
+            	firePropertyChange("SEQ_ADDFILE", false, true);
+            }
+         });
 	}
 	
-	@Override
-	public void actionPerformed(ActionEvent arg0) {
-		Object o = arg0.getSource();
-		if ( o == setVideoSourceButton) {
-			firePropertyChange("SEQ_OPEN", false, true);
-		}
-		else if ( o == addVideoSourceButton) {
-			firePropertyChange("SEQ_ADD", false, true);
-		}
-	}
-
 	boolean isCheckedLoadPreviousProfiles() {
 		return capillariesCheckBox.isSelected();
 	}

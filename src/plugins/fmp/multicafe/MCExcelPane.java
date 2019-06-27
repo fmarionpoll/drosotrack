@@ -18,16 +18,16 @@ import plugins.fmp.tools.XLSExportMoveResults;
 import plugins.fmp.tools.XLSExportOptions;
 
 
-public class ExcelPane  extends JPanel implements PropertyChangeListener {
+public class MCExcelPane  extends JPanel implements PropertyChangeListener {
 
 	/**
 	 * 
 	 */
 	private static final long serialVersionUID = -4296207607692017074L;
 	private JTabbedPane 		tabsPane 		= new JTabbedPane();
-	private ExcelTab_Options	optionsTab		= new ExcelTab_Options();
-	private ExcelTab_Kymos		kymosTab		= new ExcelTab_Kymos();
-	private ExcelTab_Move 		moveTab  		= new ExcelTab_Move();
+	private MCExcelTab_Options	optionsTab		= new MCExcelTab_Options();
+	private MCExcelTab_Kymos		kymosTab		= new MCExcelTab_Kymos();
+	private MCExcelTab_Move 		moveTab  		= new MCExcelTab_Move();
 	
 	private Multicafe parent0 = null;
 

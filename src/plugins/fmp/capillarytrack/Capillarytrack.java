@@ -22,7 +22,7 @@ import icy.sequence.SequenceListener;
 import plugins.fmp.sequencevirtual.SequencePlus;
 import plugins.fmp.tools.ArrayListType;
 import plugins.fmp.tools.StatusAnalysis;
-import plugins.fmp.tools.StatusPane;
+//import plugins.fmp.tools.StatusPane;
 import plugins.fmp.sequencevirtual.SequenceVirtual; 
 
 // SequenceListener?
@@ -31,7 +31,7 @@ public class Capillarytrack extends PluginActionable implements ViewerListener, 
 	//------------------------------------------- global variables
 	SequenceVirtual vSequence = null;
 	ArrayList <SequencePlus> kymographArrayList	= new ArrayList <SequencePlus> ();	// list of kymograph sequences
-	IcyFrame mainFrame = new IcyFrame("CapillaryTrack 21-June-2019", true, true, true, true);
+	IcyFrame mainFrame = new IcyFrame("CapillaryTrack 27-June-2019", true, true, true, true);
 
 	//---------------------------------------------------------------------------
 	SequencePane sequencePane 		= null;
@@ -76,33 +76,33 @@ public class Capillarytrack extends PluginActionable implements ViewerListener, 
 	}
 
 	// -------------------------------------------
-	private StatusPane [] [] flagsTable 		= new StatusPane [][] {
-		//0-capillariesPane	1-kymosgraphsPane	2-detectPane(0)		3-resultsPane
-		{StatusPane.DISABLED, StatusPane.DISABLED, StatusPane.DISABLED, StatusPane.DISABLED}, 	// 0 - NODATA
-		{StatusPane.INIT, 	StatusPane.DISABLED, StatusPane.DISABLED, StatusPane.DISABLED}, 	// 1 - SEQ_OK
-		{StatusPane.FULL, 	StatusPane.INIT, 	StatusPane.DISABLED, StatusPane.DISABLED}, 		// 2 - ROIS_OK
-		{StatusPane.FULL, 	StatusPane.FULL, 	StatusPane.INIT, 	StatusPane.DISABLED}, 		// 3 - KYMOS_OK
-		{StatusPane.FULL, 	StatusPane.FULL, 	StatusPane.FULL, 	StatusPane.INIT}, 			// 4 - MEASURETOP_OK
-		{StatusPane.FULL, 	StatusPane.FULL, 	StatusPane.FULL, 	StatusPane.FULL} 			// 5 - MEASUREGULPS_OK
-	};
+//	private StatusPane [] [] flagsTable 		= new StatusPane [][] {
+//		//0-capillariesPane	1-kymosgraphsPane	2-detectPane(0)		3-resultsPane
+//		{StatusPane.DISABLED, StatusPane.DISABLED, StatusPane.DISABLED, StatusPane.DISABLED}, 	// 0 - NODATA
+//		{StatusPane.INIT, 	StatusPane.DISABLED, StatusPane.DISABLED, StatusPane.DISABLED}, 	// 1 - SEQ_OK
+//		{StatusPane.FULL, 	StatusPane.INIT, 	StatusPane.DISABLED, StatusPane.DISABLED}, 		// 2 - ROIS_OK
+//		{StatusPane.FULL, 	StatusPane.FULL, 	StatusPane.INIT, 	StatusPane.DISABLED}, 		// 3 - KYMOS_OK
+//		{StatusPane.FULL, 	StatusPane.FULL, 	StatusPane.FULL, 	StatusPane.INIT}, 			// 4 - MEASURETOP_OK
+//		{StatusPane.FULL, 	StatusPane.FULL, 	StatusPane.FULL, 	StatusPane.FULL} 			// 5 - MEASUREGULPS_OK
+//	};
 	
 	public void buttonsVisibilityUpdate(StatusAnalysis istate) {
 
-		int analysisStep = 0;
-		switch (istate ) {
-		case NODATA: 		analysisStep = 0; break;
-		case SEQ_OK: 		analysisStep = 1; break;
-		case ROIS_OK: 		analysisStep = 2; break;
-		case KYMOS_OK: 		analysisStep = 3; break;
-		case MEASURETOP_OK: analysisStep = 4; break;
-		case MEASUREGULPS_OK: 
-		default: 			analysisStep = 5; break;
-		}
-
-		capillariesPane.enableItems(flagsTable[analysisStep][0]);
-		kymographsPane.enableItems(flagsTable[analysisStep][1]);
-		detectPane.enableItems(flagsTable[analysisStep][2]);
-		resultsPane.enableItems(flagsTable[analysisStep][3]);
+//		int analysisStep = 0;
+//		switch (istate ) {
+//		case NODATA: 		analysisStep = 0; break;
+//		case SEQ_OK: 		analysisStep = 1; break;
+//		case ROIS_OK: 		analysisStep = 2; break;
+//		case KYMOS_OK: 		analysisStep = 3; break;
+//		case MEASURETOP_OK: analysisStep = 4; break;
+//		case MEASUREGULPS_OK: 
+//		default: 			analysisStep = 5; break;
+//		}
+//
+//		capillariesPane.enableItems(flagsTable[analysisStep][0]);
+//		kymographsPane.enableItems(flagsTable[analysisStep][1]);
+//		detectPane.enableItems(flagsTable[analysisStep][2]);
+//		resultsPane.enableItems(flagsTable[analysisStep][3]);
 	}
 	
 	public void roisSaveEdits() {

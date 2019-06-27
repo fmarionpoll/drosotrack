@@ -45,9 +45,9 @@ public class ResultsPane extends JPanel implements PropertyChangeListener {
 	}
 	
 	public void enableItems(StatusPane status) {
-		boolean enable1 = !(status == StatusPane.DISABLED);
-		graphicsTab.enableItems(enable1);
-		excelTab.enableItems(enable1);
+//		boolean enable1 = !(status == StatusPane.DISABLED);
+//		graphicsTab.enableItems(enable1);
+//		excelTab.enableItems(enable1);
 	}
 
 }

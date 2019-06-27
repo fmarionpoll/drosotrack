@@ -15,16 +15,16 @@ import icy.preferences.XMLPreferences;
 import plugins.fmp.sequencevirtual.SequenceVirtual;
 
 
-public class SequencePane extends JPanel implements PropertyChangeListener {
+public class MCSequencePane extends JPanel implements PropertyChangeListener {
 	/**
 	 * 
 	 */
 	private static final long serialVersionUID = -6826269677524125173L;
 	
 	private JTabbedPane tabsPane 	= new JTabbedPane();
-	SequenceTab_Open 	openTab 	= new SequenceTab_Open();
-	SequenceTab_Browse 	browseTab 	= new SequenceTab_Browse();
-	SequenceTab_Close 	closeTab 	= new SequenceTab_Close();
+	MCSequenceTab_Open 	openTab 	= new MCSequenceTab_Open();
+	MC 	browseTab 	= new MC();
+	MCSequenceTab_Close 	closeTab 	= new MCSequenceTab_Close();
 	private Multicafe 	parent0 	= null;
 	
 	
@@ -61,7 +61,7 @@ public class SequencePane extends JPanel implements PropertyChangeListener {
 				sequenceAddtoCombo(strItem);
 				browseTab.experimentComboBox.setSelectedItem(strItem);
 				updateParametersForSequence();
-				firePropertyChange("SEQ_OPEN", false, true);
+				firePropertyChange("SEQ_OPENED", false, true);
 			}
 		 }
 		 else if (event.getPropertyName().equals("UPDATE")) {
@@ -101,7 +101,7 @@ public class SequencePane extends JPanel implements PropertyChangeListener {
 		sequenceCreateNew(filename);
 		updateParametersForSequence();
 		sequenceAddtoCombo(parent0.vSequence.getFileName());
-		firePropertyChange("SEQ_OPEN", false, true);
+		firePropertyChange("SEQ_OPENED", false, true);
 		tabsPane.setSelectedIndex(1);
 	}
 	

@@ -17,17 +17,17 @@ import plugins.fmp.tools.ImageTransformTools;
 import plugins.fmp.tools.ImageTransformTools.TransformOp;
 
 
-public class KymosPane extends JPanel implements PropertyChangeListener, ChangeListener {
+public class MCKymosPane extends JPanel implements PropertyChangeListener, ChangeListener {
 	/**
 	 * 
 	 */
 	private static final long serialVersionUID = -7339633966002954720L;
 	
 	private JTabbedPane 	tabsPane 	= new JTabbedPane();
-	KymosTab_File 			fileTab 	= new KymosTab_File();
-	KymosTab_DetectLimits 	limitsTab 	= new KymosTab_DetectLimits();
-	KymosTab_DetectGulps 	gulpsTab 	= new KymosTab_DetectGulps();
-	KymosTab_Graphs 				graphsTab 	= new KymosTab_Graphs();
+	MCKymosTab_File 			fileTab 	= new MCKymosTab_File();
+	MCKymosTab_DetectLimits 	limitsTab 	= new MCKymosTab_DetectLimits();
+	MCKymosTab_DetectGulps 	gulpsTab 	= new MCKymosTab_DetectGulps();
+	MCKymosTab_Graphs 				graphsTab 	= new MCKymosTab_Graphs();
 	
 	ImageTransformTools tImg = null;
 	private Multicafe parent0 = null;

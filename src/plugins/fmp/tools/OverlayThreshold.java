@@ -18,9 +18,9 @@ import plugins.fmp.tools.ImageTransformTools.TransformOp;
 
 public class OverlayThreshold extends Overlay
 {
-	private ImageOperations imgOp = null;
-	private float opacity = 0.3f;
-	private OverlayColorMask map = new OverlayColorMask ("", new Color(0x00FF0000, true));
+	private ImageOperations 	imgOp 	= null;
+	private float 				opacity = 0.3f;
+	private OverlayColorMask	map 	= new OverlayColorMask ("", new Color(0x00FF0000, true));
 	
 	// ---------------------------------------------
 	

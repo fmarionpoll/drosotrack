@@ -15,7 +15,7 @@ import icy.gui.util.GuiUtil;
 
 
 
-public class MoveTab_File extends JPanel implements ActionListener {
+public class MCMoveTab_File extends JPanel implements ActionListener {
 	/**
 	 * 
 	 */

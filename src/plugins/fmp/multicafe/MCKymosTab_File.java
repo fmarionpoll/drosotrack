@@ -13,7 +13,7 @@ import icy.gui.util.GuiUtil;
 import plugins.fmp.sequencevirtual.SequencePlus;
 import plugins.fmp.tools.ArrayListType;
 
-public class KymosTab_File  extends JPanel implements ActionListener {
+public class MCKymosTab_File  extends JPanel implements ActionListener {
 	/**
 	 * 
 	 */

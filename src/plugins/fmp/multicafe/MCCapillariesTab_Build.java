@@ -26,7 +26,7 @@ import plugins.kernel.roi.roi2d.ROI2DLine;
 import plugins.kernel.roi.roi2d.ROI2DPolygon;
 
 
-public class CapillariesTab_Build extends JPanel implements ActionListener {
+public class MCCapillariesTab_Build extends JPanel implements ActionListener {
 	/**
 	 * 
 	 */

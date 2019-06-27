@@ -6,12 +6,14 @@ import java.beans.PropertyChangeListener;
 
 import javax.swing.JPanel;
 import javax.swing.JTabbedPane;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
 
 import icy.gui.util.GuiUtil;
 
 
 
-public class MovePane extends JPanel implements PropertyChangeListener {
+public class MCMovePane extends JPanel implements PropertyChangeListener {
 	
 	/**
 	 * 
@@ -19,10 +21,10 @@ public class MovePane extends JPanel implements PropertyChangeListener {
 	private static final long serialVersionUID = 3457738144388946607L;
 	
 	private JTabbedPane 		tabsPane	= new JTabbedPane();
-	private MoveTab_BuildROIs 	buildROIsTab= new MoveTab_BuildROIs();
-	private MoveTab_Detect 		optionsTab 	= new MoveTab_Detect();
-	private MoveTab_File 		filesTab 	= new MoveTab_File();
-	MoveTab_Graphs 				graphicsTab = new MoveTab_Graphs();
+	private MCMoveTab_BuildROIs 	buildROIsTab= new MCMoveTab_BuildROIs();
+	private MCMoveTab_Detect 		detectTab 	= new MCMoveTab_Detect();
+	private MCMoveTab_File 		filesTab 	= new MCMoveTab_File();
+	MCMoveTab_Graphs 				graphicsTab = new MCMoveTab_Graphs();
 	
 	Multicafe parent0 = null;
 
@@ -37,9 +39,9 @@ public class MovePane extends JPanel implements PropertyChangeListener {
 		buildROIsTab.addPropertyChangeListener(this);
 		tabsPane.addTab("Cages", null, buildROIsTab, "Define cages using ROI polygons placed over each cage");
 
-		optionsTab.init(capLayout, parent0);
-		optionsTab.addPropertyChangeListener(this);
-		tabsPane.addTab("Detect", null, optionsTab, "Detect flies position");
+		detectTab.init(capLayout, parent0);
+		detectTab.addPropertyChangeListener(this);
+		tabsPane.addTab("Detect", null, detectTab, "Detect flies position");
 
 		filesTab.init(capLayout, parent0);
 		filesTab.addPropertyChangeListener(this);
@@ -52,6 +54,14 @@ public class MovePane extends JPanel implements PropertyChangeListener {
 		tabsPane.setTabLayoutPolicy(JTabbedPane.SCROLL_TAB_LAYOUT);
 		panel.add(GuiUtil.besidesPanel(tabsPane));
 		tabsPane.setSelectedIndex(0);
+		
+		tabsPane.addChangeListener(new ChangeListener() {
+			@Override 
+	        public void stateChanged(ChangeEvent e) {
+	            int itab = tabsPane.getSelectedIndex();
+	            detectTab.thresholdedImageCheckBox.setSelected(itab == 1);
+	        }
+	    });
 	}
 
 	@Override

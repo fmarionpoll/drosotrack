@@ -9,11 +9,11 @@ import plugins.fmp.tools.ImageTransformTools.TransformOp;
 
 public class ImageOperations {
 	
-	private SequenceVirtual seq = null;
-	private ImageOperationsStruct opTransf = new ImageOperationsStruct();
-	private ImageOperationsStruct opThresh = new ImageOperationsStruct();
-	private ImageTransformTools imgTransf = new ImageTransformTools();
-	private ImageThresholdTools imgThresh = new ImageThresholdTools();
+	private SequenceVirtual 		seq 		= null;
+	private ImageOperationsStruct 	opTransf 	= new ImageOperationsStruct();
+	private ImageOperationsStruct 	opThresh 	= new ImageOperationsStruct();
+	private ImageTransformTools 	imgTransf 	= new ImageTransformTools();
+	private ImageThresholdTools 	imgThresh 	= new ImageThresholdTools();
 	
 	public ImageOperations (SequenceVirtual seq) {
 		setSequence(seq);

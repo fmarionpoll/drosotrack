@@ -20,7 +20,7 @@ import plugins.fmp.sequencevirtual.SequencePlus;
 import plugins.kernel.roi.roi2d.ROI2DShape;
 
 
-public class CapillaryTab_BuildKymos extends JPanel implements ActionListener { 
+public class MCCapillaryTab_BuildKymos extends JPanel implements ActionListener { 
 
 	/**
 	 * 
@@ -32,12 +32,12 @@ public class CapillaryTab_BuildKymos extends JPanel implements ActionListener {
 	JTextField 	diskRadiusTextField 		= new JTextField("5");
 	JCheckBox 	doRegistrationCheckBox 		= new JCheckBox("registration", false);
 	
-	StatusComputation sComputation = StatusComputation.START_COMPUTATION; 
-	int diskRadius = 5;
+	StatusComputation 				sComputation 	= StatusComputation.START_COMPUTATION; 
+	int 							diskRadius 		= 5;
 	
-	private Multicafe parent0;
-	private BuildKymographsThread buildKymographsThread = null;
-	private Thread thread = null;
+	private Multicafe 				parent0					= null;
+	private BuildKymographsThread 	buildKymographsThread 	= null;
+	private Thread 					thread 					= null;
 
 
 	void init(GridLayout capLayout, Multicafe parent0) {
@@ -125,8 +125,8 @@ public class CapillaryTab_BuildKymos extends JPanel implements ActionListener {
 			kymographSeq.setName(roi.getName());
 			parent0.kymographArrayList.add(kymographSeq);
 		}
-//		parent0.capillariesPane.optionsTab.viewKymosCheckBox.setSelected(true);
-//		parent0.capillariesPane.optionsTab.displayViews (true);
+		parent0.capillariesPane.optionsTab.viewKymosCheckBox.setSelected(true);
+		parent0.capillariesPane.optionsTab.displayViews (true);
 		
 		// start building kymos in a separate thread
 		buildKymographsThread = new BuildKymographsThread();
@@ -138,7 +138,7 @@ public class CapillaryTab_BuildKymos extends JPanel implements ActionListener {
 		buildKymographsThread.options.diskRadius 	= diskRadius;
 		buildKymographsThread.options.doRegistration= doRegistrationCheckBox.isSelected();
 		buildKymographsThread.kymographArrayList 	= parent0.kymographArrayList;
-		
+
 		thread = new Thread(null, buildKymographsThread, "buildkymos");
 		thread.start();
 		

@@ -29,7 +29,7 @@ import plugins.fmp.sequencevirtual.SequencePlus;
 import plugins.fmp.sequencevirtual.SequencePlusUtils;
 
 
-public class CapillariesTab_File extends JPanel implements ActionListener {
+public class MCCapillariesTab_File extends JPanel implements ActionListener {
 	/**
 	 * 
 	 */

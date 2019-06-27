@@ -19,7 +19,7 @@ import icy.gui.util.GuiUtil;
 import plugins.fmp.sequencevirtual.SequenceVirtual;
 
 
-public class SequenceTab_Browse extends JPanel implements ActionListener{
+public class MC extends JPanel implements ActionListener{
 	/**
 	 * 
 	 */

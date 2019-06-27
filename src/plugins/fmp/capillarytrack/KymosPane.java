@@ -116,11 +116,11 @@ public class KymosPane extends JPanel implements PropertyChangeListener, ChangeL
 	}
 		
 	public void enableItems(StatusPane status) {
-		boolean enable1 = !(status == StatusPane.DISABLED);
-		buildTab.enableItems(enable1);
-		fileTab.enableItems(enable1);
-		boolean enable2 = (status == StatusPane.FULL);
-		optionsTab.enableItems(enable2);
+//		boolean enable1 = !(status == StatusPane.DISABLED);
+//		buildTab.enableItems(enable1);
+//		fileTab.enableItems(enable1);
+//		boolean enable2 = (status == StatusPane.FULL);
+//		optionsTab.enableItems(enable2);
 	}
 
 

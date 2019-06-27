@@ -15,7 +15,7 @@ import icy.gui.util.GuiUtil;
 import plugins.fmp.tools.ArrayListType;
 import plugins.fmp.tools.XYMultiChart;
 
-public class KymosTab_Graphs extends JPanel implements ActionListener  {
+public class MCKymosTab_Graphs extends JPanel implements ActionListener  {
 
 	/**
 	 * 

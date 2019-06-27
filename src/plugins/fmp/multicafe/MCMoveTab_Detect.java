@@ -4,6 +4,8 @@ import java.awt.FlowLayout;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.ItemEvent;
+import java.awt.event.ItemListener;
 import java.util.ArrayList;
 
 import javax.swing.JButton;
@@ -28,7 +30,7 @@ import plugins.fmp.tools.OverlayThreshold;
 import plugins.fmp.tools.ImageTransformTools.TransformOp;
 
 
-public class MoveTab_Detect extends JPanel implements ChangeListener {
+public class MCMoveTab_Detect extends JPanel implements ChangeListener {
 	/**
 	 * 
 	 */
@@ -45,7 +47,7 @@ public class MoveTab_Detect extends JPanel implements ChangeListener {
 	private JCheckBox objectUpsizeCheckBox 	= new JCheckBox("object <");
 	private JSpinner objectUpsizeSpinner	= new JSpinner(new SpinnerNumberModel(500, 0, 100000, 1));
 	private JCheckBox whiteMiceCheckBox 	= new JCheckBox("white on dark ");
-	private JCheckBox thresholdedImageCheckBox = new JCheckBox("overlay");
+	public JCheckBox thresholdedImageCheckBox = new JCheckBox("overlay");
 	
 	private OverlayThreshold ov = null;
 	private BuildTrackFliesThread trackAllFliesThread = null;
@@ -98,31 +100,30 @@ public class MoveTab_Detect extends JPanel implements ChangeListener {
 				updateOverlay(); 
 			} } );
 		
-		thresholdedImageCheckBox.addActionListener(new ActionListener () {
-			@Override
-			public void actionPerformed( final ActionEvent e ) { 
-				if (thresholdedImageCheckBox.isSelected()) {
-					if (ov == null)
-						ov = new OverlayThreshold(parent0.vSequence);
-					if (parent0.vSequence != null)
-						parent0.vSequence.addOverlay(ov);
-					updateOverlay();
-				}
-				else {
-					parent0.vSequence.removeOverlay(ov);
-				}
-			}});
+		thresholdedImageCheckBox.addItemListener(new ItemListener() {
+		      public void itemStateChanged(ItemEvent e) {
+		    	  if (thresholdedImageCheckBox.isSelected()) {
+						if (ov == null)
+							ov = new OverlayThreshold(parent0.vSequence);
+						if (parent0.vSequence != null)
+							parent0.vSequence.addOverlay(ov);
+						updateOverlay();
+					}
+					else {
+						removeOverlay();
+					}
+		      }
+		    });
+		
 		
 		startComputationButton.addActionListener(new ActionListener () {
 			@Override
 			public void actionPerformed( final ActionEvent e ) { 
 				startComputation();
 			}});
-
-
 	}
 	
-	private void updateOverlay () {
+	public void updateOverlay () {
 		if (ov == null) 
 			ov = new OverlayThreshold(parent0.vSequence);
 		else {
@@ -132,9 +133,11 @@ public class MoveTab_Detect extends JPanel implements ChangeListener {
 		parent0.vSequence.addOverlay(ov);	
 		ov.setTransform((TransformOp) backgroundComboBox.getSelectedItem());
 		ov.setThresholdSingle(parent0.vSequence.cages.detect.threshold);
-		if (ov != null) {
-			ov.painterChanged();
-		}
+		ov.painterChanged();
+	}
+	
+	public void removeOverlay() {
+		parent0.vSequence.removeOverlay(ov);
 	}
 
 	@Override

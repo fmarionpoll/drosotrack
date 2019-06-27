@@ -15,7 +15,7 @@ import plugins.fmp.tools.ArrayListType;
 import plugins.fmp.tools.ImageTransformTools.TransformOp;
 import plugins.kernel.roi.roi2d.ROI2DPolyLine;
 
-public class BuildDetect_Gulps {
+public class MCBuildDetect_Gulps {
 	
 	public void detectGulps(Multicafe parent0) {	
 		// send some info

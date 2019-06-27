@@ -13,7 +13,7 @@ import plugins.fmp.tools.ArrayListType;
 import plugins.fmp.tools.ImageTransformTools.TransformOp;
 import plugins.kernel.roi.roi2d.ROI2DPolyLine;
 
-public class BuildDetect_Limits {
+public class MCBuildDetect_Limits {
 	
 	public void detectCapillaryLevels(Multicafe parent0) {
 

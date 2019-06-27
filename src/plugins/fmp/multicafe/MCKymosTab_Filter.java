@@ -16,7 +16,7 @@ import icy.image.IcyBufferedImageUtil;
 import icy.type.collection.array.Array1DUtil;
 import plugins.fmp.sequencevirtual.SequencePlus;
 
-public class KymosTab_Filter  extends JPanel implements ActionListener {
+public class MCKymosTab_Filter  extends JPanel implements ActionListener {
 
 	/**
 	 * 

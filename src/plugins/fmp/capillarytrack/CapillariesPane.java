@@ -53,12 +53,12 @@ public class CapillariesPane extends JPanel implements PropertyChangeListener {
 	}
 	
 	public void enableItems(StatusPane status) {
-		boolean enable1 = !(status == StatusPane.DISABLED);
-		buildTab.enableItems(enable1);
-		fileTab.enableItems(enable1);
-		boolean enable2 = (status == StatusPane.FULL);
-		propertiesTab.enableItems(enable2);
-		adjustTab.enableItems(enable2);
+//		boolean enable1 = !(status == StatusPane.DISABLED);
+//		buildTab.enableItems(enable1);
+//		fileTab.enableItems(enable1);
+//		boolean enable2 = (status == StatusPane.FULL);
+//		propertiesTab.enableItems(enable2);
+//		adjustTab.enableItems(enable2);
 	}
 	
 	public void UpdateInfosFromSequence() {

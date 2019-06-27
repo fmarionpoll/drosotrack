@@ -13,19 +13,19 @@ import plugins.fmp.sequencevirtual.SequenceVirtual;
 
 
 
-public class CapillariesPane extends JPanel implements PropertyChangeListener {
+public class MCCapillariesPane extends JPanel implements PropertyChangeListener {
 	/**
 	 * 
 	 */
 	private static final long serialVersionUID = 853047648249832145L;
 	
 	JTabbedPane 				tabsPane 		= new JTabbedPane();
-	CapillariesTab_Build 		buildarrayTab 	= new CapillariesTab_Build();
-	CapillariesTab_File 		fileTab 		= new CapillariesTab_File();
-	CapillariesTab_Adjust 		adjustTab 		= new CapillariesTab_Adjust();
-	CapillariesTab_Properties 	propertiesTab 	= new CapillariesTab_Properties();
-	CapillaryTab_BuildKymos 	buildkymosTab 	= new CapillaryTab_BuildKymos();
-	CapillariesTab_Options 		optionsTab 		= new CapillariesTab_Options();
+	MCCapillariesTab_Build 		buildarrayTab 	= new MCCapillariesTab_Build();
+	MCCapillariesTab_File 		fileTab 		= new MCCapillariesTab_File();
+	MCCapillariesTab_Adjust 		adjustTab 		= new MCCapillariesTab_Adjust();
+	MCCapillariesTab_Properties 	propertiesTab 	= new MCCapillariesTab_Properties();
+	MCCapillaryTab_BuildKymos 	buildkymosTab 	= new MCCapillaryTab_BuildKymos();
+	MCCapillariesTab_Options 		optionsTab 		= new MCCapillariesTab_Options();
 	
 	Capillaries capold = new Capillaries();
 	private Multicafe parent0 = null;

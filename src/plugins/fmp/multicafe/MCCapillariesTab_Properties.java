@@ -23,7 +23,7 @@ import icy.roi.ROI;
 import plugins.fmp.sequencevirtual.Capillaries;
 
 
-public class CapillariesTab_Properties extends JPanel implements ActionListener {
+public class MCCapillariesTab_Properties extends JPanel implements ActionListener {
 	/**
 	 * 
 	 */

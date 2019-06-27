@@ -33,13 +33,13 @@ public class Multicafe extends PluginActionable implements ViewerListener, Prope
 {
 	SequenceVirtual 			vSequence 			= null;
 	ArrayList <SequencePlus> 	kymographArrayList	= new ArrayList <SequencePlus> ();
-	IcyFrame mainFrame = new IcyFrame("MultiCAFE analysis 24-June-2019", true, true, true, true);
+	IcyFrame mainFrame = new IcyFrame("MultiCAFE analysis 27-June-2019", true, true, true, true);
 	
-	SequencePane 				sequencePane 		= new SequencePane();
-	CapillariesPane 			capillariesPane 	= new CapillariesPane();
-	KymosPane 					kymographsPane 		= new KymosPane();
-	MovePane 					movePane 			= new MovePane();
-	ExcelPane					excelPane			= new ExcelPane();
+	MCSequencePane 				sequencePane 		= new MCSequencePane();
+	MCCapillariesPane 			capillariesPane 	= new MCCapillariesPane();
+	MCKymosPane 					kymographsPane 		= new MCKymosPane();
+	MCMovePane 					movePane 			= new MCMovePane();
+	MCExcelPane					excelPane			= new MCExcelPane();
 
 	//-------------------------------------------------------------------
 	
@@ -98,7 +98,7 @@ public class Multicafe extends PluginActionable implements ViewerListener, Prope
 
 	@Override
 	public void propertyChange(PropertyChangeEvent arg0) {
-		if (arg0.getPropertyName().equals("SEQ_OPEN")) {
+		if (arg0.getPropertyName().equals("SEQ_OPENED")) {
 			loadPreviousMeasures(
 					sequencePane.openTab.isCheckedLoadPreviousProfiles(), 
 					sequencePane.openTab.isCheckedLoadKymographs(),
@@ -174,21 +174,18 @@ public class Multicafe extends PluginActionable implements ViewerListener, Prope
 		}
 		
 		if (loadKymographs) {
-			KymosTab_File.flag = true;
-			KymosTab_File.isRunning = true;
-			KymosTab_File.isInterrupted = false;
+			MCKymosTab_File.flag = true;
+			MCKymosTab_File.isRunning = true;
+			MCKymosTab_File.isInterrupted = false;
 			
 			ThreadUtil.bgRun( new Runnable() { @Override public void run() { 
-				ProgressFrame progress = new ProgressFrame("Load kymographs");
 				
 				if ( !capillariesPane.fileTab.loadDefaultKymos()) {
-					progress.close();
 					return;
 				}
-				progress.setMessage( "Load measures");
 				if (loadMeasures) {
-					if (KymosTab_File.isRunning) {
-						KymosTab_File.isInterrupted = true;
+					if (MCKymosTab_File.isRunning) {
+						MCKymosTab_File.isInterrupted = true;
 					}
 					kymographsPane.fileTab.measuresFileOpen();
 					if (sequencePane.openTab.graphsCheckBox.isSelected())
@@ -197,7 +194,6 @@ public class Multicafe extends PluginActionable implements ViewerListener, Prope
 						    	kymographsPane.graphsTab.xyDisplayGraphs();
 						    }});
 				}
-				progress.close();
 			}});
 		}
 		

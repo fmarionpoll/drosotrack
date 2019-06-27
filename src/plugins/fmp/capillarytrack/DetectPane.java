@@ -73,11 +73,11 @@ public class DetectPane extends JPanel implements PropertyChangeListener, Change
 	}
 	
 	public void enableItems(StatusPane status) {
-		boolean enable1 = !(status == StatusPane.DISABLED);
-		limitsTab.enableItems(enable1);
-		fileTab.enableItems(enable1);
-		boolean enable2 = (status == StatusPane.FULL);
-		gulpsTab.enableItems(enable2);
+//		boolean enable1 = !(status == StatusPane.DISABLED);
+//		limitsTab.enableItems(enable1);
+//		fileTab.enableItems(enable1);
+//		boolean enable2 = (status == StatusPane.FULL);
+//		gulpsTab.enableItems(enable2);
 	}
 
 	@Override

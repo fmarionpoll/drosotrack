@@ -19,7 +19,7 @@ import plugins.fmp.tools.ArrayListType;
 import plugins.fmp.tools.YPosMultiChart;
 
 
-public class MoveTab_Graphs extends JPanel implements ActionListener  {
+public class MCMoveTab_Graphs extends JPanel implements ActionListener  {
 
 	/**
 	 * 

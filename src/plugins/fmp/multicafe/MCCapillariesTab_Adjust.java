@@ -25,7 +25,7 @@ import plugins.fmp.tools.Line2DPlus;
 import plugins.kernel.roi.roi2d.ROI2DLine;
 
 
-public class CapillariesTab_Adjust extends JPanel implements ActionListener{
+public class MCCapillariesTab_Adjust extends JPanel implements ActionListener{
 	/**
 	 * 
 	 */

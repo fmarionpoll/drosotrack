@@ -12,7 +12,7 @@ import javax.swing.JPanel;
 import icy.gui.util.GuiUtil;
 
 
-public class ExcelTab_Move  extends JPanel implements ActionListener  {
+public class MCExcelTab_Move  extends JPanel implements ActionListener  {
 
 	/**
 	 * 

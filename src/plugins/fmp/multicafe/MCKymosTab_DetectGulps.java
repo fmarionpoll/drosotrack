@@ -19,7 +19,7 @@ import plugins.fmp.tools.Tools;
 import plugins.fmp.sequencevirtual.SequencePlus;
 import plugins.fmp.tools.ImageTransformTools.TransformOp;
 
-public class KymosTab_DetectGulps extends JPanel implements ActionListener {
+public class MCKymosTab_DetectGulps extends JPanel implements ActionListener {
 
 	/**
 	 * 
@@ -62,7 +62,7 @@ public class KymosTab_DetectGulps extends JPanel implements ActionListener {
 		else if (o == detectGulpsButton) {
 			getDetectGulpsThreshold();
 			kymosDisplayFiltered2();
-			BuildDetect_Gulps detect = new BuildDetect_Gulps();
+			MCBuildDetect_Gulps detect = new MCBuildDetect_Gulps();
 			detect.detectGulps(parent0);
 			firePropertyChange("KYMO_DETECT_GULP", false, true);
 		}

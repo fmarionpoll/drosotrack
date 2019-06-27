@@ -25,6 +25,7 @@ public class SequencePlusUtils {
 		
 		Arrays.sort(list, String.CASE_INSENSITIVE_ORDER);
 		ProgressFrame progress = new ProgressFrame("Load kymographs");
+		progress.setLength(list.length);
 		
 		for (String filename: list) {
 			if (!filename.contains(".tiff"))
@@ -32,12 +33,13 @@ public class SequencePlusUtils {
 			if (isInterrupted) {
 				isInterrupted = false;
 				isRunning = false;
+				progress.close();
 				return null;
 			}
 			 
 			SequencePlus kymographSeq = new SequencePlus();
 			final String name =  directory + "\\" + filename;
-			progress.setMessage( "Load "+name);
+			progress.setMessage( "Load "+filename);
 			
 
 			IcyBufferedImage ibufImage = null;
@@ -57,6 +59,8 @@ public class SequencePlusUtils {
 			kymographSeq.setName(title);
 			kymographSeq.loadXMLKymographAnalysis(directory);
 			arrayKymos.add(kymographSeq);
+			
+			progress.incPosition();
 		}
 		progress.close();
 		isRunning = false;

@@ -13,6 +13,7 @@ import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
 import javax.swing.JPanel;
+import javax.swing.SwingUtilities;
 
 import icy.canvas.Canvas2D;
 import icy.canvas.IcyCanvas;
@@ -91,7 +92,10 @@ public class KymosTab_Options extends JPanel implements ActionListener, ActiveVi
 	public void actionPerformed(ActionEvent e) {
 		Object o = e.getSource();
 		if (( o == updateButton) || (o == kymographNamesComboBox)) {
-			displayUpdate();
+			SwingUtilities.invokeLater(new Runnable() {
+				public void run() {
+					displayUpdate();
+				}});
 		}
 		else if (( o == viewGulpsCheckbox) || (o == viewLevelsCheckbox)) {
 			roisDisplay();	

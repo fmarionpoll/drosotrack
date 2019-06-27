@@ -19,7 +19,7 @@ import plugins.fmp.tools.Tools;
 import plugins.fmp.sequencevirtual.SequencePlus;
 import plugins.fmp.tools.ImageTransformTools.TransformOp;
 
-public class KymosTab_DetectLimits  extends JPanel implements ActionListener {
+public class MCKymosTab_DetectLimits  extends JPanel implements ActionListener {
 
 	/**
 	 * 
@@ -68,7 +68,7 @@ public class KymosTab_DetectLimits  extends JPanel implements ActionListener {
 		}
 		else if (o == detectTopButton) {
 			kymosDisplayFiltered1();
-			BuildDetect_Limits detect = new BuildDetect_Limits();
+			MCBuildDetect_Limits detect = new MCBuildDetect_Limits();
 			detect.detectCapillaryLevels(parent0);
 			firePropertyChange("KYMO_DETECT_TOP", false, true);
 		}

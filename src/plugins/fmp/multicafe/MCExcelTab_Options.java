@@ -8,7 +8,7 @@ import javax.swing.JPanel;
 
 import icy.gui.util.GuiUtil;
 
-public class ExcelTab_Options   extends JPanel {
+public class MCExcelTab_Options   extends JPanel {
 
 	/**
 	 * 

@@ -12,7 +12,7 @@ import javax.swing.JPanel;
 import icy.gui.util.GuiUtil;
 
 
-public class ExcelTab_Kymos extends JPanel implements ActionListener  {
+public class MCExcelTab_Kymos extends JPanel implements ActionListener  {
 
 	/**
 	 * 

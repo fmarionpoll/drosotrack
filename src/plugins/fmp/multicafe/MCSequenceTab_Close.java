@@ -13,7 +13,7 @@ import icy.gui.util.GuiUtil;
 import icy.gui.viewer.Viewer;
 import plugins.fmp.sequencevirtual.SequencePlus;
 
-public class SequenceTab_Close  extends JPanel implements ActionListener {
+public class MCSequenceTab_Close  extends JPanel implements ActionListener {
 
 	/**
 	 * 
@@ -40,13 +40,15 @@ public class SequenceTab_Close  extends JPanel implements ActionListener {
 	
 	void closeAll() {
 		
-		for (SequencePlus seq:parent0.kymographArrayList) {
-			ArrayList<Viewer> viewerList = seq.getViewers();
-			for (Viewer v: viewerList)
-				v.close();
-			seq.close();
+		if (parent0.kymographArrayList != null) {
+			for (SequencePlus seq:parent0.kymographArrayList) {
+				ArrayList<Viewer> viewerList = seq.getViewers();
+				for (Viewer v: viewerList)
+					v.close();
+				seq.close();
+			}
+			parent0.kymographArrayList.clear();
 		}
-		parent0.kymographArrayList.clear();
 		
 		parent0.movePane.graphicsTab.closeAll();
 		parent0.kymographsPane.graphsTab.closeAll();
@@ -58,8 +60,6 @@ public class SequenceTab_Close  extends JPanel implements ActionListener {
 			parent0.vSequence.capillaries.capillariesArrayList.clear();
 		}
 
-		// clean kymographs & results
-		parent0.kymographArrayList.clear();
 		parent0.capillariesPane.optionsTab.kymographNamesComboBox.removeAllItems();
 	}
 

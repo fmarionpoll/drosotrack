@@ -22,7 +22,7 @@ import icy.roi.ROI2D;
 import plugins.fmp.tools.Tools;
 import plugins.kernel.roi.roi2d.ROI2DPolygon;
 
-public class MoveTab_BuildROIs extends JPanel implements ActionListener {
+public class MCMoveTab_BuildROIs extends JPanel implements ActionListener {
 	/**
 	 * 
 	 */
