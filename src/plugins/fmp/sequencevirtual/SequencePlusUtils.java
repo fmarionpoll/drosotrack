@@ -7,25 +7,38 @@ import java.util.Arrays;
 
 import icy.common.exception.UnsupportedFormatException;
 import icy.file.Loader;
+import icy.gui.frame.progress.ProgressFrame;
 import icy.image.IcyBufferedImage;
 
 
 public class SequencePlusUtils {
+	public static boolean isInterrupted = false;
+	public static boolean isRunning = false;
+	
 	public static ArrayList<SequencePlus> openFiles (String directory) {
 		
+		isRunning = true;
 		ArrayList<SequencePlus> arrayKymos = new ArrayList<SequencePlus> ();	
 		String[] list = (new File(directory)).list();
 		if (list == null)
 			return arrayKymos;
 		
 		Arrays.sort(list, String.CASE_INSENSITIVE_ORDER);
-
+		ProgressFrame progress = new ProgressFrame("Load kymographs");
+		
 		for (String filename: list) {
 			if (!filename.contains(".tiff"))
 				continue;
+			if (isInterrupted) {
+				isInterrupted = false;
+				isRunning = false;
+				return null;
+			}
 			 
 			SequencePlus kymographSeq = new SequencePlus();
 			final String name =  directory + "\\" + filename;
+			progress.setMessage( "Load "+name);
+			
 
 			IcyBufferedImage ibufImage = null;
 			try {
@@ -45,6 +58,8 @@ public class SequencePlusUtils {
 			kymographSeq.loadXMLKymographAnalysis(directory);
 			arrayKymos.add(kymographSeq);
 		}
+		progress.close();
+		isRunning = false;
 		return arrayKymos;
 	}
 }

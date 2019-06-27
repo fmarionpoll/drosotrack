@@ -165,7 +165,7 @@ public class Multicafe extends PluginActionable implements ViewerListener, Prope
 	}
 	
 	private void loadPreviousMeasures(boolean loadCapillaries, boolean loadKymographs, boolean loadCages, boolean loadMeasures) {
-		vSequence.removeAllROI();
+		
 		if (loadCapillaries) {
 			if( !capillariesPane.loadDefaultCapillaries()) 
 				return;
@@ -174,6 +174,10 @@ public class Multicafe extends PluginActionable implements ViewerListener, Prope
 		}
 		
 		if (loadKymographs) {
+			KymosTab_File.flag = true;
+			KymosTab_File.isRunning = true;
+			KymosTab_File.isInterrupted = false;
+			
 			ThreadUtil.bgRun( new Runnable() { @Override public void run() { 
 				ProgressFrame progress = new ProgressFrame("Load kymographs");
 				
@@ -183,6 +187,9 @@ public class Multicafe extends PluginActionable implements ViewerListener, Prope
 				}
 				progress.setMessage( "Load measures");
 				if (loadMeasures) {
+					if (KymosTab_File.isRunning) {
+						KymosTab_File.isInterrupted = true;
+					}
 					kymographsPane.fileTab.measuresFileOpen();
 					if (sequencePane.openTab.graphsCheckBox.isSelected())
 						SwingUtilities.invokeLater(new Runnable() {

@@ -56,6 +56,8 @@ public class XYMultiChart extends IcyFrame  {
 
 		// copy data into charts
 		xyChartList.clear();
+		if (kymographArrayList == null)
+			return;
 		ymax = 0;
 		ymin = 0;
 	

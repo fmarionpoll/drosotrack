@@ -23,7 +23,7 @@ import icy.roi.ROI2D;
 import icy.type.collection.array.Array1DUtil;
 import plugins.fmp.tools.Line2DPlus;
 import plugins.kernel.roi.roi2d.ROI2DLine;
-import plugins.kernel.roi.roi2d.ROI2DShape;
+
 
 public class CapillariesTab_Adjust extends JPanel implements ActionListener{
 	/**

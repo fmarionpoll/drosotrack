@@ -106,6 +106,8 @@ public class CapillariesTab_Options extends JPanel implements ActionListener, Ac
 	// ---------------------------
 	void transferFileNamesToComboBox() {
 		kymographNamesComboBox.removeAllItems();
+		if (parent0.kymographArrayList == null)
+			return;
 		for (SequencePlus kymographSeq: parent0.kymographArrayList) {
 			kymographNamesComboBox.addItem(kymographSeq.getName());
 		}

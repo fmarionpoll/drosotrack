@@ -160,10 +160,13 @@ public class CapillariesTab_File extends JPanel implements ActionListener {
 	
 	boolean loadDefaultKymos() {
 		
-		String path = parent0.vSequence.getDirectory();
-		final String cs = path+"\\results";
 		boolean flag = false;
+		if (SequencePlusUtils.isRunning)
+			SequencePlusUtils.isInterrupted = true;
+		
+		final String cs = parent0.vSequence.getDirectory()+"\\results";
 		parent0.kymographArrayList = SequencePlusUtils.openFiles(cs);
+
 		if (parent0.kymographArrayList != null) {
 			flag = true;
 			SwingUtilities.invokeLater(new Runnable() {
