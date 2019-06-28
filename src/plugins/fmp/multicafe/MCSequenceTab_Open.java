@@ -11,6 +11,8 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collector;
+import java.util.stream.Collectors;
 
 import javax.swing.DefaultListModel;
 import javax.swing.JButton;
@@ -171,7 +173,7 @@ public class MCSequenceTab_Open extends JPanel implements IcyFrameListener {
     			final String pattern = filterTextField.getText();
     			if (isSearchRunning) 
     				return;
- //   	      	ThreadUtil.bgRun( new Runnable() { @Override public void run() {
+
     	      	SwingUtilities.invokeLater(new Runnable() { public void run() {
     	      		isSearchRunning = true;
     	    		ProgressFrame progress = new ProgressFrame("Browsing directories to find files matching the searched name...");
@@ -250,13 +252,15 @@ public class MCSequenceTab_Open extends JPanel implements IcyFrameListener {
 		if (dir == null) {
 			return;
 		}
+		
 		lastUsedPathString = dir.getAbsolutePath();
 		guiPrefs.put("lastUsedPath", lastUsedPathString);
-		Path pdir = Paths.get(lastUsedPathString);
 	
 		try {
-			Files.walk(pdir)
-			.filter(Files::isRegularFile)
+			Files.walk(Paths.get(lastUsedPathString))
+//			.collect(Collectors.toList())
+//			.parallelStream()
+			.filter(Files::isRegularFile)		
 			.forEach((f)->{
 			    String fileName = f.toString();
 			    if( fileName.contains(pattern)) {
@@ -270,14 +274,12 @@ public class MCSequenceTab_Open extends JPanel implements IcyFrameListener {
 	
 	private void addNameToXmlListIfNew(String fileName) {
 		
-		fileName = fileName.toLowerCase();
-		
 		int ilast = ((DefaultListModel<String>) xmlFilesJList.getModel()).getSize();
 		boolean found = false;
 		for (int i=0; i < ilast; i++)
 		{
 			String oo = ((DefaultListModel<String>) xmlFilesJList.getModel()).getElementAt(i);
-			if (oo.equals(fileName)) {
+			if (oo.equalsIgnoreCase (fileName)) {
 				found = true;
 				break;
 			}
