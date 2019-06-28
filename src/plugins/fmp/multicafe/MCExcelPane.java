@@ -10,6 +10,7 @@ import javax.swing.JPanel;
 import javax.swing.JTabbedPane;
 
 import icy.gui.util.GuiUtil;
+import icy.system.thread.ThreadUtil;
 import plugins.fmp.sequencevirtual.Experiment;
 import plugins.fmp.sequencevirtual.ExperimentList;
 import plugins.fmp.tools.Tools;
@@ -64,10 +65,10 @@ public class MCExcelPane  extends JPanel implements PropertyChangeListener {
 			String file = Tools.saveFileAs(tentativeName, directory.getParent().toString(), "xlsx");
 			if (file != null) {
 				final String filename = file;
-				moveTab.exportToXLSButton.setEnabled( false);
 				parent0.capillariesPane.propertiesTab.getCapillariesInfos(parent0.vSequence.capillaries);
-				XLSExportMoveResults.exportToFile(filename, getMoveOptions());
-				moveTab.exportToXLSButton.setEnabled( true );
+				ThreadUtil.bgRun( new Runnable() { @Override public void run() {
+					XLSExportMoveResults.exportToFile(filename, getMoveOptions());
+				}});
 			}
 		}
 		else if (evt.getPropertyName().equals("EXPORT_KYMOSDATA")) {
@@ -79,7 +80,10 @@ public class MCExcelPane  extends JPanel implements PropertyChangeListener {
 			if (file != null) {
 				final String filename = file;
 				parent0.capillariesPane.propertiesTab.getCapillariesInfos(parent0.vSequence.capillaries);
-				XLSExportCapillaryResults.exportToFile(filename, getOptions());
+				ThreadUtil.bgRun( new Runnable() { @Override public void run() {
+					XLSExportCapillaryResults.exportToFile(filename, getOptions());
+				}});
+				
 				firePropertyChange("EXPORT_TO_EXCEL", false, true);	
 			}
 		}

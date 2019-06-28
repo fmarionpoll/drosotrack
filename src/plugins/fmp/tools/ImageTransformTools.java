@@ -17,7 +17,7 @@ public class ImageTransformTools {
 		RGB ("(R+G+B)/3"),
 		H_HSB ("H(HSB)"), S_HSB ("S(HSB)"), B_HSB("B(HSB)"),  
 		XDIFFN("XDiffn"), YDIFFN("YDiffn"), XYDIFFN( "XYDiffn"), 
-		REF_T0("subtract t0"), REF_PREVIOUS("subtract n-1"), REF("subtract ref"),
+		REF_T0("subtract t[start]"), REF_PREVIOUS("subtract t[i-step]"), REF("subtract ref"),
 		NORM_BRMINUSG("F. Rebaudo"),
 		COLORARRAY1("color array"), RGB_TO_HSV("HSV"), RGB_TO_H1H2H3("H1H2H3"), 
 		RTOGB ("R to G&B") ;

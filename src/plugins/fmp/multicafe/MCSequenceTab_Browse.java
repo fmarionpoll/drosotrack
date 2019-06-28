@@ -17,22 +17,23 @@ import javax.swing.SwingConstants;
 
 import icy.gui.util.GuiUtil;
 import plugins.fmp.sequencevirtual.SequenceVirtual;
+import plugins.fmp.tools.WideComboBox;
 
 
-public class MC extends JPanel implements ActionListener{
+public class MCSequenceTab_Browse extends JPanel implements ActionListener{
 	/**
 	 * 
 	 */
 	private static final long serialVersionUID = -5739112045358747277L;
 	
 	private JTextField 	startFrameTextField		= new JTextField("0");
-	JTextField 	endFrameTextField		= new JTextField("99999999");
+	JTextField 			endFrameTextField		= new JTextField("99999999");
 	private JTextField 	analyzeStepTextField 	= new JTextField("1");
 	private JButton 	updateButton 			= new JButton("Update");
 	
 	private JButton  	previousButton		 	= new JButton("<");
 	private JButton		nextButton				= new JButton(">");
-	JComboBox<String> 	experimentComboBox		= new JComboBox<String>();
+	JComboBox<String> 	experimentComboBox	= new WideComboBox();	//= new JComboBox<String>();
 	
 	boolean disableChangeFile = false;
 	private Multicafe parent0 = null;
@@ -71,7 +72,6 @@ public class MC extends JPanel implements ActionListener{
 	        		firePropertyChange("SEQ_SAVEMEAS", false, true);
 	        	}
 	        	else if (arg0.getStateChange () == ItemEvent.SELECTED) {
-//	        		System.out.println("combo - item selected");
 	        		updateBrowseInterface();
 	        	}
 	        }

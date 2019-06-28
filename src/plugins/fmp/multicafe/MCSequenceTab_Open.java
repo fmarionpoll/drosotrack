@@ -21,6 +21,7 @@ import javax.swing.JScrollPane;
 import javax.swing.JTextField;
 import javax.swing.ListSelectionModel;
 import javax.swing.ScrollPaneConstants;
+import javax.swing.SwingUtilities;
 
 import org.apache.commons.io.FilenameUtils;
 import org.w3c.dom.Document;
@@ -28,6 +29,7 @@ import org.w3c.dom.Document;
 import icy.gui.frame.IcyFrame;
 import icy.gui.frame.IcyFrameEvent;
 import icy.gui.frame.IcyFrameListener;
+import icy.gui.frame.progress.ProgressFrame;
 import icy.gui.util.GuiUtil;
 import icy.preferences.XMLPreferences;
 import icy.util.XMLUtil;
@@ -61,6 +63,7 @@ public class MCSequenceTab_Open extends JPanel implements IcyFrameListener {
 	public List<String> 	selectedNames = new ArrayList<String> ();
 	IcyFrame mainFrame = null;
 	private Multicafe parent0 = null;
+	private boolean isSearchRunning = false;
 
 	
 	void init(GridLayout capLayout, Multicafe parent0) {
@@ -164,11 +167,18 @@ public class MCSequenceTab_Open extends JPanel implements IcyFrameListener {
 		findButton.addActionListener(new ActionListener()  {
             @Override
             public void actionPerformed(ActionEvent arg0)
-            {
-            	findButton.setEnabled(false);
+            {	
     			final String pattern = filterTextField.getText();
-    			getXmlListofFilesMatchingPattern(pattern);
-    			findButton.setEnabled(true);
+    			if (isSearchRunning) 
+    				return;
+ //   	      	ThreadUtil.bgRun( new Runnable() { @Override public void run() {
+    	      	SwingUtilities.invokeLater(new Runnable() { public void run() {
+    	      		isSearchRunning = true;
+    	    		ProgressFrame progress = new ProgressFrame("Browsing directories to find files matching the searched name...");
+    	    		getXmlListofFilesMatchingPattern(pattern);
+    	    		progress.close();
+    	    		isSearchRunning = false;
+    	      	}});
             }
         });
 		
@@ -243,7 +253,7 @@ public class MCSequenceTab_Open extends JPanel implements IcyFrameListener {
 		lastUsedPathString = dir.getAbsolutePath();
 		guiPrefs.put("lastUsedPath", lastUsedPathString);
 		Path pdir = Paths.get(lastUsedPathString);
-				
+	
 		try {
 			Files.walk(pdir)
 			.filter(Files::isRegularFile)

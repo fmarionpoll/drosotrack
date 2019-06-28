@@ -23,7 +23,7 @@ public class MCSequencePane extends JPanel implements PropertyChangeListener {
 	
 	private JTabbedPane tabsPane 	= new JTabbedPane();
 	MCSequenceTab_Open 	openTab 	= new MCSequenceTab_Open();
-	MC 	browseTab 	= new MC();
+	MCSequenceTab_Browse 	browseTab 	= new MCSequenceTab_Browse();
 	MCSequenceTab_Close 	closeTab 	= new MCSequenceTab_Close();
 	private Multicafe 	parent0 	= null;
 	
@@ -109,7 +109,7 @@ public class MCSequencePane extends JPanel implements PropertyChangeListener {
 		int nitems = browseTab.experimentComboBox.getItemCount();
 		boolean alreadystored = false;
 		for (int i=0; i < nitems; i++) {
-			if (strItem.equals(browseTab.experimentComboBox.getItemAt(i))) {
+			if (strItem.equalsIgnoreCase(browseTab.experimentComboBox.getItemAt(i))) {
 				alreadystored = true;
 				break;
 			}

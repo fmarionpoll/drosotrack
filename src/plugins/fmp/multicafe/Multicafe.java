@@ -126,7 +126,9 @@ public class Multicafe extends PluginActionable implements ViewerListener, Prope
 			}
 		}
 		else if (arg0.getPropertyName() .equals("EXPORT_TO_EXCEL")) {
-			kymographsPane.fileTab.measuresFileSave();
+			ThreadUtil.bgRun( new Runnable() { @Override public void run() {
+				kymographsPane.fileTab.measuresFileSave();
+			}});
 		}
 	} 
 	

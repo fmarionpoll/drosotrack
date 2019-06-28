@@ -124,6 +124,8 @@ public class MCMoveTab_Detect extends JPanel implements ChangeListener {
 	}
 	
 	public void updateOverlay () {
+		if (parent0.vSequence == null)
+			return;
 		if (ov == null) 
 			ov = new OverlayThreshold(parent0.vSequence);
 		else {

@@ -173,9 +173,9 @@ public class SequenceVirtual extends Sequence
 	{
 		IcyBufferedImage ibufImage = loadVImage(t);
 		switch (transformop) {
-			case REF_PREVIOUS: // subtract image n-1
+			case REF_PREVIOUS: // subtract image n-analysisStep
 			{
-				int t0 = t-1;
+				int t0 = t-analysisStep;
 				if (t0 <0)
 					t0 = 0;
 				IcyBufferedImage ibufImage0 = loadVImage(t0);
@@ -185,7 +185,7 @@ public class SequenceVirtual extends Sequence
 			case REF_T0: // subtract reference image
 			{
 				if (refImage == null)
-					refImage = loadVImage(0);
+					refImage = loadVImage((int) analysisStart);
 				ibufImage = subtractImages (ibufImage, refImage);
 			}
 				break;

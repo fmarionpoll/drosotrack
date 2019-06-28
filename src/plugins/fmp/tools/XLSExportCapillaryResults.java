@@ -12,6 +12,7 @@ import org.apache.poi.ss.util.CellReference;
 import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
+import icy.gui.frame.progress.ProgressFrame;
 import plugins.fmp.sequencevirtual.Experiment;
 import plugins.fmp.sequencevirtual.SequencePlus;
 import plugins.fmp.sequencevirtual.XYTaSeries;
@@ -22,24 +23,26 @@ public class XLSExportCapillaryResults extends XLSExport {
 		
 		System.out.println("XLS capillary measures output");
 		options = opt;
-
+		ProgressFrame progress = new ProgressFrame("Export data to Excel");
+		
 		try { 
 			XSSFWorkbook workbook = new XSSFWorkbook(); 
 			workbook.setMissingCellPolicy(Row.MissingCellPolicy.CREATE_NULL_AS_BLANK);
 			int col_max = 0;
 			int col_end = 0;
 			int iSeries = 0;
-			System.out.println("collect global infos on each experiment to preload data and find first and last image of each");
+			
 			options.experimentList.readInfosFromAllExperiments();
 			expAll = options.experimentList.getStartAndEndFromAllExperiments();
 			expAll.step = options.experimentList.experimentList.get(0).vSequence.analysisStep;
 			listOfStacks = new ArrayList <XLSNameAndPosition> ();
-			System.out.println("collection done...");
 			
-			int i= 0;
+			progress.setMessage( "Load measures...");
+			progress.setLength(options.experimentList.experimentList.size());
+			
 			for (Experiment exp: options.experimentList.experimentList) 
 			{
-				System.out.println("output experiment "+i);
+
 				String charSeries = CellReference.convertNumToColString(iSeries);
 				
 				if (options.topLevel) 		col_end = getDataAndExport(exp, workbook, col_max, charSeries, XLSExportItems.TOPLEVEL);
@@ -55,11 +58,12 @@ public class XLSExportCapillaryResults extends XLSExport {
 				if (col_end > col_max)
 					col_max = col_end;
 				iSeries++;
-				i++;
+				progress.incPosition();
 			}
 			
 			if (options.transpose && options.pivot) {
-				System.out.println("Build pivot tables... ");
+				progress.setMessage( "Build pivot tables... ");
+				
 				String sourceSheetName = null;
 				if (options.topLevel) sourceSheetName = XLSExportItems.TOPLEVEL.toString();
 				else if (options.topLevelDelta) sourceSheetName = XLSExportItems.TOPLEVELDELTA.toString();
@@ -70,14 +74,18 @@ public class XLSExportCapillaryResults extends XLSExport {
 				if (sourceSheetName != null)
 					xlsCreatePivotTables(workbook, sourceSheetName);
 			}
-				
+			
+			progress.setMessage( "Save Excel file to disk... ");
 			FileOutputStream fileOut = new FileOutputStream(filename);
 			workbook.write(fileOut);
 	        fileOut.close();
 	        workbook.close();
+	        
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
+		
+		progress.close();
 		System.out.println("XLS output finished");
 	}
 	
@@ -211,7 +219,6 @@ public class XLSExportCapillaryResults extends XLSExport {
 		pt.x = col0;
 		XLSUtils.setValue(sheet, pt, transpose, "scale");
 		pt.x++;
-		XLSUtils.setValue(sheet, pt, transpose, "capillary" );
 		pt.x++;
 		XLSUtils.setValue(sheet, pt, transpose, exp.vSequence.capillaries.volume);
 		pt.x++;
