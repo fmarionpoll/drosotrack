@@ -19,7 +19,7 @@ import plugins.fmp.sequencevirtual.XYTaSeries;
 
 public class XLSExportMoveResults extends XLSExport {
 
-	public static void exportToFile(String filename, XLSExportOptions opt) {
+	public void exportToFile(String filename, XLSExportOptions opt) {
 		
 		System.out.println("XLS move output");
 		options = opt;
@@ -102,25 +102,25 @@ public class XLSExportMoveResults extends XLSExport {
 		return arrayList;
 	}
 
-	public static int xlsExportToWorkbook(Experiment exp, XSSFWorkbook workBook, int col0, String charSeries, XLSExportItems option) {
+	public int xlsExportToWorkbook(Experiment exp, XSSFWorkbook workBook, int col0, String charSeries, XLSExportItems xlsExportOption) {
 
-		ArrayList <ArrayList<Double >> arrayList = getDataFromCages(exp, option);
+		ArrayList <ArrayList<Double >> arrayList = getDataFromCages(exp, xlsExportOption);
 
-		XSSFSheet sheet = workBook.getSheet(option.toString());
+		XSSFSheet sheet = workBook.getSheet(xlsExportOption.toString());
 		if (sheet == null) 
-			sheet = workBook.createSheet(option.toString());
+			sheet = workBook.createSheet(xlsExportOption.toString());
 		
 		Point pt = new Point(col0, 0);
 		if (options.collateSeries) {
 			pt = getStackColumnPosition(exp, pt);
 		}
-		pt = writeGlobalInfos(exp, sheet, pt, options.transpose, option);
-		pt = writeHeader(exp, sheet, pt, option, options.transpose, charSeries);
-		pt = writeData(exp, sheet, pt, option, arrayList, options.transpose, charSeries);
+		pt = writeGlobalInfos(exp, sheet, pt, options.transpose, xlsExportOption);
+		pt = writeHeader(exp, sheet, pt, xlsExportOption, options.transpose, charSeries);
+		pt = writeData(exp, sheet, pt, xlsExportOption, arrayList, options.transpose, charSeries);
 		return pt.x;
 	}
 	
-	private static Point writeGlobalInfos(Experiment exp, XSSFSheet sheet, Point pt, boolean transpose, XLSExportItems option) {
+	private Point writeGlobalInfos(Experiment exp, XSSFSheet sheet, Point pt, boolean transpose, XLSExportItems option) {
 		
 		int col0 = pt.x;
 		
@@ -157,12 +157,12 @@ public class XLSExportMoveResults extends XLSExport {
 		return pt;
 	}
 
-	private static Point writeHeader (Experiment exp, XSSFSheet sheet, Point pt, XLSExportItems option, boolean transpose, String charSeries) {
+	private Point writeHeader (Experiment exp, XSSFSheet sheet, Point pt, XLSExportItems xlsExportOption, boolean transpose, String charSeries) {
 		
 		int col0 = pt.x;
-		pt = writeGenericHeader(exp, sheet, option, pt, transpose, charSeries);
+		pt = writeGenericHeader(exp, sheet, xlsExportOption, pt, transpose, charSeries);
 		
-		switch (option) {
+		switch (xlsExportOption) {
 		case DISTANCE:
 			for (XYTaSeries posxyt: exp.vSequence.cages.flyPositionsList) {
 				String name0 = posxyt.getName();
@@ -196,7 +196,7 @@ public class XLSExportMoveResults extends XLSExport {
 		return pt;
 	}
 	
-	private static Point writeData (Experiment exp, XSSFSheet sheet, Point pt, XLSExportItems option, ArrayList <ArrayList<Double >> dataArrayList, boolean transpose, String charSeries) {
+	private Point writeData (Experiment exp, XSSFSheet sheet, Point pt, XLSExportItems option, ArrayList <ArrayList<Double >> dataArrayList, boolean transpose, String charSeries) {
 	
 		int col0 = pt.x;
 		int row0 = pt.y;
@@ -294,7 +294,7 @@ public class XLSExportMoveResults extends XLSExport {
 		return pt;
 	}
 
-	private static int columnOfNextSeries(Experiment exp, XLSExportItems option, int currentcolumn) {
+	private int columnOfNextSeries(Experiment exp, XLSExportItems option, int currentcolumn) {
 		int n = 2;
 		int value = currentcolumn + exp.vSequence.cages.cageLimitROIList.size() * n + 3;
 		return value;

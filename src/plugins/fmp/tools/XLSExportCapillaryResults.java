@@ -19,7 +19,7 @@ import plugins.fmp.sequencevirtual.XYTaSeries;
 
 public class XLSExportCapillaryResults extends XLSExport {
 	
-	public static void exportToFile(String filename, XLSExportOptions opt) {
+	public void exportToFile(String filename, XLSExportOptions opt) {
 		
 		System.out.println("XLS capillary measures output");
 		options = opt;
@@ -42,7 +42,6 @@ public class XLSExportCapillaryResults extends XLSExport {
 			
 			for (Experiment exp: options.experimentList.experimentList) 
 			{
-
 				String charSeries = CellReference.convertNumToColString(iSeries);
 				
 				if (options.topLevel) 		col_end = getDataAndExport(exp, workbook, col_max, charSeries, XLSExportItems.TOPLEVEL);
@@ -89,18 +88,18 @@ public class XLSExportCapillaryResults extends XLSExport {
 		System.out.println("XLS output finished");
 	}
 	
-	private static int getDataAndExport(Experiment exp, XSSFWorkbook workbook, int col0, String charSeries, XLSExportItems datatype) 
+	private int getDataAndExport(Experiment exp, XSSFWorkbook workbook, int col0, String charSeries, XLSExportItems datatype) 
 	{	
 		ArrayList <ArrayList<Integer >> arrayList = getDataFromRois(exp, datatype, options.t0);	
-		int colmax = xlsExportCapillaryDataToWorkbook(exp, workbook, datatype.toString(), datatype, col0, charSeries, arrayList);
+		int colmax = xlsExportToWorkbook(exp, workbook, datatype.toString(), datatype, col0, charSeries, arrayList);
 		if (options.onlyalive) {
 			trimDeadsFromArrayList(exp, arrayList);
-			xlsExportCapillaryDataToWorkbook(exp, workbook, datatype.toString()+"_alive", datatype, col0, charSeries, arrayList);
+			xlsExportToWorkbook(exp, workbook, datatype.toString()+"_alive", datatype, col0, charSeries, arrayList);
 		}
 		return colmax;
 	}
 	
-	private static ArrayList <ArrayList<Integer>> getDataFromRois(Experiment exp, XLSExportItems xlsoption, boolean optiont0) {
+	private ArrayList <ArrayList<Integer>> getDataFromRois(Experiment exp, XLSExportItems xlsoption, boolean optiont0) {
 		
 		ArrayList <ArrayList<Integer >> resultsArrayList = new ArrayList <ArrayList<Integer >> ();	
 		
@@ -136,7 +135,7 @@ public class XLSExportCapillaryResults extends XLSExport {
 		return resultsArrayList;
 	}
 	
-	private static ArrayList<Integer> subtractT0 (ArrayList<Integer> array) {
+	private ArrayList<Integer> subtractT0 (ArrayList<Integer> array) {
 
 		if (array == null)
 			return null;
@@ -148,7 +147,7 @@ public class XLSExportCapillaryResults extends XLSExport {
 		return array;
 	}
 	
-	private static ArrayList<Integer> subtractTi(ArrayList<Integer > array) {
+	private ArrayList<Integer> subtractTi(ArrayList<Integer > array) {
 		if (array == null)
 			return null;
 		int item0 = array.get(0);
@@ -160,7 +159,7 @@ public class XLSExportCapillaryResults extends XLSExport {
 		return array;
 	}
 	
-	private static void trimDeadsFromArrayList(Experiment exp, ArrayList <ArrayList<Integer >> resultsArrayList) {
+	private void trimDeadsFromArrayList(Experiment exp, ArrayList <ArrayList<Integer >> resultsArrayList) {
 		
 		ArrayList <ArrayList<Integer >> trimmedArrayList = new ArrayList <ArrayList<Integer >> ();
 		int icapillary = 0;
@@ -174,7 +173,7 @@ public class XLSExportCapillaryResults extends XLSExport {
 		}		
 	}
 	
-	private static void trimArrayLength (ArrayList<Integer> array, int ilastalive) {
+	private void trimArrayLength (ArrayList<Integer> array, int ilastalive) {
 		if (array == null)
 			return;
 		int arraysize = array.size();
@@ -183,7 +182,7 @@ public class XLSExportCapillaryResults extends XLSExport {
 		}
 	}
 	
-	private static int xlsExportCapillaryDataToWorkbook(Experiment exp, XSSFWorkbook workBook, String title, XLSExportItems xlsoption, int col0, String charSeries, ArrayList <ArrayList<Integer >> arrayList) {
+	private int xlsExportToWorkbook(Experiment exp, XSSFWorkbook workBook, String title, XLSExportItems xlsExportOption, int col0, String charSeries, ArrayList <ArrayList<Integer >> arrayList) {
 			
 		XSSFSheet sheet = workBook.getSheet(title );
 		if (sheet == null)
@@ -195,12 +194,12 @@ public class XLSExportCapillaryResults extends XLSExport {
 		}
 		
 		pt = writeGlobalInfos(exp, sheet, pt, options.transpose);
-		pt = writeHeader(exp, sheet, xlsoption, pt, options.transpose, charSeries);
-		pt = writeData(exp, sheet, xlsoption, pt, options.transpose, charSeries, arrayList);
+		pt = writeHeader(exp, sheet, xlsExportOption, pt, options.transpose, charSeries);
+		pt = writeData(exp, sheet, xlsExportOption, pt, options.transpose, charSeries, arrayList);
 		return pt.x;
 	}
 	
-	private static Point writeGlobalInfos(Experiment exp, XSSFSheet sheet, Point pt, boolean transpose) {
+	private Point writeGlobalInfos(Experiment exp, XSSFSheet sheet, Point pt, boolean transpose) {
 
 		int col0 = pt.x;
 		XLSUtils.setValue(sheet, pt, transpose, "expt");
@@ -209,11 +208,10 @@ public class XLSExportCapillaryResults extends XLSExport {
 		String path = file.getParent();
 		XLSUtils.setValue(sheet, pt, transpose, path);
 		pt.x++;
-		XLSUtils.setValue(sheet, pt, transpose, "units");
-		pt.x++;
 		XLSUtils.setValue(sheet, pt, transpose, "µl" );
 		pt.x++;
 		XLSUtils.setValue(sheet, pt, transpose, "pixels" );
+		pt.x++;
 		pt.y++;
 		
 		pt.x = col0;
@@ -229,10 +227,11 @@ public class XLSExportCapillaryResults extends XLSExport {
 		return pt;
 	}
 
-	private static Point writeHeader (Experiment exp, XSSFSheet sheet, XLSExportItems option, Point pt, boolean transpose, String charSeries) {
+	private Point writeHeader (Experiment exp, XSSFSheet sheet, XLSExportItems option, Point pt, boolean transpose, String charSeries) {
 		
 		int col0 = pt.x;
 		pt = writeGenericHeader(exp, sheet, option, pt, transpose, charSeries);
+		
 		for (SequencePlus seq: exp.kymographArrayList) {
 			XLSUtils.setValue(sheet, pt, transpose, seq.getName());
 			pt.x++;
@@ -242,7 +241,7 @@ public class XLSExportCapillaryResults extends XLSExport {
 		return pt;
 	}
 
-	private static Point writeData (Experiment exp, XSSFSheet sheet, XLSExportItems option, Point pt, boolean transpose, String charSeries, ArrayList <ArrayList<Integer >> dataArrayList) {
+	private Point writeData (Experiment exp, XSSFSheet sheet, XLSExportItems option, Point pt, boolean transpose, String charSeries, ArrayList <ArrayList<Integer >> dataArrayList) {
 		
 		double scalingFactorToPhysicalUnits = exp.vSequence.capillaries.volume / exp.vSequence.capillaries.pixels;
 		
@@ -341,6 +340,7 @@ public class XLSExportCapillaryResults extends XLSExport {
 				break;
 			}
 		}
+		//pt.x = columnOfNextSeries(exp, option, col0);
 		return pt;
 	}
 		

@@ -11,6 +11,7 @@ import javax.swing.SwingConstants;
 import icy.gui.util.FontUtil;
 import icy.gui.util.GuiUtil;
 import plugins.fmp.sequencevirtual.SequencePlus;
+import plugins.fmp.sequencevirtual.SequencePlusUtils;
 import plugins.fmp.tools.ArrayListType;
 
 public class MCKymosTab_File  extends JPanel implements ActionListener {
@@ -47,67 +48,58 @@ public class MCKymosTab_File  extends JPanel implements ActionListener {
 	public void actionPerformed(ActionEvent e) {
 		Object o = e.getSource();
 		if ( o == openMeasuresButton)  {
-			if (measuresFileOpen()) {
+			if (openKymosMeasures()) {
 				firePropertyChange("MEASURES_OPEN", false, true);
 			}
 		}
 		else if ( o == saveMeasuresButton) {
-			measuresFileSave();
+			saveKymosMeasures();
 			firePropertyChange("MEASURES_SAVE", false, true);	
 		}		
 	}
 	
 
 	// ASSUME: same parameters for each kymograph
-	boolean measuresFileOpen() {
+	boolean openKymosMeasures() {
 		
-			String directory = parent0.vSequence.getDirectory();
-			for (int kymo=0; kymo < parent0.kymographArrayList.size(); kymo++) {
-				
-				SequencePlus seq = parent0.kymographArrayList.get(kymo);
-				seq.beginUpdate();
-				boolean flag2 = true;
-				if (flag2 = seq.loadXMLKymographAnalysis(directory)) {
-					seq.validateRois();
-					seq.getArrayListFromRois(ArrayListType.cumSum);
-				}
-				else {
-					System.out.println("load measures -> failed or not found in directory: " + directory);
-				}
-				seq.endUpdate();
-				if (!flag2)
-					flag = false;
-				if (isInterrupted) {
-					isInterrupted = false;
-					break;
-				}
-			}
+		String directory = parent0.vSequence.getDirectory();
+		for (int kymo=0; kymo < parent0.kymographArrayList.size(); kymo++) {
 			
-			if (parent0.kymographArrayList.size() >0 ) {
-				SequencePlus seq = parent0.kymographArrayList.get(0);
-				if (seq.analysisEnd > seq.analysisStart) {
-					parent0.vSequence.analysisStart = seq.analysisStart; 
-					parent0.vSequence.analysisEnd 	= seq.analysisEnd;
-					parent0.vSequence.analysisStep 	= seq.analysisStep;
-				}
+			SequencePlus seq = parent0.kymographArrayList.get(kymo);
+			seq.beginUpdate();
+			boolean flag2 = true;
+			if (flag2 = seq.loadXMLKymographAnalysis(directory)) {
+				seq.validateRois();
+				seq.getArrayListFromRois(ArrayListType.cumSum);
 			}
+			else {
+				System.out.println("load measures -> failed or not found in directory: " + directory);
+			}
+			seq.endUpdate();
+			if (!flag2)
+				flag = false;
+			if (isInterrupted) {
+				isInterrupted = false;
+				break;
+			}
+		}
+		
+		if (parent0.kymographArrayList.size() >0 ) {
+			SequencePlus seq = parent0.kymographArrayList.get(0);
+			if (seq.analysisEnd > seq.analysisStart) {
+				parent0.vSequence.analysisStart = seq.analysisStart; 
+				parent0.vSequence.analysisEnd 	= seq.analysisEnd;
+				parent0.vSequence.analysisStep 	= seq.analysisStep;
+			}
+		}
 			
 		isRunning = false;
 		return flag;
 	}
 	
-	void measuresFileSave() {
+	void saveKymosMeasures() {
 		
-		String directory = parent0.vSequence.getDirectory();
-		for (int kymo=0; kymo < parent0.kymographArrayList.size(); kymo++) {
-			SequencePlus seq = parent0.kymographArrayList.get(kymo);
-			seq.analysisStart = parent0.vSequence.analysisStart; 
-			seq.analysisEnd  = parent0.vSequence.analysisEnd;
-			seq.analysisStep = parent0.vSequence.analysisStep;
-			
-//			System.out.println("saving "+seq.getName());
-			if (!seq.saveXMLKymographAnalysis(directory))
-				System.out.println(" -> failed - in directory: " + directory);
-		}
+		SequencePlusUtils.transferSequenceInfoToKymos(parent0.kymographArrayList, parent0.vSequence);
+		SequencePlusUtils.saveKymosMeasures(parent0.kymographArrayList, parent0.vSequence.getDirectory());
 	}
 }

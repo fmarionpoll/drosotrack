@@ -74,7 +74,7 @@ public class MCCapillariesTab_File extends JPanel implements ActionListener {
 		}
 		else if ( o == openButtonKymos)  {
 			String path = parent0.vSequence.getDirectory()+ "\\results";
-			parent0.kymographArrayList = SequencePlusUtils.openFiles(path); 
+			parent0.kymographArrayList = SequencePlusUtils.openFiles(path, parent0.vSequence.capillaries); 
 			firePropertyChange("KYMOS_OPEN", false, true);	
 		}
 		else if ( o == saveButtonKymos) {
@@ -111,7 +111,7 @@ public class MCCapillariesTab_File extends JPanel implements ActionListener {
 			directory =  f.getSelectedFile().getAbsolutePath();
 		else
 			return null;
-		return SequencePlusUtils.openFiles(directory); 
+		return SequencePlusUtils.openFiles(directory, parent0.vSequence.capillaries); 
 	}
 	
 	void saveFiles(String directory) {
@@ -165,7 +165,7 @@ public class MCCapillariesTab_File extends JPanel implements ActionListener {
 			SequencePlusUtils.isInterrupted = true;
 		
 		final String cs = parent0.vSequence.getDirectory()+"\\results";
-		parent0.kymographArrayList = SequencePlusUtils.openFiles(cs);
+		parent0.kymographArrayList = SequencePlusUtils.openFiles(cs, parent0.vSequence.capillaries);
 
 		if (parent0.kymographArrayList != null) {
 			flag = true;

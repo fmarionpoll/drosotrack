@@ -21,12 +21,12 @@ import plugins.fmp.sequencevirtual.SequenceVirtual;
 
 public class XLSExport {
 
-	protected static XLSExportOptions 	options = null;
-	protected static Experiment 		expAll = null;
-	static int							nintervals	= 0;
-	static List <XLSNameAndPosition> 		listOfStacks; 
+	protected XLSExportOptions 	options = null;
+	protected Experiment 		expAll = null;
+	int							nintervals	= 0;
+	List <XLSNameAndPosition> 	listOfStacks; 
 
-	public static long getnearest(long value, int step) {
+	public long getnearest(long value, int step) {
 		long diff0 = (value /step)*step;
 		long diff1 = diff0 + step;
 		if ((value - diff0 ) < (diff1 - value))
@@ -36,7 +36,7 @@ public class XLSExport {
 		return value;
 	}
 	
-	public static Point addLineToHeader(Experiment exp, XSSFSheet sheet, Point pt, boolean transpose, XLSExperimentDescriptors desc) {
+	public Point addLineToHeader(Experiment exp, XSSFSheet sheet, Point pt, boolean transpose, XLSExperimentDescriptors desc) {
 		int col0 = pt.x;
 		XLSUtils.setValue(sheet, pt, transpose, desc.toString());
 		pt.x++;
@@ -121,19 +121,19 @@ public class XLSExport {
 		return pt;
 	}
 	
-	public static String getSubName(Path path, int subnameIndex) {
+	public String getSubName(Path path, int subnameIndex) {
 		String name = "-";
 		if (path.getNameCount() >= subnameIndex)
 			name = path.getName(path.getNameCount() -subnameIndex).toString();
 		return name;
 	}
 	
-	public static String getShortenedName(SequenceVirtual seq, int t) {
+	public String getShortenedName(SequenceVirtual seq, int t) {
 		String cs = seq.getFileName(t);
 		return cs.substring(cs.lastIndexOf("\\") + 1) ;
 	}
 
-	public static void xlsCreatePivotTable(XSSFWorkbook workBook, String workBookName, String fromWorkbook, DataConsolidateFunction function) {
+	public void xlsCreatePivotTable(XSSFWorkbook workBook, String workBookName, String fromWorkbook, DataConsolidateFunction function) {
 
 		XSSFSheet pivotSheet = workBook.createSheet(workBookName);
         XSSFSheet sourceSheet = workBook.getSheet(fromWorkbook);
@@ -162,7 +162,7 @@ public class XLSExport {
         }
 	}
 
-	public static Point writeGenericHeader (Experiment exp, XSSFSheet sheet, XLSExportItems option, Point pt, boolean transpose, String charSeries) {
+	public Point writeGenericHeader (Experiment exp, XSSFSheet sheet, XLSExportItems option, Point pt, boolean transpose, String charSeries) {
 
 		pt = addLineToHeader(exp, sheet, pt, transpose, XLSExperimentDescriptors.DATE);
 		pt = addLineToHeader(exp, sheet, pt, transpose, XLSExperimentDescriptors.STIML);
@@ -189,20 +189,20 @@ public class XLSExport {
 		return pt;
 	}
 
-	public static void xlsCreatePivotTables(XSSFWorkbook workBook, String fromWorkbook) {
+	public void xlsCreatePivotTables(XSSFWorkbook workBook, String fromWorkbook) {
         
 		xlsCreatePivotTable(workBook, "pivot_avg", fromWorkbook, DataConsolidateFunction.AVERAGE);
 		xlsCreatePivotTable(workBook, "pivot_std", fromWorkbook, DataConsolidateFunction.STD_DEV);
 		xlsCreatePivotTable(workBook, "pivot_n", fromWorkbook, DataConsolidateFunction.COUNT);
 	}
 	
-	static String getBoxIdentificator (Experiment exp) {
+	String getBoxIdentificator (Experiment exp) {
 		Path path = Paths.get(exp.vSequence.getFileName());
 		String name = getSubName(path, 2); 
 		return name;
 	}
 	
-	static Point getStackColumnPosition (Experiment exp, Point pt) {
+	Point getStackColumnPosition (Experiment exp, Point pt) {
 		Point localPt = pt;
 		String name = getBoxIdentificator (exp);
 		boolean found = false;

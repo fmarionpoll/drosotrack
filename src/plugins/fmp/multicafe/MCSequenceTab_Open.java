@@ -96,7 +96,7 @@ public class MCSequenceTab_Open extends JPanel implements IcyFrameListener {
             {
             	if(parent0.sequencePane.browseTab.experimentComboBox.getItemCount() > 0 )
             		parent0.sequencePane.closeTab.closeAll();
-            	firePropertyChange("SEQ_OPEN", false, true);
+            	firePropertyChange("SEQ_OPENFILE", false, true);
             }
          });
   

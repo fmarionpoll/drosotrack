@@ -47,9 +47,11 @@ public class SequencePlus extends SequenceVirtual  {
 	
 	public LocalDateTime	startDate			= null;
 	public LocalDateTime	endDate				= null;
-	public long			minutesBetweenImages 	= 1;
+	public long				minutesBetweenImages= 1;
 	public OverlayThreshold thresholdOverlay 	= null;
 	public OverlayTrapMouse trapOverlay 		= null;
+	
+	public KymoMeasures		kymoMeasures		= new KymoMeasures ();
 	
 	// -----------------------------------------------------
 	
@@ -59,6 +61,8 @@ public class SequencePlus extends SequenceVirtual  {
 	
 	public SequencePlus(String name, IcyBufferedImage image) {
 		super (name, image);
+		kymoMeasures.imageWidth = image.getWidth();
+		kymoMeasures.imageHeight = image.getHeight();
 	}
 	
 	public ArrayList<Integer> getArrayListFromRois (ArrayListType option) {
@@ -204,13 +208,16 @@ public class SequencePlus extends SequenceVirtual  {
 
 	public boolean loadXMLKymographAnalysis (String directory) {
 	
+		if (directory == null)
+			return false;
+		
 		String resultsDirectory = directory;
 		String subDirectory = "\\results";
 		if (!resultsDirectory.contains (subDirectory))
 			resultsDirectory += subDirectory;
 		Path resultsPath = Paths.get(resultsDirectory);
 		if (Files.notExists(resultsPath)) 
-				return false; 
+			return false; 
 		
 		setFilename(resultsDirectory+"\\"+getName()+".xml");
 		Path filenamePath = Paths.get(filename);
@@ -244,6 +251,9 @@ public class SequencePlus extends SequenceVirtual  {
 		analysisStart = XMLUtil.getElementIntValue(myNode, "analysisStart", 0);
 		analysisEnd = XMLUtil.getElementIntValue(myNode, "analysisEnd", -1);
 		analysisStep = XMLUtil.getElementIntValue(myNode, "analysisStep", 1);
+		
+		kymoMeasures.imageWidth = XMLUtil.getElementIntValue(myNode, "imageWidth", 1);
+		kymoMeasures.imageHeight = XMLUtil.getElementIntValue(myNode, "imageHeight", 1);
 
 		return flag;
 	}
@@ -285,6 +295,9 @@ public class SequencePlus extends SequenceVirtual  {
 		XMLUtil.setElementIntValue(myNode, "analysisEnd", (int) analysisEnd);
 		XMLUtil.setElementIntValue(myNode, "analysisStep", analysisStep);
 		
+		XMLUtil.setElementIntValue(myNode, "imageWidth", kymoMeasures.imageWidth);
+		XMLUtil.setElementIntValue(myNode, "imageHeight", kymoMeasures.imageHeight);
+		
 		setFilename(resultsDirectory+getName()+".xml");
 		return saveXMLData();
 	}
@@ -317,8 +330,6 @@ public class SequencePlus extends SequenceVirtual  {
 		thresholdOverlay.painterChanged();
 	}
 
-
-	// ----------------------------------
 	public void setMouseTrapOverlay (boolean bActive, JButton pickColorButton, JComboBox<Color> colorPickCombo) {
 		if (bActive) {
 			if (trapOverlay == null)

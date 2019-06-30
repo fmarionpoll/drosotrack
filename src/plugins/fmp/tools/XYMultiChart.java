@@ -64,6 +64,7 @@ public class XYMultiChart extends IcyFrame  {
 		xyDataSetList.clear();
 		xyDataSetList2.clear();
 		flagMaxMinSet = false;
+//		System.out.println("nb of series "+kymographArrayList.size());
 		
 		for (int i=0; i< kymographArrayList.size(); i+= kmax) 
 		{
@@ -72,10 +73,11 @@ public class XYMultiChart extends IcyFrame  {
 			for (int k=0; k <kmax; k++) 
 			{
 				SequencePlus seq = kymographArrayList.get(i+k);
+				String name = seq.getName();
 				ArrayListType ooption = option;
-				if (option == ArrayListType.topAndBottom) 
+				if (option == ArrayListType.topAndBottom)
 					ooption = ArrayListType.topLevel;
-				XYSeries seriesXY = getXYSeries(seq.getArrayListFromRois(ooption), seq.getName(), startFrame);
+				XYSeries seriesXY = getXYSeries(seq.getArrayListFromRois(ooption), name, startFrame);
 				if (option == ArrayListType.topAndBottom) 
 					appendDataToXYSeries(seriesXY, seq.getArrayListFromRois(ArrayListType.bottomLevel), startFrame );
 				xyDataset.addSeries( seriesXY );

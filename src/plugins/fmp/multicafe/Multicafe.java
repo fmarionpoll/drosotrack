@@ -37,7 +37,7 @@ public class Multicafe extends PluginActionable implements ViewerListener, Prope
 	
 	MCSequencePane 				sequencePane 		= new MCSequencePane();
 	MCCapillariesPane 			capillariesPane 	= new MCCapillariesPane();
-	MCKymosPane 					kymographsPane 		= new MCKymosPane();
+	MCKymosPane 				kymographsPane 		= new MCKymosPane();
 	MCMovePane 					movePane 			= new MCMovePane();
 	MCExcelPane					excelPane			= new MCExcelPane();
 
@@ -121,13 +121,13 @@ public class Multicafe extends PluginActionable implements ViewerListener, Prope
 			capillariesPane.getCapillariesInfos(vSequence.capillaries);
 			if (capillariesPane.capold.isChanged(vSequence.capillaries)) {
 				capillariesPane.saveDefaultCapillaries();
-				kymographsPane.fileTab.measuresFileSave();
+				kymographsPane.fileTab.saveKymosMeasures();
 				movePane.saveDefaultCages();
 			}
 		}
 		else if (arg0.getPropertyName() .equals("EXPORT_TO_EXCEL")) {
 			ThreadUtil.bgRun( new Runnable() { @Override public void run() {
-				kymographsPane.fileTab.measuresFileSave();
+				kymographsPane.fileTab.saveKymosMeasures();
 			}});
 		}
 	} 
@@ -189,7 +189,7 @@ public class Multicafe extends PluginActionable implements ViewerListener, Prope
 					if (MCKymosTab_File.isRunning) {
 						MCKymosTab_File.isInterrupted = true;
 					}
-					kymographsPane.fileTab.measuresFileOpen();
+					kymographsPane.fileTab.openKymosMeasures();
 					if (sequencePane.openTab.graphsCheckBox.isSelected())
 						SwingUtilities.invokeLater(new Runnable() {
 						    public void run() {

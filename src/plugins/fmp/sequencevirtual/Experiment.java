@@ -33,7 +33,7 @@ public class Experiment {
 		if (!vSequence.xmlReadCapillaryTrackDefault()) 
 			return false;
 		String directory = vSequence.getDirectory() +"\\results";
-		kymographArrayList = SequencePlusUtils.openFiles(directory);
+		kymographArrayList = SequencePlusUtils.openFiles(directory, vSequence.capillaries);
 		vSequence.xmlReadDrosoTrackDefault();
 		return true;
 	}

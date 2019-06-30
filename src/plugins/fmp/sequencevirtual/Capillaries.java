@@ -199,20 +199,21 @@ public class Capillaries {
 		if (csFileName != null)  {
 			final Document doc = XMLUtil.loadDocument(csFileName);
 			if (doc != null) {
-				final List<ROI> rois = ROI.loadROIsFromXML(XMLUtil.getRootElement(doc));
 				xmlReadCapillaryParameters(doc);
-				
-				Collections.sort(rois, new Tools.ROINameComparator()); 
-
+				List<ROI> listOfROIs = ROI.loadROIsFromXML(XMLUtil.getRootElement(doc));
+				capillariesArrayList.clear();
+				for (ROI roi: listOfROIs)
+					capillariesArrayList.add((ROI2DShape) roi);
+				Collections.sort(capillariesArrayList, new Tools.ROINameComparator()); 
 				try  {  
-					for (ROI roi : rois)  {
+					for (ROI roi : capillariesArrayList)  {
 						seq.addROI(roi);
 					}
 				}
 				finally {
 				}
 				// add to undo manager
-				seq.addUndoableEdit(new ROIAddsSequenceEdit(seq, rois) {
+				seq.addUndoableEdit(new ROIAddsSequenceEdit(seq, listOfROIs) {
 					@Override
 					public String getPresentationName() {
 						if (getROIs().size() > 1)
@@ -264,4 +265,5 @@ public class Capillaries {
 		return flag;
 
 	}
+
 }

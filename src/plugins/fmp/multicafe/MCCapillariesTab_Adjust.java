@@ -74,8 +74,9 @@ public class MCCapillariesTab_Adjust extends JPanel implements ActionListener{
 		if (parent0.vSequence.capillaries.capillariesArrayList == null || parent0.vSequence.capillaries.capillariesArrayList.size() == 0)
 			return;
 		
-		if (!displayYellowBarsCheckBox.isSelected()) 
+		if (!displayYellowBarsCheckBox.isSelected()) {
 			displayYellowBarsCheckBox.setSelected(true);
+		}
 		refLineUpper = roiRefLineUpper.getLine();
 		refLineLower = roiRefLineLower.getLine(); 
 		

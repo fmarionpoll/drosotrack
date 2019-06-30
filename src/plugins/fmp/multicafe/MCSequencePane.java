@@ -55,13 +55,16 @@ public class MCSequencePane extends JPanel implements PropertyChangeListener {
 		if (event.getPropertyName().equals("SEQ_OPEN")) {
 			openSequenceFromCombo(); 
 		}
-		else if (event.getPropertyName().equals("SEQ_ADD")) {
+		else if (event.getPropertyName() .equals ("SEQ_OPENFILE")) {
+			
 			if (sequenceCreateNew(null)) {
-				String strItem = parent0.vSequence.getFileName();
-				sequenceAddtoCombo(strItem);
-				browseTab.experimentComboBox.setSelectedItem(strItem);
-				updateParametersForSequence();
-				firePropertyChange("SEQ_OPENED", false, true);
+				browseTab.experimentComboBox.removeAllItems();
+				addSequenceToComboAndLoadData();
+			}
+		}
+		else if (event.getPropertyName().equals("SEQ_ADDFILE")) {
+			if (sequenceCreateNew(null)) {
+				addSequenceToComboAndLoadData();
 			}
 		 }
 		 else if (event.getPropertyName().equals("UPDATE")) {
@@ -119,6 +122,16 @@ public class MCSequencePane extends JPanel implements PropertyChangeListener {
 		}
 	}
 	
+	void addSequenceToComboAndLoadData() {
+		String strItem = parent0.vSequence.getFileName();
+		if (strItem != null) {
+			sequenceAddtoCombo(strItem);
+			browseTab.experimentComboBox.setSelectedItem(strItem);
+			updateParametersForSequence();
+			firePropertyChange("SEQ_OPENED", false, true);
+		}
+	}
+	
 	// -------------------------
 	void startstopBufferingThread() {
 
@@ -147,6 +160,7 @@ public class MCSequencePane extends JPanel implements PropertyChangeListener {
 		}
 		return (path != null);
 	}
+	
 	
 	private void updateParametersForSequence() {
 		int endFrame = parent0.vSequence.getSizeT()-1;

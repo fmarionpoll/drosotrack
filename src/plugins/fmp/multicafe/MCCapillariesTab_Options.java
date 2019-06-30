@@ -114,9 +114,12 @@ public class MCCapillariesTab_Options extends JPanel implements ActionListener, 
 	}
 	
 	void transferRoisNamesToComboBox(ArrayList <ROI2DShape> roi2DArrayList) {
-		kymographNamesComboBox.removeAllItems();
-		for (ROI2D roi:roi2DArrayList)
-			kymographNamesComboBox.addItem(roi.getName());	
+		SwingUtilities.invokeLater(new Runnable() {
+			public void run() {
+				kymographNamesComboBox.removeAllItems();
+				for (ROI2D roi:roi2DArrayList)
+					kymographNamesComboBox.addItem(roi.getName());	
+			}});
 	}
 	
 	private void roisDisplay() {
@@ -144,7 +147,9 @@ public class MCCapillariesTab_Options extends JPanel implements ActionListener, 
 	}
 
 	void displayON() {
-		if (parent0.kymographArrayList.size() < 1) return;
+		if (parent0.kymographArrayList == null 
+			||parent0.kymographArrayList.size() < 1) 
+			return;
 
 		Rectangle rectMaster = parent0.vSequence.getFirstViewer().getBounds();
 		int deltax = 5 + rectMaster.width;
