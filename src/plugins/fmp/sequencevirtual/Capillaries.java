@@ -58,15 +58,15 @@ public class Capillaries {
 		pixels = XMLUtil.getAttributeDoubleValue(xmlVal, "npixels", Double.NaN);
 
 		xmlVal = XMLUtil.getElement(xmlElement, "analysis");
-		analysisStart =  XMLUtil.getAttributeLongValue(xmlVal, "start", 0);
-		analysisEnd = XMLUtil.getAttributeLongValue(xmlVal, "end", 0);
-		analysisStep = XMLUtil.getAttributeIntValue(xmlVal, "step", 1);
+		analysisStart 	= XMLUtil.getAttributeLongValue(xmlVal, "start", 0);
+		analysisEnd 	= XMLUtil.getAttributeLongValue(xmlVal, "end", 0);
+		analysisStep 	= XMLUtil.getAttributeIntValue(xmlVal, "step", 1);
 
 		xmlVal = XMLUtil.getElement(xmlElement,  "LRstimulus");
-		stimulusR = XMLUtil.getAttributeValue(xmlVal, "stimR", "stimR");
-		concentrationR = XMLUtil.getAttributeValue(xmlVal, "concR", "concR");
-		stimulusL = XMLUtil.getAttributeValue(xmlVal, "stimL", "stimL");
-		concentrationL = XMLUtil.getAttributeValue(xmlVal, "concL", "concL");
+		stimulusR 		= XMLUtil.getAttributeValue(xmlVal, "stimR", "stimR");
+		concentrationR 	= XMLUtil.getAttributeValue(xmlVal, "concR", "concR");
+		stimulusL 		= XMLUtil.getAttributeValue(xmlVal, "stimL", "stimL");
+		concentrationL 	= XMLUtil.getAttributeValue(xmlVal, "concL", "concL");
 		return true;
 	}
 	

@@ -34,7 +34,7 @@ public class MCMoveTab_Graphs extends JPanel implements ActionListener  {
 	JCheckBox			moveCheckbox		= new JCheckBox("y position", true);	
 	private JCheckBox	distanceCheckbox	= new JCheckBox("distance t/t+1", true);
 	JCheckBox			aliveCheckbox		= new JCheckBox("fly alive", true);
-	JSpinner 			aliveThresholdSpinner = new JSpinner(new SpinnerNumberModel(5.0, 0., 100000., .1));
+	JSpinner 			aliveThresholdSpinner = new JSpinner(new SpinnerNumberModel(50.0, 0., 100000., .1));
 	JButton 			displayResultsButton= new JButton("Display results");
 
 	

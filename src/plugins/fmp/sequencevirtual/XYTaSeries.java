@@ -14,7 +14,7 @@ import plugins.kernel.roi.roi2d.*;
 
 public class XYTaSeries implements XMLPersistent {
 	public ROI2DPolygon roi;
-	public Double threshold = 10.;
+	public Double threshold = 50.;
 	public int lastTimeAlive = 0;
 	public int lastIntervalAlive = 0;
 	public ArrayList<XYTaValue> pointsList = new ArrayList<XYTaValue>();
