@@ -104,7 +104,6 @@ public class Multicafe extends PluginActionable implements ViewerListener, Prope
 					sequencePane.openTab.isCheckedLoadKymographs(),
 					sequencePane.openTab.isCheckedLoadCages(),
 					sequencePane.openTab.isCheckedLoadMeasures());
-			capillariesPane.adjustTab.displayYellowBarsCheckBox.setSelected(false);
 		}
 		else if (arg0.getPropertyName().equals("CAPILLARIES_OPEN")) {
 		  	sequencePane.browseTab.setBrowseItems(this.vSequence);

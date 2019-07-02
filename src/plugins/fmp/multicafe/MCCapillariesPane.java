@@ -6,6 +6,8 @@ import java.beans.PropertyChangeListener;
 
 import javax.swing.JPanel;
 import javax.swing.JTabbedPane;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
 
 import icy.gui.util.GuiUtil;
 import plugins.fmp.sequencevirtual.Capillaries;
@@ -13,7 +15,7 @@ import plugins.fmp.sequencevirtual.SequenceVirtual;
 
 
 
-public class MCCapillariesPane extends JPanel implements PropertyChangeListener {
+public class MCCapillariesPane extends JPanel implements PropertyChangeListener, ChangeListener {
 	/**
 	 * 
 	 */
@@ -22,10 +24,10 @@ public class MCCapillariesPane extends JPanel implements PropertyChangeListener 
 	JTabbedPane 				tabsPane 		= new JTabbedPane();
 	MCCapillariesTab_Build 		buildarrayTab 	= new MCCapillariesTab_Build();
 	MCCapillariesTab_File 		fileTab 		= new MCCapillariesTab_File();
-	MCCapillariesTab_Adjust 		adjustTab 		= new MCCapillariesTab_Adjust();
-	MCCapillariesTab_Properties 	propertiesTab 	= new MCCapillariesTab_Properties();
+	MCCapillariesTab_Adjust 	adjustTab 		= new MCCapillariesTab_Adjust();
+	MCCapillariesTab_Properties propertiesTab 	= new MCCapillariesTab_Properties();
 	MCCapillaryTab_BuildKymos 	buildkymosTab 	= new MCCapillaryTab_BuildKymos();
-	MCCapillariesTab_Options 		optionsTab 		= new MCCapillariesTab_Options();
+	MCCapillariesTab_Options 	optionsTab 		= new MCCapillariesTab_Options();
 	
 	Capillaries capold = new Capillaries();
 	private Multicafe parent0 = null;
@@ -63,6 +65,8 @@ public class MCCapillariesPane extends JPanel implements PropertyChangeListener 
 
 		tabsPane.setTabLayoutPolicy(JTabbedPane.SCROLL_TAB_LAYOUT);
 		capPanel.add(GuiUtil.besidesPanel(tabsPane));
+		
+		tabsPane.addChangeListener(this );
 	}
 	
 	
@@ -132,6 +136,14 @@ public class MCCapillariesPane extends JPanel implements PropertyChangeListener 
 	void getCapillariesInfos(Capillaries cap) {
 		propertiesTab.getCapillariesInfos(cap);
 		buildarrayTab.getCapillariesInfos(cap);
+	}
+
+
+	@Override
+	public void stateChanged(ChangeEvent arg0) {
+		JTabbedPane tabbedPane = (JTabbedPane) arg0.getSource();
+        int selectedIndex = tabbedPane.getSelectedIndex();
+        adjustTab.roisDisplayrefBar(selectedIndex == 1);
 	}
 	
 

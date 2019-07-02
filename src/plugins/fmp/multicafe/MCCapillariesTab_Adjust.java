@@ -31,10 +31,9 @@ public class MCCapillariesTab_Adjust extends JPanel implements ActionListener{
 	 */
 	private static final long serialVersionUID = 1756354919434057560L;
 	
-	JTextField	jitterTextField2	= new JTextField("10");
+	JTextField			jitterTextField2	= new JTextField("10");
 	private JButton 	adjustButton 		= new JButton("Align");
-	JCheckBox	displayYellowBarsCheckBox = new JCheckBox("display yellow bars", false);
-	private Multicafe parent0;
+	private Multicafe 	parent0				= null;
 	private Line2D		refLineUpper 		= null;
 	private Line2D  	refLineLower 		= null;
 	private ROI2DLine	roiRefLineUpper 	= new ROI2DLine ();
@@ -43,7 +42,7 @@ public class MCCapillariesTab_Adjust extends JPanel implements ActionListener{
 	void init(GridLayout capLayout, Multicafe parent0) {
 		setLayout(capLayout);
 		add( GuiUtil.besidesPanel(
-				displayYellowBarsCheckBox, 
+				new JLabel(" "), 
 				new JLabel("jitter ", SwingConstants.RIGHT), 
 				jitterTextField2, 
 				adjustButton));
@@ -54,7 +53,6 @@ public class MCCapillariesTab_Adjust extends JPanel implements ActionListener{
 	
 	private void defineActionListeners() {
 		adjustButton.addActionListener(this);
-		displayYellowBarsCheckBox.addActionListener(this);
 	}
 	
 	@Override
@@ -63,9 +61,6 @@ public class MCCapillariesTab_Adjust extends JPanel implements ActionListener{
 		if ( o == adjustButton)  {
 			roisCenterLinestoCapillaries();
 		}
-		else if (o == displayYellowBarsCheckBox) {
-			roisDisplayrefBar();	
-		}
 	}
 
 	// -------------------------------------------------------
@@ -73,10 +68,7 @@ public class MCCapillariesTab_Adjust extends JPanel implements ActionListener{
 		
 		if (parent0.vSequence.capillaries.capillariesArrayList == null || parent0.vSequence.capillaries.capillariesArrayList.size() == 0)
 			return;
-		
-		if (!displayYellowBarsCheckBox.isSelected()) {
-			displayYellowBarsCheckBox.setSelected(true);
-		}
+
 		refLineUpper = roiRefLineUpper.getLine();
 		refLineLower = roiRefLineLower.getLine(); 
 		
@@ -106,7 +98,6 @@ public class MCCapillariesTab_Adjust extends JPanel implements ActionListener{
 			}
 		}
 		
-		displayYellowBarsCheckBox.setSelected(false);
 		parent0.vSequence.removeROI(roiRefLineUpper);
 		parent0.vSequence.removeROI(roiRefLineLower);
 	}
@@ -219,11 +210,11 @@ public class MCCapillariesTab_Adjust extends JPanel implements ActionListener{
 		return line_out;
 	}
 
-	void roisDisplayrefBar() {
+	void roisDisplayrefBar(boolean display) {
 		if (parent0.vSequence == null)
 			return;
 		
-		if (displayYellowBarsCheckBox.isSelected()) 
+		if (display)
 		{
 			// take as ref the whole image otherwise, we won't see the lines if the use has not defined any capillaries
 			int seqheight = parent0.vSequence.getHeight();
