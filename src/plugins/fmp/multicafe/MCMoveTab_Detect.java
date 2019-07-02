@@ -37,17 +37,17 @@ public class MCMoveTab_Detect extends JPanel implements ChangeListener {
 	private static final long serialVersionUID = -5257698990389571518L;
 	private Multicafe parent0;
 	
-	private JButton startComputationButton 	= new JButton("Start / Stop");
+	private JButton 	startComputationButton 	= new JButton("Start / Stop");
 	private JComboBox<String> colorChannelComboBox = new JComboBox<String> (new String[] {"Red", "Green", "Blue"});
 	private JComboBox<TransformOp> backgroundComboBox = new JComboBox<> (new TransformOp[]  {TransformOp.NONE, TransformOp.REF_PREVIOUS, TransformOp.REF_T0});
-	private JSpinner thresholdSpinner		= new JSpinner(new SpinnerNumberModel(100, 0, 255, 10));
-	private JTextField jitterTextField 		= new JTextField("5");
-	private JCheckBox objectLowsizeCheckBox = new JCheckBox("object >");
-	private JSpinner objectLowsizeSpinner	= new JSpinner(new SpinnerNumberModel(50, 0, 100000, 1));
-	private JCheckBox objectUpsizeCheckBox 	= new JCheckBox("object <");
-	private JSpinner objectUpsizeSpinner	= new JSpinner(new SpinnerNumberModel(500, 0, 100000, 1));
-	private JCheckBox whiteMiceCheckBox 	= new JCheckBox("white on dark ");
-	public JCheckBox thresholdedImageCheckBox = new JCheckBox("overlay");
+	private JSpinner 	thresholdSpinner		= new JSpinner(new SpinnerNumberModel(100, 0, 255, 10));
+	private JTextField 	jitterTextField 		= new JTextField("5");
+	private JCheckBox 	objectLowsizeCheckBox 	= new JCheckBox("object >");
+	private JSpinner 	objectLowsizeSpinner	= new JSpinner(new SpinnerNumberModel(50, 0, 100000, 1));
+	private JCheckBox 	objectUpsizeCheckBox 	= new JCheckBox("object <");
+	private JSpinner 	objectUpsizeSpinner		= new JSpinner(new SpinnerNumberModel(500, 0, 100000, 1));
+	private JCheckBox 	whiteMiceCheckBox 		= new JCheckBox("white on dark ");
+	public JCheckBox 	thresholdedImageCheckBox= new JCheckBox("overlay");
 	
 	private OverlayThreshold ov = null;
 	private BuildTrackFliesThread trackAllFliesThread = null;

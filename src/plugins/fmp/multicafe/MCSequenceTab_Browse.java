@@ -17,6 +17,7 @@ import javax.swing.SwingConstants;
 
 import icy.gui.util.GuiUtil;
 import plugins.fmp.sequencevirtual.SequenceVirtual;
+import plugins.fmp.tools.ComboBoxWithIndexTextRenderer;
 import plugins.fmp.tools.WideComboBox;
 
 
@@ -33,10 +34,10 @@ public class MCSequenceTab_Browse extends JPanel implements ActionListener{
 	
 	private JButton  	previousButton		 	= new JButton("<");
 	private JButton		nextButton				= new JButton(">");
-	JComboBox<String> 	experimentComboBox	= new WideComboBox();	//= new JComboBox<String>();
+	JComboBox<String> 	experimentComboBox		= new WideComboBox();	
 	
-	boolean disableChangeFile = false;
-	private Multicafe parent0 = null;
+	boolean 			disableChangeFile 		= false;
+	private Multicafe 	parent0 				= null;
 	
 	void init(GridLayout capLayout, Multicafe parent0) {
 		setLayout(capLayout);
@@ -66,6 +67,9 @@ public class MCSequenceTab_Browse extends JPanel implements ActionListener{
 		nextButton.addActionListener(this);
 		previousButton.addActionListener(this);
 		
+		ComboBoxWithIndexTextRenderer renderer = new ComboBoxWithIndexTextRenderer();
+		experimentComboBox.setRenderer(renderer);
+
 		experimentComboBox.addItemListener(new ItemListener() {
 	        public void itemStateChanged(ItemEvent arg0) {
 	        	if (arg0.getStateChange() == ItemEvent.DESELECTED) {

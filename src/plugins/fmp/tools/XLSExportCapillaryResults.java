@@ -277,7 +277,7 @@ public class XLSExportCapillaryResults extends XLSExport {
 			}
 		}
 		
-		for (int currentFrame=startFrame; currentFrame < endFrame; currentFrame+= step) {
+		for (int currentFrame=startFrame; currentFrame < endFrame; currentFrame+=  step * options.pivotBinStep) {
 			
 			pt.x = col0;
 
@@ -288,7 +288,7 @@ public class XLSExportCapillaryResults extends XLSExport {
 			if (options.absoluteTime) {
 				long diff = getnearest(imageTimeMinutes-expAll.fileTimeImageFirstMinutes, step);
 				pt.y = (int) (diff/step + row0);
-				diff0 = diff; //getnearest(imageTimeMinutes-exp.fileTimeImageFirst.toMillis()/60000, step);
+				diff0 = diff;
 			} else {
 				pt.y = (int) diff0 + row0;
 			}

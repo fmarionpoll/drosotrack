@@ -5,6 +5,7 @@ import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.text.ParseException;
 
 import javax.swing.JPanel;
 import javax.swing.JTabbedPane;
@@ -102,8 +103,15 @@ public class MCExcelPane  extends JPanel implements PropertyChangeListener {
 	
 	private void getCommonOptions(XLSExportOptions options) {
 		options.pivot 			= optionsTab.pivotCheckBox.isSelected();
-		if (options.pivot)
+		if (options.pivot) {
 			options.transpose = true;
+			try {
+				optionsTab.pivotBinStep.commitEdit();
+			} catch (ParseException e) {
+				e.printStackTrace();
+			}
+			options.pivotBinStep = (int) optionsTab.pivotBinStep.getValue();
+		}
 		else
 			options.transpose 	= optionsTab.transposeCheckBox.isSelected();
 		options.exportAllFiles 	= optionsTab.exportAllFilesCheckBox.isSelected();
@@ -113,6 +121,7 @@ public class MCExcelPane  extends JPanel implements PropertyChangeListener {
 			options.absoluteTime	= true;
 		else
 			options.absoluteTime	= optionsTab.absoluteTimeCheckBox.isSelected();
+		
 		if (optionsTab.exportAllFilesCheckBox.isSelected()) {
 			int nfiles = parent0.sequencePane.browseTab.experimentComboBox.getItemCount();
 			for (int i=0; i< nfiles; i++) {

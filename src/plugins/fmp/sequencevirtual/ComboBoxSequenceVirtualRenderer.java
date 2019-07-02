@@ -16,13 +16,15 @@ public class ComboBoxSequenceVirtualRenderer  extends DefaultListCellRenderer {
 	public Component getListCellRendererComponent(JList<?> list, Object value, int index, boolean isSelected, boolean cellHasFocus) {
 
 		Component c = super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
+		int nitems = super.getComponentCount();
+		String lead = "["+index+":"+nitems+"] ";
 		if (value instanceof Experiment) {
 			Experiment exp = (Experiment) value;
-			setText(exp.vSequence.getFileName());
+			setText(lead+exp.vSequence.getFileName());
 		}
 		else if (value instanceof SequenceVirtual) {
 			SequenceVirtual seq = (SequenceVirtual) value;
-			setText(seq.getFileName());
+			setText(lead+seq.getFileName());
 		}
 		c.setComponentOrientation(ComponentOrientation.RIGHT_TO_LEFT);
 		return c;

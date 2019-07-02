@@ -226,7 +226,7 @@ public class XLSExportMoveResults extends XLSExport {
 //			return pt;
 //		}
 		
-		for (int currentFrame=startFrame; currentFrame< endFrame; currentFrame+= step) {
+		for (int currentFrame=startFrame; currentFrame< endFrame; currentFrame+= step  * options.pivotBinStep) {
 			
 			pt.x = col0;
  
