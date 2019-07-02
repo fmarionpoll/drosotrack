@@ -49,7 +49,6 @@ import plugins.adufour.ezplug.EzVarInteger;
 import plugins.adufour.ezplug.EzVarListener;
 import plugins.adufour.ezplug.EzVarSequence;
 import plugins.adufour.ezplug.EzVarText;
-import plugins.adufour.vars.gui.swing.SequenceChooser;
 import plugins.fmp.sequencevirtual.SequenceVirtual;
 import plugins.fmp.tools.OverlayThreshold;
 import plugins.fmp.tools.Tools;
