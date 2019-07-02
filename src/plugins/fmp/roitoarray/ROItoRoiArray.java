@@ -49,6 +49,7 @@ import plugins.adufour.ezplug.EzVarInteger;
 import plugins.adufour.ezplug.EzVarListener;
 import plugins.adufour.ezplug.EzVarSequence;
 import plugins.adufour.ezplug.EzVarText;
+import plugins.adufour.vars.gui.swing.SequenceChooser;
 import plugins.fmp.sequencevirtual.SequenceVirtual;
 import plugins.fmp.tools.OverlayThreshold;
 import plugins.fmp.tools.Tools;
@@ -173,7 +174,6 @@ public class ROItoRoiArray extends EzPlug implements ViewerListener {
 		super.addEzComponent (outputParameters);
 	}
 	
-	// ----------------------------------
 	private void findLines() {
 		ROI2D roi = sequence.getValue(true).getSelectedROI2D();
 		if ( ! ( roi instanceof ROI2DPolygon ) ) {
@@ -238,18 +238,36 @@ public class ROItoRoiArray extends EzPlug implements ViewerListener {
 	public double[][] getValueForPointList( List<Point2D> pointList, IcyBufferedImage image ) {
 
 		int sizeX = image.getSizeX();
+		int sizeY = image.getSizeY();
+		
 		int nchannels = image.getSizeC();
 		int len = pointList.size();
 		double[][] value = new double[len][nchannels];
+//		System.out.println( "create double array len=" + len  + " nchannels="+ nchannels);
 		
 		for (int chan=0; chan < nchannels; chan++) {
 			double [] sourceValues = Array1DUtil.arrayToDoubleArray(image.getDataXY(chan), image.isSignedDataType());
 			int len_sourceValues = sourceValues.length -1;
+			//System.out.println("len = "+len_sourceValues);
 			for (int i=0; i<len; i++) {
 				Point2D point = pointList.get(i);
+				if (point.getX() < 0)
+					point.setLocation(0, point.getY());
+				if (point.getY() < 0)
+					point.setLocation(point.getX(), 0);
+//					System.out.println( "i= " + i  + " point x:"+ point.getX() + " point.y="+ point.getY());
+				if (point.getX() >= sizeX ) 
+					point.setLocation(sizeX -1, point.getY());
+				if (point.getX() >= sizeX || point.getY() >= sizeY) 
+					point.setLocation(point.getX(), sizeY -1);
+	
 				int index = (int)point.getX() + ((int) point.getY() * sizeX);
-				if (index > len_sourceValues)
-					index = len_sourceValues;
+				if (index >= len_sourceValues)
+					index = len_sourceValues -1;
+				if (index < 0) {
+					System.out.println( "i= " + i  + " point x:"+ point.getX() + " point.y="+ point.getY() + " index=" + index);
+				}
+
 				value[i][chan] = sourceValues [index];
 			}
 		}
@@ -409,50 +427,6 @@ public class ROItoRoiArray extends EzPlug implements ViewerListener {
 		mainChartFrame.requestFocus();
 	}
 	
-/*
-	private void buildROIsFromSTDProfile(Polygon roiPolygon, int threshold, int channel) {
-		Point2D.Double [] refpoint = new Point2D.Double [4];
-		for (int i=0; i < 4; i++)
-			refpoint [i] = new Point2D.Double (roiPolygon.xpoints[i], roiPolygon.ypoints[i]);
-		int nYpoints = (int) (refpoint[1].y - refpoint[0].y +1); 
-		int nXpoints = (int) (refpoint[3].x - refpoint[0].x +1); 
-		String baseName = rootnameComboBox.getValue()+"_g";
-		
-		int ix = 0;
-		int icol = 0;
-		while (ix < nXpoints) {
-			int ixstart = findFirstPointOverThreshold(stdXArray, ix, threshold, channel);
-			int ixend = findFirstPointBelowThreshold(stdXArray, ixstart, threshold, channel);
-			if (ixstart >= 0 && ixend > 0) {
-				int iy = 0;
-				int irow = 0;
-				while (iy < nYpoints) {
-					int iystart = findFirstPointOverThreshold(stdYArray, iy, threshold, channel);
-					int iyend = findFirstPointBelowThreshold(stdYArray, iystart, threshold, channel);
-					if (iystart>=0 && iyend > 0) {
-						// create roi
-						List<Point2D> points = new ArrayList<>();
-						points.add(new Point2D.Double (refpoint[0].x + ixstart, refpoint[0].y + iystart));
-						points.add(new Point2D.Double (refpoint[0].x + ixstart, refpoint[0].y + iyend));
-						points.add(new Point2D.Double (refpoint[0].x + ixend, refpoint[0].y + iyend));
-						points.add(new Point2D.Double (refpoint[0].x + ixend, refpoint[0].y + iystart));
-						addPolygonROI (points, baseName, icol, irow);
-						
-						// next
-						iy = iyend +1;
-						irow++;
-					}
-					else
-						break;
-				}
-				ix = ixend+1;
-				icol++;
-			}
-			else
-				break;
-		}
-	}
-	*/
 	
 	private List<List<Line2D>> buildLinesFromSTDProfile(Polygon roiPolygon, double [][] stdXArray, double [][] stdYArray, int threshold, int channel) {
 		//get points > threshold
@@ -503,12 +477,12 @@ public class ROItoRoiArray extends EzPlug implements ViewerListener {
 	
 	private Line2D adjustLine (Line2D line, int checksize, int deltainside) {
 			
-		Rectangle rect = line.getBounds();
-		
+		Rectangle rect = line.getBounds();	
 		Line2D bestline = new Line2D.Double();
+		
 		// horizontal lines
 		if (rect.getWidth() >= rect.getHeight()) {
-			// check profile of a line perpendicular to this one and close to one extremity and then do the same for the other end
+			// check profile of a line perpendicular to this line at one end (linetest1) and then at the other end (linetest2)
 			Line2D linetest1 = new Line2D.Double (line.getX1()+deltainside, line.getY1()-checksize, line.getX1()+deltainside, line.getY2()+checksize);
 			int iy1min = getIndexMinimumValue(getProfile(linetest1))-checksize;
 			Line2D linetest2 = new Line2D.Double (line.getX2()-deltainside, line.getY2()-checksize, line.getX2()-deltainside, line.getY2()+checksize);
@@ -604,30 +578,6 @@ public class ROItoRoiArray extends EzPlug implements ViewerListener {
 
 		return listofpoints;
 	}
-
-/*
-	private int searchMinAround(int icenter, int ispan, int channel, double [][] values) {
-		int len = values.length;
-		if (icenter >= len)
-			icenter = len-1;
-		int ifound = icenter;
-		double minvalue = values[icenter][channel];
-		int imin = icenter - ispan;
-		if (imin < 0) 
-			imin = 0;
-		int imax = icenter + ispan;
-		if (imax > len) 
-			imax = len;
-		
-		for (int i=imin; i < imax; i++) {
-			if (values[i][channel] < minvalue) {
-				minvalue = values[i][channel];
-				ifound = i;
-			}
-		}
-		return ifound;
-	}
-*/
 
 	private void buildROIsFromLines (List<List<Line2D>> linesArray) {
 		// build dummy lines
@@ -735,8 +685,7 @@ public class ROItoRoiArray extends EzPlug implements ViewerListener {
 		listpoints.get(i).setLocation(listpoints.get(i).getX() - xdeltabottom, listpoints.get(i).getY() - ydeltaright);
 		i=3;
 		listpoints.get(i).setLocation(listpoints.get(i).getX() - xdeltatop, listpoints.get(i).getY() + ydeltaright);
-	}
-	
+	}	
 	
 // -----------------------------------	
 	private void findLeafDiskIntoRectangles() {
@@ -938,7 +887,6 @@ public class ROItoRoiArray extends EzPlug implements ViewerListener {
 				max = binaryData[i];
 		return max;
 	}
-	
 	
 	private void displayOverlay (Boolean newValue) {
 		if (vSequence == null)
@@ -1156,13 +1104,13 @@ public class ROItoRoiArray extends EzPlug implements ViewerListener {
 	}
 	
 	private void initInputSeq () {
-		// transfer 1 image to the viewer
 		addSequence(vSequence);
+		sequence.setValue(vSequence);
 		Viewer v = vSequence.getFirstViewer();
 		v.addListener(ROItoRoiArray.this);
 
 		vSequence.removeAllImages();
-		startstopBufferingThread();		
+		startstopBufferingThread();	
 	}
 	
 	private void startstopBufferingThread() {
@@ -1195,7 +1143,6 @@ public class ROItoRoiArray extends EzPlug implements ViewerListener {
 	private void saveXMLFile() {
 		vSequence.capillaries.grouping = 1;
 		vSequence.capillaries.xmlWriteROIsAndDataNoFilter("roisarray.xml", vSequence);
-//		vSequence.cages.xmlWriteCagesToFile("roisarray.xml", vSequence.getDirectory());
 	}
 	
 	private void changeGridName() {
@@ -1210,81 +1157,6 @@ public class ROItoRoiArray extends EzPlug implements ViewerListener {
 		}
 	}
 	
-/*
-	private void exportSTD() {
-		String filename = Tools.saveFileAs(vSequence.getDirectory(), "xls");
-		// xls output - successive positions
-		System.out.println("XLS output");
-		try {
-			WritableWorkbook xlsWorkBook = XLSUtil.createWorkbook( filename);
 
-			// local variables 
-			int irow = 0;
-			int icol0 = 0;
-			
-			// xls output - hz
-			// --------------
-			WritableSheet distancePage = XLSUtil.createNewPage( xlsWorkBook , "STD" );
-			XLSUtil.setCellString( distancePage , 0, irow, "sequence name:" );
-			XLSUtil.setCellString( distancePage , 1, irow, vSequence.getName() );
-			irow++;;
-			
-			XLSUtil.setCellString( distancePage , 0, irow, "Standard deviation" );
-			int icol = 1;
-			XLSUtil.setCellString( distancePage , icol, irow,  "R horizontal" );
-			icol++;
-			XLSUtil.setCellString( distancePage , icol, irow,  "G horizontal" );
-			icol++;
-			XLSUtil.setCellString( distancePage , icol, irow,  "B horizontal" );
-			icol++;
-			XLSUtil.setCellString( distancePage , icol, irow,  "R+B-2G horizontal" );
-			icol+=2;
-			XLSUtil.setCellString( distancePage , icol, irow,  "R vertical" );
-			icol++;
-			XLSUtil.setCellString( distancePage , icol, irow,  "G vertical" );
-			icol++;
-			XLSUtil.setCellString( distancePage , icol, irow,  "B vertical" );
-			icol++;
-			XLSUtil.setCellString( distancePage , icol, irow,  "R+B-2G vertical" );
-			irow=2;
-			int len = stdXArray.length;
-			if (stdYArray.length > len)
-				len = stdYArray.length;
-
-			for ( int t = 0 ; t < len;  t++, irow++ )
-			{
-				try
-				{
-					if (t < stdXArray.length) {
-						XLSUtil.setCellNumber( distancePage, 0 , irow , t );
-						icol0 = 1;
-						for (int i= 0; i < 4; i++) {
-							XLSUtil.setCellNumber( distancePage, icol0 , irow , stdXArray[t][i] ); 
-							icol0++;
-						}
-					}
-					if (t < stdYArray.length) {
-						XLSUtil.setCellNumber( distancePage, 5 , irow , t );
-						icol0 = 6;
-						for (int i= 0; i < 4; i++) {
-							XLSUtil.setCellNumber( distancePage, icol0 , irow , stdYArray[t][i] ); 
-							icol0++;
-						}
-					}
-
-				}catch( IndexOutOfBoundsException e)
-				{
-					// no mouse Position
-				}
-			}
-			// --------------
-			XLSUtil.saveAndClose( xlsWorkBook );
-		} catch (IOException e) {
-			e.printStackTrace();
-		} catch (WriteException e) {
-			e.printStackTrace();
-		}
-	}
-	*/
 }
 
