@@ -115,6 +115,7 @@ public class MCCapillaryTab_BuildKymos extends JPanel implements ActionListener 
 	}
 	
 	private void kymosBuildKymographs() {
+		buildKymographsThread = null;
 		if (parent0.kymographArrayList.size() > 0) {
 			for (SequencePlus seq:parent0.kymographArrayList)
 				seq.close();

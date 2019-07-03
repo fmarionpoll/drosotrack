@@ -49,6 +49,7 @@ public class BuildKymographsThread implements Runnable
 		stopFlag = false;
 
 		initKymographs();
+		
 		int vinputSizeX = options.vSequence.getSizeX();
 		options.vSequence.beginUpdate();
 		sequenceViewer = Icy.getMainInterface().getFirstViewer(options.vSequence);
@@ -92,7 +93,6 @@ public class BuildKymographsThread implements Runnable
 					}
 				}
 			}
-
 		}
 
 		options.vSequence.endUpdate();
@@ -136,6 +136,9 @@ public class BuildKymographsThread implements Runnable
 			numC = 3;
 		double fimagewidth =  1 + (options.endFrame - options.startFrame )/options.analyzeStep;
 		int imagewidth = (int) fimagewidth;
+		
+		masksArrayList.clear();
+		rois_tabValuesList.clear();
 	
 		for (int iroi=0; iroi < options.vSequence.capillaries.capillariesArrayList.size(); iroi++)
 		{

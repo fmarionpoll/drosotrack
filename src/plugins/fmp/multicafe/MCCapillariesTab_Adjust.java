@@ -7,7 +7,6 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.geom.Line2D;
 import java.awt.geom.Point2D;
-import java.util.List;
 
 import javax.swing.JButton;
 import javax.swing.JLabel;
@@ -17,7 +16,6 @@ import javax.swing.SwingConstants;
 
 import icy.gui.util.GuiUtil;
 import icy.image.IcyBufferedImage;
-import icy.painter.Anchor2D;
 import icy.roi.ROI2D;
 import icy.type.collection.array.Array1DUtil;
 import plugins.fmp.tools.Line2DPlus;
@@ -88,17 +86,14 @@ public class MCCapillariesTab_Adjust extends JPanel implements ActionListener{
 			ROI2D roi = parent0.vSequence.capillaries.capillariesArrayList.get(i);
 			if (roi instanceof ROI2DLine) 			{
 				Line2D line = roisCenterLinetoCapillary(sourceValues, xwidth, (ROI2DLine) roi, jitter);
-	//			((ROI2DLine) roi).setLine(line); // replace with the 5 following lines 
-				List <Anchor2D> pts = ((ROI2DLine) roi).getControlPoints();
-				Anchor2D p1 = pts.get(0);
-				Anchor2D p2 = pts.get(1);
-				p1.setPosition(line.getP1());
-				p2.setPosition(line.getP2());
+				((ROI2DLine) roi).setLine(line); // replace with the 5 following lines 
+//				List <Anchor2D> pts = ((ROI2DLine) roi).getControlPoints();
+//				Anchor2D p1 = pts.get(0);
+//				Anchor2D p2 = pts.get(1);
+//				p1.setPosition(line.getP1());
+//				p2.setPosition(line.getP2());
 			}
 		}
-		
-		parent0.vSequence.removeROI(roiRefLineUpper);
-		parent0.vSequence.removeROI(roiRefLineLower);
 	}
 	
 	private Line2D roisCenterLinetoCapillary(double [] sourceValues, int xwidth, ROI2DLine roi, int jitter) {
