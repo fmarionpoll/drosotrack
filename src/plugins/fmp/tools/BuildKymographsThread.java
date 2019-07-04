@@ -33,6 +33,7 @@ public class BuildKymographsThread implements Runnable
 	private IcyBufferedImage 	workImage 			= null; 
 	private Sequence 			seqForRegistration	= new Sequence();
 	private DataType 			dataType 			= DataType.INT;
+	private int imagewidth =1;
 	
 	@Override
 	public void run() {
@@ -72,8 +73,6 @@ public class BuildKymographsThread implements Runnable
 			
 			for (int iroi=0; iroi < options.vSequence.capillaries.capillariesArrayList.size(); iroi++)
 			{
-				SequencePlus kymographSeq = kymographArrayList.get(iroi);
-				final int kymographSizeX = kymographSeq.getSizeX();
 				ArrayList<ArrayList<int[]>> masks = masksArrayList.get(iroi);	
 				ArrayList <double []> tabValuesList = rois_tabValuesList.get(iroi);
 				final int t_out = ipixelcolumn;
@@ -90,7 +89,7 @@ public class BuildKymographsThread implements Runnable
 							sum += sourceValues[m[0] + m[1]*vinputSizeX];
 						if (mask.size() > 1)
 							sum = sum/mask.size();
-						tabValues[cnt*kymographSizeX + t_out] = sum; 
+						tabValues[cnt*imagewidth + t_out] = sum; 
 						cnt ++;
 					}
 				}
@@ -113,7 +112,7 @@ public class BuildKymographsThread implements Runnable
 			}
 			
 			image.dataChanged();
-			kymographSeq.endUpdate();
+//			kymographSeq.endUpdate();
 		}
 		
 		System.out.println("Elapsed time (s):" + progressBar.getSecondsSinceStart());
@@ -154,12 +153,11 @@ public class BuildKymographsThread implements Runnable
 		if (numC <= 0)
 			numC = 3;
 		double fimagewidth =  1 + (options.endFrame - options.startFrame )/options.analyzeStep;
-		int imagewidth = (int) fimagewidth;
+		imagewidth = (int) fimagewidth;
 		
 		masksArrayList.clear();
 		rois_tabValuesList.clear();
 		dataType = options.vSequence.getDataType_();
-		//System.out.println("format initial image = "+dataType.toString());
 		if (dataType.toString().equals("undefined"))
 			dataType = DataType.UBYTE;
 			
@@ -170,9 +168,9 @@ public class BuildKymographsThread implements Runnable
 			masksArrayList.add(mask);
 			initExtractionParametersfromROI(roi, mask, options.diskRadius, sizex, sizey);
 			
-			IcyBufferedImage bufImage = new IcyBufferedImage(imagewidth, mask.size(), numC, dataType); //DataType.DOUBLE);
+			IcyBufferedImage bufImage = new IcyBufferedImage(imagewidth, mask.size(), numC, dataType);
 			SequencePlus kymographSeq = kymographArrayList.get(iroi);
-			kymographSeq.beginUpdate();
+
 			kymographSeq.addImage(bufImage);
 			String cs = kymographSeq.getName();
 			if (!cs.contentEquals(roi.getName()))
@@ -241,7 +239,7 @@ public class BuildKymographsThread implements Runnable
 	private boolean testIfImageCorrectlyLoaded(IcyBufferedImage image) {
 		if (image == null)
 			return false;
-		double value = image.getData(0, 0, 0);
+		double value = image.getData(10, 10, 0);
 		if (value == 0.) {
 			double max = image.getChannelMax(0);
 			double min = image.getChannelMin(0);

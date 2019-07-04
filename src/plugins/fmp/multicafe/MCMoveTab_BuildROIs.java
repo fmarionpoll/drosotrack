@@ -49,7 +49,8 @@ public class MCMoveTab_BuildROIs extends JPanel implements ActionListener {
 		ncagesLabel.setHorizontalAlignment(SwingConstants.RIGHT);
 		cagewidthLabel.setHorizontalAlignment(SwingConstants.RIGHT);
 		btwcagesLabel.setHorizontalAlignment(SwingConstants.RIGHT);
-		add( GuiUtil.besidesPanel( ncagesLabel, nbcagesTextField, cagewidthLabel,  width_cageTextField));
+		add( GuiUtil.besidesPanel( ncagesLabel, nbcagesTextField, new JLabel(" "), new JLabel(" ")));
+		add( GuiUtil.besidesPanel( cagewidthLabel,  width_cageTextField, new JLabel(" "), new JLabel(" ")));
 		add( GuiUtil.besidesPanel( btwcagesLabel, width_intervalTextField, new JLabel(" "), new JLabel(" ") ));
 		
 		defineActionListeners();
