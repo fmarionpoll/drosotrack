@@ -20,17 +20,19 @@ import plugins.nchenouard.kymographtracker.spline.CubicSmoothingSpline;
  
 public class BuildKymographsThread implements Runnable 
 {
-	public BuildKymographsOptions options = new BuildKymographsOptions();
-	public ArrayList <SequencePlus> kymographArrayList 	= null;
-	public boolean stopFlag = false;
-	public boolean threadRunning = false;
+	public BuildKymographsOptions 					options 			= new BuildKymographsOptions();
 	
-	private ArrayList<double []> sourceValuesList = null;
-	private ArrayList<ArrayList<ArrayList<int[]>>> masksArrayList = new ArrayList<ArrayList<ArrayList<int[]>>>();
-	private ArrayList<ArrayList <double []>> rois_tabValuesList = new ArrayList<ArrayList <double []>>();
-	private Viewer sequenceViewer = null;
-	private IcyBufferedImage workImage = null; 
-	private Sequence s = new Sequence();
+	public  ArrayList <SequencePlus> 				kymographArrayList 	= null;
+	private ArrayList<ArrayList<ArrayList<int[]>>> 	masksArrayList 		= new ArrayList<ArrayList<ArrayList<int[]>>>();
+	private ArrayList<ArrayList <double []>> 		rois_tabValuesList 	= new ArrayList<ArrayList <double []>>();
+	private ArrayList<double []> 					sourceValuesList 	= null;
+	public boolean 				stopFlag 			= false;
+	public boolean 				threadRunning 		= false;
+	
+	private Viewer 				sequenceViewer 		= null;
+	private IcyBufferedImage 	workImage 			= null; 
+	private Sequence 			seqForRegistration	= new Sequence();
+	private DataType 			dataType 			= DataType.INT;
 	
 	@Override
 	public void run() {
@@ -55,8 +57,8 @@ public class BuildKymographsThread implements Runnable
 		sequenceViewer = Icy.getMainInterface().getFirstViewer(options.vSequence);
 		int ipixelcolumn = 0;
 		getImageAndUpdateViewer (options.startFrame);
-		s.addImage(workImage);
-		s.addImage(workImage);
+		seqForRegistration.addImage(workImage);
+		seqForRegistration.addImage(workImage);
 
 		for (int t = options.startFrame ; t <= options.endFrame && !stopFlag; t += options.analyzeStep, ipixelcolumn++ )
 		{
@@ -71,9 +73,9 @@ public class BuildKymographsThread implements Runnable
 			for (int iroi=0; iroi < options.vSequence.capillaries.capillariesArrayList.size(); iroi++)
 			{
 				SequencePlus kymographSeq = kymographArrayList.get(iroi);
+				final int kymographSizeX = kymographSeq.getSizeX();
 				ArrayList<ArrayList<int[]>> masks = masksArrayList.get(iroi);	
 				ArrayList <double []> tabValuesList = rois_tabValuesList.get(iroi);
-				final int kymographSizeX = kymographSeq.getSizeX();
 				final int t_out = ipixelcolumn;
 
 				for (int chan = 0; chan < options.vSequence.getSizeC(); chan++) 
@@ -94,14 +96,29 @@ public class BuildKymographsThread implements Runnable
 				}
 			}
 		}
-
 		options.vSequence.endUpdate();
+
+		for (int iroi=0; iroi < options.vSequence.capillaries.capillariesArrayList.size(); iroi++)
+		{
+			SequencePlus kymographSeq = kymographArrayList.get(iroi);
+//			kymographSeq.beginUpdate();
+			IcyBufferedImage image = kymographSeq.getImage(0, 0);
+			ArrayList <double []> tabValuesList = rois_tabValuesList.get(iroi);
+			
+			for (int chan = 0; chan < options.vSequence.getSizeC(); chan++) 
+			{
+				double [] tabValues = tabValuesList.get(chan); 
+				kymographSeq.getImage(0, 0);
+				Array1DUtil.doubleArrayToSafeArray(tabValues, image.getDataXY(chan), image.isSignedDataType());
+			}
+			
+			image.dataChanged();
+			kymographSeq.endUpdate();
+		}
+		
 		System.out.println("Elapsed time (s):" + progressBar.getSecondsSinceStart());
 		progressBar.close();
 		
-		for (SequencePlus kymographSeq: kymographArrayList) {
-			kymographSeq.dataChanged();
-		}
 		threadRunning = false;
 	}
 	
@@ -110,8 +127,10 @@ public class BuildKymographsThread implements Runnable
 		workImage = getImageFromSequence(t); 
 		sequenceViewer.setPositionT(t);
 		sequenceViewer.setTitle(options.vSequence.getDecoratedImageName(t));
-		if (workImage == null)
+		if (workImage == null) {
+			System.out.println("workImage null");
 			return false;
+		}
 		return true;
 	}
 	
@@ -139,7 +158,11 @@ public class BuildKymographsThread implements Runnable
 		
 		masksArrayList.clear();
 		rois_tabValuesList.clear();
-	
+		dataType = options.vSequence.getDataType_();
+		//System.out.println("format initial image = "+dataType.toString());
+		if (dataType.toString().equals("undefined"))
+			dataType = DataType.UBYTE;
+			
 		for (int iroi=0; iroi < options.vSequence.capillaries.capillariesArrayList.size(); iroi++)
 		{
 			ROI2DShape roi = options.vSequence.capillaries.capillariesArrayList.get(iroi);
@@ -147,16 +170,20 @@ public class BuildKymographsThread implements Runnable
 			masksArrayList.add(mask);
 			initExtractionParametersfromROI(roi, mask, options.diskRadius, sizex, sizey);
 			
-			IcyBufferedImage bufImage = new IcyBufferedImage(imagewidth, mask.size(), numC, DataType.DOUBLE);
+			IcyBufferedImage bufImage = new IcyBufferedImage(imagewidth, mask.size(), numC, dataType); //DataType.DOUBLE);
 			SequencePlus kymographSeq = kymographArrayList.get(iroi);
+			kymographSeq.beginUpdate();
 			kymographSeq.addImage(bufImage);
 			String cs = kymographSeq.getName();
 			if (!cs.contentEquals(roi.getName()))
 				kymographSeq.setName(roi.getName());
+			
 			ArrayList <double []> tabValuesList = new ArrayList <double []>();
 			for (int chan = 0; chan < numC; chan++) 
 			{
-				double[] tabValues = kymographSeq.getImage(0, 0).getDataXYAsDouble(chan); 
+				IcyBufferedImage image = kymographSeq.getImage(0, 0);
+				Object dataArray = image.getDataXY(chan);
+				double[] tabValues =  Array1DUtil.arrayToDoubleArray(dataArray, image.isSignedDataType());
 				tabValuesList.add(tabValues);
 			}
 			rois_tabValuesList.add(tabValuesList);
@@ -196,33 +223,45 @@ public class BuildKymographsThread implements Runnable
 	
 	private IcyBufferedImage getImageFromSequence(int t) {
 		IcyBufferedImage workImage = options.vSequence.loadVImage(t);
-		options.vSequence.currentFrame = t;
-		if (workImage == null) {
+		if (!testIfImageCorrectlyLoaded(workImage)) {
 			System.out.println("Error reading image: " + t + " ... trying again"  );
 			workImage = options.vSequence.loadVImage(t);
-			if (workImage == null) {
+			if (!testIfImageCorrectlyLoaded(workImage)) {
 				System.out.println("Fatal error occurred while reading file "+ options.vSequence.getFileName(t) + " -image: " + t);
 				return null;
 			}
 		}
-		else
-		{
-			sequenceViewer.setPositionT(t);
-			sequenceViewer.setTitle(options.vSequence.getDecoratedImageName(t)); 
-		}
+		
+		options.vSequence.currentFrame = t;
+		sequenceViewer.setPositionT(t);
+		sequenceViewer.setTitle(options.vSequence.getDecoratedImageName(t)); 
 		return workImage;
 	}
 	
+	private boolean testIfImageCorrectlyLoaded(IcyBufferedImage image) {
+		if (image == null)
+			return false;
+		double value = image.getData(0, 0, 0);
+		if (value == 0.) {
+			double max = image.getChannelMax(0);
+			double min = image.getChannelMin(0);
+			if (max == min)
+				return false;
+		}
+		
+		return true;
+	}
+	
 	private void adjustImage() {
-		s.setImage(1, 0, workImage);
+		seqForRegistration.setImage(1, 0, workImage);
 		int referenceChannel = 1;
 		int referenceSlice = 0;
-		DufourRigidRegistration.correctTemporalTranslation2D(s, referenceChannel, referenceSlice);
-        boolean rotate = DufourRigidRegistration.correctTemporalRotation2D(s, referenceChannel, referenceSlice);
+		DufourRigidRegistration.correctTemporalTranslation2D(seqForRegistration, referenceChannel, referenceSlice);
+        boolean rotate = DufourRigidRegistration.correctTemporalRotation2D(seqForRegistration, referenceChannel, referenceSlice);
         if (rotate) 
-        	DufourRigidRegistration.correctTemporalTranslation2D(s, referenceChannel, referenceSlice);
+        	DufourRigidRegistration.correctTemporalTranslation2D(seqForRegistration, referenceChannel, referenceSlice);
 
-        workImage = s.getLastImage(1);
+        workImage = seqForRegistration.getLastImage(1);
 	}
 
 }

@@ -22,6 +22,7 @@ import icy.gui.main.ActiveViewerListener;
 import icy.gui.util.GuiUtil;
 import icy.gui.viewer.Viewer;
 import icy.gui.viewer.ViewerEvent;
+import icy.image.IcyBufferedImage;
 import icy.main.Icy;
 import icy.roi.ROI;
 import icy.roi.ROI2D;
@@ -163,6 +164,10 @@ public class MCCapillariesTab_Options extends JPanel implements ActionListener, 
 				Viewer v = new Viewer(seq, true);
 				v.addListener(parent0);
 				Rectangle rectDataView = v.getBounds();
+				rectDataView.height = rectMaster.height;
+				IcyBufferedImage img = seq.getFirstImage();
+				if (img != null)
+					rectDataView.width = img.getSizeX() * rectMaster.height / img.getSizeY();
 				rectDataView.translate(
 						rectMaster.x + deltax - rectDataView.x, 
 						rectMaster.y + deltay - rectDataView.y);

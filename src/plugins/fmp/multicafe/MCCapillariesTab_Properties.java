@@ -29,14 +29,14 @@ public class MCCapillariesTab_Properties extends JPanel implements ActionListene
 	 */
 	private static final long serialVersionUID = 4950182090521600937L;
 	
-		JCheckBox	visibleCheckBox			= new JCheckBox("ROIs visible", true);
-		private JTextField 	capillaryVolumeTextField= new JTextField("5");
-		private JTextField 	capillaryPixelsTextField= new JTextField("5");
+		JCheckBox					visibleCheckBox				= new JCheckBox("ROIs visible", true);
+		private JTextField 			capillaryVolumeTextField	= new JTextField("5");
+		private JTextField 			capillaryPixelsTextField	= new JTextField("5");
 		
-		private JComboBox<String> 	stimulusRJCombo		= new JComboBox<String>();
-		private JComboBox<String> 	concentrationRJCombo = new JComboBox<String>();
-		private JComboBox<String> 	stimulusLJCombo		= new JComboBox<String>();
-		private JComboBox<String> 	concentrationLJCombo = new JComboBox<String>();
+		private JComboBox<String> 	stimulusRJCombo				= new JComboBox<String>();
+		private JComboBox<String> 	concentrationRJCombo 		= new JComboBox<String>();
+		private JComboBox<String> 	stimulusLJCombo				= new JComboBox<String>();
+		private JComboBox<String> 	concentrationLJCombo 		= new JComboBox<String>();
 		
 		private Multicafe parent0;
 		

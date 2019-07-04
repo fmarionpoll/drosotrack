@@ -14,7 +14,7 @@ import javax.swing.SwingConstants;
 import icy.gui.frame.progress.AnnounceFrame;
 import icy.gui.util.GuiUtil;
 import icy.gui.viewer.Viewer;
-import plugins.fmp.tools.BuildKymographsThread2;
+import plugins.fmp.tools.BuildKymographsThread;
 import plugins.fmp.tools.StatusComputation;
 import plugins.fmp.sequencevirtual.SequencePlus;
 import plugins.kernel.roi.roi2d.ROI2DShape;
@@ -36,7 +36,7 @@ public class MCCapillaryTab_BuildKymos extends JPanel implements ActionListener 
 	int 							diskRadius 		= 5;
 	
 	private Multicafe 				parent0					= null;
-	private BuildKymographsThread2 	buildKymographsThread 	= null;
+	private BuildKymographsThread 	buildKymographsThread 	= null;
 	private Thread 					thread 					= null;
 
 
@@ -130,7 +130,7 @@ public class MCCapillaryTab_BuildKymos extends JPanel implements ActionListener 
 		parent0.capillariesPane.optionsTab.displayViews (true);
 		
 		// start building kymos in a separate thread
-		buildKymographsThread = new BuildKymographsThread2();
+		buildKymographsThread = new BuildKymographsThread();
 
 		buildKymographsThread.options.vSequence 	= parent0.vSequence;
 		buildKymographsThread.options.analyzeStep 	= parent0.vSequence.analysisStep;

@@ -69,7 +69,6 @@ public class MCCapillariesPane extends JPanel implements PropertyChangeListener,
 		tabsPane.addChangeListener(this );
 	}
 	
-	
 	@Override
 	public void propertyChange(PropertyChangeEvent event) {
 		if (event.getPropertyName().equals("CAP_ROIS_OPEN")) {
@@ -109,7 +108,7 @@ public class MCCapillariesPane extends JPanel implements PropertyChangeListener,
 		else if (event.getPropertyName().equals("KYMOS_SAVE")) {
 			tabsPane.setSelectedIndex(4);
 		}
-}
+	}
 	
 	boolean loadDefaultCapillaries() {
 		String path = parent0.vSequence.getDirectory();
@@ -137,7 +136,6 @@ public class MCCapillariesPane extends JPanel implements PropertyChangeListener,
 		propertiesTab.getCapillariesInfos(cap);
 		buildarrayTab.getCapillariesInfos(cap);
 	}
-
 
 	@Override
 	public void stateChanged(ChangeEvent arg0) {
