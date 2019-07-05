@@ -154,6 +154,7 @@ public class BuildKymographsThread implements Runnable
 			numC = 3;
 		double fimagewidth =  1 + (options.endFrame - options.startFrame )/options.analyzeStep;
 		imagewidth = (int) fimagewidth;
+		kymographArrayList.clear();
 		
 		masksArrayList.clear();
 		rois_tabValuesList.clear();
@@ -169,13 +170,11 @@ public class BuildKymographsThread implements Runnable
 			initExtractionParametersfromROI(roi, mask, options.diskRadius, sizex, sizey);
 			
 			IcyBufferedImage bufImage = new IcyBufferedImage(imagewidth, mask.size(), numC, dataType);
-			SequencePlus kymographSeq = kymographArrayList.get(iroi);
-
+			SequencePlus kymographSeq = new SequencePlus();
+			kymographSeq.setName(roi.getName());
 			kymographSeq.addImage(bufImage);
-			String cs = kymographSeq.getName();
-			if (!cs.contentEquals(roi.getName()))
-				kymographSeq.setName(roi.getName());
-			
+			kymographArrayList.add(kymographSeq);
+	
 			ArrayList <double []> tabValuesList = new ArrayList <double []>();
 			for (int chan = 0; chan < numC; chan++) 
 			{

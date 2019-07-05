@@ -37,9 +37,9 @@ public class MCCapillariesTab_Options extends JPanel implements ActionListener, 
 	 * 
 	 */
 	private static final long serialVersionUID = -2103052112476748890L;
-	JCheckBox 	viewKymosCheckBox 		= new JCheckBox("View kymos");
 	JComboBox<String> kymographNamesComboBox = new JComboBox<String> (new String[] {"none"});
-	JButton 		updateButton 			= new JButton("Update");
+	JCheckBox 	viewKymosCheckBox 		= new JCheckBox("View kymos");
+	JButton 	updateButton 			= new JButton("Update");
 	JButton  	previousButton		 	= new JButton("<");
 	JButton		nextButton				= new JButton(">");
 	JCheckBox 	viewLevelsCheckbox 		= new JCheckBox("capillary levels", true);
@@ -152,8 +152,9 @@ public class MCCapillariesTab_Options extends JPanel implements ActionListener, 
 			||parent0.kymographArrayList.size() < 1) 
 			return;
 
+		System.out.println("displayON()");
 		Rectangle rectMaster = parent0.vSequence.getFirstViewer().getBounds();
-		int deltax = 5 + rectMaster.width;
+		int deltax = 5; // + rectMaster.width;
 		int deltay = 5;
 
 		for(SequencePlus seq: parent0.kymographArrayList) 
@@ -196,6 +197,7 @@ public class MCCapillariesTab_Options extends JPanel implements ActionListener, 
 	}
 	
 	void displayUpdate() {	
+		System.out.println("displayUpdate()");
 		
 		SwingUtilities.invokeLater(new Runnable() {
 			public void run() {
