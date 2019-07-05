@@ -167,7 +167,7 @@ public class MCCapillariesTab_Options extends JPanel implements ActionListener, 
 				rectDataView.height = rectMaster.height;
 				IcyBufferedImage img = seq.getFirstImage();
 				if (img != null)
-					rectDataView.width = img.getSizeX() * rectMaster.height / img.getSizeY();
+					rectDataView.width = 20 + img.getSizeX() * rectMaster.height / img.getSizeY();
 				rectDataView.translate(
 						rectMaster.x + deltax - rectDataView.x, 
 						rectMaster.y + deltay - rectDataView.y);
