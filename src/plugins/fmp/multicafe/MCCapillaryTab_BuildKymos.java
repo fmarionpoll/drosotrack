@@ -27,10 +27,10 @@ public class MCCapillaryTab_BuildKymos extends JPanel implements ActionListener 
 	 */
 	private static final long serialVersionUID = 1771360416354320887L;
 	
-	JButton 	kymoStartComputationButton 	= new JButton("Start");
-	JButton 	kymosStopComputationButton 	= new JButton("Stop");
-	JTextField 	diskRadiusTextField 		= new JTextField("5");
-	JCheckBox 	doRegistrationCheckBox 		= new JCheckBox("registration", false);
+	JButton 						kymoStartComputationButton 	= new JButton("Start");
+	JButton 						kymosStopComputationButton 	= new JButton("Stop");
+	JTextField 						diskRadiusTextField 		= new JTextField("5");
+	JCheckBox 						doRegistrationCheckBox 		= new JCheckBox("registration", false);
 	
 	StatusComputation 				sComputation 	= StatusComputation.START_COMPUTATION; 
 	int 							diskRadius 		= 5;

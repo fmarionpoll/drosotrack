@@ -84,7 +84,7 @@ public class MCExcelPane  extends JPanel implements PropertyChangeListener {
 				parent0.capillariesPane.propertiesTab.getCapillariesInfos(parent0.vSequence.capillaries);
 				ThreadUtil.bgRun( new Runnable() { @Override public void run() {
 					XLSExportCapillaryResults xlsExport = new XLSExportCapillaryResults();
-					xlsExport.exportToFile(filename, getOptions());
+					xlsExport.exportToFile(filename, getCapillariesOptions());
 				}});
 				
 				firePropertyChange("EXPORT_TO_EXCEL", false, true);	
@@ -137,7 +137,7 @@ public class MCExcelPane  extends JPanel implements PropertyChangeListener {
 		}
 	}
 	
-	private XLSExportOptions getOptions() {
+	private XLSExportOptions getCapillariesOptions() {
 		XLSExportOptions options = new XLSExportOptions();
 		
 		options.topLevel 		= kymosTab.topLevelCheckBox.isSelected(); 

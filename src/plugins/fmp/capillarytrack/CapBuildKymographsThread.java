@@ -25,7 +25,7 @@ import plugins.nchenouard.kymographtracker.spline.CubicSmoothingSpline;
 
 //-------------------------------------------
 //	public class BuildKymographsThread extends Thread  
-public class BuildKymographsThread implements Runnable 
+public class CapBuildKymographsThread implements Runnable 
 {
 	public SequenceVirtual vSequence = null;
 	public int analyzeStep = 1;
@@ -65,8 +65,8 @@ public class BuildKymographsThread implements Runnable
 		sequenceViewer = Icy.getMainInterface().getFirstViewer(vSequence);
 		int ipixelcolumn = 0;
 		getImageAndUpdateViewer (startFrame);
-		s.addImage(workImage);
-		s.addImage(workImage);
+		s.addImage(0, workImage);
+		s.addImage(1, workImage);
 
 		for (int t = startFrame ; t <= endFrame; t += analyzeStep, ipixelcolumn++ )
 		{
@@ -159,7 +159,7 @@ public class BuildKymographsThread implements Runnable
 			
 			IcyBufferedImage bufImage = new IcyBufferedImage(imagewidth, mask.size(), numC, DataType.DOUBLE);
 			SequencePlus kymographSeq = kymographArrayList.get(iroi);
-			kymographSeq.addImage(bufImage);
+			kymographSeq.addImage(0, bufImage);
 			String cs = kymographSeq.getName();
 			if (!cs.contentEquals(roi.getName()))
 				kymographSeq.setName(roi.getName());

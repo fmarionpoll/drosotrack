@@ -58,8 +58,8 @@ public class BuildKymographsThread implements Runnable
 		sequenceViewer = Icy.getMainInterface().getFirstViewer(options.vSequence);
 		int ipixelcolumn = 0;
 		getImageAndUpdateViewer (options.startFrame);
-		seqForRegistration.addImage(workImage);
-		seqForRegistration.addImage(workImage);
+		seqForRegistration.addImage(0, workImage);
+		seqForRegistration.addImage(1, workImage);
 
 		for (int t = options.startFrame ; t <= options.endFrame && !stopFlag; t += options.analyzeStep, ipixelcolumn++ )
 		{
@@ -154,14 +154,13 @@ public class BuildKymographsThread implements Runnable
 			numC = 3;
 		double fimagewidth =  1 + (options.endFrame - options.startFrame )/options.analyzeStep;
 		imagewidth = (int) fimagewidth;
-		kymographArrayList.clear();
-		
-		masksArrayList.clear();
-		rois_tabValuesList.clear();
 		dataType = options.vSequence.getDataType_();
 		if (dataType.toString().equals("undefined"))
 			dataType = DataType.UBYTE;
-			
+
+		masksArrayList.clear();
+		rois_tabValuesList.clear();
+		
 		for (int iroi=0; iroi < options.vSequence.capillaries.capillariesArrayList.size(); iroi++)
 		{
 			ROI2DShape roi = options.vSequence.capillaries.capillariesArrayList.get(iroi);
@@ -170,17 +169,15 @@ public class BuildKymographsThread implements Runnable
 			initExtractionParametersfromROI(roi, mask, options.diskRadius, sizex, sizey);
 			
 			IcyBufferedImage bufImage = new IcyBufferedImage(imagewidth, mask.size(), numC, dataType);
-			SequencePlus kymographSeq = new SequencePlus();
+			SequencePlus kymographSeq = kymographArrayList.get(iroi);
 			kymographSeq.setName(roi.getName());
-			kymographSeq.addImage(bufImage);
-			kymographArrayList.add(kymographSeq);
+			kymographSeq.addImage(0, bufImage);
 	
 			ArrayList <double []> tabValuesList = new ArrayList <double []>();
 			for (int chan = 0; chan < numC; chan++) 
 			{
-				IcyBufferedImage image = kymographSeq.getImage(0, 0);
-				Object dataArray = image.getDataXY(chan);
-				double[] tabValues =  Array1DUtil.arrayToDoubleArray(dataArray, image.isSignedDataType());
+				Object dataArray = bufImage.getDataXY(chan);
+				double[] tabValues =  Array1DUtil.arrayToDoubleArray(dataArray, false);
 				tabValuesList.add(tabValues);
 			}
 			rois_tabValuesList.add(tabValuesList);

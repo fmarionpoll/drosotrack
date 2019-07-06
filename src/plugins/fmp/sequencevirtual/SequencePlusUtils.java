@@ -52,7 +52,7 @@ public class SequencePlusUtils {
 			} catch (IOException e) {
 				e.printStackTrace();
 			}
-			kymographSeq.addImage(ibufImage);
+			kymographSeq.addImage(0, ibufImage);
 			
 			int index1 = filename.indexOf(".tiff");
 			int index0 = filename.lastIndexOf("\\")+1;
@@ -98,7 +98,7 @@ public class SequencePlusUtils {
 			} catch (IOException e) {
 				e.printStackTrace();
 			}
-			kymographSeq.addImage(ibufImage);
+			kymographSeq.addImage(0, ibufImage);
 			
 			String title = roi.getName();
 			kymographSeq.setName(title);

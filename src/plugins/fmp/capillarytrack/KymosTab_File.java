@@ -123,7 +123,7 @@ public class KymosTab_File  extends JPanel implements ActionListener {
 			} catch (IOException e) {
 				e.printStackTrace();
 			}
-			kymographSeq.addImage(ibufImage);
+			kymographSeq.addImage(0, ibufImage);
 			
 			int index1 = filename.indexOf(".tiff");
 			int index0 = filename.lastIndexOf("\\")+1;

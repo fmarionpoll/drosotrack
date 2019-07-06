@@ -77,7 +77,7 @@ public class DetectTab_Limits  extends JPanel implements ActionListener {
 		}
 		else if (o == detectTopButton) {
 			kymosDisplayFiltered1();
-			BuildDetect_Limits detect = new BuildDetect_Limits();
+			CapBuildDetect_Limits detect = new CapBuildDetect_Limits();
 			detect.detectCapillaryLevels(parent0);
 			firePropertyChange("KYMO_DETECT_TOP", false, true);
 		}

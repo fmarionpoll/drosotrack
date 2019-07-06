@@ -152,9 +152,9 @@ public class MCCapillariesTab_Options extends JPanel implements ActionListener, 
 			||parent0.kymographArrayList.size() < 1) 
 			return;
 
-		System.out.println("displayON()");
+//		System.out.println("displayON()");
 		Rectangle rectMaster = parent0.vSequence.getFirstViewer().getBounds();
-		int deltax = 5; // + rectMaster.width;
+		int deltax = 5 + rectMaster.width;
 		int deltay = 5;
 
 		for(SequencePlus seq: parent0.kymographArrayList) 
@@ -197,7 +197,7 @@ public class MCCapillariesTab_Options extends JPanel implements ActionListener, 
 	}
 	
 	void displayUpdate() {	
-		System.out.println("displayUpdate()");
+//		System.out.println("displayUpdate()");
 		
 		SwingUtilities.invokeLater(new Runnable() {
 			public void run() {

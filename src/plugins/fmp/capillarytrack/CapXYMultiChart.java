@@ -20,7 +20,7 @@ import icy.gui.util.GuiUtil;
 import plugins.fmp.sequencevirtual.SequencePlus;
 import plugins.fmp.tools.ArrayListType;
 
-public class XYMultiChart extends IcyFrame  {
+public class CapXYMultiChart extends IcyFrame  {
 
 	public JPanel 	mainChartPanel = null;
 	public IcyFrame mainChartFrame = null;

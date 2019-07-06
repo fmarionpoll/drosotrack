@@ -70,7 +70,7 @@ public class DetectTab_Gulps  extends JPanel implements ActionListener {
 		else if (o == detectGulpsButton) {
 			getDetectGulpsThreshold();
 			kymosDisplayFiltered2();
-			BuildDetect_Gulps detect = new BuildDetect_Gulps();
+			CapBuildDetect_Gulps detect = new CapBuildDetect_Gulps();
 			detect.detectGulps(parent0);
 			firePropertyChange("KYMO_DETECT_GULP", false, true);
 		}
