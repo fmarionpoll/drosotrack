@@ -226,16 +226,20 @@ public class BuildKymographsThread implements Runnable
 	}
 	
 	private boolean testIfImageCorrectlyLoaded(IcyBufferedImage image) {
-		if (image == null)
+		if (image == null) {
+			System.out.println("image not correctly loaded (1)");
 			return false;
+		}
+		
 		double value = image.getData(10, 10, 0);
 		if (value == 0.) {
 			double max = image.getChannelMax(0);
 			double min = image.getChannelMin(0);
-			if (max == min)
+			if (max == min) {
+				System.out.println("image not correctly loaded (2)");
 				return false;
+			}
 		}
-		
 		return true;
 	}
 	

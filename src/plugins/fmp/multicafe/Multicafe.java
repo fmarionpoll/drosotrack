@@ -33,7 +33,7 @@ public class Multicafe extends PluginActionable implements ViewerListener, Prope
 {
 	SequenceVirtual 			vSequence 			= null;
 	ArrayList <SequencePlus> 	kymographArrayList	= new ArrayList <SequencePlus> ();
-	IcyFrame mainFrame = new IcyFrame("MultiCAFE analysis 03-July-2019", true, true, true, true);
+	IcyFrame mainFrame = new IcyFrame("MultiCAFE analysis 16-July-2019", true, true, true, true);
 	
 	MCSequencePane 				sequencePane 		= new MCSequencePane();
 	MCCapillariesPane 			capillariesPane 	= new MCCapillariesPane();
@@ -113,7 +113,7 @@ public class Multicafe extends PluginActionable implements ViewerListener, Prope
 			capillariesPane.optionsTab.selectKymograph(0);
 		}
 		else if (arg0.getPropertyName() .equals("KYMO_DISPLAYFILTERED")) {
-			capillariesPane.optionsTab.displayUpdate();
+			capillariesPane.optionsTab.displayUpdateOnSwingThread();
 			capillariesPane.optionsTab.viewKymosCheckBox.setSelected(true);
 		}
 		else if (arg0.getPropertyName().equals("SEQ_SAVEMEAS")) {

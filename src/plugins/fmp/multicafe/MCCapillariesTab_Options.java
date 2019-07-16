@@ -82,7 +82,7 @@ public class MCCapillariesTab_Options extends JPanel implements ActionListener, 
 	public void actionPerformed(ActionEvent e) {
 		Object o = e.getSource();
 		if (( o == updateButton) || (o == kymographNamesComboBox)) {
-			displayUpdate();
+			displayUpdateOnSwingThread();
 		}
 		else if (( o == viewGulpsCheckbox) || (o == viewLevelsCheckbox)) {
 			roisDisplay();	
@@ -149,10 +149,11 @@ public class MCCapillariesTab_Options extends JPanel implements ActionListener, 
 
 	void displayON() {
 		if (parent0.kymographArrayList == null 
-			||parent0.kymographArrayList.size() < 1) 
+			||parent0.kymographArrayList.size() < 1) {
+			System.out.println("displayON() skipped");
 			return;
+		}
 
-//		System.out.println("displayON()");
 		Rectangle rectMaster = parent0.vSequence.getFirstViewer().getBounds();
 		int deltax = 5 + rectMaster.width;
 		int deltay = 5;
@@ -167,6 +168,7 @@ public class MCCapillariesTab_Options extends JPanel implements ActionListener, 
 				Rectangle rectDataView = v.getBounds();
 				rectDataView.height = rectMaster.height;
 				IcyBufferedImage img = seq.getFirstImage();
+				rectDataView.width = 100;
 				if (img != null)
 					rectDataView.width = 20 + img.getSizeX() * rectMaster.height / img.getSizeY();
 				rectDataView.translate(
@@ -196,18 +198,15 @@ public class MCCapillariesTab_Options extends JPanel implements ActionListener, 
 		Icy.getMainInterface().removeActiveViewerListener(this);
 	}
 	
-	void displayUpdate() {	
-		System.out.println("displayUpdate()");
-		
+	void displayUpdateOnSwingThread() {		
 		SwingUtilities.invokeLater(new Runnable() {
 			public void run() {
-				displayUpdateRaw();
+				displayUpdate();
 			}
 		});
 	}
 	
-	void displayUpdateRaw() {	
-		System.out.println("displayUpdateRaw()");
+	void displayUpdate() {	
 
 		if (parent0.kymographArrayList.size() < 1 || kymographNamesComboBox.getItemCount() < 1)
 			return;	
@@ -271,7 +270,7 @@ public class MCCapillariesTab_Options extends JPanel implements ActionListener, 
 		nextButton.setEnabled(bEnable);
 		kymographNamesComboBox.setEnabled(bEnable);
 		if (bEnable)
-			displayUpdateRaw(); 
+			displayUpdateOnSwingThread(); 
 		else
 			displayOFF();
 	}

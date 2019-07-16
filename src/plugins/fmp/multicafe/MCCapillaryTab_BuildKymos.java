@@ -125,13 +125,11 @@ public class MCCapillaryTab_BuildKymos extends JPanel implements ActionListener 
 			SequencePlus kymographSeq = new SequencePlus();	
 			kymographSeq.setName(roi.getName());
 			parent0.kymographArrayList.add(kymographSeq);
-		}
-		parent0.capillariesPane.optionsTab.viewKymosCheckBox.setSelected(true);
-		parent0.capillariesPane.optionsTab.displayViews (true);
+		} 
+		parent0.capillariesPane.optionsTab.displayON();
 		
 		// start building kymos in a separate thread
 		buildKymographsThread = new BuildKymographsThread();
-
 		buildKymographsThread.options.vSequence 	= parent0.vSequence;
 		buildKymographsThread.options.analyzeStep 	= parent0.vSequence.analysisStep;
 		buildKymographsThread.options.startFrame 	= (int) parent0.vSequence.analysisStart;

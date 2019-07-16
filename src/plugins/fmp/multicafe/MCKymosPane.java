@@ -100,7 +100,7 @@ public class MCKymosPane extends JPanel implements PropertyChangeListener, Chang
 			Viewer v = parent0.vSequence.getFirstViewer();
 			v.toFront();
 		} else if (iselected == 1) {
-			parent0.capillariesPane.optionsTab.displayUpdate();
+			parent0.capillariesPane.optionsTab.displayUpdateOnSwingThread();
 		}
 	}
 	
