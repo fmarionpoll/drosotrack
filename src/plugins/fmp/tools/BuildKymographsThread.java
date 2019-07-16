@@ -25,6 +25,7 @@ public class BuildKymographsThread implements Runnable
 	public  ArrayList <SequencePlus> 				kymographArrayList 	= null;
 	private ArrayList<ArrayList<ArrayList<int[]>>> 	masksArrayList 		= new ArrayList<ArrayList<ArrayList<int[]>>>();
 	private ArrayList<ArrayList <double []>> 		rois_tabValuesList 	= new ArrayList<ArrayList <double []>>();
+	private ArrayList<IcyBufferedImage>				imageArrayList 		= new ArrayList<IcyBufferedImage> ();
 	private ArrayList<double []> 					sourceValuesList 	= null;
 	public boolean 				stopFlag 			= false;
 	public boolean 				threadRunning 		= false;
@@ -100,19 +101,18 @@ public class BuildKymographsThread implements Runnable
 		for (int iroi=0; iroi < options.vSequence.capillaries.capillariesArrayList.size(); iroi++)
 		{
 			SequencePlus kymographSeq = kymographArrayList.get(iroi);
-//			kymographSeq.beginUpdate();
-			IcyBufferedImage image = kymographSeq.getImage(0, 0);
+			ROI2DShape roi = options.vSequence.capillaries.capillariesArrayList.get(iroi);
+			kymographSeq.setName(roi.getName());
+	
+			IcyBufferedImage image = imageArrayList.get(iroi);
 			ArrayList <double []> tabValuesList = rois_tabValuesList.get(iroi);
 			
 			for (int chan = 0; chan < options.vSequence.getSizeC(); chan++) 
 			{
 				double [] tabValues = tabValuesList.get(chan); 
-				kymographSeq.getImage(0, 0);
 				Array1DUtil.doubleArrayToSafeArray(tabValues, image.getDataXY(chan), image.isSignedDataType());
 			}
-			
-			image.dataChanged();
-//			kymographSeq.endUpdate();
+			kymographSeq.addImage(0, image);
 		}
 		
 		System.out.println("Elapsed time (s):" + progressBar.getSecondsSinceStart());
@@ -169,9 +169,7 @@ public class BuildKymographsThread implements Runnable
 			initExtractionParametersfromROI(roi, mask, options.diskRadius, sizex, sizey);
 			
 			IcyBufferedImage bufImage = new IcyBufferedImage(imagewidth, mask.size(), numC, dataType);
-			SequencePlus kymographSeq = kymographArrayList.get(iroi);
-			kymographSeq.setName(roi.getName());
-			kymographSeq.addImage(0, bufImage);
+			imageArrayList.add(bufImage);
 	
 			ArrayList <double []> tabValuesList = new ArrayList <double []>();
 			for (int chan = 0; chan < numC; chan++) 
@@ -181,8 +179,7 @@ public class BuildKymographsThread implements Runnable
 				tabValuesList.add(tabValues);
 			}
 			rois_tabValuesList.add(tabValuesList);
-		}
-		Collections.sort(kymographArrayList, new Tools.SequenceNameComparator()); 
+		} 
 	}
 	
 	private double initExtractionParametersfromROI( ROI2DShape roi, ArrayList<ArrayList<int[]>> masks,  double diskRadius, int sizex, int sizey)

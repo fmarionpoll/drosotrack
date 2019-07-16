@@ -370,19 +370,10 @@ public class ImageTransformTools {
 		
 		for (int c=0; c<sourceImage.getSizeC(); c++) {
 
-			int [] imgSourceInt = null;
-			if (sourceImage.getDataType_() == DataType.INT)
-				imgSourceInt = sourceImage.getDataXYAsInt(c);
-			else 
-				imgSourceInt = Array1DUtil.arrayToIntArray(sourceImage.getDataXY(0), sourceImage.isSignedDataType());
+			int [] imgSourceInt = Array1DUtil.arrayToIntArray(sourceImage.getDataXY(0), sourceImage.isSignedDataType());
+			int [] img2Int = Array1DUtil.arrayToIntArray(img2.getDataXY(0), img2.isSignedDataType());
+			int [] imgReferenceInt = Array1DUtil.arrayToIntArray(referenceImage.getDataXY(0), referenceImage.isSignedDataType());
 				
-			int [] img2Int = img2.getDataXYAsInt(c);
-			int [] imgReferenceInt = null;
-			if (referenceImage.getDataType_() == DataType.INT)
-				imgReferenceInt = referenceImage.getDataXYAsInt(c);
-			else 
-				imgReferenceInt = Array1DUtil.arrayToIntArray(referenceImage.getDataXY(0), referenceImage.isSignedDataType());
-			
 			for (int i=0; i< imgSourceInt.length; i++) {
 				int val = imgSourceInt[i] - imgReferenceInt[i];
 				if (val < 0) 
