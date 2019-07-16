@@ -2,7 +2,6 @@ package plugins.fmp.tools;
 
 
 import java.util.ArrayList;
-import java.util.Collections;
 
 import icy.gui.viewer.Viewer;
 import icy.image.IcyBufferedImage;
@@ -101,9 +100,6 @@ public class BuildKymographsThread implements Runnable
 		for (int iroi=0; iroi < options.vSequence.capillaries.capillariesArrayList.size(); iroi++)
 		{
 			SequencePlus kymographSeq = kymographArrayList.get(iroi);
-			ROI2DShape roi = options.vSequence.capillaries.capillariesArrayList.get(iroi);
-			kymographSeq.setName(roi.getName());
-	
 			IcyBufferedImage image = imageArrayList.get(iroi);
 			ArrayList <double []> tabValuesList = rois_tabValuesList.get(iroi);
 			

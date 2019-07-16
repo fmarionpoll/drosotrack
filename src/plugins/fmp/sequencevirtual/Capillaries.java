@@ -252,18 +252,17 @@ public class Capillaries {
 			flag = true;
 		if (cap.analysisStep != analysisStep) 
 			flag = true;
-		if (!cap.stimulusR .equals(stimulusR)) 
+		if (stimulusR != null && !cap.stimulusR .equals(stimulusR)) 
 			flag = true;
-		if (!cap.concentrationR .equals(concentrationR)) 
+		if (concentrationR != null && !cap.concentrationR .equals(concentrationR)) 
 			flag = true;
-		if (!cap.stimulusL .equals(stimulusL)) 
+		if (stimulusL != null && !cap.stimulusL .equals(stimulusL)) 
 			flag = true;
-		if (!cap.concentrationL .equals(concentrationL)) 
+		if (concentrationL != null && !cap.concentrationL .equals(concentrationL)) 
 			flag = true;
 //			if (cap.capillariesArrayList.size() != capold.capillariesArrayList.size()) 
 //				flag = true; 
 		return flag;
-
 	}
 
 }
