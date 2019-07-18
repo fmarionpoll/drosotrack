@@ -163,26 +163,33 @@ public class XLSExportCapillaryResults extends XLSExport {
 	}
 	
 	private void trimDeadsFromArrayList(Experiment exp, ArrayList <XLSCapillaryResults> resultsArrayList) {
-		
-		ArrayList <ArrayList<Integer >> trimmedArrayList = new ArrayList <ArrayList<Integer >> ();
-		int icapillary = 0;
+
 		for (XYTaSeries flypos: exp.vSequence.cages.flyPositionsList) {
-			int ilastalive = flypos.getLastIntervalAlive();
-			trimArrayLength(resultsArrayList.get(icapillary).data, ilastalive);
-			trimmedArrayList.add(resultsArrayList.get(icapillary).data);
-			trimArrayLength(resultsArrayList.get(icapillary+1).data, ilastalive);
-			trimmedArrayList.add(resultsArrayList.get(icapillary+1).data);
-			icapillary += 2;
+			
+			String cagenumberString = flypos.roi.getName().substring(4);
+			int cagenumber = Integer.parseInt(cagenumberString);
+			
+			for (XLSCapillaryResults capillaryResult : resultsArrayList) {
+				if (getCageFromCapillaryName (capillaryResult.name) == cagenumber) {
+					int ilastalive = flypos.getLastIntervalAlive();
+//					System.out.println("ilastalive ="+ilastalive + " nintervals=" + exp.fileTimeImageFirstMinutes);
+					trimArrayLength(capillaryResult.data, ilastalive);
+				}
+			}
 		}		
 	}
 	
 	private void trimArrayLength (ArrayList<Integer> array, int ilastalive) {
 		if (array == null)
 			return;
+		
 		int arraysize = array.size();
-		for (int i = arraysize-1; i > ilastalive; i--) {
-			array.remove(i);
-		}
+		if (ilastalive < 0)
+			ilastalive = 0;
+		if (ilastalive > (arraysize-1))
+			ilastalive = arraysize-1;
+		
+		array.subList(ilastalive, arraysize-1).clear();		
 	}
 	
 	private int xlsExportToWorkbook(Experiment exp, XSSFWorkbook workBook, String title, EnumXLSExportItems xlsExportOption, int col0, String charSeries, ArrayList <XLSCapillaryResults> arrayList) {
@@ -248,16 +255,30 @@ public class XLSExportCapillaryResults extends XLSExport {
 		return pt;
 	}
 
+	private int getCageFromCapillaryName(String name) {
+		if (!name .contains("line"))
+			return -1;
+	
+		String num = name.substring(4, 5);
+		int numFromName = Integer.parseInt(num);
+		return numFromName;
+	}
+	
 	private int getColFromName(String name) {
 		if (!name .contains("line"))
 				return -1;
 
 		String num = name.substring(4, 5);
 		int numFromName = Integer.parseInt(num);
-		numFromName = numFromName* 2;
 		String side = name.substring(5, 6);
-		if (side .equals("R"))
-			numFromName += 1;
+		if (side != null) {
+			if (side .equals("R")) {
+				numFromName = numFromName* 2;
+				numFromName += 1;
+			}
+			else if (side .equals("L"))
+				numFromName = numFromName* 2;
+		}
 		return numFromName;
 	}
 	
