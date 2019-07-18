@@ -90,7 +90,7 @@ public class XLSExportCapillaryResults extends XLSExport {
 	
 	private int getDataAndExport(Experiment exp, XSSFWorkbook workbook, int col0, String charSeries, EnumXLSExportItems datatype) 
 	{	
-		ArrayList <ArrayList<Integer >> arrayList = getDataFromRois(exp, datatype, options.t0);	
+		ArrayList <XLSCapillaryResults> arrayList = getDataFromRois(exp, datatype, options.t0);	
 		int colmax = xlsExportToWorkbook(exp, workbook, datatype.toString(), datatype, col0, charSeries, arrayList);
 		if (options.onlyalive) {
 			trimDeadsFromArrayList(exp, arrayList);
@@ -99,37 +99,40 @@ public class XLSExportCapillaryResults extends XLSExport {
 		return colmax;
 	}
 	
-	private ArrayList <ArrayList<Integer>> getDataFromRois(Experiment exp, EnumXLSExportItems xlsoption, boolean optiont0) {
+	private ArrayList <XLSCapillaryResults> getDataFromRois(Experiment exp, EnumXLSExportItems xlsoption, boolean optiont0) {
 		
-		ArrayList <ArrayList<Integer >> resultsArrayList = new ArrayList <ArrayList<Integer >> ();	
+		ArrayList <XLSCapillaryResults> resultsArrayList = new ArrayList <XLSCapillaryResults> ();	
 		
 		for (SequencePlus seq: exp.kymographArrayList) {
+			XLSCapillaryResults results = new XLSCapillaryResults();
+			results.name = seq.getName();
 			switch (xlsoption) {
 			case TOPLEVELDELTA:
-				resultsArrayList.add(subtractTi(seq.getArrayListFromRois(EnumArrayListType.topLevel)));
+				results.data = subtractTi(seq.getArrayListFromRois(EnumArrayListType.topLevel));
 				break;
 			case DERIVEDVALUES:
-				resultsArrayList.add(seq.getArrayListFromRois(EnumArrayListType.derivedValues));
+				results.data = seq.getArrayListFromRois(EnumArrayListType.derivedValues);
 				break;
 			case SUMGULPS: 
-				resultsArrayList.add(seq.getArrayListFromRois(EnumArrayListType.cumSum));
+				results.data = seq.getArrayListFromRois(EnumArrayListType.cumSum);
 				break;
 			case BOTTOMLEVEL:
-				resultsArrayList.add(seq.getArrayListFromRois(EnumArrayListType.bottomLevel));
+				results.data = seq.getArrayListFromRois(EnumArrayListType.bottomLevel);
 				break;
 			case TOPLEVEL:
 			case SUMLR:
 				if (optiont0)
-					resultsArrayList.add(subtractT0(seq.getArrayListFromRois(EnumArrayListType.topLevel)));
+					results.data = subtractT0(seq.getArrayListFromRois(EnumArrayListType.topLevel));
 				else
-					resultsArrayList.add(seq.getArrayListFromRois(EnumArrayListType.topLevel));
+					results.data = seq.getArrayListFromRois(EnumArrayListType.topLevel);
 				break;
 			case TOPLEVELDELTALR:
-				resultsArrayList.add(subtractTi(seq.getArrayListFromRois(EnumArrayListType.topLevel)));
+				results.data = subtractTi(seq.getArrayListFromRois(EnumArrayListType.topLevel));
 				break;
 			default:
 				break;
 			}
+			resultsArrayList.add(results);
 		}
 			
 		return resultsArrayList;
@@ -159,16 +162,16 @@ public class XLSExportCapillaryResults extends XLSExport {
 		return array;
 	}
 	
-	private void trimDeadsFromArrayList(Experiment exp, ArrayList <ArrayList<Integer >> resultsArrayList) {
+	private void trimDeadsFromArrayList(Experiment exp, ArrayList <XLSCapillaryResults> resultsArrayList) {
 		
 		ArrayList <ArrayList<Integer >> trimmedArrayList = new ArrayList <ArrayList<Integer >> ();
 		int icapillary = 0;
 		for (XYTaSeries flypos: exp.vSequence.cages.flyPositionsList) {
 			int ilastalive = flypos.getLastIntervalAlive();
-			trimArrayLength(resultsArrayList.get(icapillary), ilastalive);
-			trimmedArrayList.add(resultsArrayList.get(icapillary));
-			trimArrayLength(resultsArrayList.get(icapillary+1), ilastalive);
-			trimmedArrayList.add(resultsArrayList.get(icapillary+1));
+			trimArrayLength(resultsArrayList.get(icapillary).data, ilastalive);
+			trimmedArrayList.add(resultsArrayList.get(icapillary).data);
+			trimArrayLength(resultsArrayList.get(icapillary+1).data, ilastalive);
+			trimmedArrayList.add(resultsArrayList.get(icapillary+1).data);
 			icapillary += 2;
 		}		
 	}
@@ -182,7 +185,7 @@ public class XLSExportCapillaryResults extends XLSExport {
 		}
 	}
 	
-	private int xlsExportToWorkbook(Experiment exp, XSSFWorkbook workBook, String title, EnumXLSExportItems xlsExportOption, int col0, String charSeries, ArrayList <ArrayList<Integer >> arrayList) {
+	private int xlsExportToWorkbook(Experiment exp, XSSFWorkbook workBook, String title, EnumXLSExportItems xlsExportOption, int col0, String charSeries, ArrayList <XLSCapillaryResults> arrayList) {
 			
 		XSSFSheet sheet = workBook.getSheet(title );
 		if (sheet == null)
@@ -231,8 +234,12 @@ public class XLSExportCapillaryResults extends XLSExport {
 		
 		int col0 = pt.x;
 		pt = writeGenericHeader(exp, sheet, option, pt, transpose, charSeries);
+		int colseries = pt.x;
 		
 		for (SequencePlus seq: exp.kymographArrayList) {
+			int col = getColFromName(seq.getName());
+			if (col >= 0)
+				pt.x = colseries + col;
 			XLSUtils.setValue(sheet, pt, transpose, seq.getName());
 			pt.x++;
 		}
@@ -241,7 +248,20 @@ public class XLSExportCapillaryResults extends XLSExport {
 		return pt;
 	}
 
-	private Point writeData (Experiment exp, XSSFSheet sheet, EnumXLSExportItems option, Point pt, boolean transpose, String charSeries, ArrayList <ArrayList<Integer >> dataArrayList) {
+	private int getColFromName(String name) {
+		if (!name .contains("line"))
+				return -1;
+
+		String num = name.substring(4, 5);
+		int numFromName = Integer.parseInt(num);
+		numFromName = numFromName* 2;
+		String side = name.substring(5, 6);
+		if (side .equals("R"))
+			numFromName += 1;
+		return numFromName;
+	}
+	
+	private Point writeData (Experiment exp, XSSFSheet sheet, EnumXLSExportItems option, Point pt, boolean transpose, String charSeries, ArrayList <XLSCapillaryResults> dataArrayList) {
 		
 		double scalingFactorToPhysicalUnits = exp.vSequence.capillaries.volume / exp.vSequence.capillaries.pixels;
 		
@@ -301,20 +321,29 @@ public class XLSExportCapillaryResults extends XLSExport {
 			}
 			pt.x++;
 			
+			int colseries = pt.x;
 			switch (option) {
 			case SUMLR:
 			case TOPLEVELDELTALR:
 				for (int idataArray=0; idataArray< dataArrayList.size(); idataArray+=2) 
 				{
-					ArrayList<Integer> dataL = dataArrayList.get(idataArray) ;
-					ArrayList<Integer> dataR = dataArrayList.get(idataArray+1);
+					int colL = getColFromName(dataArrayList.get(idataArray).name);
+					if (colL >= 0)
+						pt.x = colseries + colL;			
+
+					ArrayList<Integer> dataL = dataArrayList.get(idataArray).data ;
+					ArrayList<Integer> dataR = dataArrayList.get(idataArray+1).data;
 					if (dataL != null && dataR != null) {
 						int j = (currentFrame - startFrame)/step;
 						if (j < dataL.size() && j < dataR.size()) {
 							double value = (dataL.get(j)+dataR.get(j))*scalingFactorToPhysicalUnits;
 							XLSUtils.setValue(sheet, pt, transpose, value);
+							
 							Point pt0 = new Point(pt);
 							pt0.x ++;
+							int colR = getColFromName(dataArrayList.get(idataArray+1).name);
+							if (colR >= 0)
+								pt0.x = colseries + colR;
 							value = (dataL.get(j)-dataR.get(j))*scalingFactorToPhysicalUnits/value;
 							XLSUtils.setValue(sheet, pt0, transpose, value);
 						}
@@ -327,7 +356,11 @@ public class XLSExportCapillaryResults extends XLSExport {
 			default:
 				for (int idataArray=0; idataArray< dataArrayList.size(); idataArray++) 
 				{
-					ArrayList<Integer> data = dataArrayList.get(idataArray);
+					int col = getColFromName(dataArrayList.get(idataArray).name);
+					if (col >= 0)
+						pt.x = colseries + col;			
+
+					ArrayList<Integer> data = dataArrayList.get(idataArray).data;
 					if (data != null) {
 						int j = (currentFrame - startFrame)/step;
 						if (j < data.size()) {
