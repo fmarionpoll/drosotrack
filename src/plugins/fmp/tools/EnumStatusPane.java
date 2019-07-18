@@ -1,5 +1,5 @@
 package plugins.fmp.tools;
 
-public enum StatusPane {
+public enum EnumStatusPane {
 	DISABLED, INIT, FULL
 }

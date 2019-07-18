@@ -15,7 +15,7 @@ import icy.gui.frame.progress.AnnounceFrame;
 import icy.gui.util.GuiUtil;
 import icy.gui.viewer.Viewer;
 import plugins.fmp.tools.BuildKymographsThread;
-import plugins.fmp.tools.StatusComputation;
+import plugins.fmp.tools.EnumStatusComputation;
 import plugins.fmp.sequencevirtual.SequencePlus;
 import plugins.kernel.roi.roi2d.ROI2DShape;
 
@@ -32,7 +32,7 @@ public class MCCapillaryTab_BuildKymos extends JPanel implements ActionListener 
 	JTextField 						diskRadiusTextField 		= new JTextField("5");
 	JCheckBox 						doRegistrationCheckBox 		= new JCheckBox("registration", false);
 	
-	StatusComputation 				sComputation 	= StatusComputation.START_COMPUTATION; 
+	EnumStatusComputation 				sComputation 	= EnumStatusComputation.START_COMPUTATION; 
 	int 							diskRadius 		= 5;
 	
 	private Multicafe 				parent0					= null;
@@ -85,7 +85,7 @@ public class MCCapillaryTab_BuildKymos extends JPanel implements ActionListener 
 		if (parent0.vSequence == null) 
 			return;
 		
-		sComputation = StatusComputation.STOP_COMPUTATION;
+		sComputation = EnumStatusComputation.STOP_COMPUTATION;
 		parent0.sequencePane.browseTab.getBrowseItems (parent0.vSequence);
 		parent0.vSequence.cleanUpBufferAndRestart();
 		setStartButton(false);
@@ -108,7 +108,7 @@ public class MCCapillaryTab_BuildKymos extends JPanel implements ActionListener 
 	}
 	
 	private void resetUserInterface() {
-		sComputation = StatusComputation.START_COMPUTATION;
+		sComputation = EnumStatusComputation.START_COMPUTATION;
 		firePropertyChange( "KYMOS_CREATE", false, true);
 		setStartButton(true);
 		firePropertyChange( "KYMOS_OK", false, true);

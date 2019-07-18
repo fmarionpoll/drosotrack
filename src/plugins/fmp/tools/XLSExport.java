@@ -36,7 +36,7 @@ public class XLSExport {
 		return value;
 	}
 	
-	public Point addLineToHeader(Experiment exp, XSSFSheet sheet, Point pt, boolean transpose, XLSExperimentDescriptors desc) {
+	public Point addLineToHeader(Experiment exp, XSSFSheet sheet, Point pt, boolean transpose, EnumXLSExperimentDescriptors desc) {
 		int col0 = pt.x;
 		XLSUtils.setValue(sheet, pt, transpose, desc.toString());
 		pt.x++;
@@ -152,9 +152,9 @@ public class XLSExport {
         	String text = cell.getStringCellValue();
         	if( !flag) {
         		flag = text.contains("roi");
-        		if (text.contains(XLSExperimentDescriptors.CAP.toString()))
+        		if (text.contains(EnumXLSExperimentDescriptors.CAP.toString()))
         			pivotTable.addRowLabel(i);
-        		if (text.contains(XLSExperimentDescriptors.NFLIES.toString()))
+        		if (text.contains(EnumXLSExperimentDescriptors.NFLIES.toString()))
         			pivotTable.addRowLabel(i);
         		continue;
         	}
@@ -162,22 +162,22 @@ public class XLSExport {
         }
 	}
 
-	public Point writeGenericHeader (Experiment exp, XSSFSheet sheet, XLSExportItems option, Point pt, boolean transpose, String charSeries) {
+	public Point writeGenericHeader (Experiment exp, XSSFSheet sheet, EnumXLSExportItems option, Point pt, boolean transpose, String charSeries) {
 
-		pt = addLineToHeader(exp, sheet, pt, transpose, XLSExperimentDescriptors.DATE);
-		pt = addLineToHeader(exp, sheet, pt, transpose, XLSExperimentDescriptors.STIML);
-		pt = addLineToHeader(exp, sheet, pt, transpose, XLSExperimentDescriptors.CONCL);
-		pt = addLineToHeader(exp, sheet, pt, transpose, XLSExperimentDescriptors.STIMR);
-		pt = addLineToHeader(exp, sheet, pt, transpose, XLSExperimentDescriptors.CONCR);
-		pt = addLineToHeader(exp, sheet, pt, transpose, XLSExperimentDescriptors.CAM);
-		pt = addLineToHeader(exp, sheet, pt, transpose, XLSExperimentDescriptors.CAP);
-		pt = addLineToHeader(exp, sheet, pt, transpose, XLSExperimentDescriptors.CAGE);
-		pt = addLineToHeader(exp, sheet, pt, transpose, XLSExperimentDescriptors.TIME);
-		pt = addLineToHeader(exp, sheet, pt, transpose, XLSExperimentDescriptors.NFLIES);
-		pt = addLineToHeader(exp, sheet, pt, transpose, XLSExperimentDescriptors.DUM1);
-		pt = addLineToHeader(exp, sheet, pt, transpose, XLSExperimentDescriptors.DUM2);
-		pt = addLineToHeader(exp, sheet, pt, transpose, XLSExperimentDescriptors.DUM3);
-		pt = addLineToHeader(exp, sheet, pt, transpose, XLSExperimentDescriptors.DUM4);
+		pt = addLineToHeader(exp, sheet, pt, transpose, EnumXLSExperimentDescriptors.DATE);
+		pt = addLineToHeader(exp, sheet, pt, transpose, EnumXLSExperimentDescriptors.STIML);
+		pt = addLineToHeader(exp, sheet, pt, transpose, EnumXLSExperimentDescriptors.CONCL);
+		pt = addLineToHeader(exp, sheet, pt, transpose, EnumXLSExperimentDescriptors.STIMR);
+		pt = addLineToHeader(exp, sheet, pt, transpose, EnumXLSExperimentDescriptors.CONCR);
+		pt = addLineToHeader(exp, sheet, pt, transpose, EnumXLSExperimentDescriptors.CAM);
+		pt = addLineToHeader(exp, sheet, pt, transpose, EnumXLSExperimentDescriptors.CAP);
+		pt = addLineToHeader(exp, sheet, pt, transpose, EnumXLSExperimentDescriptors.CAGE);
+		pt = addLineToHeader(exp, sheet, pt, transpose, EnumXLSExperimentDescriptors.TIME);
+		pt = addLineToHeader(exp, sheet, pt, transpose, EnumXLSExperimentDescriptors.NFLIES);
+		pt = addLineToHeader(exp, sheet, pt, transpose, EnumXLSExperimentDescriptors.DUM1);
+		pt = addLineToHeader(exp, sheet, pt, transpose, EnumXLSExperimentDescriptors.DUM2);
+		pt = addLineToHeader(exp, sheet, pt, transpose, EnumXLSExperimentDescriptors.DUM3);
+		pt = addLineToHeader(exp, sheet, pt, transpose, EnumXLSExperimentDescriptors.DUM4);
 	
 		XLSUtils.setValue(sheet, pt, transpose, "rois"+charSeries);
 		pt.x++;

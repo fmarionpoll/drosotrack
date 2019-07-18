@@ -45,7 +45,7 @@ import loci.formats.FormatException;
 import plugins.fmp.sequencevirtual.*;
 import plugins.fmp.tools.Tools;
 import plugins.fmp.tools.BuildKymographsThread;
-import plugins.fmp.tools.StatusComputation;
+import plugins.fmp.tools.EnumStatusComputation;
 
 public class BuildKymos extends PluginActionable implements ActionListener, ChangeListener, ViewerListener
 {
@@ -70,7 +70,7 @@ public class BuildKymos extends PluginActionable implements ActionListener, Chan
 	
 	// results arrays
 	private ArrayList <SequencePlus> 	kymographArrayList 		= new ArrayList <SequencePlus> ();		// list of kymograph sequences
-	private StatusComputation sComputation = StatusComputation.START_COMPUTATION; 
+	private EnumStatusComputation sComputation = EnumStatusComputation.START_COMPUTATION; 
 	private BuildKymographsThread buildKymographsThread = null;
 	private Viewer viewer1 = null;
 	private Thread thread = null;
@@ -217,7 +217,7 @@ public class BuildKymos extends PluginActionable implements ActionListener, Chan
 		vinputSequence = new SequenceVirtual();
 		vinputSequence.loadInputVirtualFromName(csdummy);
 		vinputSequence.setFileName(csdummy);
-		if (vinputSequence.status == Status.FAILURE) {
+		if (vinputSequence.status == EnumStatus.FAILURE) {
 			XMLPreferences guiPrefs = this.getPreferences("gui");
 			String lastUsedPath = guiPrefs.get("lastUsedPath", "");
 			String path = vinputSequence.loadInputVirtualStack(lastUsedPath);
@@ -273,7 +273,7 @@ public class BuildKymos extends PluginActionable implements ActionListener, Chan
 		thread.start();
 
 		// change display status
-		sComputation = StatusComputation.STOP_COMPUTATION;
+		sComputation = EnumStatusComputation.STOP_COMPUTATION;
 		stopComputationButton.setEnabled(true);
 		startComputationButton.setEnabled(false);
 		
@@ -293,8 +293,8 @@ public class BuildKymos extends PluginActionable implements ActionListener, Chan
 	private void nextComputation() {
 		kymographsSaveToFileIntoResults();
 		closeSequence();
-		if (sComputation == StatusComputation.STOP_COMPUTATION) {
-			sComputation = StatusComputation.START_COMPUTATION;
+		if (sComputation == EnumStatusComputation.STOP_COMPUTATION) {
+			sComputation = EnumStatusComputation.START_COMPUTATION;
 			startComputationButton.setEnabled(true);
 			String oo = ((DefaultListModel<String>) xmlFilesJList.getModel()).getElementAt(0);
 			((DefaultListModel<String>) xmlFilesJList.getModel()).removeElement(oo);
@@ -304,7 +304,7 @@ public class BuildKymos extends PluginActionable implements ActionListener, Chan
 
 	private void stopComputation() {
 		
-		if (sComputation == StatusComputation.STOP_COMPUTATION) {
+		if (sComputation == EnumStatusComputation.STOP_COMPUTATION) {
 			if (thread.isAlive()) {
 				thread.interrupt();
 				try {
@@ -314,7 +314,7 @@ public class BuildKymos extends PluginActionable implements ActionListener, Chan
 				}
 			}
 		}
-		sComputation = StatusComputation.START_COMPUTATION;
+		sComputation = EnumStatusComputation.START_COMPUTATION;
 		startComputationButton.setEnabled(true);
 	}
 	

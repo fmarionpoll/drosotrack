@@ -44,14 +44,14 @@ public class XLSExportCapillaryResults extends XLSExport {
 			{
 				String charSeries = CellReference.convertNumToColString(iSeries);
 				
-				if (options.topLevel) 		col_end = getDataAndExport(exp, workbook, col_max, charSeries, XLSExportItems.TOPLEVEL);
-				if (options.topLevelDelta) 	col_end = getDataAndExport(exp, workbook, col_max, charSeries, XLSExportItems.TOPLEVELDELTA);
-				if (options.bottomLevel) 	col_end = getDataAndExport(exp, workbook, col_max, charSeries, XLSExportItems.BOTTOMLEVEL);		
-				if (options.derivative) 	col_end = getDataAndExport(exp, workbook, col_max, charSeries, XLSExportItems.DERIVEDVALUES);	
-				if (options.consumption) 	col_end = getDataAndExport(exp, workbook, col_max, charSeries, XLSExportItems.SUMGULPS);
+				if (options.topLevel) 		col_end = getDataAndExport(exp, workbook, col_max, charSeries, EnumXLSExportItems.TOPLEVEL);
+				if (options.topLevelDelta) 	col_end = getDataAndExport(exp, workbook, col_max, charSeries, EnumXLSExportItems.TOPLEVELDELTA);
+				if (options.bottomLevel) 	col_end = getDataAndExport(exp, workbook, col_max, charSeries, EnumXLSExportItems.BOTTOMLEVEL);		
+				if (options.derivative) 	col_end = getDataAndExport(exp, workbook, col_max, charSeries, EnumXLSExportItems.DERIVEDVALUES);	
+				if (options.consumption) 	col_end = getDataAndExport(exp, workbook, col_max, charSeries, EnumXLSExportItems.SUMGULPS);
 				if (options.sum) {		
-					if (options.topLevel) col_end = getDataAndExport(exp, workbook, col_max, charSeries, XLSExportItems.SUMLR);
-					if (options.topLevelDelta) 	col_end = getDataAndExport(exp, workbook, col_max, charSeries, XLSExportItems.TOPLEVELDELTALR);
+					if (options.topLevel) col_end = getDataAndExport(exp, workbook, col_max, charSeries, EnumXLSExportItems.SUMLR);
+					if (options.topLevelDelta) 	col_end = getDataAndExport(exp, workbook, col_max, charSeries, EnumXLSExportItems.TOPLEVELDELTALR);
 				}
 
 				if (col_end > col_max)
@@ -64,12 +64,12 @@ public class XLSExportCapillaryResults extends XLSExport {
 				progress.setMessage( "Build pivot tables... ");
 				
 				String sourceSheetName = null;
-				if (options.topLevel) sourceSheetName = XLSExportItems.TOPLEVEL.toString();
-				else if (options.topLevelDelta) sourceSheetName = XLSExportItems.TOPLEVELDELTA.toString();
-				else if (options.bottomLevel)  	sourceSheetName = XLSExportItems.BOTTOMLEVEL.toString();
-				else if (options.derivative) 	sourceSheetName = XLSExportItems.DERIVEDVALUES.toString();	
-				else if (options.consumption) 	sourceSheetName = XLSExportItems.SUMGULPS.toString();
-				else if (options.sum) 			sourceSheetName = XLSExportItems.SUMLR.toString();
+				if (options.topLevel) sourceSheetName = EnumXLSExportItems.TOPLEVEL.toString();
+				else if (options.topLevelDelta) sourceSheetName = EnumXLSExportItems.TOPLEVELDELTA.toString();
+				else if (options.bottomLevel)  	sourceSheetName = EnumXLSExportItems.BOTTOMLEVEL.toString();
+				else if (options.derivative) 	sourceSheetName = EnumXLSExportItems.DERIVEDVALUES.toString();	
+				else if (options.consumption) 	sourceSheetName = EnumXLSExportItems.SUMGULPS.toString();
+				else if (options.sum) 			sourceSheetName = EnumXLSExportItems.SUMLR.toString();
 				if (sourceSheetName != null)
 					xlsCreatePivotTables(workbook, sourceSheetName);
 			}
@@ -88,7 +88,7 @@ public class XLSExportCapillaryResults extends XLSExport {
 		System.out.println("XLS output finished");
 	}
 	
-	private int getDataAndExport(Experiment exp, XSSFWorkbook workbook, int col0, String charSeries, XLSExportItems datatype) 
+	private int getDataAndExport(Experiment exp, XSSFWorkbook workbook, int col0, String charSeries, EnumXLSExportItems datatype) 
 	{	
 		ArrayList <ArrayList<Integer >> arrayList = getDataFromRois(exp, datatype, options.t0);	
 		int colmax = xlsExportToWorkbook(exp, workbook, datatype.toString(), datatype, col0, charSeries, arrayList);
@@ -99,33 +99,33 @@ public class XLSExportCapillaryResults extends XLSExport {
 		return colmax;
 	}
 	
-	private ArrayList <ArrayList<Integer>> getDataFromRois(Experiment exp, XLSExportItems xlsoption, boolean optiont0) {
+	private ArrayList <ArrayList<Integer>> getDataFromRois(Experiment exp, EnumXLSExportItems xlsoption, boolean optiont0) {
 		
 		ArrayList <ArrayList<Integer >> resultsArrayList = new ArrayList <ArrayList<Integer >> ();	
 		
 		for (SequencePlus seq: exp.kymographArrayList) {
 			switch (xlsoption) {
 			case TOPLEVELDELTA:
-				resultsArrayList.add(subtractTi(seq.getArrayListFromRois(ArrayListType.topLevel)));
+				resultsArrayList.add(subtractTi(seq.getArrayListFromRois(EnumArrayListType.topLevel)));
 				break;
 			case DERIVEDVALUES:
-				resultsArrayList.add(seq.getArrayListFromRois(ArrayListType.derivedValues));
+				resultsArrayList.add(seq.getArrayListFromRois(EnumArrayListType.derivedValues));
 				break;
 			case SUMGULPS: 
-				resultsArrayList.add(seq.getArrayListFromRois(ArrayListType.cumSum));
+				resultsArrayList.add(seq.getArrayListFromRois(EnumArrayListType.cumSum));
 				break;
 			case BOTTOMLEVEL:
-				resultsArrayList.add(seq.getArrayListFromRois(ArrayListType.bottomLevel));
+				resultsArrayList.add(seq.getArrayListFromRois(EnumArrayListType.bottomLevel));
 				break;
 			case TOPLEVEL:
 			case SUMLR:
 				if (optiont0)
-					resultsArrayList.add(subtractT0(seq.getArrayListFromRois(ArrayListType.topLevel)));
+					resultsArrayList.add(subtractT0(seq.getArrayListFromRois(EnumArrayListType.topLevel)));
 				else
-					resultsArrayList.add(seq.getArrayListFromRois(ArrayListType.topLevel));
+					resultsArrayList.add(seq.getArrayListFromRois(EnumArrayListType.topLevel));
 				break;
 			case TOPLEVELDELTALR:
-				resultsArrayList.add(subtractTi(seq.getArrayListFromRois(ArrayListType.topLevel)));
+				resultsArrayList.add(subtractTi(seq.getArrayListFromRois(EnumArrayListType.topLevel)));
 				break;
 			default:
 				break;
@@ -182,7 +182,7 @@ public class XLSExportCapillaryResults extends XLSExport {
 		}
 	}
 	
-	private int xlsExportToWorkbook(Experiment exp, XSSFWorkbook workBook, String title, XLSExportItems xlsExportOption, int col0, String charSeries, ArrayList <ArrayList<Integer >> arrayList) {
+	private int xlsExportToWorkbook(Experiment exp, XSSFWorkbook workBook, String title, EnumXLSExportItems xlsExportOption, int col0, String charSeries, ArrayList <ArrayList<Integer >> arrayList) {
 			
 		XSSFSheet sheet = workBook.getSheet(title );
 		if (sheet == null)
@@ -227,7 +227,7 @@ public class XLSExportCapillaryResults extends XLSExport {
 		return pt;
 	}
 
-	private Point writeHeader (Experiment exp, XSSFSheet sheet, XLSExportItems option, Point pt, boolean transpose, String charSeries) {
+	private Point writeHeader (Experiment exp, XSSFSheet sheet, EnumXLSExportItems option, Point pt, boolean transpose, String charSeries) {
 		
 		int col0 = pt.x;
 		pt = writeGenericHeader(exp, sheet, option, pt, transpose, charSeries);
@@ -241,7 +241,7 @@ public class XLSExportCapillaryResults extends XLSExport {
 		return pt;
 	}
 
-	private Point writeData (Experiment exp, XSSFSheet sheet, XLSExportItems option, Point pt, boolean transpose, String charSeries, ArrayList <ArrayList<Integer >> dataArrayList) {
+	private Point writeData (Experiment exp, XSSFSheet sheet, EnumXLSExportItems option, Point pt, boolean transpose, String charSeries, ArrayList <ArrayList<Integer >> dataArrayList) {
 		
 		double scalingFactorToPhysicalUnits = exp.vSequence.capillaries.volume / exp.vSequence.capillaries.pixels;
 		

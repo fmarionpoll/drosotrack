@@ -25,7 +25,7 @@ import icy.gui.util.GuiUtil;
 import plugins.fmp.sequencevirtual.SequencePlus;
 import plugins.fmp.tools.ComboBoxColorRenderer;
 import plugins.fmp.tools.ImageTransformTools.TransformOp;
-import plugins.fmp.tools.ThresholdType;
+import plugins.fmp.tools.EnumThresholdType;
 
 public class DetectTab_Colors  extends JPanel implements ActionListener, ChangeListener {
 
@@ -54,7 +54,7 @@ public class DetectTab_Colors  extends JPanel implements ActionListener, ChangeL
 	public TransformOp colortransformop 	= TransformOp.NONE;
 	public int colordistanceType 			= 0;
 	public ArrayList <Color> colorarray 	= new ArrayList <Color>();
-	public ThresholdType thresholdtype = ThresholdType.COLORARRAY; 
+	public EnumThresholdType thresholdtype = EnumThresholdType.COLORARRAY; 
 	
 	
 	private Capillarytrack parent0;
@@ -147,12 +147,12 @@ public class DetectTab_Colors  extends JPanel implements ActionListener, ChangeL
 			case 0:	// simple filter & single threshold
 				parent.simpletransformop = (TransformOp) parent.transformsComboBox.getSelectedItem();
 				parent.simplethreshold = Integer.parseInt(thresholdSpinner.getValue().toString());
-				thresholdtype = ThresholdType.SINGLE;
+				thresholdtype = EnumThresholdType.SINGLE;
 				break;
 
 			case 1:  // color array
 				colorthreshold = Integer.parseInt(distanceSpinner.getValue().toString());
-				thresholdtype = ThresholdType.COLORARRAY;
+				thresholdtype = EnumThresholdType.COLORARRAY;
 				colorarray.clear();
 				for (int i=0; i<colorPickCombo.getItemCount(); i++) {
 					colorarray.add(colorPickCombo.getItemAt(i));
@@ -178,12 +178,12 @@ public class DetectTab_Colors  extends JPanel implements ActionListener, ChangeL
 			case 0:	// simple filter & single threshold
 				parent.simpletransformop = (TransformOp) parent.transformsComboBox.getSelectedItem();
 				parent.simplethreshold = Integer.parseInt(thresholdSpinner.getValue().toString());
-				thresholdtype = ThresholdType.SINGLE;
+				thresholdtype = EnumThresholdType.SINGLE;
 				break;
 				
 			case 1:  // color array
 				colorthreshold = Integer.parseInt(distanceSpinner.getValue().toString());
-				thresholdtype = ThresholdType.COLORARRAY;
+				thresholdtype = EnumThresholdType.COLORARRAY;
 				colorarray.clear();
 				for (int i=0; i<colorPickCombo.getItemCount(); i++) {
 					colorarray.add(colorPickCombo.getItemAt(i));
@@ -207,7 +207,7 @@ public class DetectTab_Colors  extends JPanel implements ActionListener, ChangeL
 		for (SequencePlus kSeq: parent0.kymographArrayList) {
 			kSeq.setThresholdOverlay(activate);
 			if (activate) {
-				if (thresholdtype == ThresholdType.SINGLE)
+				if (thresholdtype == EnumThresholdType.SINGLE)
 					kSeq.setThresholdOverlayParametersSingle(parent.simpletransformop, 
 							parent.simplethreshold);
 				else

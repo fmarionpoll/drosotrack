@@ -28,7 +28,7 @@ import plugins.fmp.tools.OverlayThreshold;
 import plugins.fmp.tools.OverlayTrapMouse;
 import plugins.fmp.tools.Tools;
 import plugins.fmp.tools.ImageTransformTools.TransformOp;
-import plugins.fmp.tools.ArrayListType;
+import plugins.fmp.tools.EnumArrayListType;
 
 public class SequencePlus extends SequenceVirtual  {
 	
@@ -65,7 +65,7 @@ public class SequencePlus extends SequenceVirtual  {
 		kymoMeasures.imageHeight = image.getHeight();
 	}
 	
-	public ArrayList<Integer> getArrayListFromRois (ArrayListType option) {
+	public ArrayList<Integer> getArrayListFromRois (EnumArrayListType option) {
 		
 		ArrayList<ROI2D> listRois = getROI2Ds();
 		if (listRois == null)

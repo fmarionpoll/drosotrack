@@ -12,7 +12,7 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 
 import icy.gui.util.GuiUtil;
-import plugins.fmp.tools.ArrayListType;
+import plugins.fmp.tools.EnumArrayListType;
 import plugins.fmp.tools.XYMultiChart;
 
 public class MCKymosTab_Graphs extends JPanel implements ActionListener  {
@@ -64,25 +64,25 @@ public class MCKymosTab_Graphs extends JPanel implements ActionListener  {
 
 		if (limitsCheckbox.isSelected()) {
 			topandbottomChart = xyDisplayGraphsItem("top + bottom levels", 
-					ArrayListType.topAndBottom, 
+					EnumArrayListType.topAndBottom, 
 					topandbottomChart, rectv, ptRelative, kmax);
 			ptRelative.y += deltay;
 		}
 		if (derivativeCheckbox.isSelected()) {
 			derivativeChart = xyDisplayGraphsItem("Derivative", 
-					ArrayListType.derivedValues, 
+					EnumArrayListType.derivedValues, 
 					derivativeChart, rectv, ptRelative, kmax);
 			ptRelative.y += deltay; 
 		}
 		if (consumptionCheckbox.isSelected()) {
 			sumgulpsChart = xyDisplayGraphsItem("Cumulated gulps", 
-					ArrayListType.cumSum, 
+					EnumArrayListType.cumSum, 
 					sumgulpsChart, rectv, ptRelative, kmax);
 			ptRelative.y += deltay; 
 		}
 	}
 
-	private XYMultiChart xyDisplayGraphsItem(String title, ArrayListType option, XYMultiChart iChart, Rectangle rectv, Point ptRelative, int kmax) {
+	private XYMultiChart xyDisplayGraphsItem(String title, EnumArrayListType option, XYMultiChart iChart, Rectangle rectv, Point ptRelative, int kmax) {
 		
 		if (iChart != null && iChart.mainChartPanel.isValid()) {
 			iChart.fetchNewData(parent0.kymographArrayList, option, kmax, (int) parent0.vSequence.analysisStart);

@@ -16,7 +16,7 @@ import icy.gui.util.GuiUtil;
 import icy.gui.viewer.Viewer;
 import plugins.fmp.sequencevirtual.SequencePlus;
 import plugins.fmp.tools.BuildKymographsThread;
-import plugins.fmp.tools.StatusComputation;
+import plugins.fmp.tools.EnumStatusComputation;
 import plugins.kernel.roi.roi2d.ROI2DShape;
 
 
@@ -32,7 +32,7 @@ public class KymosTab_Build extends JPanel implements ActionListener {
 	public JTextField 	diskRadiusTextField 	= new JTextField("5");
 	JCheckBox doRegistrationCheckBox = new JCheckBox("registration", false);
 	
-	public StatusComputation sComputation = StatusComputation.START_COMPUTATION; 
+	public EnumStatusComputation sComputation = EnumStatusComputation.START_COMPUTATION; 
 	public int diskRadius = 5;
 	
 	private Capillarytrack parent0;
@@ -59,8 +59,8 @@ public class KymosTab_Build extends JPanel implements ActionListener {
 	}
 	
 	public void enableItems(boolean enabled) {
-		kymoStartComputationButton.setEnabled(enabled && (sComputation == StatusComputation.START_COMPUTATION));
-		kymosStopComputationButton.setEnabled (enabled && (sComputation == StatusComputation.STOP_COMPUTATION));
+		kymoStartComputationButton.setEnabled(enabled && (sComputation == EnumStatusComputation.START_COMPUTATION));
+		kymosStopComputationButton.setEnabled (enabled && (sComputation == EnumStatusComputation.STOP_COMPUTATION));
 		diskRadiusTextField.setEnabled(enabled);
 	}
 	
@@ -90,7 +90,7 @@ public class KymosTab_Build extends JPanel implements ActionListener {
 		if (parent0.vSequence == null) 
 			return;
 		
-		sComputation = StatusComputation.STOP_COMPUTATION;
+		sComputation = EnumStatusComputation.STOP_COMPUTATION;
 		enableItems(false);
 		
 		parent0.sequencePane.UpdateItemsToSequence ( parent0.vSequence);
@@ -112,7 +112,7 @@ public class KymosTab_Build extends JPanel implements ActionListener {
 	}
 	
 	private void resetUserInterface() {
-		sComputation = StatusComputation.START_COMPUTATION;
+		sComputation = EnumStatusComputation.START_COMPUTATION;
 		firePropertyChange( "KYMOS_CREATE", false, true);
 		setStartButton(true);
 		firePropertyChange( "KYMOS_OK", false, true);

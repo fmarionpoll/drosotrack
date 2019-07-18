@@ -11,7 +11,7 @@ import icy.image.IcyBufferedImage;
 import icy.roi.ROI;
 import icy.system.profile.Chronometer;
 import plugins.fmp.sequencevirtual.SequencePlus;
-import plugins.fmp.tools.ArrayListType;
+import plugins.fmp.tools.EnumArrayListType;
 import plugins.fmp.tools.ImageTransformTools.TransformOp;
 import plugins.kernel.roi.roi2d.ROI2DPolyLine;
 
@@ -65,7 +65,7 @@ public class CapBuildDetect_Gulps {
 			// scan each image row
 			kymographSeq.derivedValuesArrayList.add(0);
 			// once an event is detected, we will cut and save the corresponding part of topLevelArray
-			ArrayList <Integer> topLevelArray = kymographSeq.getArrayListFromRois(ArrayListType.topLevel);
+			ArrayList <Integer> topLevelArray = kymographSeq.getArrayListFromRois(EnumArrayListType.topLevel);
 
 			for (ix = 1; ix < topLevelArray.size(); ix++) 
 			{

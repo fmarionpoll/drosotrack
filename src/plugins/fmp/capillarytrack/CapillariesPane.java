@@ -8,7 +8,7 @@ import javax.swing.JPanel;
 import javax.swing.JTabbedPane;
 
 import icy.gui.util.GuiUtil;
-import plugins.fmp.tools.StatusPane;
+import plugins.fmp.tools.EnumStatusPane;
 
 
 public class CapillariesPane extends JPanel implements PropertyChangeListener {
@@ -52,7 +52,7 @@ public class CapillariesPane extends JPanel implements PropertyChangeListener {
 		capPanel.add(GuiUtil.besidesPanel(tabsPane));
 	}
 	
-	public void enableItems(StatusPane status) {
+	public void enableItems(EnumStatusPane status) {
 //		boolean enable1 = !(status == StatusPane.DISABLED);
 //		buildTab.enableItems(enable1);
 //		fileTab.enableItems(enable1);

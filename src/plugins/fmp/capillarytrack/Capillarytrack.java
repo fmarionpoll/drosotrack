@@ -20,8 +20,8 @@ import icy.sequence.Sequence;
 import icy.sequence.SequenceEvent;
 import icy.sequence.SequenceListener;
 import plugins.fmp.sequencevirtual.SequencePlus;
-import plugins.fmp.tools.ArrayListType;
-import plugins.fmp.tools.StatusAnalysis;
+import plugins.fmp.tools.EnumArrayListType;
+import plugins.fmp.tools.EnumStatusAnalysis;
 //import plugins.fmp.tools.StatusPane;
 import plugins.fmp.sequencevirtual.SequenceVirtual; 
 
@@ -67,7 +67,7 @@ public class Capillarytrack extends PluginActionable implements ViewerListener, 
 		resultsPane = new ResultsPane();
 		resultsPane.init(mainPanel, "RESULTS", this);
 		
-		buttonsVisibilityUpdate(StatusAnalysis.NODATA);
+		buttonsVisibilityUpdate(EnumStatusAnalysis.NODATA);
 		
 		mainFrame.pack();
 		mainFrame.center();
@@ -86,7 +86,7 @@ public class Capillarytrack extends PluginActionable implements ViewerListener, 
 //		{StatusPane.FULL, 	StatusPane.FULL, 	StatusPane.FULL, 	StatusPane.FULL} 			// 5 - MEASUREGULPS_OK
 //	};
 	
-	public void buttonsVisibilityUpdate(StatusAnalysis istate) {
+	public void buttonsVisibilityUpdate(EnumStatusAnalysis istate) {
 
 //		int analysisStep = 0;
 //		switch (istate ) {
@@ -110,7 +110,7 @@ public class Capillarytrack extends PluginActionable implements ViewerListener, 
 		for (SequencePlus seq: kymographArrayList) {
 			if (seq.hasChanged) {
 				seq.validateRois();
-				seq.getArrayListFromRois(ArrayListType.cumSum);
+				seq.getArrayListFromRois(EnumArrayListType.cumSum);
 				seq.hasChanged = false;
 			}
 		}
@@ -141,14 +141,14 @@ public class Capillarytrack extends PluginActionable implements ViewerListener, 
 		}
 		if (flag2) {
 			if ( !kymographsPane.loadDefaultKymos()) {
-				buttonsVisibilityUpdate(StatusAnalysis.ROIS_OK);
+				buttonsVisibilityUpdate(EnumStatusAnalysis.ROIS_OK);
 				return;
 			}
 		}
-		buttonsVisibilityUpdate(StatusAnalysis.KYMOS_OK);
+		buttonsVisibilityUpdate(EnumStatusAnalysis.KYMOS_OK);
 		if (flag2 && flag3) {
 			if (detectPane.fileTab.measuresFileOpen()) {
-				buttonsVisibilityUpdate(StatusAnalysis.MEASUREGULPS_OK );
+				buttonsVisibilityUpdate(EnumStatusAnalysis.MEASUREGULPS_OK );
 				sequencePane.optionsTab.UpdateItemsFromSequence(vSequence);
 			}
 		}
@@ -157,32 +157,32 @@ public class Capillarytrack extends PluginActionable implements ViewerListener, 
 	@Override
 	public void propertyChange(PropertyChangeEvent arg0) {
 		if (arg0.getPropertyName().equals("SEQ_OPEN")) {
-			buttonsVisibilityUpdate(StatusAnalysis.SEQ_OK);
+			buttonsVisibilityUpdate(EnumStatusAnalysis.SEQ_OK);
 			loadPreviousMeasures(
 					sequencePane.fileTab.isCheckedLoadPreviousProfiles(), 
 					sequencePane.fileTab.isCheckedLoadKymographs(),
 					sequencePane.fileTab.isCheckedLoadMeasures());
 		}
 		else if (arg0.getPropertyName().equals("SEQ_CLOSE")) {
-			buttonsVisibilityUpdate(StatusAnalysis.NODATA);
+			buttonsVisibilityUpdate(EnumStatusAnalysis.NODATA);
 		}
 		else if (arg0.getPropertyName().equals("CAPILLARIES_NEW")) {
-			buttonsVisibilityUpdate(StatusAnalysis.ROIS_OK);	
+			buttonsVisibilityUpdate(EnumStatusAnalysis.ROIS_OK);	
 		}
 		else if (arg0.getPropertyName().equals("CAPILLARIES_OPEN")) {
 		  	sequencePane.UpdateItemsFromSequence(vSequence);
-			buttonsVisibilityUpdate(StatusAnalysis.ROIS_OK);
+			buttonsVisibilityUpdate(EnumStatusAnalysis.ROIS_OK);
 		}
 		else if (arg0.getPropertyName().equals("KYMOS_OK")) {
-			buttonsVisibilityUpdate(StatusAnalysis.KYMOS_OK); 
+			buttonsVisibilityUpdate(EnumStatusAnalysis.KYMOS_OK); 
 		}
 		else if (arg0.getPropertyName().equals("MEASURETOP_OK")) {
-			buttonsVisibilityUpdate(StatusAnalysis.MEASURETOP_OK); 
+			buttonsVisibilityUpdate(EnumStatusAnalysis.MEASURETOP_OK); 
 		}
 		else if (arg0.getPropertyName().equals("MEASUREGULPS_OK") 
 				|| arg0.getPropertyName().equals("MEASURES_OPEN")) {	
 			kymographsPane.optionsTab.selectKymograph(0);
-			buttonsVisibilityUpdate(StatusAnalysis.MEASUREGULPS_OK );
+			buttonsVisibilityUpdate(EnumStatusAnalysis.MEASUREGULPS_OK );
 		}
 		else if (arg0.getPropertyName() .equals("KYMO_DISPLAYFILTERED")) {
 //			int ikymo = paneKymos.optionsTab.kymographNamesComboBox.getSelectedIndex();

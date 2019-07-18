@@ -67,7 +67,7 @@ import plugins.fmp.sequencevirtual.SequenceVirtual;
 import plugins.fmp.tools.OverlayThreshold;
 import plugins.fmp.tools.Tools;
 import plugins.fmp.tools.ImageTransformTools.TransformOp;
-import plugins.fmp.tools.StateD;
+import plugins.fmp.tools.EnumStateD;
 import plugins.kernel.roi.roi2d.ROI2DArea;
 import plugins.kernel.roi.roi2d.ROI2DPolygon;
 import plugins.kernel.roi.roi2d.ROI2DRectangle;
@@ -117,7 +117,7 @@ public class Drosotrack extends PluginActionable implements ActionListener, View
 
 	private SequenceVirtual vSequence 	= null;
 	private Timer 		checkBufferTimer 	= new Timer(1000, this);
-	private StateD state = StateD.NORMAL;
+	private EnumStateD state = EnumStateD.NORMAL;
 
 	private int 	threshold 				= 0;
 	private int		analyzeStep 			= 1;
@@ -165,7 +165,7 @@ public class Drosotrack extends PluginActionable implements ActionListener, View
 		saveROIsButton.setEnabled(false);
 		
 		thresholdSpinner.addChangeListener(this);
-		updateButtonsVisibility(StateD.NO_FILE);
+		updateButtonsVisibility(EnumStateD.NO_FILE);
 
 		mainFrame.pack();
 		mainFrame.center();
@@ -259,7 +259,7 @@ public class Drosotrack extends PluginActionable implements ActionListener, View
 			@Override
 			public void actionPerformed( final ActionEvent e ) { 
 				parseTextFields();
-				updateButtonsVisibility(StateD.NORMAL);
+				updateButtonsVisibility(EnumStateD.NORMAL);
 				ichanselected = colorChannelComboBox.getSelectedIndex();
 				trackAllFliesThread = new BuildTrackFliesThread();
 				trackAllFliesThread.start();
@@ -278,7 +278,7 @@ public class Drosotrack extends PluginActionable implements ActionListener, View
 						e1.printStackTrace();
 					}
 				}
-				updateButtonsVisibility(StateD.STOP_COMPUTATION);
+				updateButtonsVisibility(EnumStateD.STOP_COMPUTATION);
 			}});
 		
 		createROIsFromPolygonButton.addActionListener(new ActionListener () {
@@ -811,7 +811,7 @@ public class Drosotrack extends PluginActionable implements ActionListener, View
 			
 			endFrame = vSequence.getSizeT() - 1;
 			endFrameTextField.setText( Integer.toString(endFrame));
-			updateButtonsVisibility(StateD.INIT);
+			updateButtonsVisibility(EnumStateD.INIT);
 			
 			cageRoisOpen(path+"\\drosotrack.xml");
 		}
@@ -876,7 +876,7 @@ public class Drosotrack extends PluginActionable implements ActionListener, View
 		}
 	}
 	
-	private void updateButtonsVisibility(StateD istate) {
+	private void updateButtonsVisibility(EnumStateD istate) {
 		state = istate;
 		switch (state) {
 		case INIT:
@@ -1134,7 +1134,7 @@ public class Drosotrack extends PluginActionable implements ActionListener, View
 
 			} finally {
 				progress.close();
-				state = StateD.NORMAL;
+				state = EnumStateD.NORMAL;
 				vSequence.endUpdate();
 				for (int i=0; i < nbcages; i++)
 					vSequence.removeROI(tempRectROI[i]);
@@ -1157,7 +1157,7 @@ public class Drosotrack extends PluginActionable implements ActionListener, View
 
 			chrono.displayInSeconds();
 			System.out.println("Computation finished.");
-			updateButtonsVisibility(StateD.STOP_COMPUTATION);
+			updateButtonsVisibility(EnumStateD.STOP_COMPUTATION);
 		}
 	}
 	

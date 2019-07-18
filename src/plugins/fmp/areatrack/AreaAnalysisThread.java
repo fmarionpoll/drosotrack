@@ -22,7 +22,7 @@ import plugins.fmp.sequencevirtual.SequenceVirtual;
 import plugins.fmp.tools.ImageOperations;
 import plugins.fmp.tools.Tools;
 import plugins.fmp.tools.ImageTransformTools.TransformOp;
-import plugins.fmp.tools.ThresholdType;
+import plugins.fmp.tools.EnumThresholdType;
 
 public class AreaAnalysisThread extends Thread
 {
@@ -50,7 +50,7 @@ public class AreaAnalysisThread extends Thread
 	
 	public ArrayList<MeasureAndName> results = null;
 	
-	private ThresholdType thresholdtype = ThresholdType.SINGLE;
+	private EnumThresholdType thresholdtype = EnumThresholdType.SINGLE;
 	private ImageOperations imgOp1;
 	private ImageOperations imgOp2;
 	 
@@ -78,7 +78,7 @@ public class AreaAnalysisThread extends Thread
 		
 		imgOp1 = new ImageOperations (virtualSequence);
 		imgOp1.setTransform(transformop);
-		if (thresholdtype == ThresholdType.SINGLE) 
+		if (thresholdtype == EnumThresholdType.SINGLE) 
 			imgOp1.setThresholdSingle(thresholdForSurface);
 		
 		imgOp2 = new ImageOperations (virtualSequence);
@@ -99,7 +99,7 @@ public class AreaAnalysisThread extends Thread
 		resultONCanvas = new Canvas2D(resultONViewer);
 	}
 	
-	public void setAnalysisThreadParametersColors (ThresholdType thresholdtype, int distanceType, int colorthreshold, ArrayList<Color> colorarray)
+	public void setAnalysisThreadParametersColors (EnumThresholdType thresholdtype, int distanceType, int colorthreshold, ArrayList<Color> colorarray)
 	{
 		imgOp1.setColorArrayThreshold(colorarray, distanceType, colorthreshold);
 		this.thresholdtype = thresholdtype;

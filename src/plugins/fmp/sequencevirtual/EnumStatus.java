@@ -1,5 +1,5 @@
 package plugins.fmp.sequencevirtual;
 
-public enum Status {
+public enum EnumStatus {
 	AVIFILE, FILESTACK, REGULAR, FAILURE 
 }

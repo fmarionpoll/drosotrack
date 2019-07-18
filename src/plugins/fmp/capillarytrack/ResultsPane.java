@@ -8,7 +8,7 @@ import javax.swing.JPanel;
 import javax.swing.JTabbedPane;
 
 import icy.gui.util.GuiUtil;
-import plugins.fmp.tools.StatusPane;
+import plugins.fmp.tools.EnumStatusPane;
 
 public class ResultsPane extends JPanel implements PropertyChangeListener {
 
@@ -44,7 +44,7 @@ public class ResultsPane extends JPanel implements PropertyChangeListener {
 		}
 	}
 	
-	public void enableItems(StatusPane status) {
+	public void enableItems(EnumStatusPane status) {
 //		boolean enable1 = !(status == StatusPane.DISABLED);
 //		graphicsTab.enableItems(enable1);
 //		excelTab.enableItems(enable1);

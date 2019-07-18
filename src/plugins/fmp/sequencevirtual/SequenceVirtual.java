@@ -46,7 +46,7 @@ public class SequenceVirtual extends Sequence
 	
 	public VImageBufferThread bufferThread 	= null;
 	public boolean			bBufferON 		= false;
-	public Status 			status;
+	public EnumStatus 			status;
 	
 	public Capillaries 		capillaries 	= new Capillaries();
 	public Cages			cages 			= new Cages();
@@ -64,7 +64,7 @@ public class SequenceVirtual extends Sequence
 	// ----------------------------------------
 	public SequenceVirtual () 
 	{
-		status = Status.REGULAR;
+		status = EnumStatus.REGULAR;
 	}
 	
 	public SequenceVirtual(String name, IcyBufferedImage image) {
@@ -217,7 +217,7 @@ public class SequenceVirtual extends Sequence
 	@Override
 	public int getSizeT() {
 		int nframes = 0;
-		if (status == Status.REGULAR)
+		if (status == EnumStatus.REGULAR)
 			nframes = super.getSizeT();
 		else 
 			nframes = (int) nTotalFrames;
@@ -239,24 +239,24 @@ public class SequenceVirtual extends Sequence
 	public String getDecoratedImageName(int t)
 	{
 		String csTitle = "["+t+ "/" + nTotalFrames + " V] : ";
-		if (status == Status.FILESTACK) 
+		if (status == EnumStatus.FILESTACK) 
 			csTitle += listFiles[t];
-		else //  if ((status == Status.AVIFILE))
+		else //  if ((status == EnumStatus.AVIFILE))
 			csTitle += csFileName;
 		return csTitle;
 	}
 
 	public String getFileName(int t) {
 		String csName = null;
-		if (status == Status.FILESTACK) 
+		if (status == EnumStatus.FILESTACK) 
 			csName = listFiles[t];
-		else if (status == Status.AVIFILE)
+		else if (status == EnumStatus.AVIFILE)
 			csName = csFileName;
 		return csName;
 	}
 	
 	public boolean isFileStack() {
-		return (status == Status.FILESTACK);
+		return (status == EnumStatus.FILESTACK);
 	}
 		
 	public IcyBufferedImage loadVImage(int t, int z)
@@ -280,14 +280,14 @@ public class SequenceVirtual extends Sequence
 	
 	private IcyBufferedImage loadVImageFromFile(int t) {
 		BufferedImage buf =null;
-		if (status == Status.FILESTACK) {
+		if (status == EnumStatus.FILESTACK) {
 			buf = ImageUtil.load(listFiles[t]);
 			ImageUtil.waitImageReady(buf);
 			if (buf == null)
 				return null;
 							
 		}
-		else if (status == Status.AVIFILE) {
+		else if (status == EnumStatus.AVIFILE) {
 			buf = aviFile.getImage(t);
 		}
 		// --------------------------------
@@ -318,7 +318,7 @@ public class SequenceVirtual extends Sequence
 		 * @see icy.sequence.Sequence#setImage(int, int, java.awt.image.BufferedImage)
 		 */
 		
-		if ((status == Status.FILESTACK) || (status == Status.AVIFILE) )
+		if ((status == EnumStatus.FILESTACK) || (status == EnumStatus.AVIFILE) )
 			setCurrentVImage(t);
 		else 
 			super.setImage(t, z, bimage);
@@ -587,7 +587,7 @@ public class SequenceVirtual extends Sequence
 	    	directory = filename.getParentFile().getAbsolutePath();
 	    }
 		if (directory == null) {
-			status = Status.FAILURE;
+			status = EnumStatus.FAILURE;
 			return;
 		}
 		String [] list;
@@ -605,19 +605,19 @@ public class SequenceVirtual extends Sequence
 		try
 		{
 			aviFile = new XugglerAviFile(csFile, true);
-			status = Status.AVIFILE;
+			status = EnumStatus.AVIFILE;
 			nTotalFrames = (int) aviFile.getTotalNumberOfFrame();
 			csFileName = csFile;
 		}
 		catch (Exception exc)
 		{
 			MessageDialog.showDialog( "File type or video-codec not supported.", MessageDialog.ERROR_MESSAGE );
-			status = Status.FAILURE;
+			status = EnumStatus.FAILURE;
 		}
 	}
 	
 	private void loadSequenceVirtual(String[] list, String directory) {
-		status = Status.FAILURE;
+		status = EnumStatus.FAILURE;
 		list = keepOnlyAcceptedNames(list);
 		if (list==null) 
 			return;
@@ -630,20 +630,20 @@ public class SequenceVirtual extends Sequence
 		}
 		listFiles = StringSorter.sortNumerically(listFiles);
 		nTotalFrames = listFiles.length;
-		status = Status.FILESTACK;		
+		status = EnumStatus.FILESTACK;		
 	}
 
 	private void setVImageName(int t)
 	{
-		if (status == Status.FILESTACK)
+		if (status == EnumStatus.FILESTACK)
 			setName(getDecoratedImageName(t));
 	}
 
 	public String getFileName() {
 		String fileName;
-		if (status == Status.FILESTACK) 
+		if (status == EnumStatus.FILESTACK) 
 			fileName = listFiles[0];
-		else //  if ((status == Status.AVIFILE))
+		else //  if ((status == EnumStatus.AVIFILE))
 			fileName = csFileName;
 		return fileName;		
 	}

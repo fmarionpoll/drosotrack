@@ -33,9 +33,9 @@ import icy.system.thread.ThreadUtil;
 import loci.formats.FormatException;
 import plugins.fmp.sequencevirtual.SequencePlus;
 import plugins.fmp.sequencevirtual.SequenceVirtual;
-import plugins.fmp.sequencevirtual.Status;
+import plugins.fmp.sequencevirtual.EnumStatus;
 import plugins.fmp.tools.BuildKymographsThread;
-import plugins.fmp.tools.StatusComputation;
+import plugins.fmp.tools.EnumStatusComputation;
 
 public class BuildKymosPane  extends JPanel implements PropertyChangeListener, ActionListener, ViewerListener {
 
@@ -49,7 +49,7 @@ public class BuildKymosPane  extends JPanel implements PropertyChangeListener, A
 	SequenceVirtual vinputSequence 		= null;
 	private ArrayList <SequencePlus> 	kymographArrayList 		= new ArrayList <SequencePlus> ();		// list of kymograph sequences
 	
-	private StatusComputation sComputation = StatusComputation.START_COMPUTATION; 
+	private EnumStatusComputation sComputation = EnumStatusComputation.START_COMPUTATION; 
 	private BuildKymographsThread buildKymographsThread = null;
 	private Viewer viewer1 = null;
 	private Thread thread = null;
@@ -126,7 +126,7 @@ private ExportMultiCAFE 	parent0 	= null;
 		thread.start();
 
 		// change display status
-		sComputation = StatusComputation.STOP_COMPUTATION;
+		sComputation = EnumStatusComputation.STOP_COMPUTATION;
 		stopComputationButton.setEnabled(true);
 		startComputationButton.setEnabled(false);
 		
@@ -145,7 +145,7 @@ private ExportMultiCAFE 	parent0 	= null;
 	
 	private void stopComputation() {
 		
-		if (sComputation == StatusComputation.STOP_COMPUTATION) {
+		if (sComputation == EnumStatusComputation.STOP_COMPUTATION) {
 			if (thread.isAlive()) {
 				thread.interrupt();
 				try {
@@ -155,7 +155,7 @@ private ExportMultiCAFE 	parent0 	= null;
 				}
 			}
 		}
-		sComputation = StatusComputation.START_COMPUTATION;
+		sComputation = EnumStatusComputation.START_COMPUTATION;
 		startComputationButton.setEnabled(true);
 	}
 
@@ -168,7 +168,7 @@ private ExportMultiCAFE 	parent0 	= null;
 		vinputSequence = new SequenceVirtual();
 		vinputSequence.loadInputVirtualFromName(csdummy);
 		vinputSequence.setFileName(csdummy);
-		if (vinputSequence.status == Status.FAILURE) {
+		if (vinputSequence.status == EnumStatus.FAILURE) {
 			XMLPreferences guiPrefs = parent0.getPreferences("gui");
 			String lastUsedPath = guiPrefs.get("lastUsedPath", "");
 			String path = vinputSequence.loadInputVirtualStack(lastUsedPath);
@@ -234,8 +234,8 @@ private ExportMultiCAFE 	parent0 	= null;
 	private void nextComputation() {
 		kymographsSaveToFileIntoResults();
 		closeSequence();
-		if (sComputation == StatusComputation.STOP_COMPUTATION) {
-			sComputation = StatusComputation.START_COMPUTATION;
+		if (sComputation == EnumStatusComputation.STOP_COMPUTATION) {
+			sComputation = EnumStatusComputation.START_COMPUTATION;
 			startComputationButton.setEnabled(true);
 			String oo = ((DefaultListModel<String>) parent0.listFilesPane.xmlFilesJList.getModel()).getElementAt(0);
 			((DefaultListModel<String>) parent0.listFilesPane.xmlFilesJList.getModel()).removeElement(oo);

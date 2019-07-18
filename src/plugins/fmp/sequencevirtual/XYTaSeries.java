@@ -9,7 +9,7 @@ import org.w3c.dom.Node;
 import icy.file.xml.XMLPersistent;
 import icy.roi.ROI2D;
 import icy.util.XMLUtil;
-import plugins.fmp.tools.ArrayListType;
+import plugins.fmp.tools.EnumArrayListType;
 import plugins.kernel.roi.roi2d.*;
 
 public class XYTaSeries implements XMLPersistent {
@@ -102,7 +102,7 @@ public class XYTaSeries implements XMLPersistent {
 		return true;
 	}
 	
-	public ArrayList<Double> getDoubleArrayList (ArrayListType option) {
+	public ArrayList<Double> getDoubleArrayList (EnumArrayListType option) {
 		
 		if (pointsList.size() == 0)
 			return null;

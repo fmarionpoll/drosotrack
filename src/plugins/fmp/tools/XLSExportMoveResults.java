@@ -44,9 +44,9 @@ public class XLSExportMoveResults extends XLSExport {
 			{
 				String charSeries = CellReference.convertNumToColString(iSeries);
 			
-				if (options.xyCenter)  	col_end = xlsExportToWorkbook(exp, workbook, col_max, charSeries, XLSExportItems.XYCENTER);
-				if (options.distance) 	col_end = xlsExportToWorkbook(exp, workbook, col_max, charSeries, XLSExportItems.DISTANCE);
-				if (options.alive) 		col_end = xlsExportToWorkbook(exp, workbook, col_max, charSeries,  XLSExportItems.ISALIVE);
+				if (options.xyCenter)  	col_end = xlsExportToWorkbook(exp, workbook, col_max, charSeries, EnumXLSExportItems.XYCENTER);
+				if (options.distance) 	col_end = xlsExportToWorkbook(exp, workbook, col_max, charSeries, EnumXLSExportItems.DISTANCE);
+				if (options.alive) 		col_end = xlsExportToWorkbook(exp, workbook, col_max, charSeries,  EnumXLSExportItems.ISALIVE);
 				
 				if (col_end > col_max)
 					col_max = col_end;
@@ -59,11 +59,11 @@ public class XLSExportMoveResults extends XLSExport {
 				
 				String sourceSheetName = null;
 				if (options.alive) 
-					sourceSheetName = XLSExportItems.ISALIVE.toString();
+					sourceSheetName = EnumXLSExportItems.ISALIVE.toString();
 				else if (options.xyCenter) 
-					sourceSheetName = XLSExportItems.XYCENTER.toString();
+					sourceSheetName = EnumXLSExportItems.XYCENTER.toString();
 				else if (options.distance) 
-					sourceSheetName = XLSExportItems.DISTANCE.toString();
+					sourceSheetName = EnumXLSExportItems.DISTANCE.toString();
 				xlsCreatePivotTables(workbook, sourceSheetName);
 			}
 			
@@ -80,29 +80,29 @@ public class XLSExportMoveResults extends XLSExport {
 		System.out.println("XLS output finished");
 	}
 	
-	private static ArrayList <ArrayList<Double>> getDataFromCages(Experiment exp, XLSExportItems option) {
+	private static ArrayList <ArrayList<Double>> getDataFromCages(Experiment exp, EnumXLSExportItems option) {
 
 		ArrayList <ArrayList<Double >> arrayList = new ArrayList <ArrayList <Double>> ();
 		
 		for (XYTaSeries posxyt: exp.vSequence.cages.flyPositionsList) {
 			switch (option) {
 			case DISTANCE: 
-				arrayList.add(posxyt.getDoubleArrayList(ArrayListType.distance));
+				arrayList.add(posxyt.getDoubleArrayList(EnumArrayListType.distance));
 				break;
 			case ISALIVE:
-				arrayList.add(posxyt.getDoubleArrayList(ArrayListType.isalive));
+				arrayList.add(posxyt.getDoubleArrayList(EnumArrayListType.isalive));
 				// TODO add threshold to cleanup data?
 				break;
 			case XYCENTER:
 			default:
-				arrayList.add(posxyt.getDoubleArrayList(ArrayListType.xyPosition));
+				arrayList.add(posxyt.getDoubleArrayList(EnumArrayListType.xyPosition));
 				break;
 			}
 		}
 		return arrayList;
 	}
 
-	public int xlsExportToWorkbook(Experiment exp, XSSFWorkbook workBook, int col0, String charSeries, XLSExportItems xlsExportOption) {
+	public int xlsExportToWorkbook(Experiment exp, XSSFWorkbook workBook, int col0, String charSeries, EnumXLSExportItems xlsExportOption) {
 
 		ArrayList <ArrayList<Double >> arrayList = getDataFromCages(exp, xlsExportOption);
 
@@ -120,7 +120,7 @@ public class XLSExportMoveResults extends XLSExport {
 		return pt.x;
 	}
 	
-	private Point writeGlobalInfos(Experiment exp, XSSFSheet sheet, Point pt, boolean transpose, XLSExportItems option) {
+	private Point writeGlobalInfos(Experiment exp, XSSFSheet sheet, Point pt, boolean transpose, EnumXLSExportItems option) {
 		
 		int col0 = pt.x;
 		
@@ -157,7 +157,7 @@ public class XLSExportMoveResults extends XLSExport {
 		return pt;
 	}
 
-	private Point writeHeader (Experiment exp, XSSFSheet sheet, Point pt, XLSExportItems xlsExportOption, boolean transpose, String charSeries) {
+	private Point writeHeader (Experiment exp, XSSFSheet sheet, Point pt, EnumXLSExportItems xlsExportOption, boolean transpose, String charSeries) {
 		
 		int col0 = pt.x;
 		pt = writeGenericHeader(exp, sheet, xlsExportOption, pt, transpose, charSeries);
@@ -196,7 +196,7 @@ public class XLSExportMoveResults extends XLSExport {
 		return pt;
 	}
 	
-	private Point writeData (Experiment exp, XSSFSheet sheet, Point pt, XLSExportItems option, ArrayList <ArrayList<Double >> dataArrayList, boolean transpose, String charSeries) {
+	private Point writeData (Experiment exp, XSSFSheet sheet, Point pt, EnumXLSExportItems option, ArrayList <ArrayList<Double >> dataArrayList, boolean transpose, String charSeries) {
 	
 		int col0 = pt.x;
 		int row0 = pt.y;
@@ -294,7 +294,7 @@ public class XLSExportMoveResults extends XLSExport {
 		return pt;
 	}
 
-	private int columnOfNextSeries(Experiment exp, XLSExportItems option, int currentcolumn) {
+	private int columnOfNextSeries(Experiment exp, EnumXLSExportItems option, int currentcolumn) {
 		int n = 2;
 		int value = currentcolumn + exp.vSequence.cages.cageLimitROIList.size() * n + 3;
 		return value;

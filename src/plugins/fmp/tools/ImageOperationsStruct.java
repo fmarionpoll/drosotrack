@@ -12,18 +12,18 @@ public class ImageOperationsStruct {
 	int 				colorthreshold	= 0;
 	ArrayList <Color> 	colorarray 		= null;
 	TransformOp 		transformop		= TransformOp.NONE;
-	ThresholdType 		thresholdtype 	= ThresholdType.NONE;
+	EnumThresholdType 		thresholdtype 	= EnumThresholdType.NONE;
 		
 	// -----------------------------------
 	
 	public ImageOperationsStruct () {
 		this.fromFrame = -1;
 		this.transformop = TransformOp.NONE;
-		this.thresholdtype = ThresholdType.NONE;
+		this.thresholdtype = EnumThresholdType.NONE;
 		this.colorthreshold = 0;
 	}
 	
-	public ImageOperationsStruct (int framenumber, TransformOp transformop, ThresholdType thresholdtype, int thresholdvalue) {
+	public ImageOperationsStruct (int framenumber, TransformOp transformop, EnumThresholdType thresholdtype, int thresholdvalue) {
 		this.fromFrame = framenumber;
 		this.transformop = transformop;
 		this.thresholdtype = thresholdtype;
@@ -33,7 +33,7 @@ public class ImageOperationsStruct {
 	public ImageOperationsStruct (int framenumber, TransformOp transformop) {
 		this.fromFrame = framenumber;
 		this.transformop = transformop;
-		this.thresholdtype = ThresholdType.NONE;
+		this.thresholdtype = EnumThresholdType.NONE;
 		this.colorthreshold = 0;
 	}
 	
@@ -54,10 +54,10 @@ public class ImageOperationsStruct {
 	public void copyThresholdOpTo (ImageOperationsStruct op) {
 		
 		op.thresholdtype = thresholdtype;
-		if (thresholdtype == ThresholdType.SINGLE) {
+		if (thresholdtype == EnumThresholdType.SINGLE) {
 			op.simplethreshold = simplethreshold;
 		}
-		else if (thresholdtype == ThresholdType.COLORARRAY) {
+		else if (thresholdtype == EnumThresholdType.COLORARRAY) {
 			op.colorthreshold = colorthreshold;
 			if (op.colorarray == null)
 				op.colorarray = new ArrayList <Color> ();
@@ -77,7 +77,7 @@ public class ImageOperationsStruct {
 		if (op.thresholdtype != this.thresholdtype)
 			return false;
 		
-		if (op.thresholdtype == ThresholdType.COLORARRAY) {
+		if (op.thresholdtype == EnumThresholdType.COLORARRAY) {
 			if (op.colorthreshold != this.colorthreshold)
 				return false;
 			if (op.colordistanceType != this.colordistanceType)

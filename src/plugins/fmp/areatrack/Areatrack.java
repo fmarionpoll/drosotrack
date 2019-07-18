@@ -76,7 +76,7 @@ import plugins.fmp.sequencevirtual.SequencePlus;
 import plugins.fmp.tools.ComboBoxColorRenderer;
 import plugins.fmp.tools.Tools;
 import plugins.fmp.tools.ImageTransformTools.TransformOp;
-import plugins.fmp.tools.ThresholdType;
+import plugins.fmp.tools.EnumThresholdType;
 
 
 public class Areatrack extends PluginActionable implements ActionListener, ChangeListener, ViewerListener
@@ -150,7 +150,7 @@ public class Areatrack extends PluginActionable implements ActionListener, Chang
 
 	
 	// parameters saved/read in xml file
-	private ThresholdType thresholdtype 	= ThresholdType.COLORARRAY; 
+	private EnumThresholdType thresholdtype 	= EnumThresholdType.COLORARRAY; 
 	// simple
 	private TransformOp simpletransformop 	= TransformOp.R2MINUS_GB;
 	private int 		simplethreshold 	= 20;
@@ -786,13 +786,13 @@ public class Areatrack extends PluginActionable implements ActionListener, Chang
 		boolean activateThreshold = true;
 		int thresholdForOverlay=0;
 		TransformOp transformOpForOverlay = TransformOp.NONE;
-		ThresholdType thresholdTypeForOverlay = ThresholdType.SINGLE;
+		EnumThresholdType thresholdTypeForOverlay = EnumThresholdType.SINGLE;
 		
 		switch (tabbedPane.getSelectedIndex()) {
 			case 0:  // color array
 				colorthreshold = Integer.parseInt(distanceSpinner.getValue().toString());
 				thresholdForOverlay = colorthreshold;
-				thresholdtype = ThresholdType.COLORARRAY;
+				thresholdtype = EnumThresholdType.COLORARRAY;
 				thresholdTypeForOverlay = thresholdtype;
 				transformOpForOverlay = colortransformop;
 				colorarray.clear();
@@ -809,14 +809,14 @@ public class Areatrack extends PluginActionable implements ActionListener, Chang
 				transformOpForOverlay = simpletransformop;
 				simplethreshold = Integer.parseInt(thresholdSpinner.getValue().toString());
 				thresholdForOverlay = simplethreshold; 
-				thresholdtype = ThresholdType.SINGLE;
+				thresholdtype = EnumThresholdType.SINGLE;
 				thresholdTypeForOverlay = thresholdtype;	
 				break;
 
 			case 2:	// movement threshold
 				thresholdmovement = Integer.parseInt(threshold2Spinner.getValue().toString());
 				thresholdForOverlay = thresholdmovement; 
-				thresholdTypeForOverlay = ThresholdType.SINGLE;
+				thresholdTypeForOverlay = EnumThresholdType.SINGLE;
 				transformOpForOverlay = TransformOp.REF_PREVIOUS;
 				break;
 			
@@ -831,7 +831,7 @@ public class Areatrack extends PluginActionable implements ActionListener, Chang
 		
 		if (activateThreshold && vSequence != null) {
 			vSequence.setThresholdOverlay(activateThreshold);
-			if (thresholdTypeForOverlay == ThresholdType.SINGLE)
+			if (thresholdTypeForOverlay == EnumThresholdType.SINGLE)
 				vSequence.setThresholdOverlayParametersSingle(transformOpForOverlay, thresholdForOverlay);
 			else
 				vSequence.setThresholdOverlayParametersColors(transformOpForOverlay, colorarray, colordistanceType, colorthreshold);

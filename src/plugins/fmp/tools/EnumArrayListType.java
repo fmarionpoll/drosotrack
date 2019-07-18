@@ -1,6 +1,6 @@
 package plugins.fmp.tools;
 
-public enum ArrayListType {
+public enum EnumArrayListType {
 	topLevel, bottomLevel, derivedValues, cumSum, topAndBottom, 
 	xyPosition, distance, isalive,
 	topLevelDelta

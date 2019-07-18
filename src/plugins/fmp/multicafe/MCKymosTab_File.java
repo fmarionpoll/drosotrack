@@ -12,7 +12,7 @@ import icy.gui.util.FontUtil;
 import icy.gui.util.GuiUtil;
 import plugins.fmp.sequencevirtual.SequencePlus;
 import plugins.fmp.sequencevirtual.SequencePlusUtils;
-import plugins.fmp.tools.ArrayListType;
+import plugins.fmp.tools.EnumArrayListType;
 
 public class MCKymosTab_File  extends JPanel implements ActionListener {
 	/**
@@ -70,7 +70,7 @@ public class MCKymosTab_File  extends JPanel implements ActionListener {
 			boolean flag2 = true;
 			if (flag2 = seq.loadXMLKymographAnalysis(directory)) {
 				seq.validateRois();
-				seq.getArrayListFromRois(ArrayListType.cumSum);
+				seq.getArrayListFromRois(EnumArrayListType.cumSum);
 			}
 			else {
 				System.out.println("load measures -> failed or not found in directory: " + directory);

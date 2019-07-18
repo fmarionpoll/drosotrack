@@ -22,9 +22,9 @@ import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
 import plugins.fmp.sequencevirtual.SequencePlus;
-import plugins.fmp.tools.ArrayListType;
+import plugins.fmp.tools.EnumArrayListType;
 import plugins.fmp.tools.Tools;
-import plugins.fmp.tools.XLSExportItems;
+import plugins.fmp.tools.EnumXLSExportItems;
 
 public class ResultsTab_Excel extends JPanel implements ActionListener  {
 
@@ -94,15 +94,15 @@ public class ResultsTab_Excel extends JPanel implements ActionListener  {
 			workbook.setMissingCellPolicy(Row.MissingCellPolicy.CREATE_NULL_AS_BLANK);
 
 			if (topLevelCheckBox.isSelected()) 
-				xlsExportToWorkbook(workbook, "toplevel", XLSExportItems.TOPLEVEL);
+				xlsExportToWorkbook(workbook, "toplevel", EnumXLSExportItems.TOPLEVEL);
 			if (bottomLevelCheckBox.isSelected()) 
-				xlsExportToWorkbook(workbook, "bottomlevel", XLSExportItems.BOTTOMLEVEL);
+				xlsExportToWorkbook(workbook, "bottomlevel", EnumXLSExportItems.BOTTOMLEVEL);
 			if (derivativeCheckBox.isSelected()) 
-				xlsExportToWorkbook(workbook, "derivative", XLSExportItems.DERIVEDVALUES);
+				xlsExportToWorkbook(workbook, "derivative", EnumXLSExportItems.DERIVEDVALUES);
 			if (consumptionCheckBox.isSelected()) 
-				xlsExportToWorkbook(workbook, "sumGulps", XLSExportItems.SUMGULPS);
+				xlsExportToWorkbook(workbook, "sumGulps", EnumXLSExportItems.SUMGULPS);
 			if (sumCheckBox.isSelected()) 
-				xlsExportToWorkbook(workbook, "sumL+R", XLSExportItems.SUMLR);
+				xlsExportToWorkbook(workbook, "sumL+R", EnumXLSExportItems.SUMLR);
 			
 			FileOutputStream fileOut = new FileOutputStream(filename);
 			workbook.write(fileOut);
@@ -114,24 +114,24 @@ public class ResultsTab_Excel extends JPanel implements ActionListener  {
 		System.out.println("XLS output finished");
 	}
 
-	private ArrayList <ArrayList<Integer >> getDataFromRois(XLSExportItems option, boolean relative) {
+	private ArrayList <ArrayList<Integer >> getDataFromRois(EnumXLSExportItems option, boolean relative) {
 		ArrayList <ArrayList<Integer >> arrayList = new ArrayList <ArrayList <Integer>> ();
 		for (SequencePlus seq: parent0.kymographArrayList) {
 			switch (option) {
 			case DERIVEDVALUES:
-				arrayList.add(seq.getArrayListFromRois(ArrayListType.derivedValues));
+				arrayList.add(seq.getArrayListFromRois(EnumArrayListType.derivedValues));
 				break;
 			case SUMGULPS: 
-				seq.getArrayListFromRois(ArrayListType.cumSum);
-				arrayList.add(seq.getArrayListFromRois(ArrayListType.cumSum));
+				seq.getArrayListFromRois(EnumArrayListType.cumSum);
+				arrayList.add(seq.getArrayListFromRois(EnumArrayListType.cumSum));
 				break;
 			case BOTTOMLEVEL:
-				arrayList.add(seq.getArrayListFromRois(ArrayListType.bottomLevel));
+				arrayList.add(seq.getArrayListFromRois(EnumArrayListType.bottomLevel));
 				break;
 			case TOPLEVEL:
 			case SUMLR:
 			default:
-				arrayList.add(seq.getArrayListFromRois(ArrayListType.topLevel));
+				arrayList.add(seq.getArrayListFromRois(EnumArrayListType.topLevel));
 				break;
 			}
 		}
@@ -149,7 +149,7 @@ public class ResultsTab_Excel extends JPanel implements ActionListener  {
 		return arrayList;
 	}
 	
-	private void xlsExportToWorkbook(XSSFWorkbook workBook, String title, XLSExportItems option) {
+	private void xlsExportToWorkbook(XSSFWorkbook workBook, String title, EnumXLSExportItems option) {
 		System.out.println("export worksheet "+title);
 		ArrayList <ArrayList<Integer >> arrayList = getDataFromRois(option, t0CheckBox.isSelected());		
 		if (arrayList.size() == 0)
@@ -186,7 +186,7 @@ public class ResultsTab_Excel extends JPanel implements ActionListener  {
 		return pt;
 	}
 
-	private Point writeColumnHeaders (XSSFSheet sheet, Point pt, XLSExportItems option, boolean transpose) {
+	private Point writeColumnHeaders (XSSFSheet sheet, Point pt, EnumXLSExportItems option, boolean transpose) {
 		pt = toColZero(pt, transpose);
 		if (parent0.vSequence.isFileStack()) {
 			setValue(sheet,  pt.x, pt.y, "filename" );
@@ -222,7 +222,7 @@ public class ResultsTab_Excel extends JPanel implements ActionListener  {
 		return pt;
 	}
 
-	private Point writeData (XSSFSheet sheet, Point pt, XLSExportItems option, ArrayList <ArrayList<Integer >> arrayList, boolean transpose) {
+	private Point writeData (XSSFSheet sheet, Point pt, EnumXLSExportItems option, ArrayList <ArrayList<Integer >> arrayList, boolean transpose) {
 		int maxelements = 0;
 		for (int i=0; i< arrayList.size(); i++) {
 			ArrayList<Integer> datai = arrayList.get(i);

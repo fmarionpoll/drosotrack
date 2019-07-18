@@ -12,7 +12,7 @@ import javax.swing.event.ChangeListener;
 
 import icy.gui.util.GuiUtil;
 import icy.image.IcyBufferedImage;
-import plugins.fmp.tools.StatusPane;
+import plugins.fmp.tools.EnumStatusPane;
 import plugins.fmp.sequencevirtual.SequencePlus;
 import plugins.fmp.tools.ImageTransformTools;
 import plugins.fmp.tools.ImageTransformTools.TransformOp;
@@ -72,7 +72,7 @@ public class DetectPane extends JPanel implements PropertyChangeListener, Change
 		tabsPane.setSelectedIndex(0);
 	}
 	
-	public void enableItems(StatusPane status) {
+	public void enableItems(EnumStatusPane status) {
 //		boolean enable1 = !(status == StatusPane.DISABLED);
 //		limitsTab.enableItems(enable1);
 //		fileTab.enableItems(enable1);

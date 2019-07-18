@@ -29,13 +29,13 @@ public class ImageOperations {
 	}
 	
 	public void setThresholdSingle( int threshold) {
-		opThresh.thresholdtype = ThresholdType.SINGLE;
+		opThresh.thresholdtype = EnumThresholdType.SINGLE;
 		opThresh.simplethreshold = threshold;
 		imgThresh.setSingleThreshold(threshold);
 	}
 	
 	public void setColorArrayThreshold (ArrayList <Color> colorarray, int distanceType, int colorthreshold) {
-		opThresh.thresholdtype = ThresholdType.COLORARRAY;
+		opThresh.thresholdtype = EnumThresholdType.COLORARRAY;
 		opThresh.colorarray = colorarray;
 		opThresh.colordistanceType = distanceType;
 		opThresh.colorthreshold = colorthreshold;
@@ -61,7 +61,7 @@ public class ImageOperations {
 		// step 2
 		opThresh.fromFrame = frame;
 		if (!opThresh.isValidThresholdCache(seq.cacheThresholdOp)) {
-			if (opThresh.thresholdtype == ThresholdType.COLORARRAY) 
+			if (opThresh.thresholdtype == EnumThresholdType.COLORARRAY) 
 				seq.cacheThresholdedImage = imgThresh.getBinaryInt_FromColorsThreshold(seq.cacheTransformedImage); 
 			else 
 				seq.cacheThresholdedImage = imgThresh.getBinaryInt_FromThreshold(seq.cacheTransformedImage);
@@ -79,7 +79,7 @@ public class ImageOperations {
 		
 		// step 2
 		IcyBufferedImage thresholdedImage;
-		if (opThresh.thresholdtype == ThresholdType.COLORARRAY)
+		if (opThresh.thresholdtype == EnumThresholdType.COLORARRAY)
 			thresholdedImage = imgThresh.getBinaryInt_FromColorsThreshold(transformedImage); 
 		else 
 			thresholdedImage = imgThresh.getBinaryInt_FromThreshold(transformedImage);

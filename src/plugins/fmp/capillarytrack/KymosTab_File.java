@@ -25,7 +25,7 @@ import icy.gui.util.GuiUtil;
 import icy.image.IcyBufferedImage;
 import loci.formats.FormatException;
 
-import plugins.fmp.tools.StatusAnalysis;
+import plugins.fmp.tools.EnumStatusAnalysis;
 import plugins.fmp.sequencevirtual.SequencePlus;
 
 public class KymosTab_File  extends JPanel implements ActionListener {
@@ -65,7 +65,7 @@ public class KymosTab_File  extends JPanel implements ActionListener {
 			boolean flag = openFiles(path); 
 			enableItems(true);
 			if (flag) {
-				parent0.buttonsVisibilityUpdate(StatusAnalysis.KYMOS_OK);
+				parent0.buttonsVisibilityUpdate(EnumStatusAnalysis.KYMOS_OK);
 				firePropertyChange("KYMOS_OPEN", false, true);	
 			}
 		}

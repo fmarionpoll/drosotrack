@@ -11,7 +11,7 @@ import javax.swing.event.ChangeListener;
 
 import icy.gui.util.GuiUtil;
 import icy.gui.viewer.Viewer;
-import plugins.fmp.tools.StatusPane;
+import plugins.fmp.tools.EnumStatusPane;
 
 
 public class KymosPane extends JPanel implements PropertyChangeListener, ChangeListener {
@@ -115,7 +115,7 @@ public class KymosPane extends JPanel implements PropertyChangeListener, ChangeL
 			tabbedCapillariesAndKymosSelected();
 	}
 		
-	public void enableItems(StatusPane status) {
+	public void enableItems(EnumStatusPane status) {
 //		boolean enable1 = !(status == StatusPane.DISABLED);
 //		buildTab.enableItems(enable1);
 //		fileTab.enableItems(enable1);

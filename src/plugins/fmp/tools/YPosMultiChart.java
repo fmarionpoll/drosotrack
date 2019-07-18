@@ -47,7 +47,7 @@ public class YPosMultiChart extends IcyFrame {
 		pt = new Point(rectv.x + deltapt.x, rectv.y + deltapt.y);
 	}
 	
-	public void displayData(ArrayList<XYTaSeries> flyPositionsList, ArrayListType option) {
+	public void displayData(ArrayList<XYTaSeries> flyPositionsList, EnumArrayListType option) {
 
 		if (xyDataSetList == null)
 			displayNewData(flyPositionsList, option);
@@ -55,7 +55,7 @@ public class YPosMultiChart extends IcyFrame {
 			fetchNewData(flyPositionsList, option);
 	}
 	
-	private void displayNewData(ArrayList<XYTaSeries> flyPositionsList, ArrayListType option) {
+	private void displayNewData(ArrayList<XYTaSeries> flyPositionsList, EnumArrayListType option) {
 
 		xyDataSetList = new ArrayList <XYSeriesCollection>();
 		MinMaxDouble valMinMax = new MinMaxDouble();
@@ -89,7 +89,7 @@ public class YPosMultiChart extends IcyFrame {
 		mainChartFrame.setVisible(true);
 	}
 	
-	private void fetchNewData (ArrayList<XYTaSeries> flyPositionsList, ArrayListType option) {
+	private void fetchNewData (ArrayList<XYTaSeries> flyPositionsList, EnumArrayListType option) {
 
 		for (XYTaSeries positionxyt: flyPositionsList) 
 		{
@@ -108,7 +108,7 @@ public class YPosMultiChart extends IcyFrame {
 		}
 	}
 	
-	private MinMaxDouble addPointsToXYSeries(XYTaSeries positionxyt, ArrayListType option, XYSeries seriesXY) {
+	private MinMaxDouble addPointsToXYSeries(XYTaSeries positionxyt, EnumArrayListType option, XYSeries seriesXY) {
 		int itmax = positionxyt.pointsList.size();
 		MinMaxDouble minmax =null;
 		switch (option) {
@@ -159,7 +159,7 @@ public class YPosMultiChart extends IcyFrame {
 		return minmax;
 	}
 	
-	private YPosMultiChartStructure getDataSet(XYTaSeries positionxyt, ArrayListType option) {
+	private YPosMultiChartStructure getDataSet(XYTaSeries positionxyt, EnumArrayListType option) {
 		
 		XYSeriesCollection xyDataset = new XYSeriesCollection();	
 		String name = positionxyt.roi.getName();

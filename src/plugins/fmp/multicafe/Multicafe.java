@@ -24,7 +24,7 @@ import icy.sequence.SequenceListener;
 import icy.system.thread.ThreadUtil;
 
 import plugins.fmp.sequencevirtual.SequencePlus;
-import plugins.fmp.tools.ArrayListType;
+import plugins.fmp.tools.EnumArrayListType;
 import plugins.fmp.sequencevirtual.SequenceVirtual;
 
 
@@ -75,7 +75,7 @@ public class Multicafe extends PluginActionable implements ViewerListener, Prope
 		for (SequencePlus seq: kymographArrayList) {
 			if (seq.hasChanged) {
 				seq.validateRois();
-				seq.getArrayListFromRois(ArrayListType.cumSum);
+				seq.getArrayListFromRois(EnumArrayListType.cumSum);
 				seq.hasChanged = false;
 			}
 		}

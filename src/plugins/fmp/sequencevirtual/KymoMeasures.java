@@ -7,7 +7,7 @@ import java.util.List;
 
 import icy.roi.ROI2D;
 import icy.type.geom.Polyline2D;
-import plugins.fmp.tools.ArrayListType;
+import plugins.fmp.tools.EnumArrayListType;
 import plugins.kernel.roi.roi2d.ROI2DPolyLine;
 import plugins.kernel.roi.roi2d.ROI2DShape;
 
@@ -18,7 +18,7 @@ public class KymoMeasures {
 	public ArrayList <ROI2DShape> measuresArrayList = new ArrayList <ROI2DShape>();	
 
 	
-	public ArrayList<Integer> getArrayList (ArrayListType option) {
+	public ArrayList<Integer> getArrayList (EnumArrayListType option) {
 
 		if (measuresArrayList.size() == 0)
 			return null;

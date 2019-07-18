@@ -1,6 +1,6 @@
 package plugins.fmp.tools;
 
-public enum XLSExportItems {
+public enum EnumXLSExportItems {
 	TOPLEVEL ("toplevel"), 
 	BOTTOMLEVEL ("bottomlevel"), 
 	DERIVEDVALUES ("derivative"), 
@@ -14,7 +14,7 @@ public enum XLSExportItems {
 	
 	private String label;
 	
-	XLSExportItems (String label) { 
+	EnumXLSExportItems (String label) { 
 		this.label = label;
 	}
 	
@@ -22,8 +22,8 @@ public enum XLSExportItems {
 		return label;
 	}
 	
-	public static XLSExportItems findByText(String abbr){
-	    for(XLSExportItems v : values()) { 
+	public static EnumXLSExportItems findByText(String abbr){
+	    for(EnumXLSExportItems v : values()) { 
 	    	if( v.toString().equals(abbr)) { 
 	    		return v; 
     		}  

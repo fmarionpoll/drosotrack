@@ -1,5 +1,5 @@
 package plugins.fmp.tools;
 
-public enum StatusComputation {
+public enum EnumStatusComputation {
 	START_COMPUTATION, STOP_COMPUTATION
 }
