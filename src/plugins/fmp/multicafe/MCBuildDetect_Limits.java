@@ -51,10 +51,10 @@ public class MCBuildDetect_Limits {
 			SequencePlus kymographSeq = parent0.kymographArrayList.get(kymo);
 			double detectLevelThreshold = parent0.kymographsPane.limitsTab.getDetectLevelThreshold();
 
-			for (ROI roi:kymographSeq.getROIs()) {
-				if (roi.getName().contains("topLevel"))
-					kymographSeq.removeROI(roi);
-			}
+//			for (ROI roi:kymographSeq.getROIs()) {
+//				if (roi.getName().contains("topLevel"))
+//					kymographSeq.removeROI(roi);
+//			}
 			kymographSeq.removeAllROI();
 			
 			// save parameters status

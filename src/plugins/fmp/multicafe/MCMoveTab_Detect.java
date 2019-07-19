@@ -24,7 +24,7 @@ import icy.gui.frame.progress.AnnounceFrame;
 import icy.gui.util.GuiUtil;
 import icy.roi.ROI2D;
 import icy.system.thread.ThreadUtil;
-import plugins.fmp.tools.BuildTrackFliesThread;
+import plugins.fmp.tools.BuildTrackFliesThread2;
 import plugins.fmp.tools.DetectFliesParameters;
 import plugins.fmp.tools.OverlayThreshold;
 import plugins.fmp.tools.ImageTransformTools.TransformOp;
@@ -50,7 +50,7 @@ public class MCMoveTab_Detect extends JPanel implements ChangeListener {
 	public JCheckBox 	thresholdedImageCheckBox= new JCheckBox("overlay");
 	
 	private OverlayThreshold 		ov = null;
-	private BuildTrackFliesThread 	trackAllFliesThread = null;
+	private BuildTrackFliesThread2 	trackAllFliesThread = null;
 	
 	void init(GridLayout capLayout, Multicafe parent0) {
 		setLayout(capLayout);
@@ -184,7 +184,7 @@ public class MCMoveTab_Detect extends JPanel implements ChangeListener {
 
 	void startComputation() {
 		if (trackAllFliesThread == null)
-			trackAllFliesThread = new BuildTrackFliesThread();
+			trackAllFliesThread = new BuildTrackFliesThread2();
 		
 		if (trackAllFliesThread.threadRunning) {
 			stopComputation();

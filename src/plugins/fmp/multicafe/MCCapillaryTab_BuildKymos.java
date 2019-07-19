@@ -95,7 +95,7 @@ public class MCCapillaryTab_BuildKymos extends JPanel implements ActionListener 
 	}
 	
 	private void kymosBuildStop() {	
-		if (thread.isAlive()) {
+		if (thread != null && thread.isAlive()) {
 			buildKymographsThread.stopFlag = true;
 			try {
 				thread.join();
