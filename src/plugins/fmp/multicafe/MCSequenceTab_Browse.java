@@ -18,7 +18,7 @@ import javax.swing.SwingConstants;
 import icy.gui.util.GuiUtil;
 import plugins.fmp.sequencevirtual.SequenceVirtual;
 import plugins.fmp.tools.ComboBoxWithIndexTextRenderer;
-import plugins.fmp.tools.WideComboBox;
+import plugins.fmp.tools.ComboBoxWide;
 
 
 public class MCSequenceTab_Browse extends JPanel implements ActionListener{
@@ -34,7 +34,7 @@ public class MCSequenceTab_Browse extends JPanel implements ActionListener{
 	
 	private JButton  	previousButton		 	= new JButton("<");
 	private JButton		nextButton				= new JButton(">");
-	JComboBox<String> 	experimentComboBox		= new WideComboBox();	
+	JComboBox<String> 	experimentComboBox		= new ComboBoxWide();	
 	
 	boolean 			disableChangeFile 		= false;
 	private Multicafe 	parent0 				= null;

@@ -172,7 +172,6 @@ public class XLSExportCapillaryResults extends XLSExport {
 			for (XLSCapillaryResults capillaryResult : resultsArrayList) {
 				if (getCageFromCapillaryName (capillaryResult.name) == cagenumber) {
 					int ilastalive = flypos.getLastIntervalAlive();
-//					System.out.println("ilastalive ="+ilastalive + " nintervals=" + exp.fileTimeImageFirstMinutes);
 					trimArrayLength(capillaryResult.data, ilastalive);
 				}
 			}

@@ -9,25 +9,25 @@ import javax.swing.JComboBox;
 //got this workaround from the following bug: 
 //http://bugs.sun.com/bugdatabase/view_bug.do?bug_id=4618607 
 
-public class WideComboBox extends JComboBox<String>{ 
+public class ComboBoxWide extends JComboBox<String>{ 
 
 	/**
 	 * 
 	 */
 	private static final long serialVersionUID = 1L;
 
-	public WideComboBox() { 
+	public ComboBoxWide() { 
 	} 
 	
-	public WideComboBox(final Object items[]){ 
+	public ComboBoxWide(final Object items[]){ 
 		super(); 
 	} 
 	
-	public WideComboBox(Vector<?> items) { 
+	public ComboBoxWide(Vector<?> items) { 
 		super(); 
 	} 
 	
-	public WideComboBox(ComboBoxModel<?> aModel) { 
+	public ComboBoxWide(ComboBoxModel<?> aModel) { 
 		super(); 
 	} 
 	
