@@ -49,8 +49,8 @@ public class MCMoveTab_Detect extends JPanel implements ChangeListener {
 	private JCheckBox 	whiteMiceCheckBox 		= new JCheckBox("white on dark ");
 	public JCheckBox 	thresholdedImageCheckBox= new JCheckBox("overlay");
 	
-	private OverlayThreshold ov = null;
-	private BuildTrackFliesThread trackAllFliesThread = null;
+	private OverlayThreshold 		ov = null;
+	private BuildTrackFliesThread 	trackAllFliesThread = null;
 	
 	void init(GridLayout capLayout, Multicafe parent0) {
 		setLayout(capLayout);
@@ -154,19 +154,21 @@ public class MCMoveTab_Detect extends JPanel implements ChangeListener {
 		if (trackAllFliesThread == null)
 			return false;
 		
-		trackAllFliesThread.vSequence = parent0.vSequence;		
-		trackAllFliesThread.stopFlag = false;
 		DetectFliesParameters detect = new DetectFliesParameters();
-		detect.btrackWhite = whiteMiceCheckBox.isSelected();
-		detect.ichanselected = colorChannelComboBox.getSelectedIndex();
-		detect.blimitLow = objectLowsizeCheckBox.isSelected();
-		detect.blimitUp = objectUpsizeCheckBox.isSelected();
-		detect.limitLow = (int) objectLowsizeSpinner.getValue();
-		detect.limitUp = (int) objectUpsizeSpinner.getValue();
-		try { detect.jitter = Integer.parseInt( jitterTextField.getText() );
+		detect.btrackWhite 		= whiteMiceCheckBox.isSelected();
+		detect.ichanselected 	= colorChannelComboBox.getSelectedIndex();
+		detect.blimitLow 		= objectLowsizeCheckBox.isSelected();
+		detect.blimitUp 		= objectUpsizeCheckBox.isSelected();
+		detect.limitLow 		= (int) objectLowsizeSpinner.getValue();
+		detect.limitUp 			= (int) objectUpsizeSpinner.getValue();
+		try { detect.jitter 	= Integer.parseInt( jitterTextField.getText() );
 		} catch( Exception e ) { new AnnounceFrame("Can't interpret the jitter value."); return false; }
-		detect.transformop = (TransformOp) backgroundComboBox.getSelectedItem();
-		trackAllFliesThread.detect = detect;
+		detect.transformop 		= (TransformOp) backgroundComboBox.getSelectedItem();
+		
+		trackAllFliesThread.vSequence 	= parent0.vSequence;		
+		trackAllFliesThread.stopFlag 	= false;
+		trackAllFliesThread.detect 		= detect;
+		
 		return true;
 	}
 	

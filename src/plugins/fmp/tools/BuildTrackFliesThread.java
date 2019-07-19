@@ -22,13 +22,13 @@ import plugins.kernel.roi.roi2d.ROI2DRectangle;
 
 public class BuildTrackFliesThread implements Runnable {
 	
-	private ArrayList<BooleanMask2D> cageMaskList = new ArrayList<BooleanMask2D>();
-	public SequenceVirtual vSequence = null;	
-	public boolean stopFlag = false;
-	public boolean threadRunning = false;
+	private ArrayList<BooleanMask2D> 	cageMaskList 	= new ArrayList<BooleanMask2D>();
+	public SequenceVirtual 				vSequence 		= null;	
+	public boolean 						stopFlag 		= false;
+	public boolean 						threadRunning 	= false;
 	
-	public DetectFliesParameters detect = new DetectFliesParameters();
-	public Cages cages = new Cages();
+	public DetectFliesParameters 		detect 			= new DetectFliesParameters();
+	public Cages 						cages 			= new Cages();
 
 	/*
 	 * (non-Javadoc)
@@ -167,7 +167,6 @@ public class BuildTrackFliesThread implements Runnable {
 
 		} finally {
 			progress.close();
-//			state = StateD.NORMAL;
 			vSequence.endUpdate();
 			for (int i=0; i < nbcages; i++)
 				vSequence.removeROI(tempRectROI[i]);

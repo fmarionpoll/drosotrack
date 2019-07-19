@@ -37,7 +37,7 @@ public class XLSExportCapillaryResults extends XLSExport {
 			expAll.step = options.experimentList.experimentList.get(0).vSequence.analysisStep;
 			listOfStacks = new ArrayList <XLSNameAndPosition> ();
 			
-			progress.setMessage( "Load measures...");
+			progress.setMessage("Load measures...");
 			progress.setLength(options.experimentList.experimentList.size());
 			
 			for (Experiment exp: options.experimentList.experimentList) 
