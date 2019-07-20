@@ -36,7 +36,7 @@ public class SequenceVirtual extends Sequence
 	private String 			csFileName 		= null;
 	private final static String[] acceptedTypes = {".jpg", ".jpeg", ".bmp"};
 	private String			directory 		= null;
-	private IcyBufferedImage refImage 		= null;
+	public IcyBufferedImage refImage 		= null;
 	
 	public long				analysisStart 	= 0;
 	public long 			analysisEnd		= 99999999;
@@ -46,7 +46,7 @@ public class SequenceVirtual extends Sequence
 	
 	public VImageBufferThread bufferThread 	= null;
 	public boolean			bBufferON 		= false;
-	public EnumStatus 			status;
+	public EnumStatus 		status			= EnumStatus.REGULAR;
 	
 	public Capillaries 		capillaries 	= new Capillaries();
 	public Cages			cages 			= new Cages();
@@ -183,27 +183,19 @@ public class SequenceVirtual extends Sequence
 			}	
 				break;
 			case REF_T0: // subtract reference image
-			{
+			case REF:
 				if (refImage == null)
 					refImage = loadVImage((int) analysisStart);
 				ibufImage = subtractImages (ibufImage, refImage);
-			}
 				break;
+
 			case NONE:
 			default:
 				break;
 		}
 		return ibufImage;
 	}
-	
-	public void setRefImageForSubtraction(int t)
-	{
-		if (t < 0)
-			refImage = null;
-		else
-			refImage = loadVImage(t);
-	}
-	
+		
 	public String[] getListofFiles() {
 		return listFiles;
 	}
@@ -479,17 +471,17 @@ public class SequenceVirtual extends Sequence
 		}
 	}
 
-	private IcyBufferedImage subtractImages (IcyBufferedImage image1, IcyBufferedImage image2) {
-		IcyBufferedImage result = new IcyBufferedImage(image1.getSizeX(), image1.getSizeY(),image1.getSizeC(), image1.getDataType_());
-		for (int c=0; c<image1.getSizeC(); c++){
-			Object image1Array = image1.getDataXY(c);
-			Object image2Array = image2.getDataXY(c);
-			double[] img1DoubleArray = Array1DUtil.arrayToDoubleArray(image1Array, image1.isSignedDataType());
-			double[] img2DoubleArray = Array1DUtil.arrayToDoubleArray(image2Array, image2.isSignedDataType());
+	public IcyBufferedImage subtractImages (IcyBufferedImage image1, IcyBufferedImage image2) {
+		
+		IcyBufferedImage result = new IcyBufferedImage(image1.getSizeX(), image1.getSizeY(), image1.getSizeC(), image1.getDataType_());
+		for (int c = 0; c < image1.getSizeC(); c++) {
+			
+			double[] img1DoubleArray = Array1DUtil.arrayToDoubleArray(image1.getDataXY(c), image1.isSignedDataType());
+			double[] img2DoubleArray = Array1DUtil.arrayToDoubleArray(image2.getDataXY(c), image2.isSignedDataType());
 			ArrayMath.subtract(img1DoubleArray, img2DoubleArray, img1DoubleArray);
 
-			double[] dummyzeros=Array1DUtil.arrayToDoubleArray(result.getDataXY(c), result.isSignedDataType());
-			ArrayMath.max(img1DoubleArray, dummyzeros, img1DoubleArray);
+			double[] dummyzerosArray = Array1DUtil.arrayToDoubleArray(result.getDataXY(c), result.isSignedDataType());
+			ArrayMath.max(img1DoubleArray, dummyzerosArray, img1DoubleArray);
 			Array1DUtil.doubleArrayToArray(img1DoubleArray, result.getDataXY(c));
 		}
 		result.dataChanged();

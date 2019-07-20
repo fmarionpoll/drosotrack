@@ -26,18 +26,19 @@ public class MCKymosTab_DetectLimits  extends JPanel implements ActionListener {
 	 */
 	private static final long serialVersionUID = -6329863521455897561L;
 	
-	JComboBox<String> directionComboBox = new JComboBox<String> (new String[] {" threshold >", " threshold <" });
-	JCheckBox	detectAllLevelCheckBox 	= new JCheckBox ("all", true);
+	JComboBox<String> 	directionComboBox 		= new JComboBox<String> (new String[] {" threshold >", " threshold <" });
+	JCheckBox			detectAllLevelCheckBox 	= new JCheckBox ("all", true);
 	private JTextField 	detectTopTextField 		= new JTextField("35");
 	JComboBox<TransformOp> transformForLevelsComboBox = new JComboBox<TransformOp> (new TransformOp[] {
 			TransformOp.R_RGB, TransformOp.G_RGB, TransformOp.B_RGB, 
 			TransformOp.R2MINUS_GB, TransformOp.G2MINUS_RB, TransformOp.B2MINUS_RG, TransformOp.RGB,
 			TransformOp.GBMINUS_2R, TransformOp.RBMINUS_2G, TransformOp.RGMINUS_2B, 
 			TransformOp.H_HSB, TransformOp.S_HSB, TransformOp.B_HSB	});
+	
 	private JButton		displayTransform1Button	= new JButton("Display");
 	private JTextField	spanTopTextField		= new JTextField("3");
-	private JButton 		detectTopButton 		= new JButton("Detect");
-	Multicafe parent0 = null;
+	private JButton 	detectTopButton 		= new JButton("Detect");
+	Multicafe 			parent0 				= null;
 	
 	
 	void init(GridLayout capLayout, Multicafe parent0) {

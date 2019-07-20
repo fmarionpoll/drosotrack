@@ -32,26 +32,26 @@ import plugins.fmp.tools.EnumArrayListType;
 
 public class SequencePlus extends SequenceVirtual  {
 	
-	public ArrayList<Integer> derivedValuesArrayList= new ArrayList<Integer>(); // (derivative) result of the detection of the capillary level
-	public boolean 		hasChanged 				= false;
-	public boolean 		bStatusChanged 			= false;
-	public boolean 		detectTop 				= true;
-	public boolean 		detectBottom 			= true;
-	public boolean 		detectAllLevel 			= true;
-	public boolean 		detectAllGulps 			= true;
-	public 	int 		direction 				= 0;
-	public 	int			detectLevelThreshold 	= 35;
-	public	int 		detectGulpsThreshold 	= 90;
-	public	TransformOp	transformForLevels 		= TransformOp.R2MINUS_GB;
-	public	TransformOp transformForGulps 		= TransformOp.XDIFFN;
+	public 	ArrayList<Integer> derivedValuesArrayList= new ArrayList<Integer>(); // (derivative) result of the detection of the capillary level
+	public 	boolean 		hasChanged 				= false;
+	public 	boolean 		bStatusChanged 			= false;
+	public 	boolean 		detectTop 				= true;
+	public 	boolean 		detectBottom 			= true;
+	public 	boolean 		detectAllLevel 			= true;
+	public 	boolean 		detectAllGulps 			= true;
+	public 	int 			direction 				= 0;
+	public 	int				detectLevelThreshold 	= 35;
+	public 	int 			detectGulpsThreshold 	= 90;
+	public	TransformOp		transformForLevels 		= TransformOp.R2MINUS_GB;
+	public	TransformOp 	transformForGulps 		= TransformOp.XDIFFN;
 	
-	public LocalDateTime	startDate			= null;
-	public LocalDateTime	endDate				= null;
-	public long				minutesBetweenImages= 1;
-	public OverlayThreshold thresholdOverlay 	= null;
-	public OverlayTrapMouse trapOverlay 		= null;
+	public 	LocalDateTime	startDate				= null;
+	public 	LocalDateTime	endDate					= null;
+	public 	long			minutesBetweenImages	= 1;
+	public 	OverlayThreshold thresholdOverlay 		= null;
+	public 	OverlayTrapMouse trapOverlay 			= null;
 	
-	public KymoMeasures		kymoMeasures		= new KymoMeasures ();
+	public 	KymoMeasures	kymoMeasures			= new KymoMeasures ();
 	
 	// -----------------------------------------------------
 	

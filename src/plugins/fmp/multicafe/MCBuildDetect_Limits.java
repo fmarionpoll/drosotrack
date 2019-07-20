@@ -6,7 +6,6 @@ import java.util.List;
 
 import icy.gui.frame.progress.ProgressFrame;
 import icy.image.IcyBufferedImage;
-import icy.roi.ROI;
 import icy.system.profile.Chronometer;
 import icy.type.collection.array.Array1DUtil;
 import plugins.fmp.sequencevirtual.SequencePlus;
@@ -50,11 +49,6 @@ public class MCBuildDetect_Limits {
 
 			SequencePlus kymographSeq = parent0.kymographArrayList.get(kymo);
 			double detectLevelThreshold = parent0.kymographsPane.limitsTab.getDetectLevelThreshold();
-
-//			for (ROI roi:kymographSeq.getROIs()) {
-//				if (roi.getName().contains("topLevel"))
-//					kymographSeq.removeROI(roi);
-//			}
 			kymographSeq.removeAllROI();
 			
 			// save parameters status
