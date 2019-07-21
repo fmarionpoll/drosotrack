@@ -84,6 +84,7 @@ public class MCCapillariesPane extends JPanel implements PropertyChangeListener,
 		}			  
 		else if (event.getPropertyName().equals("CAP_ROIS_SAVE")) {
 			propertiesTab.getCapillariesInfos(parent0.vSequence.capillaries);
+			unitsTab.getCapillariesInfos(parent0.vSequence.capillaries);
 			buildarrayTab.getCapillariesInfos(parent0.vSequence.capillaries);
 			fileTab.capillaryRoisSave();
 			tabsPane.setSelectedIndex(2);
@@ -128,6 +129,7 @@ public class MCCapillariesPane extends JPanel implements PropertyChangeListener,
 	
 	private void setCapillariesInfos(SequenceVirtual seq) {
 		propertiesTab.setCapillariesInfos(seq.capillaries);
+		unitsTab.setCapillariesInfos(seq.capillaries);
 		parent0.vSequence.capillaries.extractLinesFromSequence(seq);
 		buildarrayTab.setCapillariesInfos(seq.capillaries);
 	}
@@ -139,6 +141,7 @@ public class MCCapillariesPane extends JPanel implements PropertyChangeListener,
 	
 	void getCapillariesInfos(Capillaries cap) {
 		propertiesTab.getCapillariesInfos(cap);
+		unitsTab.getCapillariesInfos(cap);
 		buildarrayTab.getCapillariesInfos(cap);
 	}
 
@@ -147,7 +150,7 @@ public class MCCapillariesPane extends JPanel implements PropertyChangeListener,
 		JTabbedPane tabbedPane = (JTabbedPane) arg0.getSource();
         int selectedIndex = tabbedPane.getSelectedIndex();
         adjustTab.roisDisplayrefBar(selectedIndex == 1);
-        unitsTab.visibleCheckBox.setSelected(selectedIndex != 2);
+        unitsTab.visibleCheckBox.setSelected(selectedIndex == 2);
 	}
 	
 

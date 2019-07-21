@@ -80,7 +80,6 @@ public class MCCapillariesTab_Units  extends JPanel implements ActionListener {
 		void setCapillariesInfos(Capillaries cap) {
 			capillaryVolumeTextField.setText( Double.toString(cap.volume));
 			capillaryPixelsTextField.setText( Double.toString(cap.pixels));
-			
 		}
 
 		
