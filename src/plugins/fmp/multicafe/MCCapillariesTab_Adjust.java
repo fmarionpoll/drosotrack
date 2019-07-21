@@ -205,7 +205,7 @@ public class MCCapillariesTab_Adjust extends JPanel implements ActionListener{
 	}
 
 	void roisDisplayrefBar(boolean display) {
-		if (parent0.vSequence == null)
+		if (parent0.vSequence == null || parent0.vSequence.capillaries.capillariesArrayList.size() == 0)
 			return;
 		
 		if (display)

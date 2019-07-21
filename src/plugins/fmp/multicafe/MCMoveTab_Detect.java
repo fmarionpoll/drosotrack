@@ -38,9 +38,9 @@ public class MCMoveTab_Detect extends JPanel implements ChangeListener {
 	private static final long serialVersionUID = -5257698990389571518L;
 	private Multicafe parent0;
 	
-	private JButton 	buildBackgroundButton 	= new JButton("Build background");
+	private JButton 	buildBackgroundButton 	= new JButton("Build background / Stop");
 	
-	private JButton 	startComputationButton 	= new JButton("Detect / Stop");
+	private JButton 	startComputationButton 	= new JButton("Detect flies / Stop");
 	private JSpinner 	thresholdSpinner		= new JSpinner(new SpinnerNumberModel(100, 0, 255, 10));
 	private JTextField 	jitterTextField 		= new JTextField("5");
 	private JCheckBox 	objectLowsizeCheckBox 	= new JCheckBox("object >");
@@ -177,6 +177,12 @@ public class MCMoveTab_Detect extends JPanel implements ChangeListener {
 	void builBackgroundImage() {
 		if (trackAllFliesThread == null)
 			trackAllFliesThread = new BuildTrackFliesThread2();
+		
+		if (trackAllFliesThread.threadRunning) {
+			stopComputation();
+			return;
+		}
+		
 		initTrackParameters();
 		trackAllFliesThread.buildBackground	= true;
 		trackAllFliesThread.detectFlies		= false;

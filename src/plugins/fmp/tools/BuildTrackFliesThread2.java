@@ -276,6 +276,12 @@ public class BuildTrackFliesThread2  implements Runnable {
 		}
 		
 		seqNegative.setImage(0,  0, IcyBufferedImageUtil.getSubImage(vSequence.refImage, rectangleAllCages));
+		
+		try {
+			Thread.sleep(100);
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		}
 		Point pt = viewer.getLocation();
 		int height = viewer.getHeight();
 		pt.y += height;
@@ -316,6 +322,13 @@ public class BuildTrackFliesThread2  implements Runnable {
 		Point pt = viewer.getLocation();
 		int height = viewer.getHeight();
 		pt.y += height;
+		
+		try {
+			Thread.sleep(100);
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		}
+		
 		Viewer vReference = seqReference.getFirstViewer();
 		if (vReference != null) {
 			vReference.setLocation(pt);

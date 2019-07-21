@@ -25,6 +25,7 @@ public class MCCapillariesPane extends JPanel implements PropertyChangeListener,
 	MCCapillariesTab_Build 		buildarrayTab 	= new MCCapillariesTab_Build();
 	MCCapillariesTab_File 		fileTab 		= new MCCapillariesTab_File();
 	MCCapillariesTab_Adjust 	adjustTab 		= new MCCapillariesTab_Adjust();
+	MCCapillariesTab_Units		unitsTab		= new MCCapillariesTab_Units();
 	MCCapillariesTab_Properties propertiesTab 	= new MCCapillariesTab_Properties();
 	MCCapillaryTab_BuildKymos 	buildkymosTab 	= new MCCapillaryTab_BuildKymos();
 	MCCapillariesTab_Options 	optionsTab 		= new MCCapillariesTab_Options();
@@ -47,9 +48,13 @@ public class MCCapillariesPane extends JPanel implements PropertyChangeListener,
 		adjustTab.addPropertyChangeListener(parent0);
 		tabsPane.addTab("Adjust", null, adjustTab, "Adjust ROIS position to the capillaries");
 
-		propertiesTab.init(capLayout, parent0);
+		unitsTab.init(capLayout, parent0);
+		unitsTab.addPropertyChangeListener(this);
+		tabsPane.addTab("Units", null, unitsTab, "Define pixel conversion unit of images");
+
+		propertiesTab.init(capLayout);
 		propertiesTab.addPropertyChangeListener(this);
-		tabsPane.addTab("Properties", null, propertiesTab, "Define pixel conversion unit of images and experiment information");
+		tabsPane.addTab("Properties", null, propertiesTab, "Define experiment information");
 
 		buildkymosTab.init(capLayout, parent0);
 		buildkymosTab.addPropertyChangeListener(this);
@@ -84,7 +89,7 @@ public class MCCapillariesPane extends JPanel implements PropertyChangeListener,
 			tabsPane.setSelectedIndex(2);
 		}
 		else if (event.getPropertyName().equals("CAPILLARIES_NEW")) {
-			propertiesTab.visibleCheckBox.setSelected(true);
+			unitsTab.visibleCheckBox.setSelected(true);
 			firePropertyChange("CAPILLARIES_NEW", false, true);
 			tabsPane.setSelectedIndex(2);
 		}
@@ -123,7 +128,7 @@ public class MCCapillariesPane extends JPanel implements PropertyChangeListener,
 	
 	private void setCapillariesInfos(SequenceVirtual seq) {
 		propertiesTab.setCapillariesInfos(seq.capillaries);
-		parent0.vSequence.capillaries.extractLinesFromSequence(seq);	// TODO : is this necessary???
+		parent0.vSequence.capillaries.extractLinesFromSequence(seq);
 		buildarrayTab.setCapillariesInfos(seq.capillaries);
 	}
 	
@@ -142,6 +147,7 @@ public class MCCapillariesPane extends JPanel implements PropertyChangeListener,
 		JTabbedPane tabbedPane = (JTabbedPane) arg0.getSource();
         int selectedIndex = tabbedPane.getSelectedIndex();
         adjustTab.roisDisplayrefBar(selectedIndex == 1);
+        unitsTab.visibleCheckBox.setSelected(selectedIndex != 2);
 	}
 	
 
