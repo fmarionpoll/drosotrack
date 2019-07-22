@@ -220,5 +220,25 @@ public class XLSExport {
 		}
 		return localPt;
 	}
+	
+	int getColFromName(String name) {
+		if (!name .contains("line"))
+				return -1;
+
+		String num = name.substring(4, 5);
+		int numFromName = Integer.parseInt(num);
+		String side = name.substring(5, 6);
+		if (side != null) {
+			if (side .equals("R")) {
+				numFromName = numFromName* 2;
+				numFromName += 1;
+			}
+			else if (side .equals("L"))
+				numFromName = numFromName* 2;
+		}
+		return numFromName;
+	}
+	
+	
 
 }

@@ -22,6 +22,7 @@ public class MCKymosTab_Graphs extends JPanel implements ActionListener  {
 	 */
 	private static final long serialVersionUID = -7079184380174992501L;
 	private XYMultiChart topandbottomChart 		= null;
+	private XYMultiChart deltaChart 			= null;
 	private XYMultiChart derivativeChart 		= null;
 	private XYMultiChart sumgulpsChart 			= null;
 	private Multicafe parent0 = null;
@@ -29,13 +30,15 @@ public class MCKymosTab_Graphs extends JPanel implements ActionListener  {
 	private JCheckBox 	limitsCheckbox 		= new JCheckBox("top/bottom", true);
 	private JCheckBox 	derivativeCheckbox 	= new JCheckBox("derivative", false);
 	private JCheckBox 	consumptionCheckbox = new JCheckBox("consumption", false);
+	private JCheckBox 	deltaCheckbox 		= new JCheckBox("delta (v(t) - v(t-1))", false);
+	
 	private JButton displayResultsButton 	= new JButton("Display results");
 	
 	
 	void init(GridLayout capLayout, Multicafe parent0) {	
 		setLayout(capLayout);
 		this.parent0 = parent0;
-		add(GuiUtil.besidesPanel(limitsCheckbox, derivativeCheckbox, consumptionCheckbox, new JLabel(" ")));
+		add(GuiUtil.besidesPanel(limitsCheckbox, derivativeCheckbox, consumptionCheckbox, deltaCheckbox));
 		add(GuiUtil.besidesPanel(displayResultsButton, new JLabel(" "))); 
 		defineActionListeners();
 	}
@@ -66,6 +69,12 @@ public class MCKymosTab_Graphs extends JPanel implements ActionListener  {
 			topandbottomChart = xyDisplayGraphsItem("top + bottom levels", 
 					EnumArrayListType.topAndBottom, 
 					topandbottomChart, rectv, ptRelative, kmax);
+			ptRelative.y += deltay;
+		}
+		if (deltaCheckbox.isSelected()) {
+			deltaChart = xyDisplayGraphsItem("top delta t -(t-1)", 
+					EnumArrayListType.topLevelDelta, 
+					deltaChart, rectv, ptRelative, kmax);
 			ptRelative.y += deltay;
 		}
 		if (derivativeCheckbox.isSelected()) {
@@ -105,10 +114,13 @@ public class MCKymosTab_Graphs extends JPanel implements ActionListener  {
 			derivativeChart.mainChartFrame.close();
 		if (sumgulpsChart != null) 
 			sumgulpsChart.mainChartFrame.close();
+		if (deltaChart != null) 
+			deltaChart.mainChartFrame.close();
 
 		topandbottomChart  = null;
 		derivativeChart = null;
 		sumgulpsChart  = null;
+		deltaChart = null;
 	}
 }
 

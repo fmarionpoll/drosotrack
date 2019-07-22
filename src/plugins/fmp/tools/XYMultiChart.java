@@ -77,7 +77,11 @@ public class XYMultiChart extends IcyFrame  {
 				EnumArrayListType ooption = option;
 				if (option == EnumArrayListType.topAndBottom)
 					ooption = EnumArrayListType.topLevel;
-				XYSeries seriesXY = getXYSeries(seq.getArrayListFromRois(ooption), name, startFrame);
+				ArrayList<Integer> results = seq.getArrayListFromRois(ooption);
+				if (option == EnumArrayListType.topLevelDelta) {
+					results = seq.subtractTi(results);
+				}
+				XYSeries seriesXY = getXYSeries(results, name, startFrame);
 				if (option == EnumArrayListType.topAndBottom) 
 					appendDataToXYSeries(seriesXY, seq.getArrayListFromRois(EnumArrayListType.bottomLevel), startFrame );
 				xyDataset.addSeries( seriesXY );
@@ -139,7 +143,11 @@ public class XYMultiChart extends IcyFrame  {
 			for (int k=0; k <kmax; k++) {
 				
 				SequencePlus seq = kymographArrayList.get(i+k);
-				XYSeries seriesXY = getXYSeries(seq.getArrayListFromRois(ooption), seq.getName(), startFrame);
+				ArrayList<Integer> results = seq.getArrayListFromRois(ooption);
+				if (option == EnumArrayListType.topLevelDelta) {
+					results = seq.subtractTi(results);
+				}
+				XYSeries seriesXY = getXYSeries(results, seq.getName(), startFrame);
 				if (option == EnumArrayListType.topAndBottom) 
 					appendDataToXYSeries(seriesXY, seq.getArrayListFromRois(EnumArrayListType.bottomLevel), startFrame );
 				

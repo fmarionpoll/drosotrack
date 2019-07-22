@@ -108,7 +108,7 @@ public class XLSExportCapillaryResults extends XLSExport {
 			results.name = seq.getName();
 			switch (xlsoption) {
 			case TOPLEVELDELTA:
-				results.data = subtractTi(seq.getArrayListFromRois(EnumArrayListType.topLevel));
+				results.data = seq.subtractTi(seq.getArrayListFromRois(EnumArrayListType.topLevel));
 				break;
 			case DERIVEDVALUES:
 				results.data = seq.getArrayListFromRois(EnumArrayListType.derivedValues);
@@ -122,12 +122,12 @@ public class XLSExportCapillaryResults extends XLSExport {
 			case TOPLEVEL:
 			case SUMLR:
 				if (optiont0)
-					results.data = subtractT0(seq.getArrayListFromRois(EnumArrayListType.topLevel));
+					results.data = seq.subtractT0(seq.getArrayListFromRois(EnumArrayListType.topLevel));
 				else
 					results.data = seq.getArrayListFromRois(EnumArrayListType.topLevel);
 				break;
 			case TOPLEVELDELTALR:
-				results.data = subtractTi(seq.getArrayListFromRois(EnumArrayListType.topLevel));
+				results.data = seq.subtractTi(seq.getArrayListFromRois(EnumArrayListType.topLevel));
 				break;
 			default:
 				break;
@@ -138,36 +138,14 @@ public class XLSExportCapillaryResults extends XLSExport {
 		return resultsArrayList;
 	}
 	
-	private ArrayList<Integer> subtractT0 (ArrayList<Integer> array) {
-
-		if (array == null)
-			return null;
-		int item0 = array.get(0);
-		for (int index= 0; index < array.size(); index++) {
-			int value = array.get(index);
-			array.set(index, value-item0);
-		}
-		return array;
-	}
-	
-	private ArrayList<Integer> subtractTi(ArrayList<Integer > array) {
-		if (array == null)
-			return null;
-		int item0 = array.get(0);
-		for (int index= 0; index < array.size(); index++) {
-			int value = array.get(index);
-			array.set(index, value-item0);
-			item0 = value;
-		}
-		return array;
-	}
-	
 	private void trimDeadsFromArrayList(Experiment exp, ArrayList <XLSCapillaryResults> resultsArrayList) {
 
 		for (XYTaSeries flypos: exp.vSequence.cages.flyPositionsList) {
 			
 			String cagenumberString = flypos.roi.getName().substring(4);
 			int cagenumber = Integer.parseInt(cagenumberString);
+			if (cagenumber == 0 || cagenumber == 9)
+				continue;
 			
 			for (XLSCapillaryResults capillaryResult : resultsArrayList) {
 				if (getCageFromCapillaryName (capillaryResult.name) == cagenumber) {
@@ -177,6 +155,7 @@ public class XLSExportCapillaryResults extends XLSExport {
 			}
 		}		
 	}
+	
 	
 	private void trimArrayLength (ArrayList<Integer> array, int ilastalive) {
 		if (array == null)
@@ -190,6 +169,7 @@ public class XLSExportCapillaryResults extends XLSExport {
 		
 		array.subList(ilastalive, arraysize-1).clear();		
 	}
+	
 	
 	private int xlsExportToWorkbook(Experiment exp, XSSFWorkbook workBook, String title, EnumXLSExportItems xlsExportOption, int col0, String charSeries, ArrayList <XLSCapillaryResults> arrayList) {
 			
@@ -207,6 +187,7 @@ public class XLSExportCapillaryResults extends XLSExport {
 		pt = writeData(exp, sheet, xlsExportOption, pt, options.transpose, charSeries, arrayList);
 		return pt.x;
 	}
+	
 	
 	private Point writeGlobalInfos(Experiment exp, XSSFSheet sheet, Point pt, boolean transpose) {
 
@@ -236,6 +217,7 @@ public class XLSExportCapillaryResults extends XLSExport {
 		return pt;
 	}
 
+	
 	private Point writeHeader (Experiment exp, XSSFSheet sheet, EnumXLSExportItems option, Point pt, boolean transpose, String charSeries) {
 		
 		int col0 = pt.x;
@@ -254,6 +236,7 @@ public class XLSExportCapillaryResults extends XLSExport {
 		return pt;
 	}
 
+	
 	private int getCageFromCapillaryName(String name) {
 		if (!name .contains("line"))
 			return -1;
@@ -263,23 +246,6 @@ public class XLSExportCapillaryResults extends XLSExport {
 		return numFromName;
 	}
 	
-	private int getColFromName(String name) {
-		if (!name .contains("line"))
-				return -1;
-
-		String num = name.substring(4, 5);
-		int numFromName = Integer.parseInt(num);
-		String side = name.substring(5, 6);
-		if (side != null) {
-			if (side .equals("R")) {
-				numFromName = numFromName* 2;
-				numFromName += 1;
-			}
-			else if (side .equals("L"))
-				numFromName = numFromName* 2;
-		}
-		return numFromName;
-	}
 	
 	private Point writeData (Experiment exp, XSSFSheet sheet, EnumXLSExportItems option, Point pt, boolean transpose, String charSeries, ArrayList <XLSCapillaryResults> dataArrayList) {
 		
