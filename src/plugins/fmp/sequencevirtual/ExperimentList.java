@@ -44,7 +44,6 @@ public class ExperimentList {
 	
 	public boolean readInfosFromAllExperiments() {
 
-
 		ProgressFrame progress = new ProgressFrame("Load experiment(s) parameters");
 		progress.setLength(experimentList.size());
 		

@@ -246,25 +246,32 @@ public class XLSExportCapillaryResults extends XLSExport {
 
 		FileTime imageTime = exp.vSequence.getImageModifiedTime(startFrame);
 		long imageTimeMinutes = imageTime.toMillis()/ 60000;
+		long referenceFileTimeImageFirstMinutes = 0;
+		long referenceFileTimeImageLastMinutes = 0;
+		
+		if (options.absoluteTime) {
+			referenceFileTimeImageFirstMinutes = expAll.fileTimeImageFirstMinutes;
+			referenceFileTimeImageLastMinutes = expAll.fileTimeImageLastMinutes;
+		}
+		else {
+			XLSNameAndPosition desc = getStackGlobalSeriesDescriptor(exp);
+			if (desc != null) {
+				referenceFileTimeImageFirstMinutes = desc.fileTimeImageFirstMinutes;
+				referenceFileTimeImageLastMinutes = desc.fileTimeImageLastMinutes;
+			}
+		}
+			
 		if (col0 ==0) {
 			pt.x = col0;
 			
-			if (options.absoluteTime) {
-				imageTimeMinutes = expAll.fileTimeImageLastMinutes;
-				long diff = getnearest(imageTimeMinutes-expAll.fileTimeImageFirstMinutes, step)/ step;
-				imageTimeMinutes = expAll.fileTimeImageFirstMinutes;
-				for (int i = 0; i<= diff; i++) {
-					long diff2 = getnearest(imageTimeMinutes-expAll.fileTimeImageFirstMinutes, step);
-					pt.y = (int) (diff2/step + row0); 
-					XLSUtils.setValue(sheet, pt, transpose, "t"+diff2);
-					imageTimeMinutes += step;
-				}
-			}
-			else {
-				for (int i = 0; i<= expAll.number_of_frames; i+= step) {
-					pt.y = i/step + row0; 
-					XLSUtils.setValue(sheet, pt, transpose, "t"+i);
-				}
+			imageTimeMinutes = referenceFileTimeImageLastMinutes;
+			long diff = getnearest(imageTimeMinutes-referenceFileTimeImageFirstMinutes, step)/ step;
+			imageTimeMinutes = referenceFileTimeImageFirstMinutes;
+			for (int i = 0; i<= diff; i++) {
+				long diff2 = getnearest(imageTimeMinutes-referenceFileTimeImageFirstMinutes, step);
+				pt.y = (int) (diff2/step + row0); 
+				XLSUtils.setValue(sheet, pt, transpose, "t"+diff2);
+				imageTimeMinutes += step;
 			}
 		}
 		
@@ -272,18 +279,12 @@ public class XLSExportCapillaryResults extends XLSExport {
 			
 			pt.x = col0;
 
-			long diff0 = (currentFrame - startFrame)/step;
 			imageTime = exp.vSequence.getImageModifiedTime(currentFrame);
 			imageTimeMinutes = imageTime.toMillis()/ 60000;
 
-			if (options.absoluteTime) {
-				long diff = getnearest(imageTimeMinutes-expAll.fileTimeImageFirstMinutes, step);
-				pt.y = (int) (diff/step + row0);
-				diff0 = diff;
-			} else {
-				pt.y = (int) diff0 + row0;
-			}
-			//XLSUtils.setValue(sheet, pt, transpose, "t"+diff0);
+			long diff_current = getnearest(imageTimeMinutes-referenceFileTimeImageFirstMinutes, step);
+			pt.y = (int) (diff_current/step + row0);
+
 			pt.x++;
 			XLSUtils.setValue(sheet, pt, transpose, imageTimeMinutes);
 			pt.x++;

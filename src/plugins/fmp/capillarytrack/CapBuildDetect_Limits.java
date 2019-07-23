@@ -8,6 +8,7 @@ import icy.gui.frame.progress.ProgressFrame;
 import icy.image.IcyBufferedImage;
 import icy.roi.ROI;
 import icy.system.profile.Chronometer;
+import icy.type.collection.array.Array1DUtil;
 import plugins.fmp.sequencevirtual.SequencePlus;
 import plugins.fmp.tools.EnumArrayListType;
 import plugins.fmp.tools.ImageTransformTools.TransformOp;
@@ -73,7 +74,8 @@ public class CapBuildDetect_Limits {
 			IcyBufferedImage image = null;
 			int c = 0;
 			image = kymographSeq.getImage(0, 1, c);
-			double[] tabValues = image.getDataXYAsDouble(c);
+			Object dataArray = image.getDataXY(c);
+			double[] tabValues = Array1DUtil.arrayToDoubleArray(dataArray,  image.isSignedDataType());
 			int xwidth = image.getSizeX();
 			int yheight = image.getSizeY();
 			double x = 0;

@@ -31,7 +31,7 @@ public class Capillarytrack extends PluginActionable implements ViewerListener, 
 	//------------------------------------------- global variables
 	SequenceVirtual vSequence = null;
 	ArrayList <SequencePlus> kymographArrayList	= new ArrayList <SequencePlus> ();	// list of kymograph sequences
-	IcyFrame mainFrame = new IcyFrame("CapillaryTrack 27-June-2019", true, true, true, true);
+	IcyFrame mainFrame = new IcyFrame("CapillaryTrack 23-Jul-2019", true, true, true, true);
 
 	//---------------------------------------------------------------------------
 	SequencePane sequencePane 		= null;

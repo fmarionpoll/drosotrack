@@ -22,8 +22,8 @@ import plugins.fmp.sequencevirtual.SequenceVirtual;
 
 public class XLSExport {
 
-	protected XLSExportOptions 	options = null;
-	protected Experiment 		expAll = null;
+	protected XLSExportOptions 	options 	= null;
+	protected Experiment 		expAll 		= null;
 	int							nintervals	= 0;
 	List <XLSNameAndPosition> 	listOfStacks; 
 
@@ -100,6 +100,8 @@ public class XLSExport {
 			XLSUtils.setValue(sheet, pt, transpose, exp.vSequence.capillaries.concentrationR);
 			pt.y++;
 			// cam
+			String cam = name.substring(0, 5);
+			XLSUtils.setValue(sheet, pt, transpose, cam);
 			pt.y++;
 			// cap
 			String letter = name.substring(name.length() - 1);
@@ -147,19 +149,19 @@ public class XLSExport {
 		return numFromName;
 	}
 	
-	public String getSubName(Path path, int subnameIndex) {
+	protected String getSubName(Path path, int subnameIndex) {
 		String name = "-";
 		if (path.getNameCount() >= subnameIndex)
 			name = path.getName(path.getNameCount() -subnameIndex).toString();
 		return name;
 	}
 	
-	public String getShortenedName(SequenceVirtual seq, int t) {
+	protected String getShortenedName(SequenceVirtual seq, int t) {
 		String cs = seq.getFileName(t);
 		return cs.substring(cs.lastIndexOf("\\") + 1) ;
 	}
 
-	public void xlsCreatePivotTable(XSSFWorkbook workBook, String workBookName, String fromWorkbook, DataConsolidateFunction function) {
+	protected void xlsCreatePivotTable(XSSFWorkbook workBook, String workBookName, String fromWorkbook, DataConsolidateFunction function) {
 
 		XSSFSheet pivotSheet = workBook.createSheet(workBookName);
         XSSFSheet sourceSheet = workBook.getSheet(fromWorkbook);
@@ -172,14 +174,14 @@ public class XLSExport {
         CellReference position = new CellReference(0, 0);
         XSSFPivotTable pivotTable = pivotSheet.createPivotTable(source, position, sourceSheet);
 
-        boolean flag = false;
+        boolean flag = false;	// ugly trick: switch mode when flag = true, ie when column "roi" has been found
         for (int i = 0; i< lastColumnNum; i++) {
         	XSSFCell cell = XLSUtils.getCell(sourceSheet, 0, i);
         	String text = cell.getStringCellValue();
         	if( !flag) {
-        		flag = text.contains("roi");
+        		flag = text.contains("roi");  // ugly trick here
         		if (text.contains(EnumXLSExperimentDescriptors.CAP.toString()))
-        			pivotTable.addRowLabel(i);
+        			pivotTable.addColLabel(i);
         		if (text.contains(EnumXLSExperimentDescriptors.NFLIES.toString()))
         			pivotTable.addRowLabel(i);
         		continue;
@@ -188,7 +190,7 @@ public class XLSExport {
         }
 	}
 
-	public Point writeGenericHeader (Experiment exp, XSSFSheet sheet, EnumXLSExportItems option, Point pt, boolean transpose, String charSeries) {
+	protected Point writeGenericHeader (Experiment exp, XSSFSheet sheet, EnumXLSExportItems option, Point pt, boolean transpose, String charSeries) {
 
 		pt = addExperimentDescriptorsToHeader(exp, sheet, pt, transpose);
 	
@@ -202,20 +204,19 @@ public class XLSExport {
 		return pt;
 	}
 
-	public void xlsCreatePivotTables(XSSFWorkbook workBook, String fromWorkbook) {
+	protected void xlsCreatePivotTables(XSSFWorkbook workBook, String fromWorkbook) {
         
 		xlsCreatePivotTable(workBook, "pivot_avg", fromWorkbook, DataConsolidateFunction.AVERAGE);
 		xlsCreatePivotTable(workBook, "pivot_std", fromWorkbook, DataConsolidateFunction.STD_DEV);
 		xlsCreatePivotTable(workBook, "pivot_n", fromWorkbook, DataConsolidateFunction.COUNT);
 	}
-	
-	String getBoxIdentificator (Experiment exp) {
+	protected String getBoxIdentificator (Experiment exp) {
 		Path path = Paths.get(exp.vSequence.getFileName());
 		String name = getSubName(path, 2); 
 		return name;
 	}
-	
-	Point getStackColumnPosition (Experiment exp, Point pt) {
+
+	protected Point getStackColumnPosition (Experiment exp, Point pt) {
 		Point localPt = pt;
 		String name = getBoxIdentificator (exp);
 		boolean found = false;
@@ -223,20 +224,44 @@ public class XLSExport {
 			if (name .equals(desc.name)) {
 				found = true;
 				localPt = new Point(desc.column, desc.row);
+				if (desc.fileTimeImageLastMinutes < exp.fileTimeImageLastMinutes) {
+					desc.fileTimeImageLastMinutes = exp.fileTimeImageLastMinutes;
+					desc.fileTimeImageLast = exp.fileTimeImageLast;
+				}
+				if (desc.fileTimeImageFirstMinutes 	> exp.fileTimeImageFirstMinutes) {
+					desc.fileTimeImageFirstMinutes 	= exp.fileTimeImageFirstMinutes;
+					desc.fileTimeImageFirst = exp.fileTimeImageFirst;
+				}
+				long filespan = desc.fileTimeImageLastMinutes - desc.fileTimeImageFirstMinutes;
+				if (filespan > desc.fileTimeSpan)
+					desc.fileTimeSpan = filespan;
 				break;
 			}
 		}
 		
 		if (!found) {
 			XLSNameAndPosition desc = new XLSNameAndPosition(name, pt);
+			desc.fileTimeImageFirstMinutes 	= exp.fileTimeImageFirstMinutes;
+			desc.fileTimeImageFirst = exp.fileTimeImageFirst;
+			desc.fileTimeSpan  = desc.fileTimeImageLastMinutes - desc.fileTimeImageFirstMinutes;
 			listOfStacks.add(desc);
 		}
 		return localPt;
 	}
 	
-	int getColFromKymoSequenceName(String name) {
+	protected XLSNameAndPosition getStackGlobalSeriesDescriptor (Experiment exp) {
+		String name = getBoxIdentificator (exp);
+		for (XLSNameAndPosition desc: listOfStacks) {
+			if (name .equals(desc.name)) {
+				return desc;				
+			}
+		}
+		return null;
+	}
+	
+	protected int getColFromKymoSequenceName(String name) {
 		if (!name .contains("line"))
-				return -1;
+			return -1;
 
 		String num = name.substring(4, 5);
 		int numFromName = Integer.parseInt(num);
@@ -252,6 +277,4 @@ public class XLSExport {
 		return numFromName;
 	}
 	
-	
-
 }

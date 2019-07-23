@@ -77,10 +77,12 @@ public class DetectTab_File extends JPanel implements ActionListener {
 			seq.endUpdate();
 		}
 		
-		SequencePlus seq = parent0.kymographArrayList.get(0);
-		parent0.vSequence.analysisStart = seq.analysisStart; 
-		parent0.vSequence.analysisEnd = seq.analysisEnd;
-		parent0.vSequence.analysisStep = seq.analysisStep;
+		if (parent0.kymographArrayList.size() > 0) {
+			SequencePlus seq = parent0.kymographArrayList.get(0);
+			parent0.vSequence.analysisStart = seq.analysisStart; 
+			parent0.vSequence.analysisEnd = seq.analysisEnd;
+			parent0.vSequence.analysisStep = seq.analysisStep;
+		}
 		return flag;
 	}
 	
