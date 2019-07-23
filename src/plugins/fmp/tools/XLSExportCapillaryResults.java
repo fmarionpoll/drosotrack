@@ -156,7 +156,6 @@ public class XLSExportCapillaryResults extends XLSExport {
 		}		
 	}
 	
-	
 	private void trimArrayLength (ArrayList<Integer> array, int ilastalive) {
 		if (array == null)
 			return;
@@ -169,7 +168,6 @@ public class XLSExportCapillaryResults extends XLSExport {
 		
 		array.subList(ilastalive, arraysize-1).clear();		
 	}
-	
 	
 	private int xlsExportToWorkbook(Experiment exp, XSSFWorkbook workBook, String title, EnumXLSExportItems xlsExportOption, int col0, String charSeries, ArrayList <XLSCapillaryResults> arrayList) {
 			
@@ -187,7 +185,6 @@ public class XLSExportCapillaryResults extends XLSExport {
 		pt = writeData(exp, sheet, xlsExportOption, pt, options.transpose, charSeries, arrayList);
 		return pt.x;
 	}
-	
 	
 	private Point writeGlobalInfos(Experiment exp, XSSFSheet sheet, Point pt, boolean transpose) {
 
@@ -217,7 +214,6 @@ public class XLSExportCapillaryResults extends XLSExport {
 		return pt;
 	}
 
-	
 	private Point writeHeader (Experiment exp, XSSFSheet sheet, EnumXLSExportItems option, Point pt, boolean transpose, String charSeries) {
 		
 		int col0 = pt.x;
@@ -225,7 +221,7 @@ public class XLSExportCapillaryResults extends XLSExport {
 		int colseries = pt.x;
 		
 		for (SequencePlus seq: exp.kymographArrayList) {
-			int col = getColFromName(seq.getName());
+			int col = getColFromKymoSequenceName(seq.getName());
 			if (col >= 0)
 				pt.x = colseries + col;
 			XLSUtils.setValue(sheet, pt, transpose, seq.getName());
@@ -235,18 +231,7 @@ public class XLSExportCapillaryResults extends XLSExport {
 		pt.y++;
 		return pt;
 	}
-
-	
-	private int getCageFromCapillaryName(String name) {
-		if (!name .contains("line"))
-			return -1;
-	
-		String num = name.substring(4, 5);
-		int numFromName = Integer.parseInt(num);
-		return numFromName;
-	}
-	
-	
+		
 	private Point writeData (Experiment exp, XSSFSheet sheet, EnumXLSExportItems option, Point pt, boolean transpose, String charSeries, ArrayList <XLSCapillaryResults> dataArrayList) {
 		
 		double scalingFactorToPhysicalUnits = exp.vSequence.capillaries.volume / exp.vSequence.capillaries.pixels;
@@ -313,7 +298,7 @@ public class XLSExportCapillaryResults extends XLSExport {
 			case TOPLEVELDELTALR:
 				for (int idataArray=0; idataArray< dataArrayList.size(); idataArray+=2) 
 				{
-					int colL = getColFromName(dataArrayList.get(idataArray).name);
+					int colL = getColFromKymoSequenceName(dataArrayList.get(idataArray).name);
 					if (colL >= 0)
 						pt.x = colseries + colL;			
 
@@ -327,7 +312,7 @@ public class XLSExportCapillaryResults extends XLSExport {
 							
 							Point pt0 = new Point(pt);
 							pt0.x ++;
-							int colR = getColFromName(dataArrayList.get(idataArray+1).name);
+							int colR = getColFromKymoSequenceName(dataArrayList.get(idataArray+1).name);
 							if (colR >= 0)
 								pt0.x = colseries + colR;
 							value = (dataL.get(j)-dataR.get(j))*scalingFactorToPhysicalUnits/value;
@@ -342,7 +327,7 @@ public class XLSExportCapillaryResults extends XLSExport {
 			default:
 				for (int idataArray=0; idataArray< dataArrayList.size(); idataArray++) 
 				{
-					int col = getColFromName(dataArrayList.get(idataArray).name);
+					int col = getColFromKymoSequenceName(dataArrayList.get(idataArray).name);
 					if (col >= 0)
 						pt.x = colseries + col;			
 

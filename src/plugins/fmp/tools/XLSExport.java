@@ -17,6 +17,7 @@ import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
 import plugins.fmp.sequencevirtual.Experiment;
+import plugins.fmp.sequencevirtual.SequencePlus;
 import plugins.fmp.sequencevirtual.SequenceVirtual;
 
 public class XLSExport {
@@ -36,89 +37,114 @@ public class XLSExport {
 		return value;
 	}
 	
-	public Point addLineToHeader(Experiment exp, XSSFSheet sheet, Point pt, boolean transpose, EnumXLSExperimentDescriptors desc) {
+	private void addDescriptorTitlestoExperimentDescriptors(XSSFSheet sheet, Point pt, boolean transpose) {
+		
+		XLSUtils.setValue(sheet, pt, transpose, EnumXLSExperimentDescriptors.DATE.toString());
+		pt.y++;
+		XLSUtils.setValue(sheet, pt, transpose, EnumXLSExperimentDescriptors.STIML.toString());
+		pt.y++;
+		XLSUtils.setValue(sheet, pt, transpose, EnumXLSExperimentDescriptors.CONCL.toString());
+		pt.y++;
+		XLSUtils.setValue(sheet, pt, transpose, EnumXLSExperimentDescriptors.STIMR.toString());
+		pt.y++;
+		XLSUtils.setValue(sheet, pt, transpose, EnumXLSExperimentDescriptors.CONCR.toString());
+		pt.y++;
+		XLSUtils.setValue(sheet, pt, transpose, EnumXLSExperimentDescriptors.CAM.toString());
+		pt.y++;
+		XLSUtils.setValue(sheet, pt, transpose, EnumXLSExperimentDescriptors.CAP.toString());
+		pt.y++;
+		XLSUtils.setValue(sheet, pt, transpose, EnumXLSExperimentDescriptors.CAGE.toString());
+		pt.y++;
+		XLSUtils.setValue(sheet, pt, transpose, EnumXLSExperimentDescriptors.TIME.toString());
+		pt.y++;
+		XLSUtils.setValue(sheet, pt, transpose, EnumXLSExperimentDescriptors.NFLIES.toString());
+		pt.y++;
+		XLSUtils.setValue(sheet, pt, transpose, EnumXLSExperimentDescriptors.DUM1.toString());
+		pt.y++;
+		XLSUtils.setValue(sheet, pt, transpose, EnumXLSExperimentDescriptors.DUM2.toString());
+		pt.y++;
+		XLSUtils.setValue(sheet, pt, transpose, EnumXLSExperimentDescriptors.DUM3.toString());
+		pt.y++;
+		XLSUtils.setValue(sheet, pt, transpose, EnumXLSExperimentDescriptors.DUM4.toString());
+		pt.y++;
+	}
+	
+	protected Point addExperimentDescriptorsToHeader(Experiment exp, XSSFSheet sheet, Point pt, boolean transpose) {
 		int col0 = pt.x;
-		XLSUtils.setValue(sheet, pt, transpose, desc.toString());
+		int row = pt.y;
+		addDescriptorTitlestoExperimentDescriptors(sheet, pt, transpose);
 		pt.x++;
 		pt.x++;
 		pt.x++;
-		switch (desc) {
-		case CAGE: 	// assume 2 capillaries/slot
-			for (int i= 0; i < exp.kymographArrayList.size(); i++, pt.x++) 
-				XLSUtils.setValue(sheet, pt, transpose, i/2);
-			break;
-		case NFLIES: // assume first 2 and last 2 have no flies
-			for (int i= 0; i < exp.kymographArrayList.size(); i++, pt.x++) {
-				int j = 1;
-				if (i < 2 || i > 17)
-					j = 0;
-				XLSUtils.setValue(sheet, pt, transpose, j);
-			}
-			break;
-		case CAP:
-			for (int i= 0; i < exp.kymographArrayList.size(); i++, pt.x++) {
-				String name = exp.kymographArrayList.get(i).getName();
-				String letter = name.substring(name.length() - 1);
-				XLSUtils.setValue(sheet, pt, transpose, letter);
-			}
-			break;
-		case DUM1: {
-			Path path = Paths.get(exp.vSequence.getFileName());
-			String name = getSubName(path, 2); 
-			for (int i= 0; i < exp.kymographArrayList.size(); i++, pt.x++)
-				XLSUtils.setValue(sheet, pt, transpose, name);
-			}
-			break;
-		case DUM2:	{
-			Path path = Paths.get(exp.vSequence.getFileName());
-			String name = getSubName(path, 3); 
-			for (int i= 0; i < exp.kymographArrayList.size(); i++, pt.x++)
-				XLSUtils.setValue(sheet, pt, transpose, name);
-			}
-			break;
-		case DUM3:	{
-			Path path = Paths.get(exp.vSequence.getFileName());
-			String name = getSubName(path, 4); 
-			for (int i= 0; i < exp.kymographArrayList.size(); i++, pt.x++)
-				XLSUtils.setValue(sheet, pt, transpose, name);
-			}
-			break;
-		case DUM4: 
-			for (int i= 0; i < exp.kymographArrayList.size(); i++, pt.x++) 
-				XLSUtils.setValue(sheet, pt, transpose, sheet.getSheetName());
-			break;
-		case DATE:
-			SimpleDateFormat df = new SimpleDateFormat("MM/dd/yyyy");
-	       for (int i= 0; i < exp.kymographArrayList.size(); i++, pt.x++) 
-				XLSUtils.setValue(sheet, pt, transpose, df.format(exp.fileTimeImageFirst.toMillis()));
-			break;
-		case STIML:
-			for (int i= 0; i < exp.kymographArrayList.size(); i++, pt.x++) {
-				XLSUtils.setValue(sheet, pt, transpose, exp.vSequence.capillaries.stimulusL);
-			}
-			break;
-		case CONCL:
-			for (int i= 0; i < exp.kymographArrayList.size(); i++, pt.x++) {
-				XLSUtils.setValue(sheet, pt, transpose, exp.vSequence.capillaries.concentrationL);
-			}
-			break;
-		case STIMR:
-			for (int i= 0; i < exp.kymographArrayList.size(); i++, pt.x++) {
-				XLSUtils.setValue(sheet, pt, transpose, exp.vSequence.capillaries.stimulusR);
-			}
-			break;
-		case CONCR:
-			for (int i= 0; i < exp.kymographArrayList.size(); i++, pt.x++) {
-				XLSUtils.setValue(sheet, pt, transpose, exp.vSequence.capillaries.concentrationR);
-			}
-			break;
+		int colseries = pt.x;
+		
+		for (SequencePlus seq: exp.kymographArrayList) { 
 
-		default:
-			break;
+			String name = seq.getName();
+			int col = getColFromKymoSequenceName(name);
+			if (col >= 0) 
+				pt.x = colseries + col;
+			pt.y = row;
+		
+			// date
+			SimpleDateFormat df = new SimpleDateFormat("MM/dd/yyyy");
+			XLSUtils.setValue(sheet, pt, transpose, df.format(exp.fileTimeImageFirst.toMillis()));
+			pt.y++;
+			// stimulus, conc
+			XLSUtils.setValue(sheet, pt, transpose, exp.vSequence.capillaries.stimulusL);
+			pt.y++;
+			XLSUtils.setValue(sheet, pt, transpose, exp.vSequence.capillaries.concentrationL);
+			pt.y++;
+			XLSUtils.setValue(sheet, pt, transpose, exp.vSequence.capillaries.stimulusR);
+			pt.y++;
+			XLSUtils.setValue(sheet, pt, transpose, exp.vSequence.capillaries.concentrationR);
+			pt.y++;
+			// cam
+			pt.y++;
+			// cap
+			String letter = name.substring(name.length() - 1);
+			XLSUtils.setValue(sheet, pt, transpose, letter);
+			pt.y++;
+			// cage
+			int i = getCageFromCapillaryName(name);
+			XLSUtils.setValue(sheet, pt, transpose, i);
+			pt.y++;
+			// time
+			pt.y++;
+			// nflies
+			int j = 1;
+			if (i < 1 || i > 8)
+				j = 0;
+			XLSUtils.setValue(sheet, pt, transpose, j);
+			pt.y++;
+			// dum1
+			Path path = Paths.get(exp.vSequence.getFileName());
+			String name1 = getSubName(path, 2); 
+			XLSUtils.setValue(sheet, pt, transpose, name1);
+			pt.y++;
+			// dum2
+			String name11 = getSubName(path, 3); 
+			XLSUtils.setValue(sheet, pt, transpose, name11);
+			pt.y++;
+			// dum3
+			String name111 = getSubName(path, 4); 
+			XLSUtils.setValue(sheet, pt, transpose, name111);
+			pt.y++;
+			// dum4
+			XLSUtils.setValue(sheet, pt, transpose, sheet.getSheetName());
+			pt.y++;
 		}
 		pt.x = col0;
-		pt.y++;
 		return pt;
+	}
+	
+	protected int getCageFromCapillaryName(String name) {
+		if (!name .contains("line"))
+			return -1;
+	
+		String num = name.substring(4, 5);
+		int numFromName = Integer.parseInt(num);
+		return numFromName;
 	}
 	
 	public String getSubName(Path path, int subnameIndex) {
@@ -164,20 +190,7 @@ public class XLSExport {
 
 	public Point writeGenericHeader (Experiment exp, XSSFSheet sheet, EnumXLSExportItems option, Point pt, boolean transpose, String charSeries) {
 
-		pt = addLineToHeader(exp, sheet, pt, transpose, EnumXLSExperimentDescriptors.DATE);
-		pt = addLineToHeader(exp, sheet, pt, transpose, EnumXLSExperimentDescriptors.STIML);
-		pt = addLineToHeader(exp, sheet, pt, transpose, EnumXLSExperimentDescriptors.CONCL);
-		pt = addLineToHeader(exp, sheet, pt, transpose, EnumXLSExperimentDescriptors.STIMR);
-		pt = addLineToHeader(exp, sheet, pt, transpose, EnumXLSExperimentDescriptors.CONCR);
-		pt = addLineToHeader(exp, sheet, pt, transpose, EnumXLSExperimentDescriptors.CAM);
-		pt = addLineToHeader(exp, sheet, pt, transpose, EnumXLSExperimentDescriptors.CAP);
-		pt = addLineToHeader(exp, sheet, pt, transpose, EnumXLSExperimentDescriptors.CAGE);
-		pt = addLineToHeader(exp, sheet, pt, transpose, EnumXLSExperimentDescriptors.TIME);
-		pt = addLineToHeader(exp, sheet, pt, transpose, EnumXLSExperimentDescriptors.NFLIES);
-		pt = addLineToHeader(exp, sheet, pt, transpose, EnumXLSExperimentDescriptors.DUM1);
-		pt = addLineToHeader(exp, sheet, pt, transpose, EnumXLSExperimentDescriptors.DUM2);
-		pt = addLineToHeader(exp, sheet, pt, transpose, EnumXLSExperimentDescriptors.DUM3);
-		pt = addLineToHeader(exp, sheet, pt, transpose, EnumXLSExperimentDescriptors.DUM4);
+		pt = addExperimentDescriptorsToHeader(exp, sheet, pt, transpose);
 	
 		XLSUtils.setValue(sheet, pt, transpose, "rois"+charSeries);
 		pt.x++;
@@ -221,7 +234,7 @@ public class XLSExport {
 		return localPt;
 	}
 	
-	int getColFromName(String name) {
+	int getColFromKymoSequenceName(String name) {
 		if (!name .contains("line"))
 				return -1;
 
