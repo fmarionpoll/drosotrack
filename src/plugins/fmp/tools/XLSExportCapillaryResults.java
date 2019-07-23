@@ -51,8 +51,9 @@ public class XLSExportCapillaryResults extends XLSExport {
 				if (options.derivative) 	col_end = getDataAndExport(exp, workbook, col_max, charSeries, EnumXLSExportItems.DERIVEDVALUES);	
 				if (options.consumption) 	col_end = getDataAndExport(exp, workbook, col_max, charSeries, EnumXLSExportItems.SUMGULPS);
 				if (options.sum) {		
-					if (options.topLevel) col_end = getDataAndExport(exp, workbook, col_max, charSeries, EnumXLSExportItems.SUMLR);
+					if (options.topLevel) 		col_end = getDataAndExport(exp, workbook, col_max, charSeries, EnumXLSExportItems.SUMLR);
 					if (options.topLevelDelta) 	col_end = getDataAndExport(exp, workbook, col_max, charSeries, EnumXLSExportItems.TOPLEVELDELTALR);
+					if (options.consumption) 	col_end = getDataAndExport(exp, workbook, col_max, charSeries, EnumXLSExportItems.SUMGULPSLR);
 				}
 
 				if (col_end > col_max)
@@ -109,12 +110,14 @@ public class XLSExportCapillaryResults extends XLSExport {
 			results.name = seq.getName();
 			switch (xlsoption) {
 			case TOPLEVELDELTA:
+			case TOPLEVELDELTALR:
 				results.data = seq.subtractTi(seq.getArrayListFromRois(EnumArrayListType.topLevel));
 				break;
 			case DERIVEDVALUES:
 				results.data = seq.getArrayListFromRois(EnumArrayListType.derivedValues);
 				break;
-			case SUMGULPS: 
+			case SUMGULPS:
+			case SUMGULPSLR:
 				results.data = seq.getArrayListFromRois(EnumArrayListType.cumSum);
 				break;
 			case BOTTOMLEVEL:
@@ -126,9 +129,6 @@ public class XLSExportCapillaryResults extends XLSExport {
 					results.data = seq.subtractT0(seq.getArrayListFromRois(EnumArrayListType.topLevel));
 				else
 					results.data = seq.getArrayListFromRois(EnumArrayListType.topLevel);
-				break;
-			case TOPLEVELDELTALR:
-				results.data = seq.subtractTi(seq.getArrayListFromRois(EnumArrayListType.topLevel));
 				break;
 			default:
 				break;
@@ -260,6 +260,11 @@ public class XLSExportCapillaryResults extends XLSExport {
 				referenceFileTimeImageFirstMinutes = desc.fileTimeImageFirstMinutes;
 				referenceFileTimeImageLastMinutes = desc.fileTimeImageLastMinutes;
 			}
+			else
+			{
+				referenceFileTimeImageFirstMinutes = exp.fileTimeImageFirstMinutes;
+				referenceFileTimeImageLastMinutes = exp.fileTimeImageLastMinutes;
+			}
 		}
 			
 		pt.x =0;
@@ -295,6 +300,7 @@ public class XLSExportCapillaryResults extends XLSExport {
 			switch (option) {
 			case SUMLR:
 			case TOPLEVELDELTALR:
+			case SUMGULPSLR:
 				for (int idataArray=0; idataArray< dataArrayList.size(); idataArray+=2) 
 				{
 					int colL = getColFromKymoSequenceName(dataArrayList.get(idataArray).name);

@@ -5,6 +5,7 @@ public enum EnumXLSExportItems {
 	BOTTOMLEVEL ("bottomlevel"), 
 	DERIVEDVALUES ("derivative"), 
 	SUMGULPS ("sumGulps"), 
+	SUMGULPSLR ("sumGulpsL+R"), 
 	SUMLR ("sumL+R"), 
 	XYCENTER ("xycenter"), 
 	DISTANCE ("distance"), 
