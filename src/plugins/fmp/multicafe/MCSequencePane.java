@@ -21,11 +21,12 @@ public class MCSequencePane extends JPanel implements PropertyChangeListener {
 	 */
 	private static final long serialVersionUID = -6826269677524125173L;
 	
-	private JTabbedPane tabsPane 	= new JTabbedPane();
-	MCSequenceTab_Open 	openTab 	= new MCSequenceTab_Open();
-	MCSequenceTab_Browse 	browseTab 	= new MCSequenceTab_Browse();
+	private JTabbedPane 	tabsPane 	= new JTabbedPane();
+	MCSequenceTab_Open 		openTab 	= new MCSequenceTab_Open();
+	MCSequenceTab_Infos		infosTab	= new MCSequenceTab_Infos();
+	MCSequenceTab_Browse	browseTab 	= new MCSequenceTab_Browse();
 	MCSequenceTab_Close 	closeTab 	= new MCSequenceTab_Close();
-	private Multicafe 	parent0 	= null;
+	private Multicafe 		parent0 	= null;
 	
 	
 	void init (JPanel mainPanel, String string, Multicafe parent0) {
@@ -37,6 +38,10 @@ public class MCSequencePane extends JPanel implements PropertyChangeListener {
 		openTab.init(capLayout, parent0);
 		tabsPane.addTab("Open/Add", null, openTab, "Open one or several stacks of .jpg files");
 		openTab.addPropertyChangeListener(this);
+		
+		infosTab.init(capLayout);
+		tabsPane.addTab("Infos", null, infosTab, "Define infos for this experiment/box");
+		infosTab.addPropertyChangeListener(this);
 		
 		browseTab.init(capLayout, parent0);
 		tabsPane.addTab("Browse", null, browseTab, "Browse stack and adjust analysis parameters");

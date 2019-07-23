@@ -31,7 +31,7 @@ import plugins.fmp.sequencevirtual.SequencePlus;
 import plugins.kernel.roi.roi2d.ROI2DShape;
 
 
-public class MCCapillariesTab_Options extends JPanel implements ActionListener, ActiveViewerListener {
+public class MCCapillariesTab_Options extends JPanel implements ActiveViewerListener {
 
 	/**
 	 * 
@@ -69,41 +69,39 @@ public class MCCapillariesTab_Options extends JPanel implements ActionListener, 
 	}
 	
 	private void defineActionListeners() {
-		updateButton.addActionListener(this);
-		kymographNamesComboBox.addActionListener(this);
-		viewGulpsCheckbox.addActionListener(this);
-		viewLevelsCheckbox.addActionListener(this);
-		viewKymosCheckBox.addActionListener(this);
-		nextButton.addActionListener(this);
-		previousButton.addActionListener(this);
-	}
-	
-	@Override
-	public void actionPerformed(ActionEvent e) {
-		Object o = e.getSource();
-		if (( o == updateButton) || (o == kymographNamesComboBox)) {
+		updateButton.addActionListener(new ActionListener () { @Override public void actionPerformed( final ActionEvent e ) { 
 			displayUpdateOnSwingThread();
-		}
-		else if (( o == viewGulpsCheckbox) || (o == viewLevelsCheckbox)) {
-			roisDisplay();	
-		}
-		else if ( o == viewKymosCheckBox) {
+		} } );
+		
+		kymographNamesComboBox.addActionListener(new ActionListener () { @Override public void actionPerformed( final ActionEvent e ) { 
+			displayUpdateOnSwingThread();
+		} } );
+		
+		viewGulpsCheckbox.addActionListener(new ActionListener () { @Override public void actionPerformed( final ActionEvent e ) { 
+			roisDisplay();
+		} } );
+		
+		viewLevelsCheckbox.addActionListener(new ActionListener () { @Override public void actionPerformed( final ActionEvent e ) { 
+			roisDisplay();
+		} } );
+		
+		viewKymosCheckBox.addActionListener(new ActionListener () { @Override public void actionPerformed( final ActionEvent e ) { 
 			displayViews(viewKymosCheckBox.isSelected());
-		}
-		else if ( o == nextButton) {
+		} } );
+		
+		nextButton.addActionListener(new ActionListener () { @Override public void actionPerformed( final ActionEvent e ) { 
 			int isel = kymographNamesComboBox.getSelectedIndex()+1;
-			if (isel < kymographNamesComboBox.getItemCount()) {
+			if (isel < kymographNamesComboBox.getItemCount())
 				selectKymograph(isel);
-			}
-		}
-		else if ( o == previousButton) {
+		} } );
+		
+		previousButton.addActionListener(new ActionListener () { @Override public void actionPerformed( final ActionEvent e ) { 
 			int isel = kymographNamesComboBox.getSelectedIndex()-1;
-			if (isel < kymographNamesComboBox.getItemCount()) {
+			if (isel < kymographNamesComboBox.getItemCount())
 				selectKymograph(isel);
-			}
-		}
+		} } );
 	}
-	
+		
 	// ---------------------------
 	void transferFileNamesToComboBox() {
 		kymographNamesComboBox.removeAllItems();

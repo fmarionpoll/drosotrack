@@ -3,9 +3,10 @@ package plugins.fmp.tools;
 
 public enum EnumXLSExperimentDescriptors {
 	DATE( "date"), 
+	BOXID("box ID"), EXPT("expt"), COMMENT("comment"),
 	STIM("stim"), CONC("conc"), CAM ("cam"), CAP ("cap"),
-	CAGE("cage"), TIME("time"), NFLIES("nflies"), 
-	DUM1("dum1"), DUM2("dum2"), DUM3 ("dum3"), DUM4("dum4"), DUMSTIM("dumstim"), DUMCONC("dumconc");
+	CAGE("cage"), NFLIES("nflies"), 
+	DUM1("dum1"), DUM2("dum2"), DUM3 ("dum3"), DUM4("dum4");
 	
 	private String label;
 	EnumXLSExperimentDescriptors (String label) { 

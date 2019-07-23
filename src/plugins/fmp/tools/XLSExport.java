@@ -41,21 +41,21 @@ public class XLSExport {
 		
 		XLSUtils.setValue(sheet, pt, transpose, EnumXLSExperimentDescriptors.DATE.toString());
 		pt.y++;
+		XLSUtils.setValue(sheet, pt, transpose, EnumXLSExperimentDescriptors.BOXID.toString());
+		pt.y++;
+		XLSUtils.setValue(sheet, pt, transpose, EnumXLSExperimentDescriptors.EXPT.toString());
+		pt.y++;
+		XLSUtils.setValue(sheet, pt, transpose, EnumXLSExperimentDescriptors.COMMENT.toString());
+		pt.y++;
 		XLSUtils.setValue(sheet, pt, transpose, EnumXLSExperimentDescriptors.STIM.toString());
 		pt.y++;
 		XLSUtils.setValue(sheet, pt, transpose, EnumXLSExperimentDescriptors.CONC.toString());
-		pt.y++;
-		XLSUtils.setValue(sheet, pt, transpose, EnumXLSExperimentDescriptors.DUMSTIM.toString());
-		pt.y++;
-		XLSUtils.setValue(sheet, pt, transpose, EnumXLSExperimentDescriptors.DUMCONC.toString());
 		pt.y++;
 		XLSUtils.setValue(sheet, pt, transpose, EnumXLSExperimentDescriptors.CAM.toString());
 		pt.y++;
 		XLSUtils.setValue(sheet, pt, transpose, EnumXLSExperimentDescriptors.CAP.toString());
 		pt.y++;
 		XLSUtils.setValue(sheet, pt, transpose, EnumXLSExperimentDescriptors.CAGE.toString());
-		pt.y++;
-		XLSUtils.setValue(sheet, pt, transpose, EnumXLSExperimentDescriptors.TIME.toString());
 		pt.y++;
 		XLSUtils.setValue(sheet, pt, transpose, EnumXLSExperimentDescriptors.NFLIES.toString());
 		pt.y++;
@@ -91,6 +91,14 @@ public class XLSExport {
 			SimpleDateFormat df = new SimpleDateFormat("MM/dd/yyyy");
 			XLSUtils.setValue(sheet, pt, transpose, df.format(exp.fileTimeImageFirst.toMillis()));
 			pt.y++;
+			
+			XLSUtils.setValue(sheet, pt, transpose, exp.vSequence.capillaries.boxID);
+			pt.y++;
+			XLSUtils.setValue(sheet, pt, transpose, exp.vSequence.capillaries.experiment);
+			pt.y++;
+			XLSUtils.setValue(sheet, pt, transpose, exp.vSequence.capillaries.comment);
+			pt.y++;
+
 			// stimulus, conc
 			String letter = name.substring(name.length() - 1);
 			if (letter .equals("L")) 	XLSUtils.setValue(sheet, pt, transpose, exp.vSequence.capillaries.stimulusL);
@@ -100,10 +108,6 @@ public class XLSExport {
 			else 						XLSUtils.setValue(sheet, pt, transpose, exp.vSequence.capillaries.concentrationR);
 			pt.y++;
 			
-//			XLSUtils.setValue(sheet, pt, transpose, exp.vSequence.capillaries.stimulusR);
-			pt.y++;
-//			XLSUtils.setValue(sheet, pt, transpose, exp.vSequence.capillaries.concentrationR);
-			pt.y++;
 			// cam
 			String cam = getSubName(path, 2).substring(0, 5); 
 			XLSUtils.setValue(sheet, pt, transpose, cam);
@@ -114,8 +118,6 @@ public class XLSExport {
 			// cage
 			int i = getCageFromCapillaryName(name);
 			XLSUtils.setValue(sheet, pt, transpose, i);
-			pt.y++;
-			// time
 			pt.y++;
 			// nflies
 			int j = 1;

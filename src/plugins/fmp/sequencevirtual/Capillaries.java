@@ -29,6 +29,9 @@ public class Capillaries {
 	public long 	analysisEnd 		= 0;
 	public int 		analysisStep 		= 1;
 	
+	public String 	boxID				= new String("boxID");
+	public String	experiment			= new String("experiment");
+	public String 	comment				= new String("comment");
 	public String 	stimulusR			= new String("stimulusR");
 	public String 	concentrationR		= new String("xmMR");
 	public String 	stimulusL			= new String("stimulusL");
@@ -47,6 +50,11 @@ public class Capillaries {
 
 		Element xmlVal = XMLUtil.getElement(xmlElement, "file");
 		sourceName = XMLUtil.getAttributeValue(xmlVal, "ID", null);
+		
+		xmlVal = XMLUtil.getElement(xmlElement,  "Experiment");
+		boxID 		= XMLUtil.getAttributeValue(xmlVal, "boxID", "boxID");
+		experiment 	= XMLUtil.getAttributeValue(xmlVal, "experiment", "experiment");
+		comment 	= XMLUtil.getAttributeValue(xmlVal, "comment", "comment");
 		
 		xmlVal = XMLUtil.getElement(xmlElement, "Grouping");
 		grouping = XMLUtil.getAttributeIntValue(xmlVal, "n", 2);
@@ -82,6 +90,11 @@ public class Capillaries {
 		
 		sourceName = seq.getFileName();
 		XMLUtil.setAttributeValue(xmlVal, "ID", sourceName);
+		
+		xmlVal = XMLUtil.addElement(xmlElement,  "Experiment");
+		XMLUtil.setAttributeValue(xmlVal, "boxID", boxID);
+		XMLUtil.setAttributeValue(xmlVal, "experiment", experiment);
+		XMLUtil.setAttributeValue(xmlVal, "comment", comment);
 	
 		xmlVal = XMLUtil.addElement(xmlElement, "Grouping");
 		XMLUtil.setAttributeIntValue(xmlVal, "n", grouping);
