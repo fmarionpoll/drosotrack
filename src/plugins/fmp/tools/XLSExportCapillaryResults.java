@@ -18,6 +18,7 @@ import plugins.fmp.sequencevirtual.SequencePlus;
 import plugins.fmp.sequencevirtual.XYTaSeries;
 
 public class XLSExportCapillaryResults extends XLSExport {
+
 	
 	public void exportToFile(String filename, XLSExportOptions opt) {
 		
@@ -261,18 +262,15 @@ public class XLSExportCapillaryResults extends XLSExport {
 			}
 		}
 			
-		if (col0 ==0) {
-			pt.x = col0;
-			
-			imageTimeMinutes = referenceFileTimeImageLastMinutes;
-			long diff = getnearest(imageTimeMinutes-referenceFileTimeImageFirstMinutes, step)/ step;
-			imageTimeMinutes = referenceFileTimeImageFirstMinutes;
-			for (int i = 0; i<= diff; i++) {
-				long diff2 = getnearest(imageTimeMinutes-referenceFileTimeImageFirstMinutes, step);
-				pt.y = (int) (diff2/step + row0); 
-				XLSUtils.setValue(sheet, pt, transpose, "t"+diff2);
-				imageTimeMinutes += step;
-			}
+		pt.x =0;
+		imageTimeMinutes = referenceFileTimeImageLastMinutes;
+		long diff = getnearest(imageTimeMinutes-referenceFileTimeImageFirstMinutes, step)/ step;
+		imageTimeMinutes = referenceFileTimeImageFirstMinutes;
+		for (int i = 0; i<= diff; i++) {
+			long diff2 = getnearest(imageTimeMinutes-referenceFileTimeImageFirstMinutes, step);
+			pt.y = (int) (diff2/step + row0); 
+			XLSUtils.setValue(sheet, pt, transpose, "t"+diff2);
+			imageTimeMinutes += step;
 		}
 		
 		for (int currentFrame=startFrame; currentFrame < endFrame; currentFrame+=  step * options.pivotBinStep) {

@@ -10,6 +10,7 @@ import icy.gui.frame.progress.ProgressFrame;
 import icy.image.IcyBufferedImage;
 import icy.roi.ROI;
 import icy.system.profile.Chronometer;
+import icy.type.collection.array.Array1DUtil;
 import plugins.fmp.sequencevirtual.SequencePlus;
 import plugins.fmp.tools.EnumArrayListType;
 import plugins.fmp.tools.ImageTransformTools.TransformOp;
@@ -52,8 +53,8 @@ public class CapBuildDetect_Gulps {
 
 			kymographSeq.beginUpdate();
 			IcyBufferedImage image = kymographSeq.getImage(0, 2, 0);	// time=0; z=2; c=0
-
-			double[] tabValues = image.getDataXYAsDouble(0);			// channel 0 - RED
+			Object dataArray = image.getDataXY(0);						// channel 0 - RED
+			double[] tabValues = Array1DUtil.arrayToDoubleArray(dataArray,image.isSignedDataType());			// channel 0 - RED
 			int xwidth = image.getSizeX();
 			int yheight = image.getSizeY();
 			int ix = 0;
