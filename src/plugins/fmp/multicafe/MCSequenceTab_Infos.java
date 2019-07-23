@@ -1,8 +1,14 @@
 package plugins.fmp.multicafe;
 
 import java.awt.BorderLayout;
+import java.awt.Dimension;
 import java.awt.GridLayout;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.ItemEvent;
+import java.awt.event.ItemListener;
 
+import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
@@ -11,6 +17,8 @@ import javax.swing.SwingConstants;
 
 import icy.gui.util.GuiUtil;
 import plugins.fmp.sequencevirtual.Capillaries;
+import plugins.fmp.tools.ComboBoxWide;
+import plugins.fmp.tools.ComboBoxWithIndexTextRenderer;
 
 public class MCSequenceTab_Infos  extends JPanel {
 	/**
@@ -21,10 +29,27 @@ public class MCSequenceTab_Infos  extends JPanel {
 	private JTextField 			commentTextField	= new JTextField("...");
 	private JComboBox<String> 	boxID_JCombo		= new JComboBox<String>();
 	private JComboBox<String> 	experimentJCombo 	= new JComboBox<String>();
-
+	private JButton  			previousButton		= new JButton("<");
+	private JButton				nextButton			= new JButton(">");
+	JComboBox<String> 			experimentComboBox	= new ComboBoxWide();
+	boolean 					disableChangeFile 	= false;
+	private Multicafe 			parent0 			= null;
 	
-	void init(GridLayout capLayout) {
+	
+	void init(GridLayout capLayout, Multicafe parent0) {
 		setLayout(capLayout);
+		this.parent0 = parent0;
+		
+		JPanel k2Panel = new JPanel();
+		k2Panel.setLayout(new BorderLayout());
+		k2Panel.add(previousButton, BorderLayout.WEST); 
+		int bWidth = 30;
+		int height = 10;
+		previousButton.setPreferredSize(new Dimension(bWidth, height));
+		k2Panel.add(experimentComboBox, BorderLayout.CENTER);
+		nextButton.setPreferredSize(new Dimension(bWidth, height)); 
+		k2Panel.add(nextButton, BorderLayout.EAST);
+		add(GuiUtil.besidesPanel( k2Panel));
 		
 		add( GuiUtil.besidesPanel(
 				createComboPanel("Experiment ", experimentJCombo),  
@@ -39,9 +64,56 @@ public class MCSequenceTab_Infos  extends JPanel {
 		boxID_JCombo.setEditable(true);
 		experimentJCombo.setEditable(true);	
 		commentTextField.setEditable(true);
+		
+		defineActionListeners();
+		
+		ComboBoxWithIndexTextRenderer renderer = new ComboBoxWithIndexTextRenderer();
+		experimentComboBox.setRenderer(renderer);
+
+		experimentComboBox.addItemListener(new ItemListener() {
+	        public void itemStateChanged(ItemEvent arg0) {
+	        	if (arg0.getStateChange() == ItemEvent.DESELECTED) {
+	        		firePropertyChange("SEQ_SAVEMEAS", false, true);
+	        	}
+	        	else if (arg0.getStateChange () == ItemEvent.SELECTED) {
+	        		updateBrowseInterface();
+	        	}
+	        }
+	    });
 	}
-			
-			
+	
+	private void defineActionListeners() {
+		experimentComboBox.addActionListener(new ActionListener () { @Override public void actionPerformed( final ActionEvent e ) { 
+			if (experimentComboBox.getItemCount() == 0 || parent0.vSequence == null || disableChangeFile)
+				return;
+			String newtext = (String) experimentComboBox.getSelectedItem();
+			String oldtext = parent0.vSequence.getFileName();
+			if (!newtext.equals(oldtext)) {
+				firePropertyChange("SEQ_OPEN", false, true);
+			}
+		} } );
+		
+		nextButton.addActionListener(new ActionListener () { @Override public void actionPerformed( final ActionEvent e ) { 
+			if ( experimentComboBox.getSelectedIndex() < (experimentComboBox.getItemCount() -1)) {
+				experimentComboBox.setSelectedIndex(experimentComboBox.getSelectedIndex()+1);
+			}
+		} } );
+		
+		previousButton.addActionListener(new ActionListener () { @Override public void actionPerformed( final ActionEvent e ) { 
+			if (experimentComboBox.getSelectedIndex() > 0) {
+				experimentComboBox.setSelectedIndex(experimentComboBox.getSelectedIndex()-1);
+			}
+		} } );
+	}
+	
+	void updateBrowseInterface() {
+		int isel = experimentComboBox.getSelectedIndex();
+		boolean flag1 = (isel == 0? false: true);
+		boolean flag2 = (isel == (experimentComboBox.getItemCount() -1)? false: true);
+		previousButton.setEnabled(flag1);
+		nextButton.setEnabled(flag2);
+	}
+	
 	private JPanel createComboPanel(String text, JComboBox<String> combo) {
 		JPanel panel = new JPanel();
 		panel.setLayout(new BorderLayout());

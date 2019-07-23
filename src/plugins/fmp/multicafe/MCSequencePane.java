@@ -39,11 +39,11 @@ public class MCSequencePane extends JPanel implements PropertyChangeListener {
 		tabsPane.addTab("Open/Add", null, openTab, "Open one or several stacks of .jpg files");
 		openTab.addPropertyChangeListener(this);
 		
-		infosTab.init(capLayout);
+		infosTab.init(capLayout, parent0);
 		tabsPane.addTab("Infos", null, infosTab, "Define infos for this experiment/box");
 		infosTab.addPropertyChangeListener(this);
 		
-		browseTab.init(capLayout, parent0);
+		browseTab.init(capLayout);
 		tabsPane.addTab("Browse", null, browseTab, "Browse stack and adjust analysis parameters");
 		browseTab.addPropertyChangeListener(this);
 
@@ -63,7 +63,7 @@ public class MCSequencePane extends JPanel implements PropertyChangeListener {
 		else if (event.getPropertyName() .equals ("SEQ_OPENFILE")) {
 			
 			if (sequenceCreateNew(null)) {
-				browseTab.experimentComboBox.removeAllItems();
+				infosTab.experimentComboBox.removeAllItems();
 				addSequenceToComboAndLoadData();
 			}
 		}
@@ -85,27 +85,27 @@ public class MCSequencePane extends JPanel implements PropertyChangeListener {
 		 }
 		 else if (event.getPropertyName().equals("SEQ_CLOSE")) {
 			tabsPane.setSelectedIndex(0);
-			browseTab.experimentComboBox.removeAllItems();
+			infosTab.experimentComboBox.removeAllItems();
 			firePropertyChange("SEQ_CLOSE", false, true);
 		 }
 		 else if (event.getPropertyName().equals("SEARCH_CLOSED")) {
-			int index = browseTab.experimentComboBox.getSelectedIndex();
+			int index = infosTab.experimentComboBox.getSelectedIndex();
 			if (index < 0)
 				index = 0;
-			browseTab.disableChangeFile = true;
+			infosTab.disableChangeFile = true;
 			for (String name: openTab.selectedNames) {
 				 sequenceAddtoCombo(name);
 			}
 			openTab.selectedNames.clear();
-			browseTab.experimentComboBox.setSelectedIndex(index);
-			browseTab.updateBrowseInterface();
-			browseTab.disableChangeFile = false;
+			infosTab.experimentComboBox.setSelectedIndex(index);
+			infosTab.updateBrowseInterface();
+			infosTab.disableChangeFile = false;
 			openSequenceFromCombo();
 		 }
 	}
 	
 	private void openSequenceFromCombo() {
-		String filename = (String) browseTab.experimentComboBox.getSelectedItem();
+		String filename = (String) infosTab.experimentComboBox.getSelectedItem();
 		sequenceCreateNew(filename);
 		updateParametersForSequence();
 		sequenceAddtoCombo(parent0.vSequence.getFileName());
@@ -114,16 +114,16 @@ public class MCSequencePane extends JPanel implements PropertyChangeListener {
 	}
 	
 	void sequenceAddtoCombo(String strItem) {
-		int nitems = browseTab.experimentComboBox.getItemCount();
+		int nitems = infosTab.experimentComboBox.getItemCount();
 		boolean alreadystored = false;
 		for (int i=0; i < nitems; i++) {
-			if (strItem.equalsIgnoreCase(browseTab.experimentComboBox.getItemAt(i))) {
+			if (strItem.equalsIgnoreCase(infosTab.experimentComboBox.getItemAt(i))) {
 				alreadystored = true;
 				break;
 			}
 		}
 		if(!alreadystored) {
-			browseTab.experimentComboBox.addItem(strItem);
+			infosTab.experimentComboBox.addItem(strItem);
 		}
 	}
 	
@@ -131,7 +131,7 @@ public class MCSequencePane extends JPanel implements PropertyChangeListener {
 		String strItem = parent0.vSequence.getFileName();
 		if (strItem != null) {
 			sequenceAddtoCombo(strItem);
-			browseTab.experimentComboBox.setSelectedItem(strItem);
+			infosTab.experimentComboBox.setSelectedItem(strItem);
 			updateParametersForSequence();
 			firePropertyChange("SEQ_OPENED", false, true);
 		}

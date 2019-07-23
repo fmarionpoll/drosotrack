@@ -120,10 +120,10 @@ public class MCExcelPane  extends JPanel implements PropertyChangeListener {
 		options.absoluteTime	= optionsTab.absoluteTimeCheckBox.isSelected();
 		
 		if (optionsTab.exportAllFilesCheckBox.isSelected()) {
-			int nfiles = parent0.sequencePane.browseTab.experimentComboBox.getItemCount();
+			int nfiles = parent0.sequencePane.infosTab.experimentComboBox.getItemCount();
 			for (int i=0; i< nfiles; i++) {
 				Experiment exp = new Experiment ();
-				exp.filename = parent0.sequencePane.browseTab.experimentComboBox.getItemAt(i);
+				exp.filename = parent0.sequencePane.infosTab.experimentComboBox.getItemAt(i);
 				options.experimentList.experimentList.add(exp);
 			}
 		}

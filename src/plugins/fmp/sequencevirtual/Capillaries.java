@@ -31,7 +31,7 @@ public class Capillaries {
 	
 	public String 	boxID				= new String("boxID");
 	public String	experiment			= new String("experiment");
-	public String 	comment				= new String("comment");
+	public String 	comment				= new String("...");
 	public String 	stimulusR			= new String("stimulusR");
 	public String 	concentrationR		= new String("xmMR");
 	public String 	stimulusL			= new String("stimulusL");
@@ -51,11 +51,6 @@ public class Capillaries {
 		Element xmlVal = XMLUtil.getElement(xmlElement, "file");
 		sourceName = XMLUtil.getAttributeValue(xmlVal, "ID", null);
 		
-		xmlVal = XMLUtil.getElement(xmlElement,  "Experiment");
-		boxID 		= XMLUtil.getAttributeValue(xmlVal, "boxID", "boxID");
-		experiment 	= XMLUtil.getAttributeValue(xmlVal, "experiment", "experiment");
-		comment 	= XMLUtil.getAttributeValue(xmlVal, "comment", "comment");
-		
 		xmlVal = XMLUtil.getElement(xmlElement, "Grouping");
 		grouping = XMLUtil.getAttributeIntValue(xmlVal, "n", 2);
 		
@@ -66,15 +61,26 @@ public class Capillaries {
 		pixels = XMLUtil.getAttributeDoubleValue(xmlVal, "npixels", Double.NaN);
 
 		xmlVal = XMLUtil.getElement(xmlElement, "analysis");
-		analysisStart 	= XMLUtil.getAttributeLongValue(xmlVal, "start", 0);
-		analysisEnd 	= XMLUtil.getAttributeLongValue(xmlVal, "end", 0);
-		analysisStep 	= XMLUtil.getAttributeIntValue(xmlVal, "step", 1);
+		if (xmlVal != null) {
+			analysisStart 	= XMLUtil.getAttributeLongValue(xmlVal, "start", 0);
+			analysisEnd 	= XMLUtil.getAttributeLongValue(xmlVal, "end", 0);
+			analysisStep 	= XMLUtil.getAttributeIntValue(xmlVal, "step", 1);
+		}
 
 		xmlVal = XMLUtil.getElement(xmlElement,  "LRstimulus");
-		stimulusR 		= XMLUtil.getAttributeValue(xmlVal, "stimR", "stimR");
-		concentrationR 	= XMLUtil.getAttributeValue(xmlVal, "concR", "concR");
-		stimulusL 		= XMLUtil.getAttributeValue(xmlVal, "stimL", "stimL");
-		concentrationL 	= XMLUtil.getAttributeValue(xmlVal, "concL", "concL");
+		if (xmlVal != null) {
+			stimulusR 		= XMLUtil.getAttributeValue(xmlVal, "stimR", "stimR");
+			concentrationR 	= XMLUtil.getAttributeValue(xmlVal, "concR", "concR");
+			stimulusL 		= XMLUtil.getAttributeValue(xmlVal, "stimL", "stimL");
+			concentrationL 	= XMLUtil.getAttributeValue(xmlVal, "concL", "concL");
+		}
+		
+		xmlVal = XMLUtil.getElement(xmlElement,  "Experiment");
+		if (xmlVal != null) {
+			boxID 		= XMLUtil.getAttributeValue(xmlVal, "boxID", "boxID");
+			experiment 	= XMLUtil.getAttributeValue(xmlVal, "expt", "experiment");
+			comment 	= XMLUtil.getAttributeValue(xmlVal, "comment", ".");
+		}
 		return true;
 	}
 	
@@ -87,15 +93,9 @@ public class Capillaries {
 		Element xmlElement = XMLUtil.addElement(node, "Parameters");
 		
 		Element xmlVal = XMLUtil.addElement(xmlElement, "file");
-		
 		sourceName = seq.getFileName();
 		XMLUtil.setAttributeValue(xmlVal, "ID", sourceName);
 		
-		xmlVal = XMLUtil.addElement(xmlElement,  "Experiment");
-		XMLUtil.setAttributeValue(xmlVal, "boxID", boxID);
-		XMLUtil.setAttributeValue(xmlVal, "experiment", experiment);
-		XMLUtil.setAttributeValue(xmlVal, "comment", comment);
-	
 		xmlVal = XMLUtil.addElement(xmlElement, "Grouping");
 		XMLUtil.setAttributeIntValue(xmlVal, "n", grouping);
 		
@@ -115,6 +115,11 @@ public class Capillaries {
 		XMLUtil.setAttributeValue(xmlVal, "concR", concentrationR);
 		XMLUtil.setAttributeValue(xmlVal, "stimL", stimulusL);
 		XMLUtil.setAttributeValue(xmlVal, "concL", concentrationL);
+
+		xmlVal = XMLUtil.addElement(xmlElement,  "Experiment");
+		XMLUtil.setAttributeValue(xmlVal, "boxID", boxID);
+		XMLUtil.setAttributeValue(xmlVal, "expt", experiment);
+		XMLUtil.setAttributeValue(xmlVal, "comment", comment);
 
 		return true;
 	}

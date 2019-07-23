@@ -43,7 +43,7 @@ public class XLSExport {
 		pt.y++;
 		XLSUtils.setValue(sheet, pt, transpose, EnumXLSExperimentDescriptors.BOXID.toString());
 		pt.y++;
-		XLSUtils.setValue(sheet, pt, transpose, EnumXLSExperimentDescriptors.EXPT.toString());
+		XLSUtils.setValue(sheet, pt, transpose, EnumXLSExperimentDescriptors.EXPMT.toString());
 		pt.y++;
 		XLSUtils.setValue(sheet, pt, transpose, EnumXLSExperimentDescriptors.COMMENT.toString());
 		pt.y++;
@@ -72,7 +72,8 @@ public class XLSExport {
 	protected Point addExperimentDescriptorsToHeader(Experiment exp, XSSFSheet sheet, Point pt, boolean transpose) {
 		int col0 = pt.x;
 		int row = pt.y;
-		addDescriptorTitlestoExperimentDescriptors(sheet, pt, transpose);
+		if (col0 == 0)
+			addDescriptorTitlestoExperimentDescriptors(sheet, pt, transpose);
 		pt.x++;
 		pt.x++;
 		pt.x++;
