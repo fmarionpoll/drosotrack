@@ -9,10 +9,8 @@ import java.awt.event.ItemListener;
 import java.awt.image.BufferedImage;
 import java.awt.image.RenderedImage;
 import java.io.File;
-import java.io.IOException;
 import java.util.ArrayList;
 
-import javax.imageio.ImageIO;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
 
@@ -31,7 +29,6 @@ import icy.image.IcyBufferedImage;
 import icy.image.IcyBufferedImageUtil;
 import icy.image.ImageUtil;
 import icy.roi.ROI2D;
-import icy.sequence.Sequence;
 import icy.system.thread.ThreadUtil;
 
 import plugins.fmp.tools.BuildTrackFliesThread2;
