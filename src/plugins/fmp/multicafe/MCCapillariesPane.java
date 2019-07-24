@@ -79,6 +79,7 @@ public class MCCapillariesPane extends JPanel implements PropertyChangeListener,
 		}			  
 		else if (event.getPropertyName().equals("CAP_ROIS_SAVE")) {
 			unitsTab.getCapillariesInfos(parent0.vSequence.capillaries);
+			parent0.sequencePane.infosTab.getCapillariesInfos(parent0.vSequence.capillaries);
 			buildarrayTab.getCapillariesInfos(parent0.vSequence.capillaries);
 			fileTab.capillaryRoisSave();
 			tabsPane.setSelectedIndex(2);

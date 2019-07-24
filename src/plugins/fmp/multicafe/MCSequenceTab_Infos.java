@@ -102,6 +102,8 @@ public class MCSequenceTab_Infos  extends JPanel {
 		} } );
 		
 		previousButton.addActionListener(new ActionListener () { @Override public void actionPerformed( final ActionEvent e ) { 
+			updateCombos();
+			parent0.capillariesPane.unitsTab.updateCombos();
 			if (experimentComboBox.getSelectedIndex() > 0) {
 				experimentComboBox.setSelectedIndex(experimentComboBox.getSelectedIndex()-1);
 			}

@@ -255,31 +255,27 @@ public class Capillaries {
 		stimulusL = cap.stimulusL;
 		concentrationR = cap.concentrationR;
 		concentrationL = cap.concentrationL;
+		boxID = cap.boxID;
+		experiment = cap.experiment;
+		comment = cap.comment;
+		
 		return cap;
 	}
 	
 	public boolean isChanged (Capillaries cap) {
-		boolean flag = false;
-		if (cap.volume != volume) 
-			flag =  true;
-		if (cap.pixels != pixels) 
-			flag = true;
-		if (cap.analysisStart != analysisStart) 
-			flag = true;
-		if (cap.analysisEnd != analysisEnd) 
-			flag = true;
-		if (cap.analysisStep != analysisStep) 
-			flag = true;
-		if (stimulusR != null && !cap.stimulusR .equals(stimulusR)) 
-			flag = true;
-		if (concentrationR != null && !cap.concentrationR .equals(concentrationR)) 
-			flag = true;
-		if (stimulusL != null && !cap.stimulusL .equals(stimulusL)) 
-			flag = true;
-		if (concentrationL != null && !cap.concentrationL .equals(concentrationL)) 
-			flag = true;
-//			if (cap.capillariesArrayList.size() != capold.capillariesArrayList.size()) 
-//				flag = true; 
+		boolean flag = false; 
+		flag = (cap.volume != volume) || flag;
+		flag = (cap.pixels != pixels) || flag;
+		flag = (cap.analysisStart != analysisStart) || flag;
+		flag = (cap.analysisEnd != analysisEnd) || flag;
+		flag = (cap.analysisStep != analysisStep) || flag;
+		flag = (stimulusR != null && !cap.stimulusR .equals(stimulusR)) || flag;
+		flag = (concentrationR != null && !cap.concentrationR .equals(concentrationR)) || flag;
+		flag = (stimulusL != null && !cap.stimulusL .equals(stimulusL)) || flag;
+		flag = (concentrationL != null && !cap.concentrationL .equals(concentrationL)) || flag;
+		flag = (cap.boxID != null && !cap.boxID .equals(boxID)) || flag;
+		flag = (cap.experiment != null && !cap.experiment .equals(experiment)) || flag;
+		flag = (cap.comment != null && !cap.comment .equals(comment)) || flag;
 		return flag;
 	}
 
