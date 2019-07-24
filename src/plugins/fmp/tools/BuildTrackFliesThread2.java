@@ -262,19 +262,19 @@ public class BuildTrackFliesThread2  implements Runnable {
 	
 	private void displayDetectViewer () {
 		
-		if (seqNegative != null ) {
-			seqNegative.close();
-			seqNegative = null;
-		}
-		seqNegative = new SequenceVirtual();
-		Icy.getMainInterface().addSequence(seqNegative);
-		seqNegative.setName("detectionImage");
-		
 		if (seqPositive != null ) {
 			seqPositive.close();
 			seqPositive=null;
 		}
 		
+		if (seqNegative != null ) {
+			seqNegative.close();
+			seqNegative = null;
+		}
+		seqNegative = new SequenceVirtual();
+		Viewer vNegative = new Viewer(seqNegative, false);
+		//Icy.getMainInterface().addSequence(seqNegative);
+		seqNegative.setName("detectionImage");
 		seqNegative.setImage(0,  0, IcyBufferedImageUtil.getSubImage(vSequence.refImage, rectangleAllCages));
 		
 		try {
@@ -285,9 +285,11 @@ public class BuildTrackFliesThread2  implements Runnable {
 		Point pt = viewer.getLocation();
 		int height = viewer.getHeight();
 		pt.y += height;
-		Viewer vNegative = seqNegative.getFirstViewer();
-		if (vNegative != null)
+		//Viewer vNegative = seqNegative.getFirstViewer();
+		if (vNegative != null) {
 			vNegative.setLocation(pt);
+			vNegative.setVisible(true);
+		}
 	}
 
 	private void displayRefViewers () {
@@ -297,7 +299,7 @@ public class BuildTrackFliesThread2  implements Runnable {
 			seqPositive = null;
 		}
 		seqPositive = new SequenceVirtual();
-		Icy.getMainInterface().addSequence(seqPositive);
+		Viewer vPositive = new Viewer(seqPositive, false);
 		seqPositive.setName("positiveImage");
 		
 		if (seqReference != null ) {
@@ -305,7 +307,7 @@ public class BuildTrackFliesThread2  implements Runnable {
 			seqReference=null;
 		}
 		seqReference = new SequenceVirtual();
-		Icy.getMainInterface().addSequence(seqReference);
+		Viewer vReference = new Viewer(seqReference, false);
 		seqReference.setName("referenceImage");
 		
 		rectangleAllCages = null;
@@ -329,14 +331,16 @@ public class BuildTrackFliesThread2  implements Runnable {
 			e.printStackTrace();
 		}
 		
-		Viewer vReference = seqReference.getFirstViewer();
 		if (vReference != null) {
+			vReference.setVisible(true);
 			vReference.setLocation(pt);
 			height = vReference.getHeight();
 			pt.y += height;
-			Viewer vPositive = seqPositive.getFirstViewer();
-			if (vPositive != null)
+			
+			if (vPositive != null) {
+				vPositive.setVisible(true);
 				vPositive.setLocation(pt);
+			}
 		}
 	}
 	

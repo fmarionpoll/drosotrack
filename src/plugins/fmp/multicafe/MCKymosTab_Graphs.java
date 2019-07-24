@@ -25,14 +25,14 @@ public class MCKymosTab_Graphs extends JPanel implements ActionListener  {
 	private XYMultiChart deltaChart 			= null;
 	private XYMultiChart derivativeChart 		= null;
 	private XYMultiChart sumgulpsChart 			= null;
-	private Multicafe parent0 = null;
+	private Multicafe 	parent0 				= null;
 	
-	private JCheckBox 	limitsCheckbox 		= new JCheckBox("top/bottom", true);
-	private JCheckBox 	derivativeCheckbox 	= new JCheckBox("derivative", false);
-	private JCheckBox 	consumptionCheckbox = new JCheckBox("consumption", false);
-	private JCheckBox 	deltaCheckbox 		= new JCheckBox("delta (v(t) - v(t-1))", false);
+	private JCheckBox 	limitsCheckbox 			= new JCheckBox("top/bottom", true);
+	private JCheckBox 	derivativeCheckbox 		= new JCheckBox("derivative", false);
+	private JCheckBox 	consumptionCheckbox 	= new JCheckBox("consumption", false);
+	private JCheckBox 	deltaCheckbox 			= new JCheckBox("delta (v(t) - v(t-1))", false);
 	
-	private JButton displayResultsButton 	= new JButton("Display results");
+	private JButton displayResultsButton 		= new JButton("Display results");
 	
 	
 	void init(GridLayout capLayout, Multicafe parent0) {	

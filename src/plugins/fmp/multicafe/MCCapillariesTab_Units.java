@@ -133,7 +133,6 @@ public class MCCapillariesTab_Units extends JPanel {
 		cap.concentrationR = (String) concentrationRJCombo.getSelectedItem();
 		cap.stimulusL = (String) stimulusLJCombo.getSelectedItem();
 		cap.concentrationL = (String) concentrationLJCombo.getSelectedItem();
-
 	}
 	
 	private void addItem(JComboBox<String> combo, String text) {
@@ -154,6 +153,14 @@ public class MCCapillariesTab_Units extends JPanel {
 				combo.addItem(text);
 			combo.setSelectedItem(text);
 		}
+	}
+	
+	void updateCombos() {
+		addItem(stimulusRJCombo, (String) stimulusRJCombo.getSelectedItem());
+		addItem(concentrationRJCombo, (String) concentrationRJCombo.getSelectedItem());
+		
+		addItem(stimulusLJCombo, (String) stimulusLJCombo.getSelectedItem());
+		addItem(concentrationLJCombo, (String) concentrationLJCombo.getSelectedItem());
 	}
 						
 }

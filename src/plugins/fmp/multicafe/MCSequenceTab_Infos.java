@@ -94,6 +94,8 @@ public class MCSequenceTab_Infos  extends JPanel {
 		} } );
 		
 		nextButton.addActionListener(new ActionListener () { @Override public void actionPerformed( final ActionEvent e ) { 
+			updateCombos();
+			parent0.capillariesPane.unitsTab.updateCombos();
 			if ( experimentComboBox.getSelectedIndex() < (experimentComboBox.getItemCount() -1)) {
 				experimentComboBox.setSelectedIndex(experimentComboBox.getSelectedIndex()+1);
 			}
@@ -156,7 +158,12 @@ public class MCSequenceTab_Infos  extends JPanel {
 				combo.addItem(text);
 			combo.setSelectedItem(text);
 		}
-	}				
+	}	
+	
+	void updateCombos () {
+		addItem(boxID_JCombo, (String) boxID_JCombo.getSelectedItem());
+		addItem(experimentJCombo, (String) experimentJCombo.getSelectedItem());
+	}
 
 }
 

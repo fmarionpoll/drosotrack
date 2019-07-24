@@ -47,12 +47,12 @@ public class MCMoveTab_Detect extends JPanel implements ChangeListener {
 	private JSpinner 	objectLowsizeSpinner	= new JSpinner(new SpinnerNumberModel(50, 0, 100000, 1));
 	private JCheckBox 	objectUpsizeCheckBox 	= new JCheckBox("object <");
 	private JSpinner 	objectUpsizeSpinner		= new JSpinner(new SpinnerNumberModel(500, 0, 100000, 1));
-	public JCheckBox 	thresholdedImageCheckBox= new JCheckBox("overlay");
+	public 	JCheckBox 	thresholdedImageCheckBox= new JCheckBox("overlay");
 	private JCheckBox 	viewsCheckBox 			= new JCheckBox("view ref img");
-	
 	
 	private OverlayThreshold 		ov = null;
 	private BuildTrackFliesThread2 	trackAllFliesThread = null;
+	
 	
 	void init(GridLayout capLayout, Multicafe parent0) {
 		setLayout(capLayout);
