@@ -7,11 +7,12 @@ import java.awt.geom.Rectangle2D;
 import java.util.ArrayList;
 import java.util.Collections;
 
+import javax.swing.SwingUtilities;
+
 import icy.gui.frame.progress.ProgressFrame;
 import icy.gui.viewer.Viewer;
 import icy.image.IcyBufferedImage;
 import icy.image.IcyBufferedImageUtil;
-import icy.main.Icy;
 import icy.roi.BooleanMask2D;
 import icy.roi.ROI;
 import icy.roi.ROI2D;
@@ -32,7 +33,7 @@ public class BuildTrackFliesThread2  implements Runnable {
 	private int 						endFrame;
 	private int 						nbframes;
 	private Viewer 						viewer;
-	private Rectangle					rectangleAllCages = null;
+	public Rectangle					rectangleAllCages = null;
 		
 	public SequenceVirtual 				vSequence 		= null;	
 	public boolean 						stopFlag 		= false;
@@ -45,7 +46,6 @@ public class BuildTrackFliesThread2  implements Runnable {
 	public SequenceVirtual 				seqNegative 	= null;
 	public SequenceVirtual 				seqPositive 	= null;
 	public SequenceVirtual				seqReference	= null;
-	public IcyBufferedImage				imgReference 	= null;
 	public boolean						viewInternalImages = false;
 
 	/*
@@ -118,10 +118,13 @@ public class BuildTrackFliesThread2  implements Runnable {
 		try {
 			viewer = vSequence.getFirstViewer();	
 			vSequence.beginUpdate();
-			imgReference = IcyBufferedImageUtil.getCopy(vSequence.refImage);
 			
 			if (viewInternalImages) {
-				displayDetectViewer();
+				SwingUtilities.invokeLater(new Runnable() {
+					public void run() {
+						displayDetectViewer();
+					}
+				});
 			}
 			
 			// ----------------- loop over all images of the stack
@@ -141,7 +144,7 @@ public class BuildTrackFliesThread2  implements Runnable {
 				viewer.setPositionT(t);
 				viewer.setTitle(vSequence.getDecoratedImageName(t));
 				
-				IcyBufferedImage negativeImage = vSequence.subtractImages (imgReference, currentImage);
+				IcyBufferedImage negativeImage = vSequence.subtractImages (vSequence.refImage, currentImage);
 				if (seqNegative != null)
 					seqNegative.setImage(0,  0, IcyBufferedImageUtil.getSubImage(negativeImage, rectangleAllCages));
 				ROI2DArea roiAll = findFly (negativeImage, vSequence.cages.detect.threshold, detect.ichanselected, detect.btrackWhite );
@@ -245,7 +248,7 @@ public class BuildTrackFliesThread2  implements Runnable {
 		int cmax = currentImage.getSizeC();
 		for (int c=0; c< cmax; c++) {
 			int[] intCurrentImage = Array1DUtil.arrayToIntArray(currentImage.getDataXY(c), currentImage.isSignedDataType());
-			int[] intRefImage = Array1DUtil.arrayToIntArray(imgReference.getDataXY(c), imgReference.isSignedDataType());
+			int[] intRefImage = Array1DUtil.arrayToIntArray(vSequence.refImage.getDataXY(c), vSequence.refImage.isSignedDataType());
 			int xwidth = currentImage.getSizeX();
 			for (int x = 0; x < rect.getWidth(); x++) {
 				for (int y=0; y< rect.getHeight(); y++) {
@@ -255,9 +258,9 @@ public class BuildTrackFliesThread2  implements Runnable {
 					intRefImage[coord] = intCurrentImage[coord];
 				}
 			}
-			Array1DUtil.intArrayToSafeArray(intRefImage, imgReference.getDataXY(c), imgReference.isSignedDataType(), imgReference.isSignedDataType());
+			Array1DUtil.intArrayToSafeArray(intRefImage, vSequence.refImage.getDataXY(c), vSequence.refImage.isSignedDataType(), vSequence.refImage.isSignedDataType());
 		}
-		imgReference.dataChanged();
+		vSequence.refImage.dataChanged();
 	}
 	
 	private void displayDetectViewer () {
@@ -273,7 +276,6 @@ public class BuildTrackFliesThread2  implements Runnable {
 		}
 		seqNegative = new SequenceVirtual();
 		Viewer vNegative = new Viewer(seqNegative, false);
-		//Icy.getMainInterface().addSequence(seqNegative);
 		seqNegative.setName("detectionImage");
 		seqNegative.setImage(0,  0, IcyBufferedImageUtil.getSubImage(vSequence.refImage, rectangleAllCages));
 		
@@ -285,7 +287,7 @@ public class BuildTrackFliesThread2  implements Runnable {
 		Point pt = viewer.getLocation();
 		int height = viewer.getHeight();
 		pt.y += height;
-		//Viewer vNegative = seqNegative.getFirstViewer();
+
 		if (vNegative != null) {
 			vNegative.setLocation(pt);
 			vNegative.setVisible(true);
@@ -364,7 +366,6 @@ public class BuildTrackFliesThread2  implements Runnable {
 		
 		int nfliesRemoved = 0;
 		vSequence.refImage = IcyBufferedImageUtil.getCopy(vSequence.loadVImage(startFrame));
-		imgReference = IcyBufferedImageUtil.getCopy(vSequence.refImage);
 		
 		initParametersForDetection();
 		initialflyRemoved.clear();
@@ -372,8 +373,12 @@ public class BuildTrackFliesThread2  implements Runnable {
 			initialflyRemoved.add(false);
 		
 		viewer = vSequence.getFirstViewer();
-		if (viewInternalImages) {		
-			displayRefViewers();
+		if (viewInternalImages) {	
+			SwingUtilities.invokeLater(new Runnable() {
+				public void run() {
+					displayRefViewers();
+				}
+			});
 		}
 		
 		for (int t = startFrame +1 ; t <= endFrame && !stopFlag; t  += analyzeStep )
@@ -383,12 +388,12 @@ public class BuildTrackFliesThread2  implements Runnable {
 			viewer.setPositionT(t);
 			viewer.setTitle(vSequence.getDecoratedImageName(t));
 			
-			IcyBufferedImage positiveImage = vSequence.subtractImages (currentImage, imgReference);
+			IcyBufferedImage positiveImage = vSequence.subtractImages (currentImage, vSequence.refImage);
 			if (seqPositive != null)
 				seqPositive.setImage(0,  0, IcyBufferedImageUtil.getSubImage(positiveImage, rectangleAllCages));
 			ROI2DArea roiAll = findFly (positiveImage, vSequence.cages.detect.threshold, detect.ichanselected, detect.btrackWhite );
 
-			for ( int iroi = 0; iroi < cages.cageLimitROIList.size(); iroi++ )
+			for ( int iroi = 1; iroi < cages.cageLimitROIList.size()-1; iroi++ )
 			{
 				BooleanMask2D bestMask = findLargestComponent(roiAll, iroi);		
 				if ( bestMask != null ) {
@@ -399,7 +404,7 @@ public class BuildTrackFliesThread2  implements Runnable {
 						initialflyRemoved.set(iroi, true);
 						nfliesRemoved ++;
 						if (seqReference != null)
-							seqReference.setImage(0,  0, IcyBufferedImageUtil.getSubImage(imgReference, rectangleAllCages));
+							seqReference.setImage(0,  0, IcyBufferedImageUtil.getSubImage(vSequence.refImage, rectangleAllCages));
 						progress.setMessage( "Build background image: n flies removed =" + nfliesRemoved);
 					}
 				}
@@ -407,7 +412,6 @@ public class BuildTrackFliesThread2  implements Runnable {
 			if (nfliesRemoved == cages.cageLimitROIList.size())
 				break;
 		}
-		vSequence.refImage = IcyBufferedImageUtil.getCopy(imgReference);
 		progress.close();
 	}
 

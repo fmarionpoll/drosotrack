@@ -6,8 +6,13 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
+import java.awt.image.BufferedImage;
+import java.awt.image.RenderedImage;
+import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 
+import javax.imageio.ImageIO;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
 
@@ -22,7 +27,11 @@ import javax.swing.event.ChangeListener;
 
 import icy.gui.frame.progress.AnnounceFrame;
 import icy.gui.util.GuiUtil;
+import icy.image.IcyBufferedImage;
+import icy.image.IcyBufferedImageUtil;
+import icy.image.ImageUtil;
 import icy.roi.ROI2D;
+import icy.sequence.Sequence;
 import icy.system.thread.ThreadUtil;
 
 import plugins.fmp.tools.BuildTrackFliesThread2;
@@ -50,6 +59,10 @@ public class MCMoveTab_Detect extends JPanel implements ChangeListener {
 	public 	JCheckBox 	thresholdedImageCheckBox= new JCheckBox("overlay");
 	private JCheckBox 	viewsCheckBox 			= new JCheckBox("view ref img");
 	
+	private JButton 	loadButton 	= new JButton("Load...");
+	private JButton 	saveButton 	= new JButton("Save...");
+	
+	
 	private OverlayThreshold 		ov = null;
 	private BuildTrackFliesThread2 	trackAllFliesThread = null;
 	
@@ -58,7 +71,16 @@ public class MCMoveTab_Detect extends JPanel implements ChangeListener {
 		setLayout(capLayout);
 		this.parent0 = parent0;
 
-		add( GuiUtil.besidesPanel(buildBackgroundButton,  new JLabel(" ")));
+		JPanel panel = new JPanel();
+		panel.setLayout(new FlowLayout());
+		panel.add(new JLabel(" -->", SwingConstants.RIGHT), FlowLayout.LEFT); 
+		panel.add(loadButton);
+		panel.add(saveButton);
+		FlowLayout layout1 = (FlowLayout) panel.getLayout();
+		layout1.setVgap(0);
+		panel.validate();
+		
+		add( GuiUtil.besidesPanel(buildBackgroundButton,  panel));
 
 		JPanel dummyPanel = new JPanel();
 		dummyPanel.add( GuiUtil.besidesPanel(viewsCheckBox, thresholdedImageCheckBox ) );
@@ -111,6 +133,18 @@ public class MCMoveTab_Detect extends JPanel implements ChangeListener {
 			@Override
 			public void actionPerformed( final ActionEvent e ) { 
 				builBackgroundImage();
+			}});
+		
+		saveButton.addActionListener(new ActionListener () {
+			@Override
+			public void actionPerformed( final ActionEvent e ) { 
+				saveRef();
+			}});
+		
+		loadButton.addActionListener(new ActionListener () {
+			@Override
+			public void actionPerformed( final ActionEvent e ) { 
+				loadRef();
 			}});
 	}
 	
@@ -208,6 +242,31 @@ public class MCMoveTab_Detect extends JPanel implements ChangeListener {
 	void stopComputation() {
 		if (trackAllFliesThread != null)
 			trackAllFliesThread.stopFlag = true;
+	}
+	
+	void loadRef () {
+		String path = parent0.vSequence.getDirectory()+ "\\results\\referenceImage.jpg";
+		File inputfile = new File(path);
+		BufferedImage image = ImageUtil.load(inputfile, true);
+		if (image == null) {
+			System.out.println("image not loaded / not found");
+			return;
+		}
+		parent0.vSequence.refImage=  IcyBufferedImage.createFrom(image);
+		if (trackAllFliesThread != null && trackAllFliesThread.rectangleAllCages != null && trackAllFliesThread.seqReference != null)
+			trackAllFliesThread.seqReference.setImage(0,  0, IcyBufferedImageUtil.getSubImage(
+					parent0.vSequence.refImage, 
+					trackAllFliesThread.rectangleAllCages));
+	}
+	
+	void saveRef () {
+		
+		String path = parent0.vSequence.getDirectory()+ "\\results\\referenceImage.jpg";
+		File outputfile = new File(path);
+		RenderedImage image = ImageUtil.toRGBImage(parent0.vSequence.refImage);
+		boolean success = ImageUtil.save(image, "jpg", outputfile);
+		if (success)
+			System.out.println("successfully saved background.jpg image");
 	}
 
 }
