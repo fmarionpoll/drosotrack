@@ -18,11 +18,11 @@ import icy.sequence.SequenceDataIterator;
 import icy.system.profile.Chronometer;
 import icy.type.DataType;
 import icy.type.collection.array.Array1DUtil;
-import plugins.fmp.sequencevirtual.SequenceVirtual;
-import plugins.fmp.tools.EnumThresholdType;
-import plugins.fmp.tools.ImageOperations;
-import plugins.fmp.tools.Tools;
-import plugins.fmp.tools.ImageTransformTools.TransformOp;
+import plugins.fmp.drosoSequence.SequenceVirtual;
+import plugins.fmp.drosoTools.EnumThresholdType;
+import plugins.fmp.drosoTools.ImageOperations;
+import plugins.fmp.drosoTools.DrosoTools;
+import plugins.fmp.drosoTools.ImageTransformTools.TransformOp;
 
 public class AreaAnalysisThread extends Thread
 {
@@ -111,7 +111,7 @@ public class AreaAnalysisThread extends Thread
 		// global parameters
 		analyzeStep = vSequence.analysisStep;
 		roiList = vSequence.getROI2Ds();
-		Collections.sort(roiList, new Tools.ROI2DNameComparator());
+		Collections.sort(roiList, new DrosoTools.ROI2DNameComparator());
 		if ( vSequence.nTotalFrames < endFrame+1 )
 			endFrame = (int) vSequence.nTotalFrames - 1;
 		int nbframes = endFrame - startFrame +1;

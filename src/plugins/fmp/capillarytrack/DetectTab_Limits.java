@@ -15,8 +15,8 @@ import javax.swing.SwingConstants;
 
 import icy.gui.frame.progress.AnnounceFrame;
 import icy.gui.util.GuiUtil;
-import plugins.fmp.tools.Tools;
-import plugins.fmp.tools.ImageTransformTools.TransformOp;
+import plugins.fmp.drosoTools.DrosoTools;
+import plugins.fmp.drosoTools.ImageTransformTools.TransformOp;
 
 public class DetectTab_Limits  extends JPanel implements ActionListener {
 
@@ -110,7 +110,7 @@ public class DetectTab_Limits  extends JPanel implements ActionListener {
 	public void kymosDisplayFiltered1() {
 		if (parent0.kymographArrayList == null)
 			return;
-		Collections.sort(parent0.kymographArrayList, new Tools.SequenceNameComparator()); 
+		Collections.sort(parent0.kymographArrayList, new DrosoTools.SequenceNameComparator()); 
 		TransformOp transform;
 		transform = (TransformOp) transformForLevelsComboBox.getSelectedItem();
 		parent0.detectPane.kymosBuildFiltered(0, 1, transform, getSpanDiffTop());

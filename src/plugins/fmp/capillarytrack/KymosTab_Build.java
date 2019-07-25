@@ -14,9 +14,9 @@ import javax.swing.SwingConstants;
 import icy.gui.frame.progress.AnnounceFrame;
 import icy.gui.util.GuiUtil;
 import icy.gui.viewer.Viewer;
-import plugins.fmp.sequencevirtual.SequencePlus;
-import plugins.fmp.tools.BuildKymographsThread;
-import plugins.fmp.tools.EnumStatusComputation;
+import plugins.fmp.drosoSequence.SequencePlus;
+import plugins.fmp.drosoTools.BuildKymographsThread;
+import plugins.fmp.drosoTools.EnumStatusComputation;
 import plugins.kernel.roi.roi2d.ROI2DShape;
 
 

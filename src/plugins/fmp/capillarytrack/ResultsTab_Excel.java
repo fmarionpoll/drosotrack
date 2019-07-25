@@ -21,10 +21,10 @@ import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
-import plugins.fmp.sequencevirtual.SequencePlus;
-import plugins.fmp.tools.EnumArrayListType;
-import plugins.fmp.tools.EnumXLSExportItems;
-import plugins.fmp.tools.Tools;
+import plugins.fmp.drosoSequence.SequencePlus;
+import plugins.fmp.drosoTools.EnumArrayListType;
+import plugins.fmp.drosoTools.EnumXLSExportItems;
+import plugins.fmp.drosoTools.DrosoTools;
 
 public class ResultsTab_Excel extends JPanel implements ActionListener  {
 
@@ -74,7 +74,7 @@ public class ResultsTab_Excel extends JPanel implements ActionListener  {
 			Path directory = Paths.get(parent0.vSequence.getFileName(0)).getParent();
 			Path subpath = directory.getName(directory.getNameCount()-1);
 			String tentativeName = subpath.toString()+"_feeding.xlsx";
-			String file = Tools.saveFileAs(tentativeName, directory.getParent().toString(), "xlsx");
+			String file = DrosoTools.saveFileAs(tentativeName, directory.getParent().toString(), "xlsx");
 			if (file != null) {
 				final String filename = file;
 				exportToXLSButton.setEnabled( false);

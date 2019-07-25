@@ -12,10 +12,10 @@ import javax.swing.event.ChangeListener;
 
 import icy.gui.util.GuiUtil;
 import icy.image.IcyBufferedImage;
-import plugins.fmp.sequencevirtual.SequencePlus;
-import plugins.fmp.tools.EnumStatusPane;
-import plugins.fmp.tools.ImageTransformTools;
-import plugins.fmp.tools.ImageTransformTools.TransformOp;
+import plugins.fmp.drosoSequence.SequencePlus;
+import plugins.fmp.drosoTools.EnumStatusPane;
+import plugins.fmp.drosoTools.ImageTransformTools;
+import plugins.fmp.drosoTools.ImageTransformTools.TransformOp;
 
 public class DetectPane extends JPanel implements PropertyChangeListener, ChangeListener {
 	

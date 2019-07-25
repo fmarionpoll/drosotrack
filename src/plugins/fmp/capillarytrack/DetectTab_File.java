@@ -12,8 +12,8 @@ import javax.swing.SwingConstants;
 
 import icy.gui.util.FontUtil;
 import icy.gui.util.GuiUtil;
-import plugins.fmp.sequencevirtual.SequencePlus;
-import plugins.fmp.tools.EnumArrayListType;
+import plugins.fmp.drosoSequence.SequencePlus;
+import plugins.fmp.drosoTools.EnumArrayListType;
 
 
 public class DetectTab_File extends JPanel implements ActionListener {

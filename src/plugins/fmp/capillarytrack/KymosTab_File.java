@@ -24,8 +24,8 @@ import icy.gui.util.FontUtil;
 import icy.gui.util.GuiUtil;
 import icy.image.IcyBufferedImage;
 import loci.formats.FormatException;
-import plugins.fmp.sequencevirtual.SequencePlus;
-import plugins.fmp.tools.EnumStatusAnalysis;
+import plugins.fmp.drosoSequence.SequencePlus;
+import plugins.fmp.drosoTools.EnumStatusAnalysis;
 
 public class KymosTab_File  extends JPanel implements ActionListener {
 	/**
