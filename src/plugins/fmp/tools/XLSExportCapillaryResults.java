@@ -51,9 +51,9 @@ public class XLSExportCapillaryResults extends XLSExport {
 				if (options.derivative) 	col_end = getDataAndExport(exp, workbook, col_max, charSeries, EnumXLSExportItems.DERIVEDVALUES);	
 				if (options.consumption) 	col_end = getDataAndExport(exp, workbook, col_max, charSeries, EnumXLSExportItems.SUMGULPS);
 				if (options.sum) {		
-					if (options.topLevel) 		col_end = getDataAndExport(exp, workbook, col_max, charSeries, EnumXLSExportItems.SUMLR);
-					if (options.topLevelDelta) 	col_end = getDataAndExport(exp, workbook, col_max, charSeries, EnumXLSExportItems.TOPLEVELDELTALR);
-					if (options.consumption) 	col_end = getDataAndExport(exp, workbook, col_max, charSeries, EnumXLSExportItems.SUMGULPSLR);
+					if (options.topLevel) 		col_end = getDataAndExport(exp, workbook, col_max, charSeries, EnumXLSExportItems.TOPLEVEL_LR);
+					if (options.topLevelDelta) 	col_end = getDataAndExport(exp, workbook, col_max, charSeries, EnumXLSExportItems.TOPLEVELDELTA_LR);
+					if (options.consumption) 	col_end = getDataAndExport(exp, workbook, col_max, charSeries, EnumXLSExportItems.SUMGULPS_LR);
 				}
 
 				if (col_end > col_max)
@@ -71,7 +71,7 @@ public class XLSExportCapillaryResults extends XLSExport {
 				else if (options.bottomLevel)  	sourceSheetName = EnumXLSExportItems.BOTTOMLEVEL.toString();
 				else if (options.derivative) 	sourceSheetName = EnumXLSExportItems.DERIVEDVALUES.toString();	
 				else if (options.consumption) 	sourceSheetName = EnumXLSExportItems.SUMGULPS.toString();
-				else if (options.sum) 			sourceSheetName = EnumXLSExportItems.SUMLR.toString();
+				else if (options.sum) 			sourceSheetName = EnumXLSExportItems.TOPLEVEL_LR.toString();
 				if (sourceSheetName != null)
 					xlsCreatePivotTables(workbook, sourceSheetName);
 			}
@@ -110,21 +110,21 @@ public class XLSExportCapillaryResults extends XLSExport {
 			results.name = seq.getName();
 			switch (xlsoption) {
 			case TOPLEVELDELTA:
-			case TOPLEVELDELTALR:
+			case TOPLEVELDELTA_LR:
 				results.data = seq.subtractTi(seq.getArrayListFromRois(EnumArrayListType.topLevel));
 				break;
 			case DERIVEDVALUES:
 				results.data = seq.getArrayListFromRois(EnumArrayListType.derivedValues);
 				break;
 			case SUMGULPS:
-			case SUMGULPSLR:
+			case SUMGULPS_LR:
 				results.data = seq.getArrayListFromRois(EnumArrayListType.cumSum);
 				break;
 			case BOTTOMLEVEL:
 				results.data = seq.getArrayListFromRois(EnumArrayListType.bottomLevel);
 				break;
 			case TOPLEVEL:
-			case SUMLR:
+			case TOPLEVEL_LR:
 				if (optiont0)
 					results.data = seq.subtractT0(seq.getArrayListFromRois(EnumArrayListType.topLevel));
 				else
@@ -298,9 +298,9 @@ public class XLSExportCapillaryResults extends XLSExport {
 			
 			int colseries = pt.x;
 			switch (option) {
-			case SUMLR:
-			case TOPLEVELDELTALR:
-			case SUMGULPSLR:
+			case TOPLEVEL_LR:
+			case TOPLEVELDELTA_LR:
+			case SUMGULPS_LR:
 				for (int idataArray=0; idataArray< dataArrayList.size(); idataArray+=2) 
 				{
 					int colL = getColFromKymoSequenceName(dataArrayList.get(idataArray).name);

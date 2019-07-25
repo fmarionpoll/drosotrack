@@ -6,5 +6,4 @@ public class XLSCapillaryResults {
 	String				name = null;
 	ArrayList<Integer > data = null;
 	
-
 }

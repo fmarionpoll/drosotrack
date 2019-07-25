@@ -5,13 +5,13 @@ public enum EnumXLSExportItems {
 	BOTTOMLEVEL ("bottomlevel"), 
 	DERIVEDVALUES ("derivative"), 
 	SUMGULPS ("sumGulps"), 
-	SUMGULPSLR ("sumGulpsL+R"), 
-	SUMLR ("sumL+R"), 
+	SUMGULPS_LR ("sumGulps_L+R"), 
+	TOPLEVEL_LR ("toplevel_L+R"), 
 	XYCENTER ("xycenter"), 
 	DISTANCE ("distance"), 
 	ISALIVE ("_alive"), 
 	TOPLEVELDELTA ("topdelta"),
-	TOPLEVELDELTALR ("topdeltaL+R");
+	TOPLEVELDELTA_LR ("topdelta_L+R");
 	
 	private String label;
 	

@@ -79,6 +79,22 @@ public class XLSExport {
 		pt.x++;
 		int colseries = pt.x;
 		
+		Path path = Paths.get(exp.vSequence.getFileName());
+		String boxID = exp.vSequence.capillaries.boxID;
+		String experiment = exp.vSequence.capillaries.experiment;
+		String comment = exp.vSequence.capillaries.comment;
+		String stimulusL = exp.vSequence.capillaries.stimulusL;
+		String stimulusR = exp.vSequence.capillaries.stimulusR;
+		String concentrationL = exp.vSequence.capillaries.concentrationL;
+		String concentrationR = exp.vSequence.capillaries.concentrationR;
+		SimpleDateFormat df = new SimpleDateFormat("MM/dd/yyyy");
+		String date = df.format(exp.fileTimeImageFirst.toMillis());	
+		String cam = getSubName(path, 2).substring(0, 5); 
+		String name1 = getSubName(path, 2); 
+		String name11 = getSubName(path, 3); 
+		String name111 = getSubName(path, 4); 
+		String sheetName = sheet.getSheetName();		
+		
 		for (SequencePlus seq: exp.kymographArrayList) { 
 
 			String name = seq.getName();
@@ -86,31 +102,28 @@ public class XLSExport {
 			if (col >= 0) 
 				pt.x = colseries + col;
 			pt.y = row;
-			Path path = Paths.get(exp.vSequence.getFileName());
-		
+			
 			// date
-			SimpleDateFormat df = new SimpleDateFormat("MM/dd/yyyy");
-			XLSUtils.setValue(sheet, pt, transpose, df.format(exp.fileTimeImageFirst.toMillis()));
+			XLSUtils.setValue(sheet, pt, transpose, date);
 			pt.y++;
 			
-			XLSUtils.setValue(sheet, pt, transpose, exp.vSequence.capillaries.boxID);
+			XLSUtils.setValue(sheet, pt, transpose, boxID);
 			pt.y++;
-			XLSUtils.setValue(sheet, pt, transpose, exp.vSequence.capillaries.experiment);
+			XLSUtils.setValue(sheet, pt, transpose, experiment);
 			pt.y++;
-			XLSUtils.setValue(sheet, pt, transpose, exp.vSequence.capillaries.comment);
+			XLSUtils.setValue(sheet, pt, transpose, comment);
 			pt.y++;
 
 			// stimulus, conc
 			String letter = name.substring(name.length() - 1);
-			if (letter .equals("L")) 	XLSUtils.setValue(sheet, pt, transpose, exp.vSequence.capillaries.stimulusL);
-			else						XLSUtils.setValue(sheet, pt, transpose, exp.vSequence.capillaries.stimulusR);
+			if (letter .equals("L")) 	XLSUtils.setValue(sheet, pt, transpose, stimulusL);
+			else						XLSUtils.setValue(sheet, pt, transpose, stimulusR);
 			pt.y++;
-			if (letter .equals("L")) 	XLSUtils.setValue(sheet, pt, transpose, exp.vSequence.capillaries.concentrationL);
-			else 						XLSUtils.setValue(sheet, pt, transpose, exp.vSequence.capillaries.concentrationR);
+			if (letter .equals("L")) 	XLSUtils.setValue(sheet, pt, transpose, concentrationL);
+			else 						XLSUtils.setValue(sheet, pt, transpose, concentrationR);
 			pt.y++;
 			
 			// cam
-			String cam = getSubName(path, 2).substring(0, 5); 
 			XLSUtils.setValue(sheet, pt, transpose, cam);
 			pt.y++;
 			// cap
@@ -127,19 +140,16 @@ public class XLSExport {
 			XLSUtils.setValue(sheet, pt, transpose, j);
 			pt.y++;
 			// dum1
-			String name1 = getSubName(path, 2); 
 			XLSUtils.setValue(sheet, pt, transpose, name1);
 			pt.y++;
 			// dum2
-			String name11 = getSubName(path, 3); 
 			XLSUtils.setValue(sheet, pt, transpose, name11);
 			pt.y++;
 			// dum3
-			String name111 = getSubName(path, 4); 
 			XLSUtils.setValue(sheet, pt, transpose, name111);
 			pt.y++;
 			// dum4
-			XLSUtils.setValue(sheet, pt, transpose, sheet.getSheetName());
+			XLSUtils.setValue(sheet, pt, transpose, sheetName);
 			pt.y++;
 		}
 		pt.x = col0;

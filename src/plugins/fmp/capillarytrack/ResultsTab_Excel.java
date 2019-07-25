@@ -102,7 +102,7 @@ public class ResultsTab_Excel extends JPanel implements ActionListener  {
 			if (consumptionCheckBox.isSelected()) 
 				xlsExportToWorkbook(workbook, "sumGulps", EnumXLSExportItems.SUMGULPS);
 			if (sumCheckBox.isSelected()) 
-				xlsExportToWorkbook(workbook, "sumL+R", EnumXLSExportItems.SUMLR);
+				xlsExportToWorkbook(workbook, "sumL+R", EnumXLSExportItems.TOPLEVEL_LR);
 			
 			FileOutputStream fileOut = new FileOutputStream(filename);
 			workbook.write(fileOut);
@@ -129,7 +129,7 @@ public class ResultsTab_Excel extends JPanel implements ActionListener  {
 				arrayList.add(seq.getArrayListFromRois(EnumArrayListType.bottomLevel));
 				break;
 			case TOPLEVEL:
-			case SUMLR:
+			case TOPLEVEL_LR:
 			default:
 				arrayList.add(seq.getArrayListFromRois(EnumArrayListType.topLevel));
 				break;
@@ -196,7 +196,7 @@ public class ResultsTab_Excel extends JPanel implements ActionListener  {
 		pt = nextCol(pt, transpose);
 		
 		switch (option) {
-		case SUMLR:
+		case TOPLEVEL_LR:
 			for (int i=0; i< parent0.kymographArrayList.size(); i+= 2) {
 				SequencePlus kymographSeq0 = parent0.kymographArrayList.get(i);
 				String name0 = kymographSeq0.getName();
@@ -252,7 +252,7 @@ public class ResultsTab_Excel extends JPanel implements ActionListener  {
 			pt2 = nextCol(pt2, transpose);
 			
 			switch (option) {
-			case SUMLR:
+			case TOPLEVEL_LR:
 				for (int i=0; i< parent0.kymographArrayList.size(); i+=2) 
 				{
 					ArrayList<Integer> dataL = arrayList.get(i);

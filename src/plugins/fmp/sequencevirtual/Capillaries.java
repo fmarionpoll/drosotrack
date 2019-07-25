@@ -67,7 +67,7 @@ public class Capillaries {
 			analysisStep 	= XMLUtil.getAttributeIntValue(xmlVal, "step", 1);
 		}
 
-		xmlVal = XMLUtil.getElement(xmlElement,  "LRstimulus");
+		xmlVal = XMLUtil.getElement(xmlElement, "LRstimulus");
 		if (xmlVal != null) {
 			stimulusR 		= XMLUtil.getAttributeValue(xmlVal, "stimR", "stimR");
 			concentrationR 	= XMLUtil.getAttributeValue(xmlVal, "concR", "concR");
@@ -75,7 +75,7 @@ public class Capillaries {
 			concentrationL 	= XMLUtil.getAttributeValue(xmlVal, "concL", "concL");
 		}
 		
-		xmlVal = XMLUtil.getElement(xmlElement,  "Experiment");
+		xmlVal = XMLUtil.getElement(xmlElement, "Experiment");
 		if (xmlVal != null) {
 			boxID 		= XMLUtil.getAttributeValue(xmlVal, "boxID", "boxID");
 			experiment 	= XMLUtil.getAttributeValue(xmlVal, "expt", "experiment");
