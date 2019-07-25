@@ -1,11 +1,11 @@
-package plugins.fmp.toolsMulticafe;
+package plugins.fmp.multicafeTools;
 
 import java.awt.Color;
 import java.util.ArrayList;
 
 import icy.image.IcyBufferedImage;
-import plugins.fmp.toolsMulticafe.ImageTransformTools.TransformOp;
-import plugins.fmp.toolsSequence.SequenceVirtual;
+import plugins.fmp.multicafeSequence.SequenceVirtual;
+import plugins.fmp.multicafeTools.ImageTransformTools.TransformOp;
 
 public class ImageOperations {
 	

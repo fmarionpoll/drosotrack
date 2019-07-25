@@ -1,4 +1,4 @@
-package plugins.fmp.toolsMulticafe;
+package plugins.fmp.multicafeTools;
 
 import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
@@ -12,9 +12,9 @@ import icy.main.Icy;
 import icy.roi.BooleanMask2D;
 import icy.roi.ROI;
 import icy.system.profile.Chronometer;
-import plugins.fmp.toolsSequence.Cages;
-import plugins.fmp.toolsSequence.SequenceVirtual;
-import plugins.fmp.toolsSequence.XYTaSeries;
+import plugins.fmp.multicafeSequence.Cages;
+import plugins.fmp.multicafeSequence.SequenceVirtual;
+import plugins.fmp.multicafeSequence.XYTaSeries;
 import plugins.kernel.roi.roi2d.ROI2DArea;
 import plugins.kernel.roi.roi2d.ROI2DRectangle;
 
@@ -60,7 +60,7 @@ public class BuildTrackFliesThread implements Runnable {
 		// find ROI describing cage areas - remove all others
 		cages.cageLimitROIList = ROI2DUtilities.getListofCagesFromSequence(vSequence);
 		cageMaskList = ROI2DUtilities.getMask2DFromRoiList(cages.cageLimitROIList);
-		Collections.sort(cages.cageLimitROIList, new Tools.ROI2DNameComparator());
+		Collections.sort(cages.cageLimitROIList, new MulticafeTools.ROI2DNameComparator());
 
 		// create arrays for storing position and init their value to zero
 		int nbcages = cages.cageLimitROIList.size();

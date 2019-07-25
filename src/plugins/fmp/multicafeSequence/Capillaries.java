@@ -1,4 +1,4 @@
-package plugins.fmp.toolsSequence;
+package plugins.fmp.multicafeSequence;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -13,7 +13,7 @@ import icy.roi.ROI;
 import icy.roi.ROI2D;
 import icy.sequence.edit.ROIAddsSequenceEdit;
 import icy.util.XMLUtil;
-import plugins.fmp.toolsMulticafe.Tools;
+import plugins.fmp.multicafeTools.MulticafeTools;
 import plugins.kernel.roi.roi2d.ROI2DLine;
 import plugins.kernel.roi.roi2d.ROI2DPolyLine;
 import plugins.kernel.roi.roi2d.ROI2DShape;
@@ -138,12 +138,12 @@ public class Capillaries {
 			if (roi instanceof ROI2DLine || roi instanceof ROI2DPolyLine)
 				capillariesArrayList.add((ROI2DShape)roi);
 		}
-		Collections.sort(capillariesArrayList, new Tools.ROI2DNameComparator()); 
+		Collections.sort(capillariesArrayList, new MulticafeTools.ROI2DNameComparator()); 
 	}
 	
 	public boolean xmlWriteROIsAndData(String name, SequenceVirtual seq) {
 
-		String csFile = Tools.saveFileAs(name, seq.getDirectory(), "xml");
+		String csFile = MulticafeTools.saveFileAs(name, seq.getDirectory(), "xml");
 		csFile.toLowerCase();
 		if (!csFile.contains(".xml")) {
 			csFile += ".xml";
@@ -176,7 +176,7 @@ public class Capillaries {
 	
 	public boolean xmlWriteROIsAndDataNoFilter(String name, SequenceVirtual seq) {
 
-		String csFile = Tools.saveFileAs(name, seq.getDirectory(), "xml");
+		String csFile = MulticafeTools.saveFileAs(name, seq.getDirectory(), "xml");
 		csFile.toLowerCase();
 		if (!csFile.contains(".xml")) {
 			csFile += ".xml";
@@ -201,7 +201,7 @@ public class Capillaries {
 		String filename = seq.getFileName();
 		File file = new File(filename);
 		String directory = file.getParentFile().getAbsolutePath();
-		filedummy = Tools.selectFiles(directory, "xml");
+		filedummy = MulticafeTools.selectFiles(directory, "xml");
 		boolean wasOk = false;
 		if (filedummy != null) {
 			for (int i= 0; i< filedummy.length; i++) {
@@ -222,7 +222,7 @@ public class Capillaries {
 				capillariesArrayList.clear();
 				for (ROI roi: listOfROIs)
 					capillariesArrayList.add((ROI2DShape) roi);
-				Collections.sort(capillariesArrayList, new Tools.ROINameComparator()); 
+				Collections.sort(capillariesArrayList, new MulticafeTools.ROINameComparator()); 
 				try  {  
 					for (ROI roi : capillariesArrayList)  {
 						seq.addROI(roi);

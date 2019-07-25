@@ -1,4 +1,4 @@
-package plugins.fmp.toolsMulticafe;
+package plugins.fmp.multicafeTools;
 
 import java.awt.Dimension;
 import java.awt.Point;
@@ -17,7 +17,7 @@ import org.jfree.data.xy.XYSeriesCollection;
 
 import icy.gui.frame.IcyFrame;
 import icy.gui.util.GuiUtil;
-import plugins.fmp.toolsSequence.SequencePlus;
+import plugins.fmp.multicafeSequence.SequencePlus;
 
 public class XYMultiChart extends IcyFrame  {
 

@@ -1,6 +1,6 @@
-package plugins.fmp.toolsMulticafe;
+package plugins.fmp.multicafeTools;
 
-import plugins.fmp.toolsSequence.ExperimentList;
+import plugins.fmp.multicafeSequence.ExperimentList;
 
 public class XLSExportOptions {
 	

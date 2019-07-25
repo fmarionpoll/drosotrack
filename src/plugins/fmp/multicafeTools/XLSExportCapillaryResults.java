@@ -1,4 +1,4 @@
-package plugins.fmp.toolsMulticafe;
+package plugins.fmp.multicafeTools;
 
 import java.awt.Point;
 import java.io.File;
@@ -13,9 +13,9 @@ import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
 import icy.gui.frame.progress.ProgressFrame;
-import plugins.fmp.toolsSequence.Experiment;
-import plugins.fmp.toolsSequence.SequencePlus;
-import plugins.fmp.toolsSequence.XYTaSeries;
+import plugins.fmp.multicafeSequence.Experiment;
+import plugins.fmp.multicafeSequence.SequencePlus;
+import plugins.fmp.multicafeSequence.XYTaSeries;
 
 public class XLSExportCapillaryResults extends XLSExport {
 

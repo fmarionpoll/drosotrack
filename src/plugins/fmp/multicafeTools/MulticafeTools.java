@@ -1,4 +1,4 @@
-package plugins.fmp.toolsMulticafe;
+package plugins.fmp.multicafeTools;
 
 import java.awt.Polygon;
 import java.awt.Rectangle;
@@ -20,7 +20,7 @@ import plugins.kernel.roi.roi2d.ROI2DLine;
 
 
 // Your plugin class should extends \'icy.plugin.abstract_.Plugin\' class.
-public class Tools  extends Plugin {
+public class MulticafeTools  extends Plugin {
 
 	public static String saveFileAs(String defaultName, String directory, String csExt)
 	{		

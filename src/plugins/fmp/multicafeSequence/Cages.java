@@ -1,4 +1,4 @@
-package plugins.fmp.toolsSequence;
+package plugins.fmp.multicafeSequence;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -11,8 +11,8 @@ import icy.roi.ROI;
 import icy.roi.ROI2D;
 import icy.util.XMLUtil;
 import plugins.kernel.roi.roi2d.ROI2DShape;
-import plugins.fmp.toolsMulticafe.DetectFliesParameters;
-import plugins.fmp.toolsMulticafe.Tools;
+import plugins.fmp.multicafeTools.DetectFliesParameters;
+import plugins.fmp.multicafeTools.MulticafeTools;
 import plugins.kernel.roi.roi2d.ROI2DPolygon;
 
 
@@ -29,7 +29,7 @@ public class Cages {
 	
 	public boolean xmlWriteCagesToFile(String name, String directory) {
 
-		String csFile = Tools.saveFileAs(name, directory, "xml");
+		String csFile = MulticafeTools.saveFileAs(name, directory, "xml");
 		if (csFile == null)
 			return false;
 		
@@ -58,7 +58,7 @@ public class Cages {
 		String filename = seq.getFileName();
 		File file = new File(filename);
 		String directory = file.getParentFile().getAbsolutePath();
-		filedummy = Tools.selectFiles(directory, "xml");
+		filedummy = MulticafeTools.selectFiles(directory, "xml");
 		boolean wasOk = false;
 		if (filedummy != null) {
 			for (int i= 0; i< filedummy.length; i++) {
@@ -195,7 +195,7 @@ public class Cages {
 				continue;
 			cageLimitROIList.add(roi);
 		}
-		Collections.sort(cageLimitROIList, new Tools.ROI2DNameComparator());
+		Collections.sort(cageLimitROIList, new MulticafeTools.ROI2DNameComparator());
 	}
 
 

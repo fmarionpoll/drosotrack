@@ -1,4 +1,4 @@
-package plugins.fmp.toolsMulticafe;
+package plugins.fmp.multicafeTools;
 
 /*
  * String sorter routines from imageJ
@@ -44,7 +44,7 @@ public class StringSorter {
 		int n = list.length;
 		String[] paddedList = getPaddedNames(list);
 		String[] sortedList = new String[n];
-		int[] indexes = Tools.rank(paddedList);
+		int[] indexes = MulticafeTools.rank(paddedList);
 		for (int i = 0; i < n; i++)
 			sortedList[i] = list[indexes[i]];
 		return sortedList;

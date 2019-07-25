@@ -1,4 +1,4 @@
-package plugins.fmp.toolsSequence;
+package plugins.fmp.multicafeSequence;
 
 import java.awt.Color;
 import java.awt.geom.Point2D;
@@ -22,11 +22,11 @@ import icy.roi.ROIEvent;
 import icy.sequence.SequenceEvent.SequenceEventType;
 import icy.type.geom.Polyline2D;
 import icy.util.XMLUtil;
-import plugins.fmp.toolsMulticafe.EnumArrayListType;
-import plugins.fmp.toolsMulticafe.OverlayThreshold;
-import plugins.fmp.toolsMulticafe.OverlayTrapMouse;
-import plugins.fmp.toolsMulticafe.Tools;
-import plugins.fmp.toolsMulticafe.ImageTransformTools.TransformOp;
+import plugins.fmp.multicafeTools.EnumArrayListType;
+import plugins.fmp.multicafeTools.OverlayThreshold;
+import plugins.fmp.multicafeTools.OverlayTrapMouse;
+import plugins.fmp.multicafeTools.MulticafeTools;
+import plugins.fmp.multicafeTools.ImageTransformTools.TransformOp;
 import plugins.kernel.roi.roi2d.ROI2DPolyLine;
 
 public class SequencePlus extends SequenceVirtual  {
@@ -219,7 +219,7 @@ public class SequencePlus extends SequenceVirtual  {
 				roi.setColor(Color.red);						// set color to red
 			}
 		}
-		Collections.sort(listRois, new Tools.ROI2DNameComparator());
+		Collections.sort(listRois, new MulticafeTools.ROI2DNameComparator());
 	}
 	
     @Override

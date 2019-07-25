@@ -1,4 +1,4 @@
-package plugins.fmp.toolsSequence;
+package plugins.fmp.multicafeSequence;
 
 import java.awt.geom.Point2D;
 import java.util.ArrayList;
@@ -7,7 +7,7 @@ import java.util.List;
 
 import icy.roi.ROI2D;
 import icy.type.geom.Polyline2D;
-import plugins.fmp.toolsMulticafe.EnumArrayListType;
+import plugins.fmp.multicafeTools.EnumArrayListType;
 import plugins.kernel.roi.roi2d.ROI2DPolyLine;
 import plugins.kernel.roi.roi2d.ROI2DShape;
 

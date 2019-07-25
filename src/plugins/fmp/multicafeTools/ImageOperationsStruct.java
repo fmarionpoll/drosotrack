@@ -1,9 +1,9 @@
-package plugins.fmp.toolsMulticafe;
+package plugins.fmp.multicafeTools;
 
 import java.awt.Color;
 import java.util.ArrayList;
 
-import plugins.fmp.toolsMulticafe.ImageTransformTools.TransformOp;
+import plugins.fmp.multicafeTools.ImageTransformTools.TransformOp;
 
 public class ImageOperationsStruct {
 	

@@ -1,4 +1,4 @@
-package plugins.fmp.toolsSequence;
+package plugins.fmp.multicafeSequence;
 
 import java.awt.geom.Point2D;
 import java.util.ArrayList;
@@ -9,7 +9,7 @@ import org.w3c.dom.Node;
 import icy.file.xml.XMLPersistent;
 import icy.roi.ROI2D;
 import icy.util.XMLUtil;
-import plugins.fmp.toolsMulticafe.EnumArrayListType;
+import plugins.fmp.multicafeTools.EnumArrayListType;
 import plugins.kernel.roi.roi2d.*;
 
 public class XYTaSeries implements XMLPersistent {

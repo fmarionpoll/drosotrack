@@ -1,11 +1,11 @@
-package plugins.fmp.toolsMulticafe;
+package plugins.fmp.multicafeTools;
 
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 
 import icy.file.xml.XMLPersistent;
 import icy.util.XMLUtil;
-import plugins.fmp.toolsMulticafe.ImageTransformTools.TransformOp;
+import plugins.fmp.multicafeTools.ImageTransformTools.TransformOp;
 
 public class DetectFliesParameters implements XMLPersistent {
 	

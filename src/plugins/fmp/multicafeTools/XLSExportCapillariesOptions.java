@@ -1,8 +1,8 @@
-package plugins.fmp.toolsMulticafe;
+package plugins.fmp.multicafeTools;
 
 import java.util.ArrayList;
 
-import plugins.fmp.toolsSequence.Experiment;
+import plugins.fmp.multicafeSequence.Experiment;
 
 public class XLSExportCapillariesOptions {
 	public boolean topLevel 		= true; 

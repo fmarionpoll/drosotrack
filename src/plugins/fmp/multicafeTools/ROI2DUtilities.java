@@ -1,4 +1,4 @@
-package plugins.fmp.toolsMulticafe;
+package plugins.fmp.multicafeTools;
 
 
 import java.util.ArrayList;
@@ -6,7 +6,7 @@ import java.util.Collections;
 
 import icy.roi.BooleanMask2D;
 import icy.roi.ROI2D;
-import plugins.fmp.toolsSequence.SequenceVirtual;
+import plugins.fmp.multicafeSequence.SequenceVirtual;
 import plugins.kernel.roi.roi2d.ROI2DPolygon;
 
 public class ROI2DUtilities  {
@@ -16,7 +16,7 @@ public class ROI2DUtilities  {
 			 return null;
 		
 		ArrayList<ROI2D> roiList = vSequence.getROI2Ds();
-		Collections.sort(roiList, new Tools.ROI2DNameComparator());
+		Collections.sort(roiList, new MulticafeTools.ROI2DNameComparator());
 		ArrayList<ROI2D> cageLimitROIList		= new ArrayList<ROI2D>();
 		for ( ROI2D roi : roiList )
 		{

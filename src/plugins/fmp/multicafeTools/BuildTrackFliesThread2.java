@@ -1,4 +1,4 @@
-package plugins.fmp.toolsMulticafe;
+package plugins.fmp.multicafeTools;
 
 import java.awt.Point;
 import java.awt.Rectangle;
@@ -18,9 +18,9 @@ import icy.roi.ROI;
 import icy.roi.ROI2D;
 import icy.system.profile.Chronometer;
 import icy.type.collection.array.Array1DUtil;
-import plugins.fmp.toolsSequence.Cages;
-import plugins.fmp.toolsSequence.SequenceVirtual;
-import plugins.fmp.toolsSequence.XYTaSeries;
+import plugins.fmp.multicafeSequence.Cages;
+import plugins.fmp.multicafeSequence.SequenceVirtual;
+import plugins.fmp.multicafeSequence.XYTaSeries;
 import plugins.kernel.roi.roi2d.ROI2DArea;
 import plugins.kernel.roi.roi2d.ROI2DRectangle;
 
@@ -357,7 +357,7 @@ public class BuildTrackFliesThread2  implements Runnable {
 		cages.clear();
 		cages.cageLimitROIList = ROI2DUtilities.getListofCagesFromSequence(vSequence);
 		cageMaskList = ROI2DUtilities.getMask2DFromRoiList(cages.cageLimitROIList);
-		Collections.sort(cages.cageLimitROIList, new Tools.ROI2DNameComparator());
+		Collections.sort(cages.cageLimitROIList, new MulticafeTools.ROI2DNameComparator());
 	}
 	
 	private void buildBackgroundImage() {

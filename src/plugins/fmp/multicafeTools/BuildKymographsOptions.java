@@ -1,6 +1,6 @@
-package plugins.fmp.toolsMulticafe;
+package plugins.fmp.multicafeTools;
 
-import plugins.fmp.toolsSequence.SequenceVirtual;
+import plugins.fmp.multicafeSequence.SequenceVirtual;
 
 public class BuildKymographsOptions {
 	public int analyzeStep = 1;

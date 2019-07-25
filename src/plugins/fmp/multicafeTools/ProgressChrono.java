@@ -1,4 +1,4 @@
-package plugins.fmp.toolsMulticafe;
+package plugins.fmp.multicafeTools;
 
 import icy.gui.frame.progress.ProgressFrame;
 import icy.system.profile.Chronometer;

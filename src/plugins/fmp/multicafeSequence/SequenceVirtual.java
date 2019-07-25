@@ -1,4 +1,4 @@
-package plugins.fmp.toolsSequence;
+package plugins.fmp.multicafeSequence;
 
 import java.awt.image.BufferedImage;
 import java.io.File;
@@ -23,9 +23,9 @@ import icy.system.thread.ThreadUtil;
 import icy.type.collection.array.Array1DUtil;
 
 import plugins.fab.MiceProfiler.XugglerAviFile;
-import plugins.fmp.toolsMulticafe.ImageOperationsStruct;
-import plugins.fmp.toolsMulticafe.StringSorter;
-import plugins.fmp.toolsMulticafe.ImageTransformTools.TransformOp;
+import plugins.fmp.multicafeTools.ImageOperationsStruct;
+import plugins.fmp.multicafeTools.StringSorter;
+import plugins.fmp.multicafeTools.ImageTransformTools.TransformOp;
 
 
 public class SequenceVirtual extends Sequence 

@@ -1,4 +1,4 @@
-package plugins.fmp.toolsMulticafe;
+package plugins.fmp.multicafeTools;
 
 import icy.canvas.IcyCanvas;
 import icy.canvas.IcyCanvas2D;
