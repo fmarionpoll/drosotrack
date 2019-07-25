@@ -1,4 +1,4 @@
-package plugins.fmp.exportMulticafe;
+package plugins.fmp.multicafeExport;
 
 import java.awt.Rectangle;
 import java.awt.event.ActionEvent;
@@ -31,11 +31,11 @@ import icy.preferences.XMLPreferences;
 import icy.sequence.DimensionId;
 import icy.system.thread.ThreadUtil;
 import loci.formats.FormatException;
-import plugins.fmp.sequencevirtual.SequencePlus;
-import plugins.fmp.sequencevirtual.SequenceVirtual;
-import plugins.fmp.sequencevirtual.EnumStatus;
-import plugins.fmp.tools.BuildKymographsThread;
-import plugins.fmp.tools.EnumStatusComputation;
+import plugins.fmp.toolsMulticafe.BuildKymographsThread;
+import plugins.fmp.toolsMulticafe.EnumStatusComputation;
+import plugins.fmp.toolsSequence.EnumStatus;
+import plugins.fmp.toolsSequence.SequencePlus;
+import plugins.fmp.toolsSequence.SequenceVirtual;
 
 public class BuildKymosPane  extends JPanel implements PropertyChangeListener, ActionListener, ViewerListener {
 

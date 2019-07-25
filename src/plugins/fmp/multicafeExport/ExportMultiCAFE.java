@@ -1,4 +1,4 @@
-package plugins.fmp.exportMulticafe;
+package plugins.fmp.multicafeExport;
 
 import java.awt.BorderLayout;
 import java.beans.PropertyChangeEvent;

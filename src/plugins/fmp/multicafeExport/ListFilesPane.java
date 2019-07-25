@@ -1,4 +1,4 @@
-package plugins.fmp.exportMulticafe;
+package plugins.fmp.multicafeExport;
 
 import java.awt.BorderLayout;
 import java.awt.event.ActionEvent;
@@ -25,7 +25,7 @@ import javax.swing.ScrollPaneConstants;
 
 import icy.gui.util.GuiUtil;
 import icy.preferences.XMLPreferences;
-import plugins.fmp.tools.Tools;
+import plugins.fmp.toolsMulticafe.Tools;
 
 public class ListFilesPane extends JPanel implements PropertyChangeListener, ActionListener {
 	
