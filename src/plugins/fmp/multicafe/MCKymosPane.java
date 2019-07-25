@@ -12,9 +12,9 @@ import javax.swing.event.ChangeListener;
 import icy.gui.util.GuiUtil;
 import icy.gui.viewer.Viewer;
 import icy.image.IcyBufferedImage;
-import plugins.fmp.toolsMulticafe.ImageTransformTools;
-import plugins.fmp.toolsMulticafe.ImageTransformTools.TransformOp;
-import plugins.fmp.toolsSequence.SequencePlus;
+import plugins.fmp.multicafeSequence.SequencePlus;
+import plugins.fmp.multicafeTools.ImageTransformTools;
+import plugins.fmp.multicafeTools.ImageTransformTools.TransformOp;
 
 
 public class MCKymosPane extends JPanel implements PropertyChangeListener, ChangeListener {

@@ -10,9 +10,9 @@ import javax.swing.JPanel;
 import javax.swing.SwingConstants;
 import icy.gui.util.FontUtil;
 import icy.gui.util.GuiUtil;
-import plugins.fmp.toolsMulticafe.EnumArrayListType;
-import plugins.fmp.toolsSequence.SequencePlus;
-import plugins.fmp.toolsSequence.SequencePlusUtils;
+import plugins.fmp.multicafeSequence.SequencePlus;
+import plugins.fmp.multicafeSequence.SequencePlusUtils;
+import plugins.fmp.multicafeTools.EnumArrayListType;
 
 public class MCKymosTab_File  extends JPanel implements ActionListener {
 	/**

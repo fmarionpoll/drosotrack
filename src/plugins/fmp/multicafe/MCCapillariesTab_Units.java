@@ -20,7 +20,7 @@ import icy.gui.frame.progress.AnnounceFrame;
 import icy.gui.util.GuiUtil;
 import icy.gui.viewer.Viewer;
 import icy.roi.ROI;
-import plugins.fmp.toolsSequence.Capillaries;
+import plugins.fmp.multicafeSequence.Capillaries;
 
 public class MCCapillariesTab_Units extends JPanel {
 	/**

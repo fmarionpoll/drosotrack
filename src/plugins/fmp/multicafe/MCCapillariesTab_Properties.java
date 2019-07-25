@@ -9,7 +9,7 @@ import javax.swing.JPanel;
 import javax.swing.SwingConstants;
 
 import icy.gui.util.GuiUtil;
-import plugins.fmp.toolsSequence.Capillaries;
+import plugins.fmp.multicafeSequence.Capillaries;
 
 
 public class MCCapillariesTab_Properties extends JPanel {

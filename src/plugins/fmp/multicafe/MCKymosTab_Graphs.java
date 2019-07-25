@@ -12,8 +12,8 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 
 import icy.gui.util.GuiUtil;
-import plugins.fmp.toolsMulticafe.EnumArrayListType;
-import plugins.fmp.toolsMulticafe.XYMultiChart;
+import plugins.fmp.multicafeTools.EnumArrayListType;
+import plugins.fmp.multicafeTools.XYMultiChart;
 
 public class MCKymosTab_Graphs extends JPanel implements ActionListener  {
 

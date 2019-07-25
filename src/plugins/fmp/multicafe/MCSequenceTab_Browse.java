@@ -11,7 +11,7 @@ import javax.swing.JTextField;
 import javax.swing.SwingConstants;
 
 import icy.gui.util.GuiUtil;
-import plugins.fmp.toolsSequence.SequenceVirtual;
+import plugins.fmp.multicafeSequence.SequenceVirtual;
 
 
 public class MCSequenceTab_Browse extends JPanel {

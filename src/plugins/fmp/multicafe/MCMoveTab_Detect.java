@@ -30,9 +30,9 @@ import icy.image.IcyBufferedImageUtil;
 import icy.image.ImageUtil;
 import icy.roi.ROI2D;
 import icy.system.thread.ThreadUtil;
-import plugins.fmp.toolsMulticafe.BuildTrackFliesThread2;
-import plugins.fmp.toolsMulticafe.DetectFliesParameters;
-import plugins.fmp.toolsMulticafe.OverlayThreshold;
+import plugins.fmp.multicafeTools.BuildTrackFliesThread2;
+import plugins.fmp.multicafeTools.DetectFliesParameters;
+import plugins.fmp.multicafeTools.OverlayThreshold;
 
 
 

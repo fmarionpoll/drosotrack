@@ -27,7 +27,7 @@ import icy.main.Icy;
 import icy.roi.ROI;
 import icy.roi.ROI2D;
 import icy.sequence.Sequence;
-import plugins.fmp.toolsSequence.SequencePlus;
+import plugins.fmp.multicafeSequence.SequencePlus;
 import plugins.kernel.roi.roi2d.ROI2DShape;
 
 

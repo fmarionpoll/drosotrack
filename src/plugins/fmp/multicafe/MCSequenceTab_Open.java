@@ -32,8 +32,8 @@ import icy.gui.frame.progress.ProgressFrame;
 import icy.gui.util.GuiUtil;
 import icy.preferences.XMLPreferences;
 import icy.util.XMLUtil;
-import plugins.fmp.toolsMulticafe.Tools;
-import plugins.fmp.toolsSequence.Capillaries;
+import plugins.fmp.multicafeSequence.Capillaries;
+import plugins.fmp.multicafeTools.MulticafeTools;
 
 
 public class MCSequenceTab_Open extends JPanel implements IcyFrameListener {
@@ -245,7 +245,7 @@ public class MCSequenceTab_Open extends JPanel implements IcyFrameListener {
 		
 		XMLPreferences guiPrefs = parent0.getPreferences("gui");
 		String lastUsedPathString = guiPrefs.get("lastUsedPath", "");
-		File dir = Tools.chooseDirectory(lastUsedPathString);
+		File dir = MulticafeTools.chooseDirectory(lastUsedPathString);
 		if (dir == null) {
 			return;
 		}

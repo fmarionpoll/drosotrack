@@ -25,7 +25,7 @@ import javax.swing.ScrollPaneConstants;
 
 import icy.gui.util.GuiUtil;
 import icy.preferences.XMLPreferences;
-import plugins.fmp.toolsMulticafe.Tools;
+import plugins.fmp.multicafeTools.MulticafeTools;
 
 public class ListFilesPane extends JPanel implements PropertyChangeListener, ActionListener {
 	
@@ -97,7 +97,7 @@ public class ListFilesPane extends JPanel implements PropertyChangeListener, Act
 		
 		XMLPreferences guiPrefs = parent0.getPreferences("gui");
 		String lastUsedPathString = guiPrefs.get("lastUsedPath", "");
-		File dir = Tools.chooseDirectory(lastUsedPathString);
+		File dir = MulticafeTools.chooseDirectory(lastUsedPathString);
 		lastUsedPathString = dir.getAbsolutePath();
 		guiPrefs.put("lastUsedPath", lastUsedPathString);
 		Path pdir = Paths.get(lastUsedPathString);

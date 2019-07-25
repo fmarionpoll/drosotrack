@@ -12,12 +12,12 @@ import javax.swing.JTabbedPane;
 
 import icy.gui.util.GuiUtil;
 import icy.system.thread.ThreadUtil;
-import plugins.fmp.toolsMulticafe.Tools;
-import plugins.fmp.toolsMulticafe.XLSExportCapillaryResults;
-import plugins.fmp.toolsMulticafe.XLSExportMoveResults;
-import plugins.fmp.toolsMulticafe.XLSExportOptions;
-import plugins.fmp.toolsSequence.Experiment;
-import plugins.fmp.toolsSequence.ExperimentList;
+import plugins.fmp.multicafeSequence.Experiment;
+import plugins.fmp.multicafeSequence.ExperimentList;
+import plugins.fmp.multicafeTools.MulticafeTools;
+import plugins.fmp.multicafeTools.XLSExportCapillaryResults;
+import plugins.fmp.multicafeTools.XLSExportMoveResults;
+import plugins.fmp.multicafeTools.XLSExportOptions;
 
 
 public class MCExcelPane  extends JPanel implements PropertyChangeListener {
@@ -63,7 +63,7 @@ public class MCExcelPane  extends JPanel implements PropertyChangeListener {
 			Path directory = Paths.get(parent0.vSequence.getFileName(0)).getParent();
 			Path subpath = directory.getName(directory.getNameCount()-1);
 			String tentativeName = subpath.toString()+"_move.xlsx";
-			String file = Tools.saveFileAs(tentativeName, directory.getParent().toString(), "xlsx");
+			String file = MulticafeTools.saveFileAs(tentativeName, directory.getParent().toString(), "xlsx");
 			if (file != null) {
 				final String filename = file;
 				parent0.capillariesPane.getCapillariesInfos(parent0.vSequence.capillaries);
@@ -79,7 +79,7 @@ public class MCExcelPane  extends JPanel implements PropertyChangeListener {
 			Path directory = Paths.get(parent0.vSequence.getFileName(0)).getParent();
 			Path subpath = directory.getName(directory.getNameCount()-1);
 			String tentativeName = subpath.toString()+"_feeding.xlsx";
-			String file = Tools.saveFileAs(tentativeName, directory.getParent().toString(), "xlsx");
+			String file = MulticafeTools.saveFileAs(tentativeName, directory.getParent().toString(), "xlsx");
 			if (file != null) {
 				final String filename = file;
 				parent0.capillariesPane.getCapillariesInfos(parent0.vSequence.capillaries);

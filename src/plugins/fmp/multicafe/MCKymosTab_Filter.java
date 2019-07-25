@@ -14,7 +14,7 @@ import icy.gui.util.GuiUtil;
 import icy.image.IcyBufferedImage;
 import icy.image.IcyBufferedImageUtil;
 import icy.type.collection.array.Array1DUtil;
-import plugins.fmp.toolsSequence.SequencePlus;
+import plugins.fmp.multicafeSequence.SequencePlus;
 
 public class MCKymosTab_Filter  extends JPanel implements ActionListener {
 

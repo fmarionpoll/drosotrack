@@ -8,9 +8,9 @@ import icy.gui.frame.progress.ProgressFrame;
 import icy.image.IcyBufferedImage;
 import icy.system.profile.Chronometer;
 import icy.type.collection.array.Array1DUtil;
-import plugins.fmp.toolsMulticafe.EnumArrayListType;
-import plugins.fmp.toolsMulticafe.ImageTransformTools.TransformOp;
-import plugins.fmp.toolsSequence.SequencePlus;
+import plugins.fmp.multicafeSequence.SequencePlus;
+import plugins.fmp.multicafeTools.EnumArrayListType;
+import plugins.fmp.multicafeTools.ImageTransformTools.TransformOp;
 import plugins.kernel.roi.roi2d.ROI2DPolyLine;
 
 public class MCBuildDetect_Limits {

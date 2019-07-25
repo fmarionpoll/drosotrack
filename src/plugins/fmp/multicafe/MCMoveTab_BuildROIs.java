@@ -19,7 +19,7 @@ import icy.gui.frame.progress.AnnounceFrame;
 import icy.gui.util.GuiUtil;
 import icy.roi.ROI;
 import icy.roi.ROI2D;
-import plugins.fmp.toolsMulticafe.Tools;
+import plugins.fmp.multicafeTools.MulticafeTools;
 import plugins.kernel.roi.roi2d.ROI2DPolygon;
 
 public class MCMoveTab_BuildROIs extends JPanel implements ActionListener {
@@ -129,7 +129,7 @@ public class MCMoveTab_BuildROIs extends JPanel implements ActionListener {
 			new AnnounceFrame("The frame for the cages must be a ROI2D POLYGON");
 			return;
 		}
-		Polygon roiPolygon = Tools.orderVerticesofPolygon (((ROI2DPolygon) roi).getPolygon());
+		Polygon roiPolygon = MulticafeTools.orderVerticesofPolygon (((ROI2DPolygon) roi).getPolygon());
 		parent0.vSequence.removeROI(roi);
 
 		// generate cage frames

@@ -10,8 +10,8 @@ import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
 import icy.gui.util.GuiUtil;
-import plugins.fmp.toolsSequence.Capillaries;
-import plugins.fmp.toolsSequence.SequenceVirtual;
+import plugins.fmp.multicafeSequence.Capillaries;
+import plugins.fmp.multicafeSequence.SequenceVirtual;
 
 
 
