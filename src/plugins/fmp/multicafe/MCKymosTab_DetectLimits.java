@@ -15,9 +15,9 @@ import javax.swing.SwingConstants;
 
 import icy.gui.frame.progress.AnnounceFrame;
 import icy.gui.util.GuiUtil;
-import plugins.fmp.tools.Tools;
-import plugins.fmp.sequencevirtual.SequencePlus;
-import plugins.fmp.tools.ImageTransformTools.TransformOp;
+import plugins.fmp.toolsMulticafe.Tools;
+import plugins.fmp.toolsMulticafe.ImageTransformTools.TransformOp;
+import plugins.fmp.toolsSequence.SequencePlus;
 
 public class MCKymosTab_DetectLimits  extends JPanel implements ActionListener {
 

@@ -16,9 +16,9 @@ import javax.swing.JTextField;
 import javax.swing.SwingConstants;
 
 import icy.gui.util.GuiUtil;
-import plugins.fmp.sequencevirtual.Capillaries;
-import plugins.fmp.tools.ComboBoxWide;
-import plugins.fmp.tools.ComboBoxWithIndexTextRenderer;
+import plugins.fmp.toolsMulticafe.ComboBoxWide;
+import plugins.fmp.toolsMulticafe.ComboBoxWithIndexTextRenderer;
+import plugins.fmp.toolsSequence.Capillaries;
 
 public class MCSequenceTab_Infos  extends JPanel {
 	/**

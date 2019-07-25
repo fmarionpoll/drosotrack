@@ -12,12 +12,12 @@ import javax.swing.JTabbedPane;
 
 import icy.gui.util.GuiUtil;
 import icy.system.thread.ThreadUtil;
-import plugins.fmp.sequencevirtual.Experiment;
-import plugins.fmp.sequencevirtual.ExperimentList;
-import plugins.fmp.tools.Tools;
-import plugins.fmp.tools.XLSExportCapillaryResults;
-import plugins.fmp.tools.XLSExportMoveResults;
-import plugins.fmp.tools.XLSExportOptions;
+import plugins.fmp.toolsMulticafe.Tools;
+import plugins.fmp.toolsMulticafe.XLSExportCapillaryResults;
+import plugins.fmp.toolsMulticafe.XLSExportMoveResults;
+import plugins.fmp.toolsMulticafe.XLSExportOptions;
+import plugins.fmp.toolsSequence.Experiment;
+import plugins.fmp.toolsSequence.ExperimentList;
 
 
 public class MCExcelPane  extends JPanel implements PropertyChangeListener {

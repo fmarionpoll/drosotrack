@@ -11,7 +11,7 @@ import javax.swing.JPanel;
 
 import icy.gui.util.GuiUtil;
 import icy.gui.viewer.Viewer;
-import plugins.fmp.sequencevirtual.SequencePlus;
+import plugins.fmp.toolsSequence.SequencePlus;
 
 public class MCSequenceTab_Close  extends JPanel implements ActionListener {
 

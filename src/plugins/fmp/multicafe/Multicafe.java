@@ -22,10 +22,9 @@ import icy.sequence.Sequence;
 import icy.sequence.SequenceEvent;
 import icy.sequence.SequenceListener;
 import icy.system.thread.ThreadUtil;
-
-import plugins.fmp.sequencevirtual.SequencePlus;
-import plugins.fmp.tools.EnumArrayListType;
-import plugins.fmp.sequencevirtual.SequenceVirtual;
+import plugins.fmp.toolsMulticafe.EnumArrayListType;
+import plugins.fmp.toolsSequence.SequencePlus;
+import plugins.fmp.toolsSequence.SequenceVirtual;
 
 
 // SequenceListener?

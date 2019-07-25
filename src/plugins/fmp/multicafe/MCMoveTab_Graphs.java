@@ -14,9 +14,9 @@ import javax.swing.JSpinner;
 import javax.swing.SpinnerNumberModel;
 
 import icy.gui.util.GuiUtil;
-import plugins.fmp.sequencevirtual.XYTaSeries;
-import plugins.fmp.tools.EnumArrayListType;
-import plugins.fmp.tools.YPosMultiChart;
+import plugins.fmp.toolsMulticafe.EnumArrayListType;
+import plugins.fmp.toolsMulticafe.YPosMultiChart;
+import plugins.fmp.toolsSequence.XYTaSeries;
 
 
 public class MCMoveTab_Graphs extends JPanel implements ActionListener  {

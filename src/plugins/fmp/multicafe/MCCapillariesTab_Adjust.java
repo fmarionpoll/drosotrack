@@ -18,7 +18,7 @@ import icy.gui.util.GuiUtil;
 import icy.image.IcyBufferedImage;
 import icy.roi.ROI2D;
 import icy.type.collection.array.Array1DUtil;
-import plugins.fmp.tools.Line2DPlus;
+import plugins.fmp.toolsMulticafe.Line2DPlus;
 import plugins.kernel.roi.roi2d.ROI2DLine;
 
 

@@ -24,9 +24,8 @@ import icy.gui.util.GuiUtil;
 import icy.image.IcyBufferedImage;
 import icy.system.thread.ThreadUtil;
 import loci.formats.FormatException;
-
-import plugins.fmp.sequencevirtual.SequencePlus;
-import plugins.fmp.sequencevirtual.SequencePlusUtils;
+import plugins.fmp.toolsSequence.SequencePlus;
+import plugins.fmp.toolsSequence.SequencePlusUtils;
 
 
 public class MCCapillariesTab_File extends JPanel implements ActionListener {

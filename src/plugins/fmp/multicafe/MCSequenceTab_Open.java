@@ -32,8 +32,8 @@ import icy.gui.frame.progress.ProgressFrame;
 import icy.gui.util.GuiUtil;
 import icy.preferences.XMLPreferences;
 import icy.util.XMLUtil;
-import plugins.fmp.sequencevirtual.Capillaries;
-import plugins.fmp.tools.Tools;
+import plugins.fmp.toolsMulticafe.Tools;
+import plugins.fmp.toolsSequence.Capillaries;
 
 
 public class MCSequenceTab_Open extends JPanel implements IcyFrameListener {

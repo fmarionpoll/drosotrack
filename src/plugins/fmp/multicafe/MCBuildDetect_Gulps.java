@@ -11,9 +11,9 @@ import icy.image.IcyBufferedImage;
 import icy.roi.ROI;
 import icy.system.profile.Chronometer;
 import icy.type.collection.array.Array1DUtil;
-import plugins.fmp.sequencevirtual.SequencePlus;
-import plugins.fmp.tools.EnumArrayListType;
-import plugins.fmp.tools.ImageTransformTools.TransformOp;
+import plugins.fmp.toolsMulticafe.EnumArrayListType;
+import plugins.fmp.toolsMulticafe.ImageTransformTools.TransformOp;
+import plugins.fmp.toolsSequence.SequencePlus;
 import plugins.kernel.roi.roi2d.ROI2DPolyLine;
 
 public class MCBuildDetect_Gulps {

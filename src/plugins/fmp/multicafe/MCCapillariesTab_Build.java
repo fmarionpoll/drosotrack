@@ -20,8 +20,8 @@ import javax.swing.SwingConstants;
 import icy.gui.frame.progress.AnnounceFrame;
 import icy.gui.util.GuiUtil;
 import icy.roi.ROI2D;
-import plugins.fmp.sequencevirtual.Capillaries;
-import plugins.fmp.tools.Tools;
+import plugins.fmp.toolsMulticafe.Tools;
+import plugins.fmp.toolsSequence.Capillaries;
 import plugins.kernel.roi.roi2d.ROI2DLine;
 import plugins.kernel.roi.roi2d.ROI2DPolygon;
 

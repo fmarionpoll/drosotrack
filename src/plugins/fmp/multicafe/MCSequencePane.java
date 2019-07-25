@@ -12,7 +12,7 @@ import javax.swing.JTabbedPane;
 import icy.gui.util.GuiUtil;
 import icy.gui.viewer.Viewer;
 import icy.preferences.XMLPreferences;
-import plugins.fmp.sequencevirtual.SequenceVirtual;
+import plugins.fmp.toolsSequence.SequenceVirtual;
 
 
 public class MCSequencePane extends JPanel implements PropertyChangeListener {
