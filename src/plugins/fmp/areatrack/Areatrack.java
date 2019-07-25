@@ -71,12 +71,12 @@ import jxl.write.WritableSheet;
 import jxl.write.WritableWorkbook;
 import jxl.write.WriteException;
 import plugins.fmp.areatrack.MeasureAndName;
+import plugins.fmp.multicafeSequence.SequencePlus;
+import plugins.fmp.multicafeTools.ComboBoxColorRenderer;
+import plugins.fmp.multicafeTools.EnumThresholdType;
+import plugins.fmp.multicafeTools.MulticafeTools;
+import plugins.fmp.multicafeTools.ImageTransformTools.TransformOp;
 import plugins.fmp.areatrack.AreaAnalysisThread;
-import plugins.fmp.sequencevirtual.SequencePlus;
-import plugins.fmp.tools.ComboBoxColorRenderer;
-import plugins.fmp.tools.Tools;
-import plugins.fmp.tools.ImageTransformTools.TransformOp;
-import plugins.fmp.tools.EnumThresholdType;
 
 
 public class Areatrack extends PluginActionable implements ActionListener, ChangeListener, ViewerListener
@@ -439,7 +439,7 @@ public class Areatrack extends PluginActionable implements ActionListener, Chang
 			} } );
 
 		exportToXLSButton.addActionListener(new ActionListener () { @Override public void actionPerformed( final ActionEvent e ) {
-				String file = Tools.saveFileAs(null, vSequence.getDirectory(), "xls");
+				String file = MulticafeTools.saveFileAs(null, vSequence.getDirectory(), "xls");
 				if (file != null) {
 					ThreadUtil.bgRun( new Runnable() { @Override public void run() { 
 						final String filename = file; 
@@ -580,7 +580,7 @@ public class Areatrack extends PluginActionable implements ActionListener, Chang
 	
 	private void saveParametersToXMLFile() {
 		
-		String csFile = Tools.saveFileAs(filename, vSequence.getDirectory(), "xml");
+		String csFile = MulticafeTools.saveFileAs(filename, vSequence.getDirectory(), "xml");
 		csFile.toLowerCase();
 		if (!csFile.contains(".xml")) 
 			csFile += ".xml";
@@ -1074,7 +1074,7 @@ public class Areatrack extends PluginActionable implements ActionListener, Chang
 		ArrayList<ROI2D> roisList = vSequence.getROI2Ds();
 		XLSUtil.setCellString( filteredDataPage, 0, irow, "column");
 		XLSUtil.setCellString( filteredDataPage, 0, irow+1, "roi surface (pixels)");
-		Collections.sort(roisList, new Tools.ROI2DNameComparator());
+		Collections.sort(roisList, new MulticafeTools.ROI2DNameComparator());
 		for (ROI2D roi: roisList) {
 			XLSUtil.setCellString( filteredDataPage, icol1, irow, roi.getName());
 			XLSUtil.setCellNumber( filteredDataPage, icol1, irow+1, roi.getNumberOfPoints());

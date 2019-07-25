@@ -41,11 +41,10 @@ import icy.sequence.DimensionId;
 //import icy.system.profile.Chronometer;
 import icy.system.thread.ThreadUtil;
 import loci.formats.FormatException;
-
-import plugins.fmp.sequencevirtual.*;
-import plugins.fmp.tools.Tools;
-import plugins.fmp.tools.BuildKymographsThread;
-import plugins.fmp.tools.EnumStatusComputation;
+import plugins.fmp.multicafeSequence.*;
+import plugins.fmp.multicafeTools.BuildKymographsThread;
+import plugins.fmp.multicafeTools.EnumStatusComputation;
+import plugins.fmp.multicafeTools.MulticafeTools;
 
 public class BuildKymos extends PluginActionable implements ActionListener, ChangeListener, ViewerListener
 {
@@ -131,7 +130,7 @@ public class BuildKymos extends PluginActionable implements ActionListener, Chan
 		
 		XMLPreferences guiPrefs = this.getPreferences("gui");
 		String lastUsedPathString = guiPrefs.get("lastUsedPath", "");
-		File dir = Tools.chooseDirectory(lastUsedPathString);
+		File dir = MulticafeTools.chooseDirectory(lastUsedPathString);
 		lastUsedPathString = dir.getAbsolutePath();
 		guiPrefs.put("lastUsedPath", lastUsedPathString);
 		Path pdir = Paths.get(lastUsedPathString);

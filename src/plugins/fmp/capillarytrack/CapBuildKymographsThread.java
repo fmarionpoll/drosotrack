@@ -10,15 +10,12 @@ import icy.main.Icy;
 import icy.sequence.Sequence;
 import icy.type.DataType;
 import icy.type.collection.array.Array1DUtil;
-
-import plugins.fmp.sequencevirtual.SequencePlus;
-import plugins.fmp.sequencevirtual.SequenceVirtual;
-import plugins.fmp.tools.ProgressChrono;
-import plugins.fmp.tools.Tools;
 import plugins.kernel.roi.roi2d.ROI2DShape;
-//import plugins.agaspard.rigidregistration.RigidRegistration;
-import plugins.fmp.tools.DufourRigidRegistration;
-
+import plugins.fmp.multicafeSequence.SequencePlus;
+import plugins.fmp.multicafeSequence.SequenceVirtual;
+import plugins.fmp.multicafeTools.DufourRigidRegistration;
+import plugins.fmp.multicafeTools.ProgressChrono;
+import plugins.fmp.multicafeTools.MulticafeTools;
 import plugins.nchenouard.kymographtracker.Util;
 import plugins.nchenouard.kymographtracker.spline.CubicSmoothingSpline;
 
@@ -171,7 +168,7 @@ public class CapBuildKymographsThread implements Runnable
 			}
 			rois_tabValuesList.add(tabValuesList);
 		}
-		Collections.sort(kymographArrayList, new Tools.SequenceNameComparator()); 
+		Collections.sort(kymographArrayList, new MulticafeTools.SequenceNameComparator()); 
 	}
 	
 	private double initExtractionParametersfromROI( ROI2DShape roi, ArrayList<ArrayList<int[]>> masks,  double diskRadius, int sizex, int sizey)

@@ -14,9 +14,9 @@ import javax.swing.SwingConstants;
 import icy.gui.frame.progress.AnnounceFrame;
 import icy.gui.util.GuiUtil;
 import icy.gui.viewer.Viewer;
-import plugins.fmp.sequencevirtual.SequencePlus;
-import plugins.fmp.tools.BuildKymographsThread;
-import plugins.fmp.tools.EnumStatusComputation;
+import plugins.fmp.multicafeSequence.SequencePlus;
+import plugins.fmp.multicafeTools.BuildKymographsThread;
+import plugins.fmp.multicafeTools.EnumStatusComputation;
 import plugins.kernel.roi.roi2d.ROI2DShape;
 
 

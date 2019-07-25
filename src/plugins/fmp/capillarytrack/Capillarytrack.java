@@ -19,11 +19,10 @@ import icy.sequence.DimensionId;
 import icy.sequence.Sequence;
 import icy.sequence.SequenceEvent;
 import icy.sequence.SequenceListener;
-import plugins.fmp.sequencevirtual.SequencePlus;
-import plugins.fmp.tools.EnumArrayListType;
-import plugins.fmp.tools.EnumStatusAnalysis;
-//import plugins.fmp.tools.StatusPane;
-import plugins.fmp.sequencevirtual.SequenceVirtual; 
+import plugins.fmp.multicafeSequence.SequencePlus;
+import plugins.fmp.multicafeSequence.SequenceVirtual;
+import plugins.fmp.multicafeTools.EnumArrayListType;
+import plugins.fmp.multicafeTools.EnumStatusAnalysis; 
 
 // SequenceListener?
 public class Capillarytrack extends PluginActionable implements ViewerListener, PropertyChangeListener, SequenceListener

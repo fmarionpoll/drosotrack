@@ -22,7 +22,6 @@ import icy.sequence.Sequence;
 import icy.system.thread.ThreadUtil;
 import icy.type.collection.array.Array1DUtil;
 
-import plugins.fab.MiceProfiler.XugglerAviFile;
 import plugins.fmp.multicafeTools.ImageOperationsStruct;
 import plugins.fmp.multicafeTools.StringSorter;
 import plugins.fmp.multicafeTools.ImageTransformTools.TransformOp;
@@ -30,7 +29,7 @@ import plugins.fmp.multicafeTools.ImageTransformTools.TransformOp;
 
 public class SequenceVirtual extends Sequence 
 {
-	private XugglerAviFile 	aviFile 		= null;
+	//private XugglerAviFile 	aviFile 		= null;
 	private String [] 		listFiles 		= null;
 	private String 			csFileName 		= null;
 	private final static String[] acceptedTypes = {".jpg", ".jpeg", ".bmp"};
@@ -278,9 +277,9 @@ public class SequenceVirtual extends Sequence
 				return null;
 							
 		}
-		else if (status == EnumStatus.AVIFILE) {
-			buf = aviFile.getImage(t);
-		}
+//		else if (status == EnumStatus.AVIFILE) {
+//			buf = aviFile.getImage(t);
+//		}
 		// --------------------------------
 //		setImage(t, 0, buf);
 		return IcyBufferedImage.createFrom(buf);
@@ -593,18 +592,18 @@ public class SequenceVirtual extends Sequence
 	}
 	
 	private void loadSequenceVirtualAVI(String csFile) {
-		try
-		{
-			aviFile = new XugglerAviFile(csFile, true);
-			status = EnumStatus.AVIFILE;
-			nTotalFrames = (int) aviFile.getTotalNumberOfFrame();
-			csFileName = csFile;
-		}
-		catch (Exception exc)
-		{
-			MessageDialog.showDialog( "File type or video-codec not supported.", MessageDialog.ERROR_MESSAGE );
-			status = EnumStatus.FAILURE;
-		}
+//		try
+//		{
+//			aviFile = new XugglerAviFile(csFile, true);
+//			status = EnumStatus.AVIFILE;
+//			nTotalFrames = (int) aviFile.getTotalNumberOfFrame();
+//			csFileName = csFile;
+//		}
+//		catch (Exception exc)
+//		{
+//			MessageDialog.showDialog( "File type or video-codec not supported.", MessageDialog.ERROR_MESSAGE );
+//			status = EnumStatus.FAILURE;
+//		}
 	}
 	
 	private void loadSequenceVirtual(String[] list, String directory) {
