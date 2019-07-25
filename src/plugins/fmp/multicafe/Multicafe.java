@@ -32,7 +32,7 @@ public class Multicafe extends PluginActionable implements ViewerListener, Prope
 {
 	SequenceVirtual 			vSequence 			= null;
 	ArrayList <SequencePlus> 	kymographArrayList	= new ArrayList <SequencePlus> ();
-	IcyFrame mainFrame = new IcyFrame("MultiCAFE analysis 23-July-2019", true, true, true, true);
+	IcyFrame mainFrame = new IcyFrame("MultiCAFE analysis 25-July-2019", true, true, true, true);
 	
 	MCSequencePane 				sequencePane 		= new MCSequencePane();
 	MCCapillariesPane 			capillariesPane 	= new MCCapillariesPane();

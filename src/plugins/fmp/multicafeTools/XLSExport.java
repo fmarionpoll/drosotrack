@@ -89,8 +89,9 @@ public class XLSExport {
 		String concentrationR = exp.vSequence.capillaries.concentrationR;
 		SimpleDateFormat df = new SimpleDateFormat("MM/dd/yyyy");
 		String date = df.format(exp.fileTimeImageFirst.toMillis());	
-		String cam = getSubName(path, 2).substring(0, 5); 
-		String name1 = getSubName(path, 2); 
+		String name1 = getSubName(path, 2);
+		String cam = "-"; 
+		if (name1.length() >= 5) cam = name1.substring(0, 5); 
 		String name11 = getSubName(path, 3); 
 		String name111 = getSubName(path, 4); 
 		String sheetName = sheet.getSheetName();		
