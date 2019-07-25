@@ -18,11 +18,11 @@ import icy.sequence.SequenceDataIterator;
 import icy.system.profile.Chronometer;
 import icy.type.DataType;
 import icy.type.collection.array.Array1DUtil;
-import plugins.fmp.multicafeSequence.SequenceVirtual;
-import plugins.fmp.multicafeTools.EnumThresholdType;
-import plugins.fmp.multicafeTools.ImageOperations;
-import plugins.fmp.multicafeTools.MulticafeTools;
-import plugins.fmp.multicafeTools.ImageTransformTools.TransformOp;
+import plugins.fmp.sequencevirtual.SequenceVirtual;
+import plugins.fmp.tools.EnumThresholdType;
+import plugins.fmp.tools.ImageOperations;
+import plugins.fmp.tools.Tools;
+import plugins.fmp.tools.ImageTransformTools.TransformOp;
 
 public class AreaAnalysisThread extends Thread
 {
@@ -111,7 +111,7 @@ public class AreaAnalysisThread extends Thread
 		// global parameters
 		analyzeStep = vSequence.analysisStep;
 		roiList = vSequence.getROI2Ds();
-		Collections.sort(roiList, new MulticafeTools.ROI2DNameComparator());
+		Collections.sort(roiList, new Tools.ROI2DNameComparator());
 		if ( vSequence.nTotalFrames < endFrame+1 )
 			endFrame = (int) vSequence.nTotalFrames - 1;
 		int nbframes = endFrame - startFrame +1;

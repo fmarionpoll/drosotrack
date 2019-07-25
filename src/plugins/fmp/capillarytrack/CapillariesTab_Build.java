@@ -17,7 +17,7 @@ import javax.swing.SwingConstants;
 import icy.gui.frame.progress.AnnounceFrame;
 import icy.gui.util.GuiUtil;
 import icy.roi.ROI2D;
-import plugins.fmp.multicafeTools.MulticafeTools;
+import plugins.fmp.tools.Tools;
 import plugins.kernel.roi.roi2d.ROI2DLine;
 import plugins.kernel.roi.roi2d.ROI2DPolygon;
 
@@ -141,7 +141,7 @@ public class CapillariesTab_Build extends JPanel implements ActionListener {
 			return;
 		}
 		
-		Polygon roiPolygon = MulticafeTools.orderVerticesofPolygon (((ROI2DPolygon) roi).getPolygon());
+		Polygon roiPolygon = Tools.orderVerticesofPolygon (((ROI2DPolygon) roi).getPolygon());
 			
 		// clear Rois from sequence
 		parent0.vSequence.removeROI(roi);

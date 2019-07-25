@@ -49,10 +49,10 @@ import plugins.adufour.ezplug.EzVarInteger;
 import plugins.adufour.ezplug.EzVarListener;
 import plugins.adufour.ezplug.EzVarSequence;
 import plugins.adufour.ezplug.EzVarText;
-import plugins.fmp.multicafeSequence.SequenceVirtual;
-import plugins.fmp.multicafeTools.OverlayThreshold;
-import plugins.fmp.multicafeTools.MulticafeTools;
-import plugins.fmp.multicafeTools.ImageTransformTools.TransformOp;
+import plugins.fmp.sequencevirtual.SequenceVirtual;
+import plugins.fmp.tools.OverlayThreshold;
+import plugins.fmp.tools.Tools;
+import plugins.fmp.tools.ImageTransformTools.TransformOp;
 import plugins.kernel.roi.roi2d.ROI2DLine;
 import plugins.kernel.roi.roi2d.ROI2DPolygon;
 import plugins.kernel.roi.roi2d.ROI2DEllipse;
@@ -179,7 +179,7 @@ public class ROItoRoiArray extends EzPlug implements ViewerListener {
 			new AnnounceFrame("The frame must be a ROI 2D POLYGON");
 			return;
 		}
-		Polygon roiPolygon = MulticafeTools.orderVerticesofPolygon (((ROI2DPolygon) roi).getPolygon());
+		Polygon roiPolygon = Tools.orderVerticesofPolygon (((ROI2DPolygon) roi).getPolygon());
 		sequence.getValue(true).removeAllROI();
 		sequence.getValue(true).addROI(roi, true);
 		getSTD(roiPolygon.getBounds());
@@ -602,7 +602,7 @@ public class ROItoRoiArray extends EzPlug implements ViewerListener {
 			new AnnounceFrame("The frame must be a ROI 2D POLYGON");
 			return;
 		}
-		Polygon roiPolygon = MulticafeTools.orderVerticesofPolygon (((ROI2DPolygon) roi).getPolygon());
+		Polygon roiPolygon = Tools.orderVerticesofPolygon (((ROI2DPolygon) roi).getPolygon());
 		sequence.getValue(true).removeAllROI();
 		sequence.getValue(true).addROI(roi, true);
 		int channel = 0;
@@ -634,8 +634,8 @@ public class ROItoRoiArray extends EzPlug implements ViewerListener {
 			else if (name.contains("horizontal"))
 				horizRoiLines.add((ROI2DLine) roi);
 		}
-		Collections.sort(vertRoiLines, new MulticafeTools.ROI2DLineLeftXComparator());
-		Collections.sort(horizRoiLines, new MulticafeTools.ROI2DLineLeftYComparator());
+		Collections.sort(vertRoiLines, new Tools.ROI2DLineLeftXComparator());
+		Collections.sort(horizRoiLines, new Tools.ROI2DLineLeftYComparator());
 		sequence.getValue(true).removeAllROI();
 		
 		ROI2DLine roih1 = null;
@@ -694,7 +694,7 @@ public class ROItoRoiArray extends EzPlug implements ViewerListener {
 			return;
 		// get byte image (0, 1) that has been thresholded
 		ArrayList<ROI2D> roiList = vSequence.getROI2Ds();
-		Collections.sort(roiList, new MulticafeTools.ROI2DNameComparator());
+		Collections.sort(roiList, new Tools.ROI2DNameComparator());
 		
 		for (ROI2D roi:roiList) {
 			if (!roi.getName().contains("grid"))
@@ -991,7 +991,7 @@ public class ROItoRoiArray extends EzPlug implements ViewerListener {
 			return;
 		}
 
-		Polygon roiPolygon = MulticafeTools.orderVerticesofPolygon (((ROI2DPolygon) roi).getPolygon());
+		Polygon roiPolygon = Tools.orderVerticesofPolygon (((ROI2DPolygon) roi).getPolygon());
 		sequence.getValue(true).removeAllROI();
 		sequence.getValue(true).addROI(roi, true);
 		
@@ -1079,7 +1079,7 @@ public class ROItoRoiArray extends EzPlug implements ViewerListener {
 		}
 
 		ArrayList<ROI2D> list = sequence.getValue(true).getROI2Ds();
-		Collections.sort(list, new MulticafeTools.ROI2DNameComparator());
+		Collections.sort(list, new Tools.ROI2DNameComparator());
 	}
 	
 	@Override

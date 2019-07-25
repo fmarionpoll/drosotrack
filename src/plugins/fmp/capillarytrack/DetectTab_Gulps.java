@@ -15,8 +15,8 @@ import javax.swing.SwingConstants;
 
 import icy.gui.frame.progress.AnnounceFrame;
 import icy.gui.util.GuiUtil;
-import plugins.fmp.multicafeTools.MulticafeTools;
-import plugins.fmp.multicafeTools.ImageTransformTools.TransformOp;
+import plugins.fmp.tools.Tools;
+import plugins.fmp.tools.ImageTransformTools.TransformOp;
 
 public class DetectTab_Gulps  extends JPanel implements ActionListener {
 
@@ -91,7 +91,7 @@ public class DetectTab_Gulps  extends JPanel implements ActionListener {
 	public void kymosDisplayFiltered2() {
 		if (parent0.kymographArrayList == null)
 			return;
-		Collections.sort(parent0.kymographArrayList, new MulticafeTools.SequenceNameComparator()); 
+		Collections.sort(parent0.kymographArrayList, new Tools.SequenceNameComparator()); 
 		TransformOp transform;
 		transform = (TransformOp) transformForGulpsComboBox.getSelectedItem();
 		parent0.detectPane.kymosBuildFiltered(0, 2, transform, spanDiffTransf2);

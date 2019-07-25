@@ -17,8 +17,8 @@ import org.jfree.data.xy.XYSeriesCollection;
 
 import icy.gui.frame.IcyFrame;
 import icy.gui.util.GuiUtil;
-import plugins.fmp.multicafeSequence.SequencePlus;
-import plugins.fmp.multicafeTools.EnumArrayListType;
+import plugins.fmp.sequencevirtual.SequencePlus;
+import plugins.fmp.tools.EnumArrayListType;
 
 public class CapXYMultiChart extends IcyFrame  {
 

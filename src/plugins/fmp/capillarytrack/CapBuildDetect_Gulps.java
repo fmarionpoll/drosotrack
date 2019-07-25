@@ -11,9 +11,9 @@ import icy.image.IcyBufferedImage;
 import icy.roi.ROI;
 import icy.system.profile.Chronometer;
 import icy.type.collection.array.Array1DUtil;
-import plugins.fmp.multicafeSequence.SequencePlus;
-import plugins.fmp.multicafeTools.EnumArrayListType;
-import plugins.fmp.multicafeTools.ImageTransformTools.TransformOp;
+import plugins.fmp.sequencevirtual.SequencePlus;
+import plugins.fmp.tools.EnumArrayListType;
+import plugins.fmp.tools.ImageTransformTools.TransformOp;
 import plugins.kernel.roi.roi2d.ROI2DPolyLine;
 
 public class CapBuildDetect_Gulps {

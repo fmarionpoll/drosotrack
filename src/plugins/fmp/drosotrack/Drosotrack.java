@@ -63,11 +63,11 @@ import icy.util.XLSUtil;
 import jxl.write.WritableSheet;
 import jxl.write.WritableWorkbook;
 import jxl.write.WriteException;
-import plugins.fmp.multicafeSequence.SequenceVirtual;
-import plugins.fmp.multicafeTools.EnumStateD;
-import plugins.fmp.multicafeTools.OverlayThreshold;
-import plugins.fmp.multicafeTools.MulticafeTools;
-import plugins.fmp.multicafeTools.ImageTransformTools.TransformOp;
+import plugins.fmp.sequencevirtual.SequenceVirtual;
+import plugins.fmp.tools.EnumStateD;
+import plugins.fmp.tools.OverlayThreshold;
+import plugins.fmp.tools.Tools;
+import plugins.fmp.tools.ImageTransformTools.TransformOp;
 import plugins.kernel.roi.roi2d.ROI2DArea;
 import plugins.kernel.roi.roi2d.ROI2DPolygon;
 import plugins.kernel.roi.roi2d.ROI2DRectangle;
@@ -294,7 +294,7 @@ public class Drosotrack extends PluginActionable implements ActionListener, View
 				Path subpath = directory.getName(directory.getNameCount()-1);
 				String tentativeName = subpath.toString()+"_activity.xls";
 				
-				String file = MulticafeTools.saveFileAs(tentativeName, directory.getParent().toString(), "xls");
+				String file = Tools.saveFileAs(tentativeName, directory.getParent().toString(), "xls");
 				if (file != null) {
 					ThreadUtil.bgRun( new Runnable() { 	
 						@Override
@@ -310,7 +310,7 @@ public class Drosotrack extends PluginActionable implements ActionListener, View
 			public void actionPerformed( final ActionEvent e ) { 
 				vSequence.capillaries.xmlReadROIsAndData(vSequence);	
 				ArrayList<ROI2D> list = vSequence.getROI2Ds();
-				Collections.sort(list, new MulticafeTools.ROI2DNameComparator());
+				Collections.sort(list, new Tools.ROI2DNameComparator());
 				int nrois = list.size();
 				if (nrois > 0)
 					nbcagesTextField.setText(Integer.toString(nrois));
@@ -427,7 +427,7 @@ public class Drosotrack extends PluginActionable implements ActionListener, View
 			return;
 		}
 
-		Polygon roiPolygon = MulticafeTools.orderVerticesofPolygon (((ROI2DPolygon) roi).getPolygon());
+		Polygon roiPolygon = Tools.orderVerticesofPolygon (((ROI2DPolygon) roi).getPolygon());
 		vSequence.removeROI(roi);
 
 		// generate cage frames
@@ -475,7 +475,7 @@ public class Drosotrack extends PluginActionable implements ActionListener, View
 		}
 
 		ArrayList<ROI2D> list = vSequence.getROI2Ds();
-		Collections.sort(list, new MulticafeTools.ROI2DNameComparator());
+		Collections.sort(list, new Tools.ROI2DNameComparator());
 	}
 
 	private void displayYpositionGraphs() {
@@ -931,7 +931,7 @@ public class Drosotrack extends PluginActionable implements ActionListener, View
 		startFrameTextField.setText( Integer.toString(startFrame));
 		
 		ArrayList<ROI2D> list = vSequence.getROI2Ds();
-		Collections.sort(list, new MulticafeTools.ROI2DNameComparator());
+		Collections.sort(list, new Tools.ROI2DNameComparator());
 		int nrois = list.size();
 		if (nrois > 0)
 			nbcagesTextField.setText(Integer.toString(nrois));
@@ -992,7 +992,7 @@ public class Drosotrack extends PluginActionable implements ActionListener, View
 		
 			// find ROI describing cage areas - remove all others
 			vSequence.beginUpdate();
-			Collections.sort(roiList, new MulticafeTools.ROI2DNameComparator());
+			Collections.sort(roiList, new Tools.ROI2DNameComparator());
 			for ( ROI2D roi : roiList )
 			{
 				String csName = roi.getName();
@@ -1011,7 +1011,7 @@ public class Drosotrack extends PluginActionable implements ActionListener, View
 					vSequence.removeROI(roi);
 			}
 			vSequence.endUpdate();
-			Collections.sort(cageLimitROIList, new MulticafeTools.ROI2DNameComparator());
+			Collections.sort(cageLimitROIList, new Tools.ROI2DNameComparator());
 
 			// create arrays for storing position and init their value to zero
 			nbcages = cageLimitROIList.size();
