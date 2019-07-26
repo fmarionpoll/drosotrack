@@ -601,6 +601,7 @@ public class SequenceVirtual extends Sequence
 			loadSequenceVirtual(list, directory);
 	}
 	
+	@SuppressWarnings("deprecation")
 	private void loadSequenceVirtualAVI(String fileName) {
 		if (importer != null )
 		{
@@ -616,6 +617,7 @@ public class SequenceVirtual extends Sequence
 			importer = new VideoImporter();
 			status = EnumStatus.AVIFILE;
 			importer.open( fileName, 0 );
+			@SuppressWarnings("deprecation")
 			OMEXMLMetadataImpl metaData = importer.getMetaData();
 			nTotalFrames = MetaDataUtil.getSizeT( metaData, 0 ) - 2 ; // get one frame less as there is a little bug in the decompression of the video in h264
 			csFileName = fileName;
