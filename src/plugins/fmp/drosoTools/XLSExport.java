@@ -226,12 +226,15 @@ public class XLSExport {
 		xlsCreatePivotTable(workBook, "pivot_std", fromWorkbook, DataConsolidateFunction.STD_DEV);
 		xlsCreatePivotTable(workBook, "pivot_n", fromWorkbook, DataConsolidateFunction.COUNT);
 	}
+	
 	protected String getBoxIdentificator (Experiment exp) {
+		
 		Path path = Paths.get(exp.vSequence.getFileName());
 		String name = getSubName(path, 2); 
 		return name;
 	}
 
+	// TODO change
 	protected Point getStackColumnPosition (Experiment exp, Point pt) {
 		Point localPt = pt;
 		String name = getBoxIdentificator (exp);
@@ -265,6 +268,7 @@ public class XLSExport {
 		return localPt;
 	}
 	
+	// ?
 	protected XLSNameAndPosition getStackGlobalSeriesDescriptor (Experiment exp) {
 		String name = getBoxIdentificator (exp);
 		for (XLSNameAndPosition desc: listOfStacks) {
