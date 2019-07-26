@@ -9,6 +9,7 @@ import java.nio.file.Paths;
 import java.nio.file.attribute.FileTime;
 
 import icy.canvas.Canvas2D;
+import icy.common.exception.UnsupportedFormatException;
 import icy.gui.dialog.LoaderDialog;
 import icy.gui.dialog.MessageDialog;
 import icy.gui.viewer.Viewer;
@@ -17,12 +18,12 @@ import icy.image.IcyBufferedImageUtil;
 import icy.image.ImageUtil;
 import icy.main.Icy;
 import icy.math.ArrayMath;
-
+import icy.sequence.MetaDataUtil;
 import icy.sequence.Sequence;
 import icy.system.thread.ThreadUtil;
 import icy.type.collection.array.Array1DUtil;
-
-import plugins.fab.MiceProfiler.XugglerAviFile;
+import loci.formats.ome.OMEXMLMetadataImpl;
+import plugins.stef.importer.xuggler.VideoImporter;
 import plugins.fmp.drosoTools.ImageOperationsStruct;
 import plugins.fmp.drosoTools.StringSorter;
 import plugins.fmp.drosoTools.ImageTransformTools.TransformOp;
@@ -30,7 +31,7 @@ import plugins.fmp.drosoTools.ImageTransformTools.TransformOp;
 
 public class SequenceVirtual extends Sequence 
 {
-	private XugglerAviFile 	aviFile 		= null;
+	protected VideoImporter importer 		= null;
 	private String [] 		listFiles 		= null;
 	private String 			csFileName 		= null;
 	private final static String[] acceptedTypes = {".jpg", ".jpeg", ".bmp"};
@@ -279,7 +280,15 @@ public class SequenceVirtual extends Sequence
 							
 		}
 		else if (status == EnumStatus.AVIFILE) {
-			buf = aviFile.getImage(t);
+			try {
+				buf = importer.getImage(0, t);
+			} catch (UnsupportedFormatException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
 		}
 		// --------------------------------
 //		setImage(t, 0, buf);
@@ -592,13 +601,24 @@ public class SequenceVirtual extends Sequence
 			loadSequenceVirtual(list, directory);
 	}
 	
-	private void loadSequenceVirtualAVI(String csFile) {
+	private void loadSequenceVirtualAVI(String fileName) {
+		if (importer != null )
+		{
+			try {
+				importer.close();
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+		}
+		
 		try
 		{
-			aviFile = new XugglerAviFile(csFile, true);
+			importer = new VideoImporter();
 			status = EnumStatus.AVIFILE;
-			nTotalFrames = (int) aviFile.getTotalNumberOfFrame();
-			csFileName = csFile;
+			importer.open( fileName, 0 );
+			OMEXMLMetadataImpl metaData = importer.getMetaData();
+			nTotalFrames = MetaDataUtil.getSizeT( metaData, 0 ) - 2 ; // get one frame less as there is a little bug in the decompression of the video in h264
+			csFileName = fileName;
 		}
 		catch (Exception exc)
 		{
