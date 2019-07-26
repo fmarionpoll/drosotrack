@@ -22,7 +22,8 @@ import icy.sequence.MetaDataUtil;
 import icy.sequence.Sequence;
 import icy.system.thread.ThreadUtil;
 import icy.type.collection.array.Array1DUtil;
-import loci.formats.ome.OMEXMLMetadataImpl;
+
+import ome.xml.meta.OMEXMLMetadata;
 import plugins.stef.importer.xuggler.VideoImporter;
 import plugins.fmp.drosoTools.ImageOperationsStruct;
 import plugins.fmp.drosoTools.StringSorter;
@@ -601,7 +602,6 @@ public class SequenceVirtual extends Sequence
 			loadSequenceVirtual(list, directory);
 	}
 	
-	@SuppressWarnings("deprecation")
 	private void loadSequenceVirtualAVI(String fileName) {
 		if (importer != null )
 		{
@@ -617,8 +617,7 @@ public class SequenceVirtual extends Sequence
 			importer = new VideoImporter();
 			status = EnumStatus.AVIFILE;
 			importer.open( fileName, 0 );
-			@SuppressWarnings("deprecation")
-			OMEXMLMetadataImpl metaData = importer.getMetaData();
+			OMEXMLMetadata metaData = importer.getOMEXMLMetaData();
 			nTotalFrames = MetaDataUtil.getSizeT( metaData, 0 ) - 2 ; // get one frame less as there is a little bug in the decompression of the video in h264
 			csFileName = fileName;
 		}
