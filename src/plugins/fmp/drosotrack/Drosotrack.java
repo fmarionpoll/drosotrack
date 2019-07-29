@@ -52,6 +52,7 @@ import icy.gui.viewer.ViewerListener;
 import icy.image.IcyBufferedImage;
 import icy.main.Icy;
 import icy.plugin.abstract_.PluginActionable;
+import icy.preferences.GeneralPreferences;
 import icy.preferences.XMLPreferences;
 import icy.roi.BooleanMask2D;
 import icy.roi.ROI;
@@ -149,6 +150,8 @@ public class Drosotrack extends PluginActionable implements ActionListener, View
 	// -------------------------------------------
 	@Override
 	public void run() {
+
+		 GeneralPreferences.setVirtualMode(false);
 
 		// build and display the GUI
 		JPanel mainPanel = GuiUtil.generatePanelWithoutBorder();
