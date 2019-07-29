@@ -60,8 +60,8 @@ import icy.gui.viewer.Viewer;
 import icy.gui.viewer.ViewerEvent;
 import icy.gui.viewer.ViewerListener;
 import icy.gui.viewer.ViewerEvent.ViewerEventType;
+import icy.main.Icy;
 import icy.plugin.abstract_.PluginActionable;
-import icy.preferences.GeneralPreferences;
 import icy.preferences.XMLPreferences;
 import icy.roi.ROI2D;
 import icy.sequence.DimensionId;
@@ -316,7 +316,9 @@ public class Areatrack extends PluginActionable implements ActionListener, Chang
 	
 	@Override
 	public void run() {
-		 GeneralPreferences.setVirtualMode(false);
+		
+		Icy.getMainInterface().getMainFrame().getInspector().setVirtualMode(false);
+		Icy.getMainInterface().getMainFrame().getInspector().imageCacheDisabled();
 
 		// build and display the GUI
 		JPanel mainPanel = GuiUtil.generatePanelWithoutBorder();

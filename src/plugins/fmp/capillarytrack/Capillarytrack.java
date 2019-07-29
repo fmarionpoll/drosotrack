@@ -11,10 +11,10 @@ import icy.gui.util.GuiUtil;
 import icy.gui.viewer.Viewer;
 import icy.gui.viewer.ViewerEvent;
 import icy.gui.viewer.ViewerEvent.ViewerEventType;
+import icy.main.Icy;
 import icy.gui.viewer.ViewerListener;
 
 import icy.plugin.abstract_.PluginActionable;
-import icy.preferences.GeneralPreferences;
 import icy.sequence.DimensionId;
 import icy.sequence.Sequence;
 import icy.sequence.SequenceEvent;
@@ -44,7 +44,8 @@ public class Capillarytrack extends PluginActionable implements ViewerListener, 
 	@Override
 	public void run() {
 		
-		 GeneralPreferences.setVirtualMode(false);
+		Icy.getMainInterface().getMainFrame().getInspector().setVirtualMode(false);
+		Icy.getMainInterface().getMainFrame().getInspector().imageCacheDisabled();
 
 		JPanel mainPanel = GuiUtil.generatePanelWithoutBorder();
 		mainFrame.setLayout(new BorderLayout());
