@@ -448,8 +448,8 @@ public class Areatrack extends PluginActionable implements ActionListener, Chang
 				if (file != null) {
 					ThreadUtil.bgRun( new Runnable() { @Override public void run() { 
 						final String filename = file; 
-						exportToXLS(filename);}
-					});
+						exportToXLS(filename);
+						}});
 				}
 			} } );
 		
