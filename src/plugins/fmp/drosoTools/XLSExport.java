@@ -197,7 +197,7 @@ public class XLSExport {
         	if( !flag) {
         		flag = text.contains("roi");  // ugly trick here
         		if (text.contains(EnumXLSExperimentDescriptors.CAP.toString()))
-        			pivotTable.addColLabel(i);
+        			pivotTable.addRowLabel(i);
         		if (text.contains(EnumXLSExperimentDescriptors.NFLIES.toString()))
         			pivotTable.addRowLabel(i);
         		continue;
