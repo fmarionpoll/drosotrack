@@ -112,6 +112,19 @@ public class CapBuildKymographsThread implements Runnable
 		for (int iroi=0; iroi < vSequence.capillaries.capillariesArrayList.size(); iroi++)
 		{
 			SequencePlus kymographSeq = kymographArrayList.get(iroi);
+			IcyBufferedImage bufImage = new IcyBufferedImage(
+					kymographSeq.getWidth(), 
+					kymographSeq.getHeight(), 
+					kymographSeq.getSizeC(), DataType.DOUBLE);
+			ArrayList <double []> tabValuesList = rois_tabValuesList.get(iroi);
+			
+			for (int chan = 0; chan < kymographSeq.getSizeC(); chan++) {
+				double [] tabValues = tabValuesList.get(chan); 
+				Object destArray = bufImage.getDataXY(chan);
+				Array1DUtil.doubleArrayToSafeArray(tabValues, destArray, bufImage.isSignedDataType());
+				bufImage.setDataXY(chan, destArray);
+			}
+			kymographSeq.setImage(0, 0, bufImage);
 			kymographSeq.dataChanged();
 		}
 		threadRunning = false;

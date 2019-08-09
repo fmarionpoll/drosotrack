@@ -11,7 +11,6 @@ import icy.gui.util.GuiUtil;
 import icy.gui.viewer.Viewer;
 import icy.gui.viewer.ViewerEvent;
 import icy.gui.viewer.ViewerEvent.ViewerEventType;
-import icy.main.Icy;
 import icy.gui.viewer.ViewerListener;
 
 import icy.plugin.abstract_.PluginActionable;
@@ -30,7 +29,7 @@ public class Capillarytrack extends PluginActionable implements ViewerListener, 
 	//------------------------------------------- global variables
 	SequenceVirtual vSequence = null;
 	ArrayList <SequencePlus> kymographArrayList	= new ArrayList <SequencePlus> ();	// list of kymograph sequences
-	IcyFrame mainFrame = new IcyFrame("CapillaryTrack 23-Jul-2019", true, true, true, true);
+	IcyFrame mainFrame = new IcyFrame("CapillaryTrack 9-Aug-2019", true, true, true, true);
 
 	//---------------------------------------------------------------------------
 	SequencePane sequencePane 		= null;
@@ -44,9 +43,6 @@ public class Capillarytrack extends PluginActionable implements ViewerListener, 
 	@Override
 	public void run() {
 		
-		Icy.getMainInterface().getMainFrame().getInspector().setVirtualMode(false);
-		Icy.getMainInterface().getMainFrame().getInspector().imageCacheDisabled();
-
 		JPanel mainPanel = GuiUtil.generatePanelWithoutBorder();
 		mainFrame.setLayout(new BorderLayout());
 		mainFrame.add(mainPanel, BorderLayout.CENTER);

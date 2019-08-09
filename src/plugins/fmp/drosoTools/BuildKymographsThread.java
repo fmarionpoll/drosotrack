@@ -39,8 +39,7 @@ public class BuildKymographsThread implements Runnable
 
 		if (options.vSequence == null)
 			return;
-		
-		threadRunning = true;
+
 		if (options.startFrame < 0) 
 			options.startFrame = 0;
 		if ((options.endFrame >= (int) options.vSequence.nTotalFrames) || (options.endFrame < 0)) 
@@ -48,6 +47,7 @@ public class BuildKymographsThread implements Runnable
 		int nbframes = options.endFrame - options.startFrame +1;
 		ProgressChrono progressBar = new ProgressChrono("Processing started");
 		progressBar.initStuff(nbframes);
+		threadRunning = true;
 		stopFlag = false;
 
 		initKymographs();
