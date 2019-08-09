@@ -65,8 +65,7 @@ public class CapBuildKymographsThread implements Runnable
 		s.addImage(0, workImage);
 		s.addImage(1, workImage);
 
-		for (int t = startFrame ; t <= endFrame; t += analyzeStep, ipixelcolumn++ )
-		{
+		for (int t = startFrame ; t <= endFrame; t += analyzeStep, ipixelcolumn++ ) {
 			progressBar.updatePositionAndTimeLeft(t);
 			if (!getImageAndUpdateViewer (t))
 				continue;
