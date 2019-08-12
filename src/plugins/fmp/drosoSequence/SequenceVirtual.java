@@ -491,7 +491,8 @@ public class SequenceVirtual extends Sequence
 
 			double[] dummyzerosArray = Array1DUtil.arrayToDoubleArray(result.getDataXY(c), result.isSignedDataType());
 			ArrayMath.max(img1DoubleArray, dummyzerosArray, img1DoubleArray);
-			Array1DUtil.doubleArrayToArray(img1DoubleArray, result.getDataXY(c));
+			Array1DUtil.doubleArrayToSafeArray(img1DoubleArray, result.getDataXY(c), false);
+			result.setDataXY(c, result.getDataXY(c));
 		}
 		result.dataChanged();
 		return result;

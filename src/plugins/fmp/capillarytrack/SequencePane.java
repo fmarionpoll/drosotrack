@@ -97,7 +97,8 @@ public class SequencePane extends JPanel implements PropertyChangeListener {
 			return;
 
 		parent0.vSequence.vImageBufferThread_STOP();
-		UpdateItemsToSequence(parent0.vSequence); ;
+		UpdateItemsToSequence(parent0.vSequence); 
+		parent0.vSequence.cleanUpBufferAndRestart();
 		parent0.vSequence.vImageBufferThread_START(100); //numberOfImageForBuffer);
 	}
 	

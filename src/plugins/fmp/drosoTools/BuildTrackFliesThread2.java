@@ -258,7 +258,9 @@ public class BuildTrackFliesThread2  implements Runnable {
 					intRefImage[coord] = intCurrentImage[coord];
 				}
 			}
-			Array1DUtil.intArrayToSafeArray(intRefImage, vSequence.refImage.getDataXY(c), vSequence.refImage.isSignedDataType(), vSequence.refImage.isSignedDataType());
+			Object destArray = vSequence.refImage.getDataXY(c);
+			Array1DUtil.intArrayToSafeArray(intRefImage, destArray, vSequence.refImage.isSignedDataType(), vSequence.refImage.isSignedDataType());
+			vSequence.refImage.setDataXY(c, destArray);
 		}
 		vSequence.refImage.dataChanged();
 	}

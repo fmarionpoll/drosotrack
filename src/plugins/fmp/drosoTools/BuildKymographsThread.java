@@ -106,6 +106,7 @@ public class BuildKymographsThread implements Runnable
 			{
 				double [] tabValues = tabValuesList.get(chan); 
 				Array1DUtil.doubleArrayToSafeArray(tabValues, image.getDataXY(chan), image.isSignedDataType());
+				image.setDataXY(chan, image.getDataXY(chan));
 			}
 			kymographSeq.addImage(0, image);
 		}
