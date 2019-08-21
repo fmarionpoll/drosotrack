@@ -234,9 +234,7 @@ public class Capillaries {
 				seq.addUndoableEdit(new ROIAddsSequenceEdit(seq, listOfROIs) {
 					@Override
 					public String getPresentationName() {
-						if (getROIs().size() > 1)
-							return "ROIs loaded from XML file";
-						return "ROI loaded from XML file"; };
+						return getROIs().size() + " ROI(s) loaded from XML file"; };
 				});
 				return true;
 			}

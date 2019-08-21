@@ -29,8 +29,8 @@ public class KymosTab_Build extends JPanel implements ActionListener {
 	
 	public JButton 	kymoStartComputationButton 	= new JButton("Start");
 	public JButton  kymosStopComputationButton 	= new JButton("Stop");
-	public JTextField 	diskRadiusTextField 	= new JTextField("5");
-	JCheckBox doRegistrationCheckBox = new JCheckBox("registration", false);
+	public JTextField diskRadiusTextField 		= new JTextField("5");
+	JCheckBox 		doRegistrationCheckBox 		= new JCheckBox("registration", false);
 	
 	public EnumStatusComputation sComputation = EnumStatusComputation.START_COMPUTATION; 
 	public int diskRadius = 5;

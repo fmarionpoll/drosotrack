@@ -109,7 +109,7 @@ public class KymosTab_File  extends JPanel implements ActionListener {
 				continue;
 
 			SequencePlus kymographSeq = new SequencePlus();
-			filename = directory + "\\" + filename;
+			filename = directory + File.separator + filename;
 			progress.incPosition(  );
 			progress.setMessage( "Open file : " + filename);
 
@@ -125,7 +125,7 @@ public class KymosTab_File  extends JPanel implements ActionListener {
 			kymographSeq.addImage(0, ibufImage);
 			
 			int index1 = filename.indexOf(".tiff");
-			int index0 = filename.lastIndexOf("\\")+1;
+			int index0 = filename.lastIndexOf(File.separator)+1;
 			String title = filename.substring(index0, index1);
 			kymographSeq.setName(title);
 			parent0.kymographArrayList.add(kymographSeq);
@@ -141,7 +141,7 @@ public class KymosTab_File  extends JPanel implements ActionListener {
 		ProgressFrame progress = new ProgressFrame("Save kymographs");
 		
 		if (directory == null) {
-			directory = parent0.vSequence.getDirectory()+ "\\results";
+			directory = parent0.vSequence.getDirectory()+ File.separator + "results";
 			}
 		
 		try {
@@ -159,7 +159,7 @@ public class KymosTab_File  extends JPanel implements ActionListener {
 			for (SequencePlus seq: parent0.kymographArrayList) {
 	
 				progress.setMessage( "Save kymograph file : " + seq.getName());
-				String filename = outputpath + "\\" + seq.getName() + ".tiff";
+				String filename = outputpath + File.separator + seq.getName() + ".tiff";
 				File file = new File (filename);
 				IcyBufferedImage image = seq.getFirstImage();
 				try {
