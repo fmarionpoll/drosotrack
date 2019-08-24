@@ -3,6 +3,7 @@ package plugins.fmp.capillarytrack;
 import java.awt.GridLayout;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
+import java.io.File;
 
 import javax.swing.JPanel;
 import javax.swing.JTabbedPane;
@@ -97,7 +98,7 @@ public class KymosPane extends JPanel implements PropertyChangeListener, ChangeL
 	
 	public boolean loadDefaultKymos() {
 		String path = parent0.vSequence.getDirectory();
-		final String cs = path+"\\results";
+		final String cs = path+File.separator+"results";
 		int i = 0;
 		boolean flag = fileTab.openFiles(cs);
 		if (flag) {

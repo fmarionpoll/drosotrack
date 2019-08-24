@@ -1,6 +1,7 @@
 package plugins.fmp.drosoSequence;
 
 
+import java.io.File;
 import java.nio.file.attribute.FileTime;
 import java.util.ArrayList;
 
@@ -34,7 +35,7 @@ public class Experiment {
 		
 		if (!vSequence.xmlReadCapillaryTrackDefault()) 
 			return false;
-		String directory = vSequence.getDirectory() +"\\results";
+		String directory = vSequence.getDirectory() +File.separator+"results";
 		kymographArrayList = SequencePlusUtils.openFiles(directory, vSequence.capillaries);
 		vSequence.xmlReadDrosoTrackDefault();
 		return true;

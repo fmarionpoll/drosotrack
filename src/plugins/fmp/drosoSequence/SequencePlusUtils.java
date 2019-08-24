@@ -40,7 +40,7 @@ public class SequencePlusUtils {
 			}
 			 
 			SequencePlus kymographSeq = new SequencePlus();
-			final String name =  directory + "\\" + filename;
+			final String name =  directory + File.separator+ filename;
 			progress.setMessage( "Load "+filename);
 			
 			IcyBufferedImage ibufImage = null;
@@ -55,7 +55,7 @@ public class SequencePlusUtils {
 			kymographSeq.addImage(0, ibufImage);
 			
 			int index1 = filename.indexOf(".tiff");
-			int index0 = filename.lastIndexOf("\\")+1;
+			int index0 = filename.lastIndexOf(File.separator)+1;
 			String title = filename.substring(index0, index1);
 			kymographSeq.setName(title);
 			kymographSeq.loadXMLKymographAnalysis(directory);
@@ -86,7 +86,7 @@ public class SequencePlusUtils {
 			}
 			 
 			SequencePlus kymographSeq = new SequencePlus();
-			final String name =  directory + "\\" + roi.getName() + ".tiff";
+			final String name =  directory + File.separator+ roi.getName() + ".tiff";
 			progress.setMessage( "Load "+name);
 			
 			IcyBufferedImage ibufImage = null;

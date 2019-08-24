@@ -2,6 +2,7 @@ package plugins.fmp.drosoSequence;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -209,13 +210,13 @@ public class DrosoSequence extends EzPlug {
 
 	private boolean loadDefaultCapillaries() {
 		String path = vSequence.getDirectory();
-		boolean flag = capillaryRoisOpen(path+"\\capillarytrack.xml");
+		boolean flag = capillaryRoisOpen(path+File.separator+"capillarytrack.xml");
 		return flag;
 	}
 	
 	private boolean loadDefaultCages() {
 		String path = vSequence.getDirectory();
-		boolean flag = capillaryRoisOpen(path+"\\drosotrack.xml");
+		boolean flag = capillaryRoisOpen(path+File.separator+"drosotrack.xml");
 		return flag;
 	}
 	

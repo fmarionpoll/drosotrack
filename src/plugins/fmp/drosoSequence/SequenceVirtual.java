@@ -678,7 +678,7 @@ public class SequenceVirtual extends Sequence
 	}
 	
 	public boolean xmlReadCapillaryTrackDefault() {
-		return xmlReadCapillaryTrack(getDirectory()+"\\capillarytrack.xml");
+		return xmlReadCapillaryTrack(getDirectory()+File.separator+"capillarytrack.xml");
 	}
 	
 	public boolean xmlReadCapillaryTrack(String filename) {
@@ -692,7 +692,7 @@ public class SequenceVirtual extends Sequence
 	}
 		
 	public boolean xmlReadDrosoTrackDefault() {
-		return cages.xmlReadCagesFromFileNoQuestion(getDirectory() + "\\drosotrack.xml", this);
+		return cages.xmlReadCagesFromFileNoQuestion(getDirectory() + File.separator+"drosotrack.xml", this);
 	}
 	
 	public boolean xmlReadDrosoTrack(String filename) {

@@ -241,7 +241,7 @@ public class ResultsTab_Excel extends JPanel implements ActionListener  {
 			Point pt2 = toColZero(pt, transpose);
 			if (parent0.vSequence.isFileStack()) {
 				String cs = parent0.vSequence.getFileName(j+startFrame);
-				int index = cs.lastIndexOf("\\");
+				int index = cs.lastIndexOf(File.separator);
 				String fileName = cs.substring(index + 1);
 				setValue(sheet,  pt2.x, pt2.y, fileName );
 				pt2 = nextCol(pt2, transpose);

@@ -19,7 +19,7 @@ import icy.roi.ROI2D;
 import plugins.kernel.roi.roi2d.ROI2DLine;
 
 
-// Your plugin class should extends \'icy.plugin.abstract_.Plugin\' class.
+
 public class DrosoTools  extends Plugin {
 
 	public static String saveFileAs(String defaultName, String directory, String csExt)

@@ -60,7 +60,7 @@ public class KymosTab_File  extends JPanel implements ActionListener {
 		Object o = e.getSource();
 		if ( o == openButtonKymos)  {
 			enableItems(false);
-			String path = parent0.vSequence.getDirectory()+ "\\results";
+			String path = parent0.vSequence.getDirectory()+ File.separator+"results";
 			boolean flag = openFiles(path); 
 			enableItems(true);
 			if (flag) {
@@ -70,7 +70,7 @@ public class KymosTab_File  extends JPanel implements ActionListener {
 		}
 		else if ( o == saveButtonKymos) {
 			enableItems(false);
-			String path = parent0.vSequence.getDirectory() + "\\results";
+			String path = parent0.vSequence.getDirectory() + File.separator+"results";
 			saveFiles(path);
 			enableItems(true);
 			firePropertyChange("KYMOS_SAVE", false, true);	

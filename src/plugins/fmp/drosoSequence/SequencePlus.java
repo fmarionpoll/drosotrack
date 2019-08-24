@@ -2,6 +2,7 @@ package plugins.fmp.drosoSequence;
 
 import java.awt.Color;
 import java.awt.geom.Point2D;
+import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -235,14 +236,14 @@ public class SequencePlus extends SequenceVirtual  {
 			return false;
 		
 		String resultsDirectory = directory;
-		String subDirectory = "\\results";
+		String subDirectory = File.separator+"results";
 		if (!resultsDirectory.contains (subDirectory))
 			resultsDirectory += subDirectory;
 		Path resultsPath = Paths.get(resultsDirectory);
 		if (Files.notExists(resultsPath)) 
 			return false; 
 		
-		setFilename(resultsDirectory+"\\"+getName()+".xml");
+		setFilename(resultsDirectory+File.separator+getName()+".xml");
 		Path filenamePath = Paths.get(filename);
 		if (Files.notExists(filenamePath)) 
 			return false; 
@@ -285,10 +286,10 @@ public class SequencePlus extends SequenceVirtual  {
 
 		// check if directory is present. If not, create it
 		String resultsDirectory = directory;
-		String subDirectory = "\\results";
+		String subDirectory = File.separator+"results";
 		if (!resultsDirectory.contains (subDirectory))
 			resultsDirectory += subDirectory;
-		resultsDirectory += "\\";
+		resultsDirectory += File.separator;
 		Path resultsPath = Paths.get(resultsDirectory);
 		if (Files.notExists(resultsPath)) {
 			try {

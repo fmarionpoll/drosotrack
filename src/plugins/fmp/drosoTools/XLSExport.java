@@ -1,6 +1,7 @@
 package plugins.fmp.drosoTools;
 
 import java.awt.Point;
+import java.io.File;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.text.SimpleDateFormat;
@@ -174,7 +175,7 @@ public class XLSExport {
 	
 	protected String getShortenedName(SequenceVirtual seq, int t) {
 		String cs = seq.getFileName(t);
-		return cs.substring(cs.lastIndexOf("\\") + 1) ;
+		return cs.substring(cs.lastIndexOf(File.separator) + 1) ;
 	}
 
 	protected void xlsCreatePivotTable(XSSFWorkbook workBook, String workBookName, String fromWorkbook, DataConsolidateFunction function) {

@@ -10,6 +10,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
+import java.io.File;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -817,7 +818,7 @@ public class Drosotrack extends PluginActionable implements ActionListener, View
 			endFrameTextField.setText( Integer.toString(endFrame));
 			updateButtonsVisibility(EnumStateD.INIT);
 			
-			cageRoisOpen(path+"\\drosotrack.xml");
+			cageRoisOpen(path+File.separator+"drosotrack.xml");
 		}
 	}
 

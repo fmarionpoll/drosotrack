@@ -3,6 +3,7 @@ package plugins.fmp.capillarytrack;
 import java.awt.GridLayout;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
+import java.io.File;
 
 import javax.swing.JPanel;
 import javax.swing.JTabbedPane;
@@ -94,9 +95,9 @@ public class CapillariesPane extends JPanel implements PropertyChangeListener {
 	
 	public boolean loadDefaultCapillaries() {
 		String path = parent0.vSequence.getDirectory();
-		boolean flag = fileTab.capillaryRoisOpen(path+"\\capillarytrack.xml");
+		boolean flag = fileTab.capillaryRoisOpen(path+File.separator+"capillarytrack.xml");
 		if (!flag)
-			flag = fileTab.capillaryRoisOpen(path+"\\roislines.xml");
+			flag = fileTab.capillaryRoisOpen(path+File.separator+"roislines.xml");
 		if (flag)
 			UpdateInfosFromSequence();
 		// TODO update measure from to, etc (see "ROIS_OPEN")
