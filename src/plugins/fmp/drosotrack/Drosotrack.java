@@ -761,8 +761,8 @@ public class Drosotrack extends PluginActionable implements ActionListener, View
 			
 			for (int iroi=0; iroi < nrois; iroi++) {
 
-				Point2D mousePosition = points2D_rois_then_t_ListArray.get(iroi).get(it);
-				double distance = mousePosition.distance(points2D_rois_then_t_ListArray.get(iroi).get(it-1)); 
+				Point2D mousePosition = points2D_rois_then_t_ListArray.get(iroi).get(it+1);
+				double distance = mousePosition.distance(points2D_rois_then_t_ListArray.get(iroi).get(it)); 
 				XLSUtil.setCellNumber( distancePage, icol0 , irow , distance ); 
 				icol0++;
 
