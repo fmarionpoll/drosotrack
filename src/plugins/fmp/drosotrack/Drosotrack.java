@@ -117,7 +117,7 @@ public class Drosotrack extends PluginActionable implements ActionListener, View
 
 	//------------------------------------------- global variables
 
-	private SequenceVirtual vSequence 	= null;
+	private SequenceVirtual vSequence 		= null;
 	private Timer 		checkBufferTimer 	= new Timer(1000, this);
 	private EnumStateD state = EnumStateD.NORMAL;
 
@@ -230,7 +230,7 @@ public class Drosotrack extends PluginActionable implements ActionListener, View
 		videochannel.setHorizontalAlignment(SwingConstants.RIGHT);
 		detectPanel.add( GuiUtil.besidesPanel( videochannel, colorChannelComboBox));
 		colorChannelComboBox.setSelectedIndex(1);
-		JLabel backgroundsubtraction = new JLabel("background substraction ");
+		JLabel backgroundsubtraction = new JLabel("background subtraction ");
 		backgroundsubtraction.setHorizontalAlignment(SwingConstants.RIGHT);
 		detectPanel.add( GuiUtil.besidesPanel(backgroundsubtraction, backgroundComboBox));
 		JLabel thresholdLabel = new JLabel("detect threshold ");
