@@ -5,6 +5,8 @@ import java.util.ArrayList;
 
 import plugins.fmp.drosoTools.ImageTransformTools.TransformOp;
 
+
+
 public class ImageOperationsStruct {
 	
 	int 				fromFrame		= -1;

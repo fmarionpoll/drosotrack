@@ -16,10 +16,12 @@ import javax.swing.JCheckBox;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 
-import icy.gui.util.GuiUtil;
-import org.apache.poi.ss.usermodel.*;
+import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.xssf.usermodel.XSSFRow;
 import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+
+import icy.gui.util.GuiUtil;
 
 import plugins.fmp.drosoSequence.SequencePlus;
 import plugins.fmp.drosoTools.EnumArrayListType;
@@ -91,7 +93,7 @@ public class ResultsTab_Excel extends JPanel implements ActionListener  {
 		
 		try { 
 			XSSFWorkbook workbook = new XSSFWorkbook(); 
-			workbook.setMissingCellPolicy(Row.MissingCellPolicy.CREATE_NULL_AS_BLANK);
+			workbook.setMissingCellPolicy(XSSFRow.MissingCellPolicy.CREATE_NULL_AS_BLANK);
 
 			if (topLevelCheckBox.isSelected()) 
 				xlsExportToWorkbook(workbook, "toplevel", EnumXLSExportItems.TOPLEVEL);
@@ -317,17 +319,17 @@ public class ResultsTab_Excel extends JPanel implements ActionListener  {
 	}
 	
 	private Cell getCell (XSSFSheet sheet, int rownum, int colnum) {
-		Row row = getRow(sheet, rownum);
+		XSSFRow row = getRow(sheet, rownum);
 		Cell cell = getCol (row, colnum);
 		return cell;
 	}
-	private Row getRow (XSSFSheet sheet, int rownum) {
-		Row row = sheet.getRow(rownum);
+	private XSSFRow getRow (XSSFSheet sheet, int rownum) {
+		XSSFRow row = sheet.getRow(rownum);
 		if (row == null)
 			row = sheet.createRow(rownum);
 		return row;
 	}
-	private Cell getCol (Row row, int cellnum) {
+	private Cell getCol (XSSFRow row, int cellnum) {
 		Cell cell = row.getCell(cellnum);
 		if (cell == null)
 			cell = row.createCell(cellnum);

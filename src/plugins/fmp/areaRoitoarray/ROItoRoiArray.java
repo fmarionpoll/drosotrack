@@ -49,10 +49,12 @@ import plugins.adufour.ezplug.EzVarInteger;
 import plugins.adufour.ezplug.EzVarListener;
 import plugins.adufour.ezplug.EzVarSequence;
 import plugins.adufour.ezplug.EzVarText;
+
 import plugins.fmp.drosoSequence.SequenceVirtual;
 import plugins.fmp.drosoTools.OverlayThreshold;
 import plugins.fmp.drosoTools.DrosoTools;
 import plugins.fmp.drosoTools.ImageTransformTools.TransformOp;
+
 import plugins.kernel.roi.roi2d.ROI2DLine;
 import plugins.kernel.roi.roi2d.ROI2DPolygon;
 import plugins.kernel.roi.roi2d.ROI2DEllipse;
@@ -60,6 +62,7 @@ import plugins.kernel.roi.roi2d.ROI2DEllipse;
 public class ROItoRoiArray extends EzPlug implements ViewerListener {
 
 	// -------------------------------------- interface 
+	
 	EzButton		openFileButton;
 	EzVarSequence   sequence = new EzVarSequence("Select data from");
 	EzVarText		rootnameComboBox;
