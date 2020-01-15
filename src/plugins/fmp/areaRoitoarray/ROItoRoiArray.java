@@ -57,7 +57,7 @@ import plugins.adufour.ezplug.EzVarText;
 import plugins.fmp.drosoSequence.SequenceVirtual;
 import plugins.fmp.drosoTools.OverlayThreshold;
 import plugins.fmp.drosoTools.DrosoTools;
-import plugins.fmp.drosoTools.EnumImageTransformOp;
+import plugins.fmp.drosoTools.EnumImageOp;
 
 
 public class ROItoRoiArray extends EzPlug implements ViewerListener {
@@ -78,7 +78,7 @@ public class ROItoRoiArray extends EzPlug implements ViewerListener {
 	EzVarText 		thresholdSTDFromChanComboBox;
 	EzButton		adjustAndCenterEllipsesButton;
 	EzVarBoolean 	overlayCheckBox;
-	EzVarEnum<EnumImageTransformOp> filterComboBox;
+	EzVarEnum<EnumImageOp> filterComboBox;
 	EzVarInteger 	thresholdOv;
 	EzVarInteger 	thresholdSTD;
 	EzButton		openXMLButton;
@@ -137,10 +137,10 @@ public class ROItoRoiArray extends EzPlug implements ViewerListener {
              public void variableChanged(EzVar<Boolean> source, Boolean newValue) {displayOverlay(newValue);}
          });
 
-		filterComboBox = new EzVarEnum <EnumImageTransformOp>("Filter as ", EnumImageTransformOp.values(), 7);
-		filterComboBox.addVarChangeListener(new EzVarListener<EnumImageTransformOp>() {
+		filterComboBox = new EzVarEnum <EnumImageOp>("Filter as ", EnumImageOp.values(), 7);
+		filterComboBox.addVarChangeListener(new EzVarListener<EnumImageOp>() {
 			@Override
-			public void variableChanged(EzVar<EnumImageTransformOp> source, EnumImageTransformOp newOp) {
+			public void variableChanged(EzVar<EnumImageOp> source, EnumImageOp newOp) {
 				updateOverlay();
 				}
 		});
@@ -929,7 +929,7 @@ public class ROItoRoiArray extends EzPlug implements ViewerListener {
 			thresholdOverlay = new OverlayThreshold(vSequence);
 			vSequence.addOverlay(thresholdOverlay);
 		}
-		EnumImageTransformOp transformop = filterComboBox.getValue();
+		EnumImageOp transformop = filterComboBox.getValue();
 
 		thresholdOverlay.setSequence (vSequence);
 		thresholdOverlay.setTransform(transformop);

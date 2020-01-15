@@ -22,14 +22,14 @@ import plugins.fmp.drosoSequence.SequenceVirtual;
 import plugins.fmp.drosoTools.EnumThresholdType;
 import plugins.fmp.drosoTools.ImageOperations;
 import plugins.fmp.drosoTools.DrosoTools;
-import plugins.fmp.drosoTools.EnumImageTransformOp;
+import plugins.fmp.drosoTools.EnumImageOp;
 
 
 
 
 public class AreaAnalysisThread extends Thread {
 	
-	private EnumImageTransformOp transformop;
+	private EnumImageOp transformop;
 	SequenceVirtual vSequence = null;
 	private ArrayList<ROI2D> roiList = null;
 
@@ -62,7 +62,7 @@ public class AreaAnalysisThread extends Thread {
 			ArrayList<ROI2D> roiList, 
 			int startFrame, 
 			int endFrame, 
-			EnumImageTransformOp transf, 
+			EnumImageOp transf, 
 			int thresholdForSurface,
 			int thresholdForHeatMap, 
 			boolean measureROIsEvolution, 
@@ -84,7 +84,7 @@ public class AreaAnalysisThread extends Thread {
 			imgOp1.setThresholdSingle(thresholdForSurface);
 		
 		imgOp2 = new ImageOperations (virtualSequence);
-		imgOp2.setTransform(EnumImageTransformOp.REF_PREVIOUS);
+		imgOp2.setTransform(EnumImageOp.REF_PREVIOUS);
 		imgOp2.setThresholdSingle(thresholdForHeatMap);
 				
 		IcyBufferedImage image = vSequence.loadVImage(vSequence.currentFrame);

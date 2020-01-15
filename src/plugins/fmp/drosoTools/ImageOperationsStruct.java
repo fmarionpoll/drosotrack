@@ -13,26 +13,26 @@ public class ImageOperationsStruct {
 	int					simplethreshold = 255;
 	int 				colorthreshold	= 0;
 	ArrayList <Color> 	colorarray 		= null;
-	EnumImageTransformOp 	transformop		= EnumImageTransformOp.NONE;
+	EnumImageOp 	transformop		= EnumImageOp.NONE;
 	EnumThresholdType 		thresholdtype 	= EnumThresholdType.NONE;
 		
 	// -----------------------------------
 	
 	public ImageOperationsStruct () {
 		this.fromFrame = -1;
-		this.transformop = EnumImageTransformOp.NONE;
+		this.transformop = EnumImageOp.NONE;
 		this.thresholdtype = EnumThresholdType.NONE;
 		this.colorthreshold = 0;
 	}
 	
-	public ImageOperationsStruct (int framenumber, EnumImageTransformOp transformop, EnumThresholdType thresholdtype, int thresholdvalue) {
+	public ImageOperationsStruct (int framenumber, EnumImageOp transformop, EnumThresholdType thresholdtype, int thresholdvalue) {
 		this.fromFrame = framenumber;
 		this.transformop = transformop;
 		this.thresholdtype = thresholdtype;
 		this.colorthreshold = thresholdvalue;
 	}
 	
-	public ImageOperationsStruct (int framenumber, EnumImageTransformOp transformop) {
+	public ImageOperationsStruct (int framenumber, EnumImageOp transformop) {
 		this.fromFrame = framenumber;
 		this.transformop = transformop;
 		this.thresholdtype = EnumThresholdType.NONE;

@@ -69,7 +69,7 @@ import plugins.fmp.drosoSequence.SequenceVirtual;
 import plugins.fmp.drosoTools.EnumStateD;
 import plugins.fmp.drosoTools.OverlayThreshold;
 import plugins.fmp.drosoTools.DrosoTools;
-import plugins.fmp.drosoTools.EnumImageTransformOp;
+import plugins.fmp.drosoTools.EnumImageOp;
 import plugins.kernel.roi.roi2d.ROI2DArea;
 import plugins.kernel.roi.roi2d.ROI2DPolygon;
 import plugins.kernel.roi.roi2d.ROI2DRectangle;
@@ -100,8 +100,8 @@ public class Drosotrack extends PluginActionable implements ActionListener, View
 	private JTextField endFrameTextField	= new JTextField("99999999");
 
 	private JComboBox<String> colorChannelComboBox = new JComboBox<String> (new String[] {"Red", "Green", "Blue"});
-	private JComboBox<EnumImageTransformOp> backgroundComboBox = new JComboBox<> (new EnumImageTransformOp[]  
-			{EnumImageTransformOp.NONE, EnumImageTransformOp.REF_PREVIOUS, EnumImageTransformOp.REF_T0});
+	private JComboBox<EnumImageOp> backgroundComboBox = new JComboBox<> (new EnumImageOp[]  
+			{EnumImageOp.NONE, EnumImageOp.REF_PREVIOUS, EnumImageOp.REF_T0});
 	private JSpinner thresholdSpinner		= new JSpinner(new SpinnerNumberModel(100, 0, 255, 10));
 	private JTextField jitterTextField 		= new JTextField("5");
 	private JTextField analyzeStepTextField = new JTextField("1");
@@ -875,7 +875,7 @@ public class Drosotrack extends PluginActionable implements ActionListener, View
 			ov.setSequence(vSequence);
 		}
 		vSequence.addOverlay(ov);	
-		ov.setTransform((EnumImageTransformOp) backgroundComboBox.getSelectedItem());
+		ov.setTransform((EnumImageOp) backgroundComboBox.getSelectedItem());
 		ov.setThresholdSingle(threshold);
 		if (ov != null) {
 			ov.painterChanged();
@@ -1040,7 +1040,7 @@ public class Drosotrack extends PluginActionable implements ActionListener, View
 			// create array for the results - 1 point = 1 slice
 			ROI [][] resultFlyPositionArrayList = new ROI[nbframes][nbcages];
 			int lastFrameAnalyzed = endFrame;
-			EnumImageTransformOp transformop = (EnumImageTransformOp) backgroundComboBox.getSelectedItem();
+			EnumImageOp transformop = (EnumImageOp) backgroundComboBox.getSelectedItem();
 
 			try {
 				final Viewer v = Icy.getMainInterface().getFirstViewer(vSequence);	

@@ -24,7 +24,7 @@ import icy.sequence.SequenceEvent.SequenceEventType;
 import icy.type.geom.Polyline2D;
 import icy.util.XMLUtil;
 import plugins.fmp.drosoTools.EnumArrayListType;
-import plugins.fmp.drosoTools.EnumImageTransformOp;
+import plugins.fmp.drosoTools.EnumImageOp;
 import plugins.fmp.drosoTools.OverlayThreshold;
 import plugins.fmp.drosoTools.OverlayTrapMouse;
 import plugins.fmp.drosoTools.DrosoTools;
@@ -42,8 +42,8 @@ public class SequencePlus extends SequenceVirtual  {
 	public 	int 			direction 				= 0;
 	public 	int				detectLevelThreshold 	= 35;
 	public 	int 			detectGulpsThreshold 	= 90;
-	public	EnumImageTransformOp		transformForLevels 		= EnumImageTransformOp.R2MINUS_GB;
-	public	EnumImageTransformOp 	transformForGulps 		= EnumImageTransformOp.XDIFFN;
+	public	EnumImageOp		transformForLevels 		= EnumImageOp.R2MINUS_GB;
+	public	EnumImageOp 	transformForGulps 		= EnumImageOp.XDIFFN;
 	
 	public 	LocalDateTime	startDate				= null;
 	public 	LocalDateTime	endDate					= null;
@@ -265,12 +265,12 @@ public class SequencePlus extends SequenceVirtual  {
 		bStatusChanged = XMLUtil.getElementBooleanValue(myNode, "bStatusChanged", false);
 
 		int dummy = XMLUtil.getElementIntValue(myNode, "transformForLevels", 0);
-		transformForLevels = EnumImageTransformOp.values()[dummy];
+		transformForLevels = EnumImageOp.values()[dummy];
 		direction = XMLUtil.getElementIntValue(myNode, "direction", 0);
 		detectLevelThreshold = XMLUtil.getElementIntValue(myNode, "detectLevelThreshold", 35);
 		detectGulpsThreshold = XMLUtil.getElementIntValue(myNode, "detectGulpsThreshold", 75);
 		int dummy2 = XMLUtil.getElementIntValue(myNode, "transformForGulps", 3);
-		transformForGulps = EnumImageTransformOp.values()[dummy2];
+		transformForGulps = EnumImageOp.values()[dummy2];
 		
 		analysisStart = XMLUtil.getElementIntValue(myNode, "analysisStart", 0);
 		analysisEnd = XMLUtil.getElementIntValue(myNode, "analysisEnd", -1);
@@ -342,13 +342,13 @@ public class SequencePlus extends SequenceVirtual  {
 		}
 	}
 	
-	public void setThresholdOverlayParametersSingle(EnumImageTransformOp transf, int threshold) {
+	public void setThresholdOverlayParametersSingle(EnumImageOp transf, int threshold) {
 		thresholdOverlay.setTransform(transf);
 		thresholdOverlay.setThresholdSingle(threshold);
 		thresholdOverlay.painterChanged();
 	}
 	
-	public void setThresholdOverlayParametersColors(EnumImageTransformOp transf, ArrayList <Color> colorarray, int colordistancetype, int colorthreshold) {
+	public void setThresholdOverlayParametersColors(EnumImageOp transf, ArrayList <Color> colorarray, int colordistancetype, int colorthreshold) {
 		thresholdOverlay.setTransform(transf);
 		thresholdOverlay.setThresholdColor(colorarray, colordistancetype, colorthreshold);
 		thresholdOverlay.painterChanged();

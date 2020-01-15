@@ -16,7 +16,7 @@ import javax.swing.SwingConstants;
 import icy.gui.frame.progress.AnnounceFrame;
 import icy.gui.util.GuiUtil;
 import plugins.fmp.drosoTools.DrosoTools;
-import plugins.fmp.drosoTools.EnumImageTransformOp;
+import plugins.fmp.drosoTools.EnumImageOp;
 
 
 
@@ -31,8 +31,8 @@ public class DetectTab_Gulps  extends JPanel implements ActionListener {
 	private JTextField	spanTransf2TextField	= new JTextField("3");
 	public JTextField 	detectGulpsThresholdTextField 	= new JTextField("90");
 	private JButton 	detectGulpsButton 		= new JButton("Detect");
-	public JComboBox<EnumImageTransformOp> transformForGulpsComboBox = new JComboBox<EnumImageTransformOp> (new EnumImageTransformOp[] {
-			EnumImageTransformOp.XDIFFN /*, TransformOp.YDIFFN, TransformOp.XYDIFFN	*/});
+	public JComboBox<EnumImageOp> transformForGulpsComboBox = new JComboBox<EnumImageOp> (new EnumImageOp[] {
+			EnumImageOp.XDIFFN /*, TransformOp.YDIFFN, TransformOp.XYDIFFN	*/});
 	private	int	spanDiffTransf2 			= 3;
 	private double detectGulpsThreshold 	= 5.;
 	private Capillarytrack parent0;
@@ -44,7 +44,7 @@ public class DetectTab_Gulps  extends JPanel implements ActionListener {
 		add( GuiUtil.besidesPanel( new JLabel(" "), detectAllGulpsCheckBox, new JLabel("span ", SwingConstants.RIGHT), spanTransf2TextField));
 		add( GuiUtil.besidesPanel( detectGulpsButton,new JLabel(" ") ));
 
-		transformForGulpsComboBox.setSelectedItem(EnumImageTransformOp.XDIFFN);
+		transformForGulpsComboBox.setSelectedItem(EnumImageOp.XDIFFN);
 		defineActionListeners();
 	}
 	
@@ -94,7 +94,7 @@ public class DetectTab_Gulps  extends JPanel implements ActionListener {
 		if (parent0.kymographArrayList == null)
 			return;
 		Collections.sort(parent0.kymographArrayList, new DrosoTools.SequenceNameComparator()); 
-		EnumImageTransformOp transform= (EnumImageTransformOp) transformForGulpsComboBox.getSelectedItem();
+		EnumImageOp transform= (EnumImageOp) transformForGulpsComboBox.getSelectedItem();
 		parent0.detectPane.kymosBuildFiltered(0, 2, transform, spanDiffTransf2);
 	}
 

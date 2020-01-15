@@ -24,7 +24,7 @@ public class ImageOperations {
 		imgTransf.setSequence(seq);
 	}
 	
-	public void setTransform (EnumImageTransformOp transformop) {
+	public void setTransform (EnumImageOp transformop) {
 		opTransf.transformop = transformop;
 	}
 	

@@ -16,7 +16,7 @@ import javax.swing.SwingConstants;
 import icy.gui.frame.progress.AnnounceFrame;
 import icy.gui.util.GuiUtil;
 import plugins.fmp.drosoTools.DrosoTools;
-import plugins.fmp.drosoTools.EnumImageTransformOp;
+import plugins.fmp.drosoTools.EnumImageOp;
 
 
 
@@ -30,11 +30,11 @@ public class DetectTab_Limits  extends JPanel implements ActionListener {
 	public JComboBox<String> directionComboBox = new JComboBox<String> (new String[] {" threshold >", " threshold <" });
 	public JCheckBox	detectAllLevelCheckBox 	= new JCheckBox ("all", true);
 	public JTextField 	detectTopTextField 		= new JTextField("35");
-	public JComboBox<EnumImageTransformOp> transformForLevelsComboBox = new JComboBox<EnumImageTransformOp> (new EnumImageTransformOp[] {
-			EnumImageTransformOp.R_RGB, EnumImageTransformOp.G_RGB, EnumImageTransformOp.B_RGB, 
-			EnumImageTransformOp.R2MINUS_GB, EnumImageTransformOp.G2MINUS_RB, EnumImageTransformOp.B2MINUS_RG, EnumImageTransformOp.RGB,
-			EnumImageTransformOp.GBMINUS_2R, EnumImageTransformOp.RBMINUS_2G, EnumImageTransformOp.RGMINUS_2B, 
-			EnumImageTransformOp.H_HSB, EnumImageTransformOp.S_HSB, EnumImageTransformOp.B_HSB	});
+	public JComboBox<EnumImageOp> transformForLevelsComboBox = new JComboBox<EnumImageOp> (new EnumImageOp[] {
+			EnumImageOp.R_RGB, EnumImageOp.G_RGB, EnumImageOp.B_RGB, 
+			EnumImageOp.R2MINUS_GB, EnumImageOp.G2MINUS_RB, EnumImageOp.B2MINUS_RG, EnumImageOp.RGB,
+			EnumImageOp.GBMINUS_2R, EnumImageOp.RBMINUS_2G, EnumImageOp.RGMINUS_2B, 
+			EnumImageOp.H_HSB, EnumImageOp.S_HSB, EnumImageOp.B_HSB	});
 	private JButton		displayTransform1Button	= new JButton("Display");
 	private JTextField	spanTopTextField		= new JTextField("3");
 	public JButton 		detectTopButton 		= new JButton("Detect");
@@ -113,7 +113,7 @@ public class DetectTab_Limits  extends JPanel implements ActionListener {
 		if (parent0.kymographArrayList == null)
 			return;
 		Collections.sort(parent0.kymographArrayList, new DrosoTools.SequenceNameComparator()); 
-		EnumImageTransformOp transform= (EnumImageTransformOp) transformForLevelsComboBox.getSelectedItem();
+		EnumImageOp transform= (EnumImageOp) transformForLevelsComboBox.getSelectedItem();
 		parent0.detectPane.kymosBuildFiltered(0, 1, transform, getSpanDiffTop());
 	}
 }

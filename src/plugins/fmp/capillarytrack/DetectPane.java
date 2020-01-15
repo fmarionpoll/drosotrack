@@ -13,7 +13,7 @@ import javax.swing.event.ChangeListener;
 import icy.gui.util.GuiUtil;
 import icy.image.IcyBufferedImage;
 import plugins.fmp.drosoSequence.SequencePlus;
-import plugins.fmp.drosoTools.EnumImageTransformOp;
+import plugins.fmp.drosoTools.EnumImageOp;
 import plugins.fmp.drosoTools.EnumStatusPane;
 import plugins.fmp.drosoTools.ImageTransformTools;
 
@@ -31,14 +31,14 @@ public class DetectPane extends JPanel implements PropertyChangeListener, Change
 	public DetectTab_Gulps gulpsTab 		= new DetectTab_Gulps();
 	public DetectTab_File fileTab 			= new DetectTab_File();
 	
-	public EnumImageTransformOp simpletransformop 	= EnumImageTransformOp.R2MINUS_GB;
+	public EnumImageOp simpletransformop 	= EnumImageOp.R2MINUS_GB;
 	public int simplethreshold 				= 20;
 	
-	public JComboBox<EnumImageTransformOp> transformsComboBox = new JComboBox<EnumImageTransformOp> (new EnumImageTransformOp[] {
-			EnumImageTransformOp.R_RGB, EnumImageTransformOp.G_RGB, EnumImageTransformOp.B_RGB, 
-			EnumImageTransformOp.R2MINUS_GB, EnumImageTransformOp.G2MINUS_RB, EnumImageTransformOp.B2MINUS_RG, 
-			EnumImageTransformOp.NORM_BRMINUSG, EnumImageTransformOp.RGB,
-			EnumImageTransformOp.H_HSB, EnumImageTransformOp.S_HSB, EnumImageTransformOp.B_HSB	});
+	public JComboBox<EnumImageOp> transformsComboBox = new JComboBox<EnumImageOp> (new EnumImageOp[] {
+			EnumImageOp.R_RGB, EnumImageOp.G_RGB, EnumImageOp.B_RGB, 
+			EnumImageOp.R2MINUS_GB, EnumImageOp.G2MINUS_RB, EnumImageOp.B2MINUS_RG, 
+			EnumImageOp.NORM_BRMINUSG, EnumImageOp.RGB,
+			EnumImageOp.H_HSB, EnumImageOp.S_HSB, EnumImageOp.B_HSB	});
 
 	ImageTransformTools tImg = null;
 	Capillarytrack parent0 = null;
@@ -70,7 +70,7 @@ public class DetectPane extends JPanel implements PropertyChangeListener, Change
 		tabsPane.setTabLayoutPolicy(JTabbedPane.SCROLL_TAB_LAYOUT);
 		panel.add(GuiUtil.besidesPanel(tabsPane));
 	
-		limitsTab.transformForLevelsComboBox.setSelectedItem(EnumImageTransformOp.G2MINUS_RB);
+		limitsTab.transformForLevelsComboBox.setSelectedItem(EnumImageOp.G2MINUS_RB);
 		tabsPane.setSelectedIndex(0);
 	}
 	
@@ -126,7 +126,7 @@ public class DetectPane extends JPanel implements PropertyChangeListener, Change
 			colorsTab.colorsUpdateThresholdOverlayParameters();
 	}
 	
-	public void kymosBuildFiltered(int zChannelSource, int zChannelDestination, EnumImageTransformOp transformop, int spanDiff) {
+	public void kymosBuildFiltered(int zChannelSource, int zChannelDestination, EnumImageOp transformop, int spanDiff) {
 
 		if (tImg == null) 
 			tImg = new ImageTransformTools();
@@ -138,7 +138,7 @@ public class DetectPane extends JPanel implements PropertyChangeListener, Change
 			tImg.setSequence(kSeq);
 			IcyBufferedImage img = kSeq.getImage(0, zChannelSource);
 			IcyBufferedImage img2 = tImg.transformImage (img, transformop);
-			img2 = tImg.transformImage(img2, EnumImageTransformOp.RTOGB);
+			img2 = tImg.transformImage(img2, EnumImageOp.RTOGB);
 			
 			if (kSeq.getSizeZ(0) < (zChannelDestination+1)) 
 				kSeq.addImage(img2);

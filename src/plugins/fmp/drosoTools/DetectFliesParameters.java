@@ -18,7 +18,7 @@ public class DetectFliesParameters implements XMLPersistent {
 	public int  	limitLow;
 	public int  	limitUp;
 	public int 		jitter = 10;
-	public EnumImageTransformOp imageOp; 
+	public EnumImageOp imageOp; 
 	public long 	analysisStart = 0;
 	public long 	analysisEnd = 0;
 	public int 		analysisStep = 1;
@@ -42,7 +42,7 @@ public class DetectFliesParameters implements XMLPersistent {
 		limitUp =  XMLUtil.getElementIntValue(xmlVal, "limitUp", -1);
 		jitter =  XMLUtil.getElementIntValue(xmlVal, "jitter", 10); 
 		String op = XMLUtil.getElementValue(xmlVal, "transformOp", null);
-		imageOp = EnumImageTransformOp.findByText(op);
+		imageOp = EnumImageOp.findByText(op);
 		analysisStart =  XMLUtil.getAttributeLongValue(xmlVal, "start", 0);
 		analysisEnd = XMLUtil.getAttributeLongValue(xmlVal, "end", 0);
 		analysisStep = XMLUtil.getAttributeIntValue(xmlVal, "step", 1);

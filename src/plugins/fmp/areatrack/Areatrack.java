@@ -77,7 +77,7 @@ import plugins.fmp.drosoSequence.SequencePlus;
 import plugins.fmp.drosoTools.ComboBoxColorRenderer;
 import plugins.fmp.drosoTools.EnumThresholdType;
 import plugins.fmp.drosoTools.DrosoTools;
-import plugins.fmp.drosoTools.EnumImageTransformOp;
+import plugins.fmp.drosoTools.EnumImageOp;
 import plugins.fmp.areatrack.AreaAnalysisThread;
 
 
@@ -104,10 +104,10 @@ public class Areatrack extends PluginActionable implements ActionListener, Chang
 	private JTextField 	startFrameTextField	= new JTextField("0");
 	private JTextField 	endFrameTextField	= new JTextField("99999999");
 	
-	private JComboBox<EnumImageTransformOp> transformsComboBox = new JComboBox<EnumImageTransformOp> (new EnumImageTransformOp[] {
-					EnumImageTransformOp.R_RGB, EnumImageTransformOp.G_RGB, EnumImageTransformOp.B_RGB, 
-					EnumImageTransformOp.R2MINUS_GB, EnumImageTransformOp.G2MINUS_RB, EnumImageTransformOp.B2MINUS_RG, EnumImageTransformOp.NORM_BRMINUSG, EnumImageTransformOp.RGB,
-					EnumImageTransformOp.H_HSB, EnumImageTransformOp.S_HSB, EnumImageTransformOp.B_HSB	});
+	private JComboBox<EnumImageOp> transformsComboBox = new JComboBox<EnumImageOp> (new EnumImageOp[] {
+					EnumImageOp.R_RGB, EnumImageOp.G_RGB, EnumImageOp.B_RGB, 
+					EnumImageOp.R2MINUS_GB, EnumImageOp.G2MINUS_RB, EnumImageOp.B2MINUS_RG, EnumImageOp.NORM_BRMINUSG, EnumImageOp.RGB,
+					EnumImageOp.H_HSB, EnumImageOp.S_HSB, EnumImageOp.B_HSB	});
 	private JSpinner 	thresholdSpinner	= new JSpinner(new SpinnerNumberModel(70, 0, 255, 5));
 	private JLabel 		videochannel 		= new JLabel("filter  ");
 	private JLabel 		thresholdLabel 		= new JLabel("threshold ");
@@ -154,10 +154,10 @@ public class Areatrack extends PluginActionable implements ActionListener, Chang
 	// parameters saved/read in xml file
 	private EnumThresholdType thresholdtype 	= EnumThresholdType.COLORARRAY; 
 	// simple
-	private EnumImageTransformOp simpletransformop 	= EnumImageTransformOp.R2MINUS_GB;
+	private EnumImageOp simpletransformop 	= EnumImageOp.R2MINUS_GB;
 	private int 		simplethreshold 	= 20;
 	// colors
-	private EnumImageTransformOp colortransformop 	= EnumImageTransformOp.NONE;
+	private EnumImageOp colortransformop 	= EnumImageOp.NONE;
 	private int 		colordistanceType 	= 0;
 	private int 		colorthreshold 		= 20;
 	private ArrayList <Color> colorarray 	= new ArrayList <Color>();
@@ -352,8 +352,8 @@ public class Areatrack extends PluginActionable implements ActionListener, Chang
 		rbFilterbyColor.setSelected(true);
 		rbL1.setSelected(true);
 		rbRGB.setSelected(true);
-		colortransformop = EnumImageTransformOp.NONE;
-		transformsComboBox.setSelectedIndex(EnumImageTransformOp.B2MINUS_RG.ordinal());
+		colortransformop = EnumImageOp.NONE;
+		transformsComboBox.setSelectedIndex(EnumImageOp.B2MINUS_RG.ordinal());
 		filterComboBox.setSelectedIndex(0);
 	}
 
@@ -376,17 +376,17 @@ public class Areatrack extends PluginActionable implements ActionListener, Chang
 			} } );
 		
 		rbRGB.addActionListener(new ActionListener () { @Override public void actionPerformed( final ActionEvent e ) { 
-				colortransformop = EnumImageTransformOp.NONE;
+				colortransformop = EnumImageOp.NONE;
 				updateThresholdOverlayParameters();
 			} } );
 		
 		rbHSV.addActionListener(new ActionListener () { @Override public void actionPerformed( final ActionEvent e ) { 
-				colortransformop = EnumImageTransformOp.RGB_TO_HSV;
+				colortransformop = EnumImageOp.RGB_TO_HSV;
 				updateThresholdOverlayParameters();
 			} } );
 		
 		rbH1H2H3.addActionListener(new ActionListener () { @Override public void actionPerformed( final ActionEvent e ) { 
-				colortransformop = EnumImageTransformOp.RGB_TO_H1H2H3;
+				colortransformop = EnumImageOp.RGB_TO_H1H2H3;
 				updateThresholdOverlayParameters();
 			} } );
 		
@@ -620,11 +620,11 @@ public class Areatrack extends PluginActionable implements ActionListener, Chang
 		
 		xmlVal = XMLUtil.getElement(xmlElement, "colortransformop");	
 		String codestring = XMLUtil.getAttributeValue(xmlVal, "descriptor", "none");		
-		colortransformop = EnumImageTransformOp.findByText(codestring);
+		colortransformop = EnumImageOp.findByText(codestring);
 			
 		xmlVal = XMLUtil.getElement(xmlElement, "simpletransformop");
 		codestring = XMLUtil.getAttributeValue(xmlVal, "descriptor", "none");
-		simpletransformop = EnumImageTransformOp.findByText(codestring);
+		simpletransformop = EnumImageOp.findByText(codestring);
 
 		xmlVal = XMLUtil.getElement(xmlElement, "thresholdmovement");
 		thresholdmovement = XMLUtil.getAttributeIntValue(xmlVal, "value", 20);
@@ -727,9 +727,9 @@ public class Areatrack extends PluginActionable implements ActionListener, Chang
 		analyzeStep = Integer.parseInt( analyzeStepTextField.getText() );
 		vSequence.analysisStep = analyzeStep;
 		
-		EnumImageTransformOp transformop = EnumImageTransformOp.NONE;
+		EnumImageOp transformop = EnumImageOp.NONE;
 		if (rbFilterbyFunction.isSelected())
-			transformop = (EnumImageTransformOp) transformsComboBox.getSelectedItem();
+			transformop = (EnumImageOp) transformsComboBox.getSelectedItem();
 		int thresholdforsurface = Integer.parseInt(thresholdSpinner.getValue().toString());
 		int thresholdformovement = Integer.parseInt(threshold2Spinner.getValue().toString());
 		
@@ -791,7 +791,7 @@ public class Areatrack extends PluginActionable implements ActionListener, Chang
 		
 		boolean activateThreshold = true;
 		int thresholdForOverlay=0;
-		EnumImageTransformOp transformOpForOverlay = EnumImageTransformOp.NONE;
+		EnumImageOp transformOpForOverlay = EnumImageOp.NONE;
 		EnumThresholdType thresholdTypeForOverlay = EnumThresholdType.SINGLE;
 		
 		switch (tabbedPane.getSelectedIndex()) {
@@ -811,7 +811,7 @@ public class Areatrack extends PluginActionable implements ActionListener, Chang
 				break;
 				
 			case 1:	// simple filter & single threshold
-				simpletransformop = (EnumImageTransformOp) transformsComboBox.getSelectedItem();
+				simpletransformop = (EnumImageOp) transformsComboBox.getSelectedItem();
 				transformOpForOverlay = simpletransformop;
 				simplethreshold = Integer.parseInt(thresholdSpinner.getValue().toString());
 				thresholdForOverlay = simplethreshold; 
@@ -823,7 +823,7 @@ public class Areatrack extends PluginActionable implements ActionListener, Chang
 				thresholdmovement = Integer.parseInt(threshold2Spinner.getValue().toString());
 				thresholdForOverlay = thresholdmovement; 
 				thresholdTypeForOverlay = EnumThresholdType.SINGLE;
-				transformOpForOverlay = EnumImageTransformOp.REF_PREVIOUS;
+				transformOpForOverlay = EnumImageOp.REF_PREVIOUS;
 				break;
 			
 			case 3:	// nothing

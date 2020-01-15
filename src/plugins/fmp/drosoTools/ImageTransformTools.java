@@ -31,7 +31,7 @@ public class ImageTransformTools {
 		referenceImage = vinputSequence.loadVImage(0);
 	}
 		
-	public IcyBufferedImage transformImage (IcyBufferedImage inputImage, EnumImageTransformOp transformop) {
+	public IcyBufferedImage transformImage (IcyBufferedImage inputImage, EnumImageOp transformop) {
 		
 		IcyBufferedImage transformedImage = null;
 		
@@ -80,7 +80,7 @@ public class ImageTransformTools {
 		return transformedImage;
 	}
 	
-	public IcyBufferedImage transformImageFromVirtualSequence (int t, EnumImageTransformOp transformop) {
+	public IcyBufferedImage transformImageFromVirtualSequence (int t, EnumImageOp transformop) {
 		return transformImage(vinputSequence.loadVImage(t), transformop);
 	}
 		

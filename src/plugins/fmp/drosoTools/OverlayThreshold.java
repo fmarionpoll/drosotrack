@@ -43,7 +43,7 @@ public class OverlayThreshold extends Overlay
 		imgOp.setSequence(seq);
 	}
 	
-	public void setTransform (EnumImageTransformOp transf) {
+	public void setTransform (EnumImageOp transf) {
 		imgOp.setTransform( transf);
 	}
 	

@@ -2,7 +2,7 @@ package plugins.fmp.drosoTools;
 
 
 
-public enum EnumImageTransformOp { 
+public enum EnumImageOp { 
 	NONE("none"),
 	R_RGB("R(RGB)"), G_RGB("G(RGB)"), B_RGB("B(RGB)"),  
 	R2MINUS_GB ("2R-(G+B)"), G2MINUS_RB("2G-(R+B)"), B2MINUS_RG("2B-(R+G)"),
@@ -16,11 +16,11 @@ public enum EnumImageTransformOp {
 	RTOGB ("R to G&B") ;
 	
 	private String label;
-	EnumImageTransformOp (String label) { this.label = label; }
+	EnumImageOp (String label) { this.label = label; }
 	public String toString() { return label; }
 	
-	public static EnumImageTransformOp findByText(String abbr){
-	    for(EnumImageTransformOp v : values()){ if( v.toString().equals(abbr)) { return v; } }
+	public static EnumImageOp findByText(String abbr){
+	    for(EnumImageOp v : values()){ if( v.toString().equals(abbr)) { return v; } }
 	    return null;
 	}
 }
