@@ -5,7 +5,7 @@ import java.util.ArrayList;
 
 import icy.image.IcyBufferedImage;
 import plugins.fmp.drosoSequence.SequenceVirtual;
-import plugins.fmp.drosoTools.ImageTransformTools.TransformOp;
+
 
 public class ImageOperations {
 	
@@ -24,7 +24,7 @@ public class ImageOperations {
 		imgTransf.setSequence(seq);
 	}
 	
-	public void setTransform (TransformOp transformop) {
+	public void setTransform (EnumImageTransformOp transformop) {
 		opTransf.transformop = transformop;
 	}
 	

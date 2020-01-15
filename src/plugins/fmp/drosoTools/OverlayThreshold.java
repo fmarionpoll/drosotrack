@@ -14,7 +14,7 @@ import icy.image.IcyBufferedImageUtil;
 import icy.painter.Overlay;
 import icy.sequence.Sequence;
 import plugins.fmp.drosoSequence.SequenceVirtual;
-import plugins.fmp.drosoTools.ImageTransformTools.TransformOp;
+
 
 public class OverlayThreshold extends Overlay
 {
@@ -43,7 +43,7 @@ public class OverlayThreshold extends Overlay
 		imgOp.setSequence(seq);
 	}
 	
-	public void setTransform (TransformOp transf) {
+	public void setTransform (EnumImageTransformOp transf) {
 		imgOp.setTransform( transf);
 	}
 	

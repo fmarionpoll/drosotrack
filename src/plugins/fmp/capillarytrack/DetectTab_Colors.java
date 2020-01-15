@@ -24,8 +24,9 @@ import javax.swing.event.ChangeListener;
 import icy.gui.util.GuiUtil;
 import plugins.fmp.drosoSequence.SequencePlus;
 import plugins.fmp.drosoTools.ComboBoxColorRenderer;
+import plugins.fmp.drosoTools.EnumImageTransformOp;
 import plugins.fmp.drosoTools.EnumThresholdType;
-import plugins.fmp.drosoTools.ImageTransformTools.TransformOp;
+
 
 public class DetectTab_Colors  extends JPanel implements ActionListener, ChangeListener {
 
@@ -51,7 +52,7 @@ public class DetectTab_Colors  extends JPanel implements ActionListener, ChangeL
 	public JSpinner thresholdSpinner = new JSpinner(new SpinnerNumberModel(70, 0, 255, 5));
 //	private boolean 	thresholdOverlayON	= false;
 	public int colorthreshold 				= 20;
-	public TransformOp colortransformop 	= TransformOp.NONE;
+	public EnumImageTransformOp colortransformop 	= EnumImageTransformOp.NONE;
 	public int colordistanceType 			= 0;
 	public ArrayList <Color> colorarray 	= new ArrayList <Color>();
 	public EnumThresholdType thresholdtype = EnumThresholdType.COLORARRAY; 
@@ -83,7 +84,7 @@ public class DetectTab_Colors  extends JPanel implements ActionListener, ChangeL
 		rbRGB.setSelected(true);
 		rbL1.setSelected(true);
 		rbRGB.setSelected(true);
-		colortransformop = TransformOp.NONE;
+		colortransformop = EnumImageTransformOp.NONE;
 				
 		defineListeners();
 	}
@@ -100,17 +101,17 @@ public class DetectTab_Colors  extends JPanel implements ActionListener, ChangeL
 		} } );
 		
 		rbRGB.addActionListener(new ActionListener () { @Override public void actionPerformed( final ActionEvent e ) { 
-			colortransformop = TransformOp.NONE;
+			colortransformop = EnumImageTransformOp.NONE;
 			colorsUpdateThresholdOverlayParameters();
 		} } );
 	
 		rbHSV.addActionListener(new ActionListener () { @Override public void actionPerformed( final ActionEvent e ) { 
-				colortransformop = TransformOp.RGB_TO_HSV;
+				colortransformop = EnumImageTransformOp.RGB_TO_HSV;
 				colorsUpdateThresholdOverlayParameters();
 			} } );
 		
 		rbH1H2H3.addActionListener(new ActionListener () { @Override public void actionPerformed( final ActionEvent e ) { 
-				colortransformop = TransformOp.RGB_TO_H1H2H3;
+				colortransformop = EnumImageTransformOp.RGB_TO_H1H2H3;
 				colorsUpdateThresholdOverlayParameters();
 			} } );
 		
@@ -145,7 +146,7 @@ public class DetectTab_Colors  extends JPanel implements ActionListener, ChangeL
 		switch (parent.tabsPane.getSelectedIndex()) {
 				
 			case 0:	// simple filter & single threshold
-				parent.simpletransformop = (TransformOp) parent.transformsComboBox.getSelectedItem();
+				parent.simpletransformop = (EnumImageTransformOp) parent.transformsComboBox.getSelectedItem();
 				parent.simplethreshold = Integer.parseInt(thresholdSpinner.getValue().toString());
 				thresholdtype = EnumThresholdType.SINGLE;
 				break;
@@ -176,7 +177,7 @@ public class DetectTab_Colors  extends JPanel implements ActionListener, ChangeL
 		switch (parent.tabsPane.getSelectedIndex()) {
 		
 			case 0:	// simple filter & single threshold
-				parent.simpletransformop = (TransformOp) parent.transformsComboBox.getSelectedItem();
+				parent.simpletransformop = (EnumImageTransformOp) parent.transformsComboBox.getSelectedItem();
 				parent.simplethreshold = Integer.parseInt(thresholdSpinner.getValue().toString());
 				thresholdtype = EnumThresholdType.SINGLE;
 				break;

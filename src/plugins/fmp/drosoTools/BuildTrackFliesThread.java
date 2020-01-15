@@ -98,7 +98,7 @@ public class BuildTrackFliesThread implements Runnable {
 				progress.setMessage( "Processing: " + pos + " % - Elapsed time: " + nbSeconds + " s - Estimated time left: " + timeleft + " s");
 
 				// load next image and compute threshold
-				IcyBufferedImage workImage = vSequence.loadVImageAndSubtractReference(t, detect.transformop); 			
+				IcyBufferedImage workImage = vSequence.loadVImageAndSubtractReference(t, detect.imageOp); 			
 				vSequence.currentFrame = t;
 				v.setPositionT(t);
 				v.setTitle(vSequence.getDecoratedImageName(t));

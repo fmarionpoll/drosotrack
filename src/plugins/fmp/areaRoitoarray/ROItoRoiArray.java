@@ -23,6 +23,10 @@ import org.jfree.chart.plot.PlotOrientation;
 import org.jfree.data.xy.XYSeries;
 import org.jfree.data.xy.XYSeriesCollection;
 
+import plugins.kernel.roi.roi2d.ROI2DLine;
+import plugins.kernel.roi.roi2d.ROI2DPolygon;
+import plugins.kernel.roi.roi2d.ROI2DEllipse;
+
 import icy.gui.frame.IcyFrame;
 import icy.gui.frame.progress.AnnounceFrame;
 import icy.gui.util.GuiUtil;
@@ -53,11 +57,8 @@ import plugins.adufour.ezplug.EzVarText;
 import plugins.fmp.drosoSequence.SequenceVirtual;
 import plugins.fmp.drosoTools.OverlayThreshold;
 import plugins.fmp.drosoTools.DrosoTools;
-import plugins.fmp.drosoTools.ImageTransformTools.TransformOp;
+import plugins.fmp.drosoTools.EnumImageTransformOp;
 
-import plugins.kernel.roi.roi2d.ROI2DLine;
-import plugins.kernel.roi.roi2d.ROI2DPolygon;
-import plugins.kernel.roi.roi2d.ROI2DEllipse;
 
 public class ROItoRoiArray extends EzPlug implements ViewerListener {
 
@@ -77,7 +78,7 @@ public class ROItoRoiArray extends EzPlug implements ViewerListener {
 	EzVarText 		thresholdSTDFromChanComboBox;
 	EzButton		adjustAndCenterEllipsesButton;
 	EzVarBoolean 	overlayCheckBox;
-	EzVarEnum<TransformOp> filterComboBox;
+	EzVarEnum<EnumImageTransformOp> filterComboBox;
 	EzVarInteger 	thresholdOv;
 	EzVarInteger 	thresholdSTD;
 	EzButton		openXMLButton;
@@ -136,10 +137,10 @@ public class ROItoRoiArray extends EzPlug implements ViewerListener {
              public void variableChanged(EzVar<Boolean> source, Boolean newValue) {displayOverlay(newValue);}
          });
 
-		filterComboBox = new EzVarEnum <TransformOp>("Filter as ", TransformOp.values(), 7);
-		filterComboBox.addVarChangeListener(new EzVarListener<TransformOp>() {
+		filterComboBox = new EzVarEnum <EnumImageTransformOp>("Filter as ", EnumImageTransformOp.values(), 7);
+		filterComboBox.addVarChangeListener(new EzVarListener<EnumImageTransformOp>() {
 			@Override
-			public void variableChanged(EzVar<TransformOp> source, TransformOp newOp) {
+			public void variableChanged(EzVar<EnumImageTransformOp> source, EnumImageTransformOp newOp) {
 				updateOverlay();
 				}
 		});
@@ -928,7 +929,7 @@ public class ROItoRoiArray extends EzPlug implements ViewerListener {
 			thresholdOverlay = new OverlayThreshold(vSequence);
 			vSequence.addOverlay(thresholdOverlay);
 		}
-		TransformOp transformop = filterComboBox.getValue();
+		EnumImageTransformOp transformop = filterComboBox.getValue();
 
 		thresholdOverlay.setSequence (vSequence);
 		thresholdOverlay.setTransform(transformop);

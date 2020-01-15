@@ -13,7 +13,7 @@ import icy.system.profile.Chronometer;
 import icy.type.collection.array.Array1DUtil;
 import plugins.fmp.drosoSequence.SequencePlus;
 import plugins.fmp.drosoTools.EnumArrayListType;
-import plugins.fmp.drosoTools.ImageTransformTools.TransformOp;
+import plugins.fmp.drosoTools.EnumImageTransformOp;
 import plugins.kernel.roi.roi2d.ROI2DPolyLine;
 
 public class CapBuildDetect_Gulps {
@@ -149,7 +149,7 @@ public class CapBuildDetect_Gulps {
 		if (blevel) {
 			seq.detectTop 				= true; 
 			seq.detectBottom 			= true; 
-			seq.transformForLevels 		= (TransformOp) parent0.detectPane.limitsTab.transformForLevelsComboBox.getSelectedItem();
+			seq.transformForLevels 		= (EnumImageTransformOp) parent0.detectPane.limitsTab.transformForLevelsComboBox.getSelectedItem();
 			seq.direction 				= parent0.detectPane.limitsTab.directionComboBox.getSelectedIndex();
 			seq.detectLevelThreshold 	= (int) parent0.detectPane.limitsTab.getDetectLevelThreshold();
 			seq.detectAllLevel 			= parent0.detectPane.limitsTab.detectAllLevelCheckBox.isSelected();
@@ -157,7 +157,7 @@ public class CapBuildDetect_Gulps {
 		
 		if (bgulps) {
 			seq.detectGulpsThreshold 	= (int) parent0.detectPane.gulpsTab.getDetectGulpsThreshold();
-			seq.transformForGulps 		= (TransformOp) parent0.detectPane.gulpsTab.transformForGulpsComboBox.getSelectedItem();
+			seq.transformForGulps 		= (EnumImageTransformOp) parent0.detectPane.gulpsTab.transformForGulpsComboBox.getSelectedItem();
 			seq.detectAllGulps 			= parent0.detectPane.gulpsTab.detectAllGulpsCheckBox.isSelected();
 		}
 		seq.bStatusChanged = true;

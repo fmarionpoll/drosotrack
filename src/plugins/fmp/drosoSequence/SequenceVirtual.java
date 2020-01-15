@@ -25,9 +25,9 @@ import icy.type.collection.array.Array1DUtil;
 
 import ome.xml.meta.OMEXMLMetadata;
 import plugins.stef.importer.xuggler.VideoImporter;
+import plugins.fmp.drosoTools.EnumImageTransformOp;
 import plugins.fmp.drosoTools.ImageOperationsStruct;
 import plugins.fmp.drosoTools.StringSorter;
-import plugins.fmp.drosoTools.ImageTransformTools.TransformOp;
 
 
 public class SequenceVirtual extends Sequence 
@@ -162,7 +162,7 @@ public class SequenceVirtual extends Sequence
 		return image;
 	}
 	
-	public IcyBufferedImage getImageTransf(int t, int z, int c, TransformOp transformop) 
+	public IcyBufferedImage getImageTransf(int t, int z, int c, EnumImageTransformOp transformop) 
 	{
 		IcyBufferedImage image =  loadVImageAndSubtractReference(t, transformop);
 		if (image != null && c != -1)
@@ -170,7 +170,7 @@ public class SequenceVirtual extends Sequence
 		return image;
 	}
 	
-	public IcyBufferedImage loadVImageAndSubtractReference(int t, TransformOp transformop)
+	public IcyBufferedImage loadVImageAndSubtractReference(int t, EnumImageTransformOp transformop)
 	{
 		IcyBufferedImage ibufImage = loadVImage(t);
 		switch (transformop) {

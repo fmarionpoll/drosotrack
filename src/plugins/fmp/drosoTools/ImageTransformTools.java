@@ -9,29 +9,6 @@ import plugins.fmp.drosoSequence.SequenceVirtual;
 
 public class ImageTransformTools {
 
-	public enum TransformOp { 
-		NONE("none"),
-		R_RGB("R(RGB)"), G_RGB("G(RGB)"), B_RGB("B(RGB)"),  
-		R2MINUS_GB ("2R-(G+B)"), G2MINUS_RB("2G-(R+B)"), B2MINUS_RG("2B-(R+G)"),
-		GBMINUS_2R ("(G+B)-2R"), RBMINUS_2G("(R+B)-2G"), RGMINUS_2B("(R+G)-2B"),
-		RGB ("(R+G+B)/3"),
-		H_HSB ("H(HSB)"), S_HSB ("S(HSB)"), B_HSB("B(HSB)"),  
-		XDIFFN("XDiffn"), YDIFFN("YDiffn"), XYDIFFN( "XYDiffn"), 
-		REF_T0("subtract t[start]"), REF_PREVIOUS("subtract t[i-step]"), REF("subtract ref"),
-		NORM_BRMINUSG("F. Rebaudo"),
-		COLORARRAY1("color array"), RGB_TO_HSV("HSV"), RGB_TO_H1H2H3("H1H2H3"), 
-		RTOGB ("R to G&B") ;
-		
-		private String label;
-		TransformOp (String label) { this.label = label; }
-		public String toString() { return label; }
-		
-		public static TransformOp findByText(String abbr){
-		    for(TransformOp v : values()){ if( v.toString().equals(abbr)) { return v; } }
-		    return null;
-		}
-	}
-
 	private IcyBufferedImage 	referenceImage = null;
 	private int 				spanDiff = 3;
 	private SequenceVirtual 	vinputSequence 	= null;
@@ -54,7 +31,7 @@ public class ImageTransformTools {
 		referenceImage = vinputSequence.loadVImage(0);
 	}
 		
-	public IcyBufferedImage transformImage (IcyBufferedImage inputImage, TransformOp transformop) {
+	public IcyBufferedImage transformImage (IcyBufferedImage inputImage, EnumImageTransformOp transformop) {
 		
 		IcyBufferedImage transformedImage = null;
 		
@@ -103,7 +80,7 @@ public class ImageTransformTools {
 		return transformedImage;
 	}
 	
-	public IcyBufferedImage transformImageFromVirtualSequence (int t, TransformOp transformop) {
+	public IcyBufferedImage transformImageFromVirtualSequence (int t, EnumImageTransformOp transformop) {
 		return transformImage(vinputSequence.loadVImage(t), transformop);
 	}
 		

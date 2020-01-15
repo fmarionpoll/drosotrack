@@ -3,7 +3,6 @@ package plugins.fmp.drosoTools;
 import java.awt.Color;
 import java.util.ArrayList;
 
-import plugins.fmp.drosoTools.ImageTransformTools.TransformOp;
 
 
 
@@ -14,26 +13,26 @@ public class ImageOperationsStruct {
 	int					simplethreshold = 255;
 	int 				colorthreshold	= 0;
 	ArrayList <Color> 	colorarray 		= null;
-	TransformOp 		transformop		= TransformOp.NONE;
+	EnumImageTransformOp 	transformop		= EnumImageTransformOp.NONE;
 	EnumThresholdType 		thresholdtype 	= EnumThresholdType.NONE;
 		
 	// -----------------------------------
 	
 	public ImageOperationsStruct () {
 		this.fromFrame = -1;
-		this.transformop = TransformOp.NONE;
+		this.transformop = EnumImageTransformOp.NONE;
 		this.thresholdtype = EnumThresholdType.NONE;
 		this.colorthreshold = 0;
 	}
 	
-	public ImageOperationsStruct (int framenumber, TransformOp transformop, EnumThresholdType thresholdtype, int thresholdvalue) {
+	public ImageOperationsStruct (int framenumber, EnumImageTransformOp transformop, EnumThresholdType thresholdtype, int thresholdvalue) {
 		this.fromFrame = framenumber;
 		this.transformop = transformop;
 		this.thresholdtype = thresholdtype;
 		this.colorthreshold = thresholdvalue;
 	}
 	
-	public ImageOperationsStruct (int framenumber, TransformOp transformop) {
+	public ImageOperationsStruct (int framenumber, EnumImageTransformOp transformop) {
 		this.fromFrame = framenumber;
 		this.transformop = transformop;
 		this.thresholdtype = EnumThresholdType.NONE;
