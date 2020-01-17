@@ -116,34 +116,49 @@ public class ROItoRoiArray extends EzPlug implements ViewerListener {
 		adjustAndCenterEllipsesButton = new EzButton("Find leaf disks", new ActionListener() { 
 			public void actionPerformed(ActionEvent e) { findLeafDiskIntoRectangles(); }	});
 		findLinesButton = new EzButton("Build histograms",  new ActionListener() { 
-			public void actionPerformed(ActionEvent e) { findLines(); } });
+			public void actionPerformed(ActionEvent e) { 
+				findLines(); 
+				}});
 		openFileButton = new EzButton("Open file or sequence",  new ActionListener() { 
-			public void actionPerformed(ActionEvent e) { openFile(); } });
+			public void actionPerformed(ActionEvent e) { 
+				openFile(); 
+				}});
 		openXMLButton = new EzButton("Load XML file with ROIs",  new ActionListener() { 
-			public void actionPerformed(ActionEvent e) { openXMLFile(); } });
+			public void actionPerformed(ActionEvent e) { 
+				openXMLFile(); 
+				}});
 		saveXMLButton = new EzButton("Save ROIs to XML file",  new ActionListener() { 
-			public void actionPerformed(ActionEvent e) { saveXMLFile(); } });
+			public void actionPerformed(ActionEvent e) { 
+				saveXMLFile(); 
+				}});
 		generateGridButton = new EzButton("Create grid",  new ActionListener() { 
-			public void actionPerformed(ActionEvent e) { execute(); } });
+			public void actionPerformed(ActionEvent e) { 
+				execute(); 
+				}});
 		generateAutoGridButton = new EzButton("Create lines / histograms > threshold",  new ActionListener() { 
-			public void actionPerformed(ActionEvent e) { buildAutoGrid(); } });
+			public void actionPerformed(ActionEvent e) { 
+				buildAutoGrid(); 
+				}});
 		convertLinesToSquaresButton = new EzButton("Convert lines to squares",  new ActionListener() { 
-			public void actionPerformed(ActionEvent e) { convertLinesToSquares(); } });
+			public void actionPerformed(ActionEvent e) { 
+				convertLinesToSquares(); 
+				}});
 		changeGridNameButton = new EzButton("Set names of ROIs", new ActionListener () {
-			public void actionPerformed(ActionEvent e) { changeGridName(); } });
+			public void actionPerformed(ActionEvent e) { 
+				changeGridName(); 
+				}});
 		overlayCheckBox = new EzVarBoolean("build from overlay", false);
 		overlayCheckBox.addVarChangeListener(new EzVarListener<Boolean>() {
              @Override
-             public void variableChanged(EzVar<Boolean> source, Boolean newValue) {displayOverlay(newValue);}
-         });
+             public void variableChanged(EzVar<Boolean> source, Boolean newValue) {displayOverlay(newValue);
+             }});
 
 		filterComboBox = new EzVarEnum <EnumImageOp>("Filter as ", EnumImageOp.values(), 7);
 		filterComboBox.addVarChangeListener(new EzVarListener<EnumImageOp>() {
 			@Override
 			public void variableChanged(EzVar<EnumImageOp> source, EnumImageOp newOp) {
 				updateOverlay();
-				}
-		});
+				}});
 		
 		thresholdOv = new EzVarInteger("threshold ", 70, 1, 255, 10);
 		thresholdSTD = new EzVarInteger("threshold / selected filter", 500, 1, 10000, 10);
@@ -186,6 +201,9 @@ public class ROItoRoiArray extends EzPlug implements ViewerListener {
 		Polygon roiPolygon = DrosoTools.orderVerticesofPolygon (((ROI2DPolygon) roi).getPolygon());
 		sequence.getValue(true).removeAllROI();
 		sequence.getValue(true).addROI(roi, true);
+		if (vSequence == null) {
+			vSequence = new SequenceVirtual();
+		}
 		getSTD(roiPolygon.getBounds());
 		getSTDRBminus2G();
 

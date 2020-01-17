@@ -35,7 +35,7 @@ public class SequenceVirtual extends Sequence
 	protected VideoImporter importer 		= null;
 	private String [] 		listFiles 		= null;
 	private String 			csFileName 		= null;
-	private final static String[] acceptedTypes = {".jpg", ".jpeg", ".bmp"};
+	private final static String[] acceptedTypes = {".jpg", ".jpeg", ".bmp", "tif", "tiff"};
 	private String			directory 		= null;
 	public IcyBufferedImage refImage 		= null;
 	
@@ -63,22 +63,24 @@ public class SequenceVirtual extends Sequence
 	public ImageOperationsStruct 	cacheThresholdOp = new ImageOperationsStruct();
 	
 	// ----------------------------------------
-	public SequenceVirtual () 
-	{
+	public SequenceVirtual () {
 		status = EnumStatus.REGULAR;
+	}
+	
+	public SequenceVirtual (Sequence seq) {
+		status = EnumStatus.REGULAR;
+		
 	}
 	
 	public SequenceVirtual(String name, IcyBufferedImage image) {
 		super (name, image);
 	}
 
-	public SequenceVirtual (String csFile)
-	{
+	public SequenceVirtual (String csFile) {
 		loadSequenceVirtualAVI(csFile);
 	}
 
-	public SequenceVirtual (String [] list, String directory)
-	{
+	public SequenceVirtual (String [] list, String directory) {
 		loadSequenceVirtual(list, directory);
 		filename = directory + ".xml";
 	}
@@ -96,14 +98,12 @@ public class SequenceVirtual extends Sequence
 	}	
 
 	@Override
-	public void close()
-	{
+	public void close() {
 		vImageBufferThread_STOP();
 		super.close();
 	}
 	
-	public void displayRelativeFrame( int nbFrame )
-	{
+	public void displayRelativeFrame( int nbFrame ) {
 		int currentTime = getT()+ nbFrame ;
 		if (currentTime < 0)
 			currentTime = 0;
@@ -116,8 +116,7 @@ public class SequenceVirtual extends Sequence
 		displayImageAt(currentTime);
 	}
 
-	public void displayImageAt(int t)
-	{
+	public void displayImageAt(int t) {
 		currentFrame = t;
 		if (getImage(t, 0) == null)
 		{
@@ -139,8 +138,7 @@ public class SequenceVirtual extends Sequence
 	}
 
 	@Override
-	public IcyBufferedImage getImage(int t, int z, int c) 
-	{
+	public IcyBufferedImage getImage(int t, int z, int c) {
 		setVImageName(t);
 		IcyBufferedImage image =  loadVImage(t, z);
 		if (image != null && c != -1)
@@ -149,8 +147,7 @@ public class SequenceVirtual extends Sequence
 	}
 
 	@Override
-	public IcyBufferedImage getImage(int t, int z)
-	{
+	public IcyBufferedImage getImage(int t, int z) {
 		IcyBufferedImage image;
 		if (t == currentFrame) {
 			image = super.getImage(t, z);
@@ -162,16 +159,14 @@ public class SequenceVirtual extends Sequence
 		return image;
 	}
 	
-	public IcyBufferedImage getImageTransf(int t, int z, int c, EnumImageOp transformop) 
-	{
+	public IcyBufferedImage getImageTransf(int t, int z, int c, EnumImageOp transformop) {
 		IcyBufferedImage image =  loadVImageAndSubtractReference(t, transformop);
 		if (image != null && c != -1)
 			image = IcyBufferedImageUtil.extractChannel(image, c);
 		return image;
 	}
 	
-	public IcyBufferedImage loadVImageAndSubtractReference(int t, EnumImageOp transformop)
-	{
+	public IcyBufferedImage loadVImageAndSubtractReference(int t, EnumImageOp transformop) {
 		IcyBufferedImage ibufImage = loadVImage(t);
 		switch (transformop) {
 			case REF_PREVIOUS: // subtract image n-analysisStep
@@ -221,16 +216,14 @@ public class SequenceVirtual extends Sequence
 		return currentFrame;
 	}
 
-	public double getVData(int t, int z, int c, int y, int x)
-	{
+	public double getVData(int t, int z, int c, int y, int x) {
 		final IcyBufferedImage img = loadVImage(t);
 		if (img != null)
 			return img.getData(x, y, c);
 		return 0d;
 	}
 
-	public String getDecoratedImageName(int t)
-	{
+	public String getDecoratedImageName(int t) {
 		String csTitle = "["+t+ "/" + nTotalFrames + " V] : ";
 		if (status == EnumStatus.FILESTACK) 
 			csTitle += listFiles[t];
@@ -252,8 +245,7 @@ public class SequenceVirtual extends Sequence
 		return (status == EnumStatus.FILESTACK);
 	}
 		
-	public IcyBufferedImage loadVImage(int t, int z)
-	{
+	public IcyBufferedImage loadVImage(int t, int z) {
 		IcyBufferedImage ibufImage = super.getImage(t, z);
 		// not found : load from file
 		if (ibufImage == null) 
@@ -262,8 +254,7 @@ public class SequenceVirtual extends Sequence
 		return ibufImage;
 	}
 	
-	public IcyBufferedImage loadVImage(int t)
-	{
+	public IcyBufferedImage loadVImage(int t) {
 		IcyBufferedImage ibufImage = super.getImage(t, 0);
 		// not found : load from file
 		if (ibufImage == null)
@@ -296,8 +287,7 @@ public class SequenceVirtual extends Sequence
 		return IcyBufferedImage.createFrom(buf);
 	}
 	
-	public boolean setCurrentVImage(int t)
-	{
+	public boolean setCurrentVImage(int t) {
 		BufferedImage bimage = loadVImage(t);
 		if (bimage == null)
 			return false;
@@ -309,8 +299,7 @@ public class SequenceVirtual extends Sequence
 	}
 
 	@Override
-	public void setImage(int t, int z, BufferedImage bimage) throws IllegalArgumentException 
-	{
+	public void setImage(int t, int z, BufferedImage bimage) throws IllegalArgumentException {
 		/* setImage overloaded
 		 * caveats: 
 		 * (1) this routine deals only with 2D images i.e. z is not used (z= 0), 
@@ -325,8 +314,7 @@ public class SequenceVirtual extends Sequence
 			super.setImage(t, z, bimage);
 	}
 
-	public void setVImage(int t)
-	{
+	public void setVImage(int t) {
 		IcyBufferedImage ibuf = loadVImage(t);
 		if (ibuf != null)
 			super.setImage(t, 0, ibuf);
@@ -368,7 +356,6 @@ public class SequenceVirtual extends Sequence
 	}
 	
 	public void vImageBufferThread_STOP() {
-
 		if (bufferThread != null)
 		{
 			bufferThread.interrupt();
@@ -480,8 +467,9 @@ public class SequenceVirtual extends Sequence
 		}
 	}
 
-	public IcyBufferedImage subtractImages (IcyBufferedImage image1, IcyBufferedImage image2) {
-		
+	public IcyBufferedImage subtractImages (IcyBufferedImage image1, IcyBufferedImage image2) 
+	{
+	
 		IcyBufferedImage result = new IcyBufferedImage(image1.getSizeX(), image1.getSizeY(), image1.getSizeC(), image1.getDataType_());
 		for (int c = 0; c < image1.getSizeC(); c++) {
 			
@@ -498,8 +486,8 @@ public class SequenceVirtual extends Sequence
 		return result;
 	}
 	
-	public String loadInputVirtualStack(String path) {
-
+	public String loadInputVirtualStack(String path) 
+	{
 		LoaderDialog dialog = new LoaderDialog(false);
 		if (path != null) 
 			dialog.setCurrentDirectory(new File(path));

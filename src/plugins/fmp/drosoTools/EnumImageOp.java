@@ -16,11 +16,20 @@ public enum EnumImageOp {
 	RTOGB ("R to G&B") ;
 	
 	private String label;
-	EnumImageOp (String label) { this.label = label; }
-	public String toString() { return label; }
+	
+	EnumImageOp (String label) { 
+		this.label = label; 
+		}
+	public String toString() { 
+		return label; 
+		}
 	
 	public static EnumImageOp findByText(String abbr){
-	    for(EnumImageOp v : values()){ if( v.toString().equals(abbr)) { return v; } }
+	    for(EnumImageOp v : values()){ 
+	    	if( v.toString().equals(abbr)) { 
+	    		return v; 
+	    		} 
+	    	}
 	    return null;
 	}
 }
