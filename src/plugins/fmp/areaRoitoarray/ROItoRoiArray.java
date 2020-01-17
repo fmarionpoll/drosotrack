@@ -35,6 +35,7 @@ import icy.gui.viewer.ViewerEvent;
 import icy.gui.viewer.ViewerListener;
 import icy.image.IcyBufferedImage;
 import icy.image.IcyBufferedImageUtil;
+import icy.main.Icy;
 import icy.gui.viewer.ViewerEvent.ViewerEventType;
 import icy.preferences.XMLPreferences;
 import icy.roi.ROI;
@@ -118,6 +119,7 @@ public class ROItoRoiArray extends EzPlug implements ViewerListener {
 			public void actionPerformed(ActionEvent e) { findLeafDiskIntoRectangles(); }	});
 		findLinesButton = new EzButton("Build histograms",  new ActionListener() { 
 			public void actionPerformed(ActionEvent e) { 
+				initVirtualSequence();
 				findLines(); 
 				}});
 		openFileButton = new EzButton("Open file or sequence",  new ActionListener() { 
@@ -193,6 +195,17 @@ public class ROItoRoiArray extends EzPlug implements ViewerListener {
 		super.addEzComponent (outputParameters);
 	}
 	
+	private void initVirtualSequence() {
+		Sequence seq = sequence.getValue();
+		if (seq == null || vSequence != null)
+			return;
+		
+		vSequence = new SequenceVirtual(seq);
+		seq.getFirstViewer().close();
+		Icy.getMainInterface().addSequence(vSequence);
+		
+	}
+	
 	private void findLines() {
 		Sequence seq = sequence.getValue(true);
 		ROI2D roi = seq.getSelectedROI2D();
@@ -203,9 +216,7 @@ public class ROItoRoiArray extends EzPlug implements ViewerListener {
 		Polygon roiPolygon = DrosoTools.orderVerticesofPolygon (((ROI2DPolygon) roi).getPolygon());
 		seq.removeAllROI();
 		seq.addROI(roi, true);
-		if (vSequence == null) {
-			vSequence = new SequenceVirtual(seq);
-		}
+
 		getSTD(roiPolygon.getBounds());
 		getSTDRBminus2G();
 
