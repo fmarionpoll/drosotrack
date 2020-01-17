@@ -35,7 +35,7 @@ public class SequenceVirtual extends Sequence
 	protected VideoImporter importer 		= null;
 	private String [] 		listFiles 		= null;
 	private String 			csFileName 		= null;
-	private final static String[] acceptedTypes = {".jpg", ".jpeg", ".bmp", "tif", "tiff"};
+	private final static String[] acceptedTypes = {".jpg", ".jpeg", ".bmp", "tiff"};
 	private String			directory 		= null;
 	public IcyBufferedImage refImage 		= null;
 	
@@ -67,13 +67,26 @@ public class SequenceVirtual extends Sequence
 		status = EnumStatus.REGULAR;
 	}
 	
-	public SequenceVirtual (Sequence seq) {
-		status = EnumStatus.REGULAR;
-		
-	}
 	
 	public SequenceVirtual(String name, IcyBufferedImage image) {
 		super (name, image);
+	}
+	
+	public SequenceVirtual (Sequence seq) {
+		int nfiles = seq.getSizeT();
+		String fileList[] = new String[nfiles];
+		String directory = null;
+		for(int i=0; i < nfiles; i++) {
+			String firstfile = seq.getFilename (0, 0, 0);
+			Path path = Paths.get(firstfile);
+			if (i == 0) 
+				directory = path.getParent().toString();
+			String filename = path.getFileName().toString();
+			fileList[i] = filename;
+		}
+		
+		loadSequenceVirtual(fileList, directory);
+		filename = directory + ".xml";		
 	}
 
 	public SequenceVirtual (String csFile) {

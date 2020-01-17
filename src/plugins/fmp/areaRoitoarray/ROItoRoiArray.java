@@ -40,6 +40,7 @@ import icy.preferences.XMLPreferences;
 import icy.roi.ROI;
 import icy.roi.ROI2D;
 import icy.sequence.DimensionId;
+import icy.sequence.Sequence;
 import icy.type.collection.array.Array1DUtil;
 import icy.type.geom.GeomUtil;
 
@@ -193,16 +194,17 @@ public class ROItoRoiArray extends EzPlug implements ViewerListener {
 	}
 	
 	private void findLines() {
-		ROI2D roi = sequence.getValue(true).getSelectedROI2D();
+		Sequence seq = sequence.getValue(true);
+		ROI2D roi = seq.getSelectedROI2D();
 		if ( ! ( roi instanceof ROI2DPolygon ) ) {
 			new AnnounceFrame("The frame must be a ROI 2D POLYGON");
 			return;
 		}
 		Polygon roiPolygon = DrosoTools.orderVerticesofPolygon (((ROI2DPolygon) roi).getPolygon());
-		sequence.getValue(true).removeAllROI();
-		sequence.getValue(true).addROI(roi, true);
+		seq.removeAllROI();
+		seq.addROI(roi, true);
 		if (vSequence == null) {
-			vSequence = new SequenceVirtual();
+			vSequence = new SequenceVirtual(seq);
 		}
 		getSTD(roiPolygon.getBounds());
 		getSTDRBminus2G();
