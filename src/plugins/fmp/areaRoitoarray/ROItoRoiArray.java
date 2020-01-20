@@ -116,7 +116,9 @@ public class ROItoRoiArray extends EzPlug implements ViewerListener {
 		areaShrink		= new EzVarInteger("area shrink (%)", 5, -100, 100, 1);
 		
 		adjustAndCenterEllipsesButton = new EzButton("Find leaf disks", new ActionListener() { 
-			public void actionPerformed(ActionEvent e) { findLeafDiskIntoRectangles(); }	});
+			public void actionPerformed(ActionEvent e) { 
+				findLeafDiskIntoRectangles(); 
+				}});
 		findLinesButton = new EzButton("Build histograms",  new ActionListener() { 
 			public void actionPerformed(ActionEvent e) { 
 				initVirtualSequence();
@@ -153,7 +155,8 @@ public class ROItoRoiArray extends EzPlug implements ViewerListener {
 		overlayCheckBox = new EzVarBoolean("build from overlay", false);
 		overlayCheckBox.addVarChangeListener(new EzVarListener<Boolean>() {
              @Override
-             public void variableChanged(EzVar<Boolean> source, Boolean newValue) {displayOverlay(newValue);
+             public void variableChanged(EzVar<Boolean> source, Boolean newValue) {
+            	 displayOverlay(newValue);
              }});
 
 		filterComboBox = new EzVarEnum <EnumImageOp>("Filter as ", EnumImageOp.values(), 7);
@@ -203,14 +206,13 @@ public class ROItoRoiArray extends EzPlug implements ViewerListener {
 		vSequence = new SequenceVirtual(seq);
 		seq.getFirstViewer().close();
 		Icy.getMainInterface().addSequence(vSequence);
-		
 	}
 	
 	private void findLines() {
 		Sequence seq = sequence.getValue(true);
 		ROI2D roi = seq.getSelectedROI2D();
 		if ( ! ( roi instanceof ROI2DPolygon ) ) {
-			new AnnounceFrame("The frame must be a ROI 2D POLYGON");
+			new AnnounceFrame("The frame must be a ROI2D POLYGON");
 			return;
 		}
 		Polygon roiPolygon = DrosoTools.orderVerticesofPolygon (((ROI2DPolygon) roi).getPolygon());
@@ -224,7 +226,6 @@ public class ROItoRoiArray extends EzPlug implements ViewerListener {
 	}
 
 	private double [][] getProfile (Line2D line) {
-
 		List<Point2D> pointslist = getAllPointsAlongLine (line);		
 		IcyBufferedImage image = vSequence.loadVImage(vSequence.currentFrame);
 		double [][] profile = getValueForPointList(pointslist, image);
@@ -232,7 +233,6 @@ public class ROItoRoiArray extends EzPlug implements ViewerListener {
 	}
 	
 	private List<Point2D> getAllPointsAlongLine(Line2D line) {
-
         List<Point2D> pointslist = new ArrayList<Point2D>();
         int x1 = (int) line.getX1();
         int y1 = (int) line.getY1();

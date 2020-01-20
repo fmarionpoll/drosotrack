@@ -32,7 +32,7 @@ public class DetectTab_Gulps  extends JPanel implements ActionListener {
 	public JTextField 	detectGulpsThresholdTextField 	= new JTextField("90");
 	private JButton 	detectGulpsButton 		= new JButton("Detect");
 	public JComboBox<EnumImageOp> transformForGulpsComboBox = new JComboBox<EnumImageOp> (new EnumImageOp[] {
-			EnumImageOp.XDIFFN /*, TransformOp.YDIFFN, TransformOp.XYDIFFN	*/});
+			EnumImageOp.XDIFFN /*, EnumImageOp.YDIFFN, EnumImageOp.XYDIFFN	*/});
 	private	int	spanDiffTransf2 			= 3;
 	private double detectGulpsThreshold 	= 5.;
 	private Capillarytrack parent0;
