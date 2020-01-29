@@ -2,9 +2,9 @@
 
 DrosTrack is a repository for Java routines used to build plugins to run under Icy (http://icy.bioimageanalysis.org/), which is a free image analysis system derived from ImageJ and developped at Institut Pasteur.
 
-### Markdown
+### Features
 
-This release includes 4 plugins associated with a dialog box and 2 tools plugins
+This release includes 4 plugins associated with a dialog box and 2 tools without a dialog
 
 ```markdown
 plugins with dialog:
