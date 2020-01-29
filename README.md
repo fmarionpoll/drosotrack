@@ -1,36 +1,23 @@
-## Welcome to GitHub Pages
+## DrosoTrack Pages
 
-You can use the [editor on GitHub](https://github.com/fmarionpoll/drosotrack/edit/master/README.md) to maintain and preview the content for your website in Markdown files.
-
-Whenever you commit to this repository, GitHub Pages will run [Jekyll](https://jekyllrb.com/) to rebuild the pages in your site, from the content in your Markdown files.
+DrosTrack is a repository for Java routines used to build plugins to run under Icy (http://icy.bioimageanalysis.org/), which is a free image analysis system derived from ImageJ and developped at Institut Pasteur.
 
 ### Markdown
 
-Markdown is a lightweight and easy-to-use syntax for styling your writing. It includes conventions for
+This release includes 4 plugins associated with a dialog box and 2 tools plugins
 
 ```markdown
-Syntax highlighted code block
+plugins with dialog:
+- DrosoTrack -track individual flies with an algorithm based upon a simple threshold and save results to an Excel file
+- Bulleted CapillaryTrack - define capillaries positions, build corresponding kymographs and track their liquid level + export to Excel file
+- RoitoRoiArray - define a grid of ROIs semi-automatically
+- areaTrack - detect and measure the surface (pixels) of areas filtered 
 
-# Header 1
-## Header 2
-### Header 3
-
-- Bulleted
-- List
-
-1. Numbered
-2. List
-
-**Bold** and _Italic_ and `Code` text
-
-[Link](url) and ![Image](src)
+plugins with no dialog:
+- drosoSequence - define sequence of stacks of images which are only partly loaded into memory
+- drosoTools - utility methods used by plugins with dialogs
 ```
 
-For more details see [GitHub Flavored Markdown](https://guides.github.com/features/mastering-markdown/).
-
-### Jekyll Themes
-
-Your Pages site will use the layout and styles from the Jekyll theme you have selected in your [repository settings](https://github.com/fmarionpoll/drosotrack/settings). The name of this theme is saved in the Jekyll `_config.yml` configuration file.
 
 ### Support or Contact
 
