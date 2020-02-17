@@ -221,7 +221,6 @@ public class ROItoRoiArray extends EzPlug implements ViewerListener {
 
 		getSTD(roiPolygon.getBounds());
 		getSTDRBminus2G();
-
 		graphDisplay2Panels(stdXArray, stdYArray);
 	}
 
