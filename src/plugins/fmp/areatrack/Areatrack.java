@@ -72,13 +72,13 @@ import icy.util.XMLUtil;
 import jxl.write.WritableSheet;
 import jxl.write.WritableWorkbook;
 import jxl.write.WriteException;
-import plugins.fmp.areatrack.MeasureAndName;
+
 import plugins.fmp.drosoSequence.SequencePlus;
 import plugins.fmp.drosoTools.ComboBoxColorRenderer;
 import plugins.fmp.drosoTools.EnumThresholdType;
 import plugins.fmp.drosoTools.DrosoTools;
 import plugins.fmp.drosoTools.EnumImageOp;
-import plugins.fmp.areatrack.AreaAnalysisThread;
+
 
 
 public class Areatrack extends PluginActionable implements ActionListener, ChangeListener, ViewerListener
