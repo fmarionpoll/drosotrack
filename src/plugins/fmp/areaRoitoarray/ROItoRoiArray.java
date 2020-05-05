@@ -460,7 +460,6 @@ public class ROItoRoiArray extends EzPlug implements ViewerListener {
 		mainChartFrame.requestFocus();
 	}
 	
-	
 	private List<List<Line2D>> buildLinesFromSTDProfile(Polygon roiPolygon, double [][] stdXArray, double [][] stdYArray, int threshold, int channel) {
 		//get points > threshold
 		List<Integer> listofX = getTransitions (stdXArray, threshold, channel);
