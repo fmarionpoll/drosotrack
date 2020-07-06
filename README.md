@@ -4,14 +4,12 @@ DrosTrack is a repository for Java routines used to build plugins to run under I
 
 ### Features
 
-This release includes 4 plugins associated with a dialog box and 2 tools without a dialog
+This release includes 2 plugins associated with a dialog box and 2 tools without a dialog
 
 ```markdown
 Plugins with dialog:
 - DrosoTrack -track individual flies with an algorithm based upon a simple threshold and save results to an Excel file
 - CapillaryTrack - define capillaries positions, build corresponding kymographs and track their liquid level + export to Excel file
-- RoitoRoiArray - define a grid of ROIs semi-automatically
-- AreaTrack - detect and measure the surface (pixels) of areas filtered 
 
 Plugins with no dialog:
 - drosoSequence - define sequence of stacks of images which are only partly loaded into memory
