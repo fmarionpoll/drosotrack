@@ -8,12 +8,14 @@ This release includes 2 plugins associated with a dialog box and 2 tools without
 
 ```markdown
 Plugins with dialog:
-- DrosoTrack -track individual flies with an algorithm based upon a simple threshold and save results to an Excel file
+- DrosoTrack - track individual flies with an algorithm based upon a simple threshold and save results to an Excel file
 - CapillaryTrack - define capillaries positions, build corresponding kymographs and track their liquid level + export to Excel file
+- RoitoRoiArray - define a grid of ROIs semi-automatically
+- AreaTrack - detect and measure the surface (pixels) of areas filtered 
 
 Plugins with no dialog:
-- drosoSequence - define sequence of stacks of images which are only partly loaded into memory
-- drosoTools - utility methods used by plugins with dialogs
+- fmpSequence - define sequence of stacks of images which are only partly loaded into memory
+- fmpTools - utility methods used by plugins with dialogs
 ```
 
 
