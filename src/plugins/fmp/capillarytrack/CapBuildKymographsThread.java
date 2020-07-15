@@ -11,11 +11,11 @@ import icy.sequence.Sequence;
 import icy.type.DataType;
 import icy.type.collection.array.Array1DUtil;
 import plugins.kernel.roi.roi2d.ROI2DShape;
-import plugins.fmp.drosoSequence.SequencePlus;
-import plugins.fmp.drosoSequence.SequenceVirtual;
-import plugins.fmp.drosoTools.DufourRigidRegistration;
-import plugins.fmp.drosoTools.ProgressChrono;
-import plugins.fmp.drosoTools.DrosoTools;
+import plugins.fmp.fmpSequence.SequencePlus;
+import plugins.fmp.fmpSequence.SequenceVirtual;
+import plugins.fmp.fmpTools.DrosoTools;
+import plugins.fmp.fmpTools.DufourRigidRegistration;
+import plugins.fmp.fmpTools.ProgressChrono;
 import plugins.nchenouard.kymographtracker.Util;
 import plugins.nchenouard.kymographtracker.spline.CubicSmoothingSpline;
 

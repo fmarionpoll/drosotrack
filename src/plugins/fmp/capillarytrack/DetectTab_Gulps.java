@@ -15,8 +15,8 @@ import javax.swing.SwingConstants;
 
 import icy.gui.frame.progress.AnnounceFrame;
 import icy.gui.util.GuiUtil;
-import plugins.fmp.drosoTools.DrosoTools;
-import plugins.fmp.drosoTools.EnumImageOp;
+import plugins.fmp.fmpTools.DrosoTools;
+import plugins.fmp.fmpTools.EnumImageOp;
 
 
 

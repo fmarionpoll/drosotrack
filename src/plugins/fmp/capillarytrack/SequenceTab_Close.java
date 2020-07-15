@@ -9,7 +9,7 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 
 import icy.gui.util.GuiUtil;
-import plugins.fmp.drosoSequence.SequencePlus;
+import plugins.fmp.fmpSequence.SequencePlus;
 
 public class SequenceTab_Close  extends JPanel implements ActionListener {
 

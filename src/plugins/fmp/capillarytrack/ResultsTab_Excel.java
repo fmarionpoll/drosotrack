@@ -22,11 +22,10 @@ import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
 import icy.gui.util.GuiUtil;
-
-import plugins.fmp.drosoSequence.SequencePlus;
-import plugins.fmp.drosoTools.EnumArrayListType;
-import plugins.fmp.drosoTools.EnumXLSExportItems;
-import plugins.fmp.drosoTools.DrosoTools;
+import plugins.fmp.fmpSequence.SequencePlus;
+import plugins.fmp.fmpTools.DrosoTools;
+import plugins.fmp.fmpTools.EnumArrayListType;
+import plugins.fmp.fmpTools.EnumXLSExportItems;
 
 public class ResultsTab_Excel extends JPanel implements ActionListener  {
 

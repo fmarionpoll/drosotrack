@@ -13,9 +13,9 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 
 import icy.gui.util.GuiUtil;
-import plugins.fmp.drosoSequence.SequencePlus;
-import plugins.fmp.drosoTools.EnumArrayListType;
-import plugins.fmp.drosoTools.XYMultiChart;
+import plugins.fmp.fmpSequence.SequencePlus;
+import plugins.fmp.fmpTools.EnumArrayListType;
+import plugins.fmp.fmpTools.XYMultiChart;
 
 public class ResultsTab_Graphics extends JPanel implements ActionListener  {
 

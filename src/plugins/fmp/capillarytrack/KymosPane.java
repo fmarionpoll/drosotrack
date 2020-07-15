@@ -12,7 +12,7 @@ import javax.swing.event.ChangeListener;
 
 import icy.gui.util.GuiUtil;
 import icy.gui.viewer.Viewer;
-import plugins.fmp.drosoTools.EnumStatusPane;
+import plugins.fmp.fmpTools.EnumStatusPane;
 
 
 public class KymosPane extends JPanel implements PropertyChangeListener, ChangeListener {

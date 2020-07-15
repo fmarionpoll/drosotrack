@@ -12,7 +12,7 @@ import javax.swing.SwingConstants;
 
 import icy.gui.frame.progress.AnnounceFrame;
 import icy.gui.util.GuiUtil;
-import plugins.fmp.drosoSequence.SequenceVirtual;
+import plugins.fmp.fmpSequence.SequenceVirtual;
 
 public class SequenceTab_Options extends JPanel implements ActionListener{
 	/**
