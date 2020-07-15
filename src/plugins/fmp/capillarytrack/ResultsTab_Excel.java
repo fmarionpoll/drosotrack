@@ -23,7 +23,7 @@ import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
 import icy.gui.util.GuiUtil;
 import plugins.fmp.fmpSequence.SequencePlus;
-import plugins.fmp.fmpTools.DrosoTools;
+import plugins.fmp.fmpTools.FmpTools;
 import plugins.fmp.fmpTools.EnumArrayListType;
 import plugins.fmp.fmpTools.EnumXLSExportItems;
 
@@ -75,7 +75,7 @@ public class ResultsTab_Excel extends JPanel implements ActionListener  {
 			Path directory = Paths.get(parent0.vSequence.getFileName(0)).getParent();
 			Path subpath = directory.getName(directory.getNameCount()-1);
 			String tentativeName = subpath.toString()+"_feeding.xlsx";
-			String file = DrosoTools.saveFileAs(tentativeName, directory.getParent().toString(), "xlsx");
+			String file = FmpTools.saveFileAs(tentativeName, directory.getParent().toString(), "xlsx");
 			if (file != null) {
 				final String filename = file;
 				exportToXLSButton.setEnabled( false);

@@ -12,7 +12,7 @@ import icy.roi.ROI2D;
 import icy.util.XMLUtil;
 import plugins.kernel.roi.roi2d.ROI2DShape;
 import plugins.fmp.fmpTools.DetectFliesParameters;
-import plugins.fmp.fmpTools.DrosoTools;
+import plugins.fmp.fmpTools.FmpTools;
 import plugins.kernel.roi.roi2d.ROI2DPolygon;
 
 
@@ -29,7 +29,7 @@ public class Cages {
 	
 	public boolean xmlWriteCagesToFile(String name, String directory) {
 
-		String csFile = DrosoTools.saveFileAs(name, directory, "xml");
+		String csFile = FmpTools.saveFileAs(name, directory, "xml");
 		if (csFile == null)
 			return false;
 		
@@ -58,7 +58,7 @@ public class Cages {
 		String filename = seq.getFileName();
 		File file = new File(filename);
 		String directory = file.getParentFile().getAbsolutePath();
-		filedummy = DrosoTools.selectFiles(directory, "xml");
+		filedummy = FmpTools.selectFiles(directory, "xml");
 		boolean wasOk = false;
 		if (filedummy != null) {
 			for (int i= 0; i< filedummy.length; i++) {
@@ -195,7 +195,7 @@ public class Cages {
 				continue;
 			cageLimitROIList.add(roi);
 		}
-		Collections.sort(cageLimitROIList, new DrosoTools.ROI2DNameComparator());
+		Collections.sort(cageLimitROIList, new FmpTools.ROI2DNameComparator());
 	}
 
 

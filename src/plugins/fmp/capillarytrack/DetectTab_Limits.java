@@ -15,7 +15,7 @@ import javax.swing.SwingConstants;
 
 import icy.gui.frame.progress.AnnounceFrame;
 import icy.gui.util.GuiUtil;
-import plugins.fmp.fmpTools.DrosoTools;
+import plugins.fmp.fmpTools.FmpTools;
 import plugins.fmp.fmpTools.EnumImageOp;
 
 
@@ -112,7 +112,7 @@ public class DetectTab_Limits  extends JPanel implements ActionListener {
 	public void kymosDisplayFiltered1() {
 		if (parent0.kymographArrayList == null)
 			return;
-		Collections.sort(parent0.kymographArrayList, new DrosoTools.SequenceNameComparator()); 
+		Collections.sort(parent0.kymographArrayList, new FmpTools.SequenceNameComparator()); 
 		EnumImageOp transform= (EnumImageOp) transformForLevelsComboBox.getSelectedItem();
 		parent0.detectPane.kymosBuildFiltered(0, 1, transform, getSpanDiffTop());
 	}

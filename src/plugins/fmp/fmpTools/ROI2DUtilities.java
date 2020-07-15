@@ -16,7 +16,7 @@ public class ROI2DUtilities  {
 			 return null;
 		
 		ArrayList<ROI2D> roiList = vSequence.getROI2Ds();
-		Collections.sort(roiList, new DrosoTools.ROI2DNameComparator());
+		Collections.sort(roiList, new FmpTools.ROI2DNameComparator());
 		ArrayList<ROI2D> cageLimitROIList		= new ArrayList<ROI2D>();
 		for ( ROI2D roi : roiList )
 		{

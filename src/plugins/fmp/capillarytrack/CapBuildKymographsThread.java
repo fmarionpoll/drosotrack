@@ -13,7 +13,7 @@ import icy.type.collection.array.Array1DUtil;
 import plugins.kernel.roi.roi2d.ROI2DShape;
 import plugins.fmp.fmpSequence.SequencePlus;
 import plugins.fmp.fmpSequence.SequenceVirtual;
-import plugins.fmp.fmpTools.DrosoTools;
+import plugins.fmp.fmpTools.FmpTools;
 import plugins.fmp.fmpTools.DufourRigidRegistration;
 import plugins.fmp.fmpTools.ProgressChrono;
 import plugins.nchenouard.kymographtracker.Util;
@@ -180,7 +180,7 @@ public class CapBuildKymographsThread implements Runnable
 			}
 			rois_tabValuesList.add(tabValuesList);
 		}
-		Collections.sort(kymographArrayList, new DrosoTools.SequenceNameComparator()); 
+		Collections.sort(kymographArrayList, new FmpTools.SequenceNameComparator()); 
 	}
 	
 	private double initExtractionParametersfromROI( ROI2DShape roi, ArrayList<ArrayList<int[]>> masks,  double diskRadius, int sizex, int sizey)

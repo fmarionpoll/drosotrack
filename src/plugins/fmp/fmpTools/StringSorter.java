@@ -44,7 +44,7 @@ public class StringSorter {
 		int n = list.length;
 		String[] paddedList = getPaddedNames(list);
 		String[] sortedList = new String[n];
-		int[] indexes = DrosoTools.rank(paddedList);
+		int[] indexes = FmpTools.rank(paddedList);
 		for (int i = 0; i < n; i++)
 			sortedList[i] = list[indexes[i]];
 		return sortedList;

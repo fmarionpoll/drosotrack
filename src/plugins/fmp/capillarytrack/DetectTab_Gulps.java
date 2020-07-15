@@ -15,7 +15,7 @@ import javax.swing.SwingConstants;
 
 import icy.gui.frame.progress.AnnounceFrame;
 import icy.gui.util.GuiUtil;
-import plugins.fmp.fmpTools.DrosoTools;
+import plugins.fmp.fmpTools.FmpTools;
 import plugins.fmp.fmpTools.EnumImageOp;
 
 
@@ -93,7 +93,7 @@ public class DetectTab_Gulps  extends JPanel implements ActionListener {
 	public void kymosDisplayFiltered2() {
 		if (parent0.kymographArrayList == null)
 			return;
-		Collections.sort(parent0.kymographArrayList, new DrosoTools.SequenceNameComparator()); 
+		Collections.sort(parent0.kymographArrayList, new FmpTools.SequenceNameComparator()); 
 		EnumImageOp transform= (EnumImageOp) transformForGulpsComboBox.getSelectedItem();
 		parent0.detectPane.kymosBuildFiltered(0, 2, transform, spanDiffTransf2);
 	}

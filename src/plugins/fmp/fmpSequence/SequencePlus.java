@@ -23,7 +23,7 @@ import icy.roi.ROIEvent;
 import icy.sequence.SequenceEvent.SequenceEventType;
 import icy.type.geom.Polyline2D;
 import icy.util.XMLUtil;
-import plugins.fmp.fmpTools.DrosoTools;
+import plugins.fmp.fmpTools.FmpTools;
 import plugins.fmp.fmpTools.EnumArrayListType;
 import plugins.fmp.fmpTools.EnumImageOp;
 import plugins.fmp.fmpTools.OverlayThreshold;
@@ -220,7 +220,7 @@ public class SequencePlus extends SequenceVirtual  {
 				roi.setColor(Color.red);						// set color to red
 			}
 		}
-		Collections.sort(listRois, new DrosoTools.ROI2DNameComparator());
+		Collections.sort(listRois, new FmpTools.ROI2DNameComparator());
 	}
 	
     @Override

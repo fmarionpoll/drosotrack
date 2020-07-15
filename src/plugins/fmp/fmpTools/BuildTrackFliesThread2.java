@@ -359,7 +359,7 @@ public class BuildTrackFliesThread2  implements Runnable {
 		cages.clear();
 		cages.cageLimitROIList = ROI2DUtilities.getListofCagesFromSequence(vSequence);
 		cageMaskList = ROI2DUtilities.getMask2DFromRoiList(cages.cageLimitROIList);
-		Collections.sort(cages.cageLimitROIList, new DrosoTools.ROI2DNameComparator());
+		Collections.sort(cages.cageLimitROIList, new FmpTools.ROI2DNameComparator());
 	}
 	
 	private void buildBackgroundImage() {

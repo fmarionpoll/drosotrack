@@ -60,7 +60,7 @@ public class BuildTrackFliesThread implements Runnable {
 		// find ROI describing cage areas - remove all others
 		cages.cageLimitROIList = ROI2DUtilities.getListofCagesFromSequence(vSequence);
 		cageMaskList = ROI2DUtilities.getMask2DFromRoiList(cages.cageLimitROIList);
-		Collections.sort(cages.cageLimitROIList, new DrosoTools.ROI2DNameComparator());
+		Collections.sort(cages.cageLimitROIList, new FmpTools.ROI2DNameComparator());
 
 		// create arrays for storing position and init their value to zero
 		int nbcages = cages.cageLimitROIList.size();
