@@ -70,9 +70,9 @@ public class ImageThresholdTools {
 		
 		NHColorDistance distance; 
 		if (colordistanceType == 1)
-			distance = new NHL1ColorDistance();
+			distance = new NHColorDistanceL1();
 		else
-			distance = new NHL2ColorDistance();
+			distance = new NHColorDistanceL2();
 			
 		IcyBufferedImage binaryResultBuffer = new IcyBufferedImage(sourceImage.getSizeX(), sourceImage.getSizeY(), 1, DataType.UBYTE);	
 		

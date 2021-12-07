@@ -5,7 +5,7 @@ import java.awt.Color;
 /**
  * Class NH L1ColorDistance.
  */
-public class NHL1ColorDistance extends NHColorDistance {
+public class NHColorDistanceL1 extends NHColorDistance {
 
 	/* (non-Javadoc)
 	 * @see plugins.nherve.toolbox.image.feature.ColorDistance#computeDistance(double[], double[])
