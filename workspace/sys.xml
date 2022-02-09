@@ -1,0 +1,21 @@
+<root description="System workspace" name="sys">
+<task name="Plugins">
+<band name="Setup"/>
+<band name="New"/>
+<band name="Others">
+<item classname="plugins.fmp.areatrack.Areatrack" priority="low"/>
+<item classname="plugins.fmp.capillarytrack.Capillarytrack" priority="low"/>
+<item classname="plugins.adufour.connectedcomponents.ConnectedComponents" priority="low"/>
+<item classname="plugins.fmp.fmpSequence.DrosoSequence" priority="low"/>
+<item classname="plugins.fmp.drosotrack.Drosotrack" priority="low"/>
+<item classname="plugins.nchenouard.isotropicwavelets.IsotropicWavelets" priority="low"/>
+<item classname="plugins.nchenouard.kymographtracker.KymographTracker" priority="low"/>
+<item classname="plugins.nchenouard.pathtracing.MultiplePathsKymographCalculator" priority="low"/>
+<item classname="plugins.nchenouard.pathtracing.PathTracing" priority="low"/>
+<item classname="plugins.adufour.protocols.Protocols" priority="low"/>
+<item classname="plugins.nchenouard.rieszwavelets.RieszWavelets" priority="low"/>
+<item classname="plugins.fmp.areaRoitoarray.ROItoRoiArray" priority="low"/>
+<item classname="plugins.fab.trackmanager.TrackManager" priority="low"/>
+</band>
+</task>
+</root>

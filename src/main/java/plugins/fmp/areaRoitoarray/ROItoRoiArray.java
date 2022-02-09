@@ -63,12 +63,12 @@ import plugins.fmp.fmpTools.EnumImageOp;
 import plugins.fmp.fmpTools.OverlayThreshold;
 
 
-public class ROItoRoiArray extends EzPlug implements ViewerListener {
-
+public class ROItoRoiArray extends EzPlug implements ViewerListener 
+{
 	// -------------------------------------- interface 
 	
 	EzButton		openFileButton;
-	EzVarSequence   sequence = new EzVarSequence("Select data from");
+	EzVarSequence   sequence;
 	EzVarText		rootnameComboBox;
 	EzButton		findLinesButton;
 	EzVarInteger 	nrows;
@@ -107,6 +107,7 @@ public class ROItoRoiArray extends EzPlug implements ViewerListener {
 		splitAsComboBox = new EzVarText("Split polygon as ", new String[] {"vertical lines", "polygons", "circles"}, 1, false);
 		rootnameComboBox= new EzVarText("Names of ROIS begin with", new String[] {"gridA", "gridB", "gridC"}, 0, true);
 		thresholdSTDFromChanComboBox = new EzVarText("Filter from", new String[] {"R", "G", "B", "R+B-2G"}, 3, false);
+		sequence = new EzVarSequence("Select data from");
 		
 		ncolumns		= new EzVarInteger("N columns ", 5, 1, 1000, 1);
 		columnSize		= new EzVarInteger("column width ", 10, 0, 1000, 1);
