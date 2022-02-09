@@ -36,6 +36,8 @@ import icy.gui.viewer.ViewerListener;
 import icy.image.IcyBufferedImage;
 import icy.image.IcyBufferedImageUtil;
 import icy.main.Icy;
+import icy.plugin.PluginLauncher;
+import icy.plugin.PluginLoader;
 import icy.gui.viewer.ViewerEvent.ViewerEventType;
 import icy.preferences.XMLPreferences;
 import icy.roi.ROI;
@@ -1188,6 +1190,10 @@ public class ROItoRoiArray extends EzPlug implements ViewerListener {
 		}
 	}
 	
-
+	public static void main(String[] args)
+	{
+		Icy.main(args);
+		PluginLauncher.start(PluginLoader.getPlugin(ROItoRoiArray.class.getName()));
+	}
 }
 

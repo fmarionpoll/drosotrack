@@ -27,6 +27,7 @@ import ome.xml.meta.OMEXMLMetadata;
 import plugins.fmp.fmpTools.EnumImageOp;
 import plugins.fmp.fmpTools.ImageOperationsStruct;
 import plugins.fmp.fmpTools.StringSorter;
+import plugins.stef.importer.xuggler.VideoImporter;
 
 
 
